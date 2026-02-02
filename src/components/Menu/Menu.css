@@ -1,47 +1,118 @@
 .menu {
   position: fixed;
-  top: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 4rem);
-  max-width: 2000px;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
   transition: transform 0.4s ease;
   will-change: transform;
   z-index: 10;
 }
 
 .menu.hidden {
-  transform: translateX(-50%) translateY(-300%);
+  transform: translateY(-100%);
 }
 
 .menu .menu-header {
   position: relative;
-  padding: 1rem 1.5rem 1rem 1.75rem;
+  padding: 1rem 2rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  background-color: var(--base-700);
-  border-radius: 0.75rem;
+  background: transparent;
   z-index: 2;
+}
+
+.menu .menu-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  margin-left: 3rem;
+}
+
+.menu .menu-nav-link {
+  color: #023020;
+  font-family: var(--font-host-grotesk), sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: opacity 0.3s ease;
+}
+
+.menu .menu-nav-link:hover {
+  opacity: 0.7;
+}
+
+.menu .menu-trigger {
+  background: none;
+  border: none;
   cursor: pointer;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: 1rem;
+}
+
+.menu .menu-trigger-icon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+
+.menu .menu-trigger-icon span {
+  position: absolute;
+  background: #023020;
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+
+.menu .menu-trigger-icon span:first-child {
+  width: 20px;
+  height: 2px;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.menu .menu-trigger-icon span:last-child {
+  width: 2px;
+  height: 20px;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+.menu .menu-trigger:hover .menu-trigger-icon span {
+  background: var(--base-300);
+}
+
+.menu .menu-logo-link {
+  flex-shrink: 0;
 }
 
 .menu .menu-logo {
   text-transform: uppercase;
   font-family: var(--font-koulen), sans-serif;
-  font-size: clamp(1.25rem, 2vw, 3rem);
+  font-size: clamp(1.5rem, 2vw, 2rem);
   line-height: 1;
-  cursor: pointer;
-  color: var(--base-100);
+  color: #023020;
+  letter-spacing: 0.05em;
 }
 
 .menu .menu-toggle {
-  position: relative;
+  display: none;
+  position: absolute;
+  right: 1.5rem;
   background: none;
   border: none;
   cursor: pointer;
   padding: 0.5rem;
-  display: flex;
   justify-content: center;
   align-items: center;
   width: 28px;
@@ -63,12 +134,12 @@
   width: 20px;
   height: 2px;
   margin: 0 0 4px;
-  background: var(--base-100);
+  background: #023020;
   border-radius: 1px;
 }
 
 .menu .menu-hamburger-icon.open .menu-item {
-  background: var(--base-100);
+  background: #023020;
 }
 
 .menu .menu-hamburger-icon.open .menu-item:first-child {
@@ -86,13 +157,12 @@
   top: 100%;
   left: 0;
   right: 0;
-  background-color: var(--base-700);
-  border-radius: 0 0 0.75rem 0.75rem;
-  margin-top: -0.75rem;
-  padding-top: 0.75rem;
+  background: rgba(28, 25, 23, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   transform-origin: top;
   overflow: hidden;
-  padding: 4rem 2rem 2rem 2rem;
+  padding: 3rem 2rem 2rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 4rem;
@@ -168,9 +238,21 @@
 }
 
 @media (max-width: 1000px) {
-  .menu {
-    top: 1.5rem;
-    width: calc(100% - 3rem);
+  .menu .menu-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .menu .menu-nav-links {
+    display: none;
+  }
+
+  .menu .menu-logo-link {
+    flex: 1;
+    text-align: center;
+  }
+
+  .menu .menu-toggle {
+    display: flex;
   }
 
   .menu .menu-overlay-items {

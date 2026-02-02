@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Koulen, DM_Mono, Host_Grotesk } from "next/font/google";
+import { Koulen, DM_Mono, Host_Grotesk, Lexend } from "next/font/google";
 
 import ClientLayout from "@/client-layout";
 
@@ -27,6 +27,12 @@ const dmMono = DM_Mono({
   variable: "--font-dm-mono",
 });
 
+const lexend = Lexend({
+  weight: ["400"],
+  subsets: ["latin"],
+  variable: "--font-lexend",
+});
+
 export const metadata = {
   title: "Cleanse Ayurveda | Premium Ayurvedic Beauty",
   description: "Discover the ancient wisdom of Ayurveda through our premium skincare and beauty rituals. Handcrafted with pure, natural ingredients.",
@@ -36,7 +42,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${koulen.variable} ${hostGrotesk.variable} ${dmMono.variable}`}
+        className={`${koulen.variable} ${hostGrotesk.variable} ${dmMono.variable} ${lexend.variable}`}
       >
         <TransitionProvider>
           <ClientLayout footer={<Footer />}>

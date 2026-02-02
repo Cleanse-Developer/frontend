@@ -3,16 +3,73 @@
   width: 100%;
   height: 100svh;
   overflow: hidden;
+  background-image: url('/model.png');
+  background-size: cover;
+  background-position: center 10%;
+  background-repeat: no-repeat;
 }
 
 .hero .hero-header {
   position: absolute;
-  top: 20svh;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 70%;
-  text-align: center;
+  top: 28svh;
+  left: 2%;
+  width: 45%;
+  text-align: left;
   will-change: transform;
+  color: #023020;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.hero .hero-header h1 {
+  font-family: var(--font-host-grotesk), sans-serif;
+  font-weight: 500;
+  font-size: clamp(4rem, 8vw, 6rem);
+}
+
+.hero .hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 400;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.hero .hero-btn-wrapper {
+  overflow: hidden;
+  width: fit-content;
+}
+
+.hero .hero-btn {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background-color: #023020;
+  color: #fff;
+  font-family: var(--font-host-grotesk), sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: fit-content;
+  transform: translateY(100%);
+  animation: btnReveal 0.8s ease-out 1.05s forwards;
+}
+
+@keyframes btnReveal {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.hero .hero-btn:hover {
+  background-color: #034d30;
+  transform: translateY(-2px);
 }
 
 .hero .hero-img {
@@ -86,6 +143,11 @@
 
 .featured-products .featured-products-header p {
   color: var(--base-500);
+  font-family: var(--font-host-grotesk), sans-serif;
+}
+
+.featured-products .featured-products-header h3 {
+  font-family: var(--font-host-grotesk), sans-serif;
 }
 
 .featured-products .featured-products-separator {
@@ -131,6 +193,7 @@
 .featured-products .featured-products-labels p,
 .featured-products .featured-products-labels a {
   color: var(--base-700);
+  font-family: var(--font-host-grotesk), sans-serif;
 }
 
 .featured-products .featured-products-list {
@@ -138,6 +201,14 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
   margin-top: 2rem;
+}
+
+.featured-products .featured-products-list .product:nth-child(2) .product-img img {
+  transform: scale(1.3) translateY(-4%);
+}
+
+.featured-products .featured-products-list .product:nth-child(2):hover .product-img img {
+  transform: scale(1.4) translateY(-4%);
 }
 
 @media (max-width: 1024px) {
@@ -176,5 +247,219 @@
 @media (min-width: 2000px) {
   .hero .hero-header {
     width: 40%;
+  }
+}
+
+/* Formulas Section */
+.formulas {
+  position: relative;
+  width: 100%;
+  min-height: 150vh;
+  background-color: #E7D0A6;
+  padding: 5rem 0 10rem;
+  overflow: hidden;
+}
+
+.formulas-header {
+  text-align: center;
+  margin-bottom: -8rem;
+  position: relative;
+  z-index: 10;
+}
+
+.formulas-title {
+  font-family: var(--font-host-grotesk), sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 400;
+  color: #023020;
+  line-height: 1.2;
+  margin-top: -3rem;
+}
+
+.formulas-title .italic {
+  font-style: italic;
+  font-weight: 300;
+}
+
+.formulas-title strong {
+  font-weight: 600;
+}
+
+.formulas-content {
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  min-height: 1000px;
+}
+
+/* Top-left boxes */
+.formulas-boxes-left {
+  position: absolute;
+  top: 8rem;
+  left: 6rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1.5rem;
+  z-index: 2;
+}
+
+.formulas-boxes-left .formula-box:first-child {
+  margin-top: 6rem;
+}
+
+.formulas-boxes-left .formula-box:last-child {
+  margin-top: 0;
+}
+
+/* Bottom-right boxes */
+.formulas-boxes-right {
+  position: absolute;
+  bottom: -9rem;
+  right: 6rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 1.5rem;
+  z-index: 2;
+}
+
+.formulas-boxes-right .formula-box:first-child {
+  margin-bottom: 0;
+}
+
+.formulas-boxes-right .formula-box:last-child {
+  margin-bottom: 6rem;
+}
+
+.formula-box {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 1.75rem;
+  width: 240px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.formula-box-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0 auto 1rem;
+  opacity: 0.6;
+}
+
+.formula-box-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.formula-box h4 {
+  font-family: var(--font-host-grotesk), sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #023020;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.formula-box p {
+  font-family: var(--font-host-grotesk), sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #555;
+  line-height: 1.5;
+}
+
+.formulas-center {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.formulas-center .leaf-spread {
+  z-index: 5;
+}
+
+.formulas-center-image {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.formulas-center-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Formulas Responsive */
+@media (max-width: 1200px) {
+  .formulas-content {
+    min-height: 900px;
+  }
+
+  .formulas-boxes-left,
+  .formulas-boxes-right {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  .formulas-boxes-right {
+    margin-top: 2rem;
+    margin-bottom: 0;
+  }
+
+  .formulas-center {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 500px;
+    height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .formulas {
+    padding: 4rem 0;
+  }
+
+  .formulas-content {
+    min-height: auto;
+  }
+
+  .formulas-boxes-left,
+  .formulas-boxes-right {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .formula-box {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .formulas-center {
+    height: 350px;
   }
 }

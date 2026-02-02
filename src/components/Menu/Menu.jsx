@@ -17,6 +17,7 @@ const Menu = () => {
   const menuRef = useRef(null);
   const menuOverlayRef = useRef(null);
   const hamburgerRef = useRef(null);
+  const menuTriggerRef = useRef(null);
   const splitTextsRef = useRef([]);
   const mainLinkSplitsRef = useRef([]);
   const lastScrollY = useRef(0);
@@ -54,6 +55,14 @@ const Menu = () => {
 
     if (hamburgerRef.current) {
       hamburgerRef.current.classList.add("open");
+    }
+
+    if (menuTriggerRef.current) {
+      gsap.to(menuTriggerRef.current, {
+        rotation: 135,
+        duration: 0.5,
+        ease: "power3.out",
+      });
     }
 
     const tl = gsap.timeline({
@@ -118,6 +127,14 @@ const Menu = () => {
 
     if (hamburgerRef.current) {
       hamburgerRef.current.classList.remove("open");
+    }
+
+    if (menuTriggerRef.current) {
+      gsap.to(menuTriggerRef.current, {
+        rotation: 0,
+        duration: 0.5,
+        ease: "power3.out",
+      });
     }
 
     const tl = gsap.timeline({
@@ -295,9 +312,23 @@ const Menu = () => {
 
   return (
     <nav className="menu" ref={menuRef}>
-      <div className="menu-header" onClick={toggleMenu}>
-        <h4 className="menu-logo">Cleanse</h4>
-        <button className="menu-toggle" aria-label="Toggle menu">
+      <div className="menu-header">
+        <Link href="/" className="menu-logo-link">
+          <h4 className="menu-logo">Cleanse</h4>
+        </Link>
+        <div className="menu-nav-links">
+          <Link href="/" className="menu-nav-link">Home</Link>
+          <Link href="/wardrobe" className="menu-nav-link">Shop</Link>
+          <Link href="/genesis" className="menu-nav-link">About</Link>
+          <Link href="/touchpoint" className="menu-nav-link">Blog</Link>
+          <button className="menu-trigger" onClick={toggleMenu} aria-label="Toggle menu">
+            <div className="menu-trigger-icon" ref={menuTriggerRef}>
+              <span></span>
+              <span></span>
+            </div>
+          </button>
+        </div>
+        <button className="menu-toggle" onClick={toggleMenu} aria-label="Toggle menu">
           <div className="menu-hamburger-icon" ref={hamburgerRef}>
             <span className="menu-item"></span>
             <span className="menu-item"></span>
