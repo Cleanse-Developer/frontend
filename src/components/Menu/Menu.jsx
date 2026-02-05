@@ -283,6 +283,7 @@ const Menu = () => {
 
   const upScrollCountRef = useRef(0);
   const scrollInitializedRef = useRef(false);
+  const transitioningRef = useRef(false);
 
   useEffect(() => {
     // Only initialize lastScrollY once on mount
@@ -297,15 +298,33 @@ const Menu = () => {
       const isMenuHidden = menuRef.current?.classList.contains("hidden");
       const heroHeight = window.innerHeight - 100; // Hero section threshold
 
-      // Show transparent nav in hero section, green bg below
-      if (currentScrollY < heroHeight && !isMenuHidden) {
-        setIsScrolled(false);
-      } else if (currentScrollY >= heroHeight) {
+      // Smooth transition from green nav to transparent nav
+      if (currentScrollY < heroHeight && !isMenuHidden && isScrolled && !transitioningRef.current) {
+        // Entering hero zone while scrolling up - slide green nav up first
+        transitioningRef.current = true;
+        menuRef.current?.classList.add("hidden");
+
+        // After green nav slides out, switch to transparent and slide back in
+        setTimeout(() => {
+          setIsScrolled(false);
+          setTimeout(() => {
+            menuRef.current?.classList.remove("hidden");
+            setIsMenuVisible(true);
+            transitioningRef.current = false;
+          }, 50);
+        }, 400);
+      } else if (currentScrollY >= heroHeight && !isScrolled) {
         setIsScrolled(true);
       }
 
       // Skip hide/show on mobile
       if (isMobile) {
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+
+      // Don't do hide/show logic during transition
+      if (transitioningRef.current) {
         lastScrollY.current = currentScrollY;
         return;
       }
@@ -352,7 +371,7 @@ const Menu = () => {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [isOpen, isMobile]);
+  }, [isOpen, isMobile, isScrolled]);
 
   return (
     <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isOpen ? 'menu-open' : ''}`} ref={menuRef}>
