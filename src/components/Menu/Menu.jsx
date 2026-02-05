@@ -1,19 +1,40 @@
 "use client";
 import "./Menu.css";
 import Link from "next/link";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useLayoutEffect } from "react";
+import { usePathname } from "next/navigation";
 
+import { useCartCount } from "@/store/cartStore";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 
 gsap.registerPlugin(SplitText);
 
+const ProfileIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21v-1a8 8 0 0116 0v1" />
+  </svg>
+);
+
+const CartIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 6h12l1.5 12H4.5L6 6z" />
+    <path d="M9 6V4a3 3 0 016 0v2" />
+  </svg>
+);
+
 const Menu = () => {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+  const cartCount = useCartCount();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMenuVisible, setIsMenuVisible] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(!isHomePage);
+  const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
   const menuRef = useRef(null);
   const menuOverlayRef = useRef(null);
@@ -220,6 +241,50 @@ const Menu = () => {
     }
   };
 
+  // Hide header during page transitions
+  const transitionTimerRef = useRef(null);
+  const pageTransitionActiveRef = useRef(false);
+
+  useEffect(() => {
+    const handlePageTransition = (e) => {
+      if (!menuRef.current) return;
+
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+        transitionTimerRef.current = null;
+      }
+
+      if (e.detail.active) {
+        pageTransitionActiveRef.current = true;
+        setIsPageTransitioning(true);
+        menuRef.current.classList.add("hidden");
+        setIsMenuVisible(false);
+      } else {
+        // Delay the header reveal so it appears after the transition blocks clear
+        transitionTimerRef.current = setTimeout(() => {
+          if (menuRef.current) {
+            // Reset scroll tracking so scroll handler doesn't see a phantom jump
+            lastScrollY.current = window.scrollY;
+            upScrollCountRef.current = 0;
+            menuRef.current.classList.remove("hidden");
+            setIsMenuVisible(true);
+          }
+          setIsPageTransitioning(false);
+          pageTransitionActiveRef.current = false;
+          transitionTimerRef.current = null;
+        }, 600);
+      }
+    };
+
+    window.addEventListener("page-transition", handlePageTransition);
+    return () => {
+      window.removeEventListener("page-transition", handlePageTransition);
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     gsap.set(menuOverlayRef.current, {
       scaleY: 0,
@@ -281,6 +346,16 @@ const Menu = () => {
     };
   }, []);
 
+  // Sync scrolled state on route change
+  useEffect(() => {
+    if (!isHomePage) {
+      setIsScrolled(true);
+    } else {
+      const heroHeight = window.innerHeight - 100;
+      setIsScrolled(window.scrollY >= heroHeight);
+    }
+  }, [pathname, isHomePage]);
+
   const upScrollCountRef = useRef(0);
   const scrollInitializedRef = useRef(false);
   const transitioningRef = useRef(false);
@@ -293,28 +368,37 @@ const Menu = () => {
     }
 
     const handleScroll = () => {
+      // Block all scroll-based menu show/hide during page transitions
+      if (pageTransitionActiveRef.current) {
+        lastScrollY.current = window.scrollY;
+        return;
+      }
+
       const currentScrollY = window.scrollY;
       const scrollDiff = currentScrollY - lastScrollY.current;
       const isMenuHidden = menuRef.current?.classList.contains("hidden");
       const heroHeight = window.innerHeight - 100; // Hero section threshold
 
-      // Smooth transition from green nav to transparent nav
-      if (currentScrollY < heroHeight && !isMenuHidden && isScrolled && !transitioningRef.current) {
-        // Entering hero zone while scrolling up - slide green nav up first
-        transitioningRef.current = true;
-        menuRef.current?.classList.add("hidden");
+      // Hero zone logic (home page only)
+      if (isHomePage) {
+        // Smooth transition from green nav to transparent nav
+        if (currentScrollY < heroHeight && !isMenuHidden && isScrolled && !transitioningRef.current) {
+          // Entering hero zone while scrolling up - slide green nav up first
+          transitioningRef.current = true;
+          menuRef.current?.classList.add("hidden");
 
-        // After green nav slides out, switch to transparent and slide back in
-        setTimeout(() => {
-          setIsScrolled(false);
+          // Switch to transparent nav and reveal
           setTimeout(() => {
-            menuRef.current?.classList.remove("hidden");
-            setIsMenuVisible(true);
-            transitioningRef.current = false;
+            setIsScrolled(false);
+            setTimeout(() => {
+              menuRef.current?.classList.remove("hidden");
+              setIsMenuVisible(true);
+              transitioningRef.current = false;
+            }, 30);
           }, 50);
-        }, 400);
-      } else if (currentScrollY >= heroHeight && !isScrolled) {
-        setIsScrolled(true);
+        } else if (currentScrollY >= heroHeight && !isScrolled) {
+          setIsScrolled(true);
+        }
       }
 
       // Skip hide/show on mobile
@@ -333,7 +417,7 @@ const Menu = () => {
       if (scrollDiff >= 0) {
         upScrollCountRef.current = 0; // Reset counter on any non-upward movement
 
-        if (scrollDiff > 2 && currentScrollY > 10) {
+        if (scrollDiff > 0 && currentScrollY > 10) {
           if (isOpen) {
             closeMenu();
           }
@@ -371,11 +455,30 @@ const Menu = () => {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [isOpen, isMobile, isScrolled]);
+  }, [isOpen, isMobile, isScrolled, isHomePage]);
+
+  // Re-apply hidden class after React re-renders during nav style transition
+  // (scrolled green → transparent). Without this, React's re-render overwrites
+  // the classList-added "hidden" class, causing a flash of the centered nav.
+  useLayoutEffect(() => {
+    if (transitioningRef.current && menuRef.current) {
+      menuRef.current.classList.add('hidden');
+    }
+  }, [isScrolled]);
 
   return (
-    <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isOpen ? 'menu-open' : ''}`} ref={menuRef}>
+    <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isOpen ? 'menu-open' : ''} ${isPageTransitioning ? 'page-transitioning' : ''}`} ref={menuRef}>
       <div className="menu-header">
+        {/* Back arrow - shown on non-home pages when scrolled */}
+        {!isHomePage && isScrolled && (
+          <Link href="/" className="menu-back-arrow" aria-label="Back to home">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5" />
+              <path d="M12 19l-7-7 7-7" />
+            </svg>
+          </Link>
+        )}
+
         {/* Full header content - shown in hero section */}
         <div className={`menu-header-full ${isScrolled ? 'hidden' : ''}`}>
           <Link href="/" className="menu-logo-link">
@@ -386,6 +489,15 @@ const Menu = () => {
             <Link href="/wardrobe" className="menu-nav-link">Shop</Link>
             <Link href="/genesis" className="menu-nav-link">About</Link>
             <Link href="/touchpoint" className="menu-nav-link">Blog</Link>
+          </div>
+          <div className="menu-header-actions">
+            <Link href="/profile" className="menu-action-btn" aria-label="Profile">
+              <ProfileIcon />
+            </Link>
+            <Link href="/cart" className="menu-action-btn menu-cart-btn" aria-label="Cart">
+              <CartIcon />
+              {cartCount > 0 && <span className="menu-cart-badge">{cartCount}</span>}
+            </Link>
             <button className="menu-trigger" onClick={toggleMenu} aria-label="Toggle menu">
               <div className="menu-trigger-icon" ref={menuTriggerRef}>
                 <span className="dot dot-1"></span>
@@ -394,6 +506,15 @@ const Menu = () => {
                 <span className="dot dot-4"></span>
               </div>
             </button>
+          </div>
+          <div className="menu-mobile-actions">
+            <Link href="/profile" className="menu-action-btn" aria-label="Profile">
+              <ProfileIcon />
+            </Link>
+            <Link href="/cart" className="menu-action-btn menu-cart-btn" aria-label="Cart">
+              <CartIcon />
+              {cartCount > 0 && <span className="menu-cart-badge">{cartCount}</span>}
+            </Link>
           </div>
           <button className="menu-toggle" onClick={toggleMenu} aria-label="Toggle menu">
             <div className="menu-hamburger-icon" ref={hamburgerRef}>
@@ -412,6 +533,17 @@ const Menu = () => {
           >
             <h4 className="menu-logo">Cleanse</h4>
           </button>
+        </div>
+
+        {/* Right-side actions - shown when scrolled */}
+        <div className={`menu-scrolled-actions ${isScrolled ? 'visible' : ''}`}>
+          <Link href="/profile" className="menu-action-btn" aria-label="Profile">
+            <ProfileIcon />
+          </Link>
+          <Link href="/cart" className="menu-action-btn menu-cart-btn" aria-label="Cart">
+            <CartIcon />
+            {cartCount > 0 && <span className="menu-cart-badge">{cartCount}</span>}
+          </Link>
         </div>
       </div>
 

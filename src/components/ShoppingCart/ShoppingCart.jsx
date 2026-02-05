@@ -5,6 +5,58 @@ import { useState, useEffect } from "react";
 import { products } from "@/app/wardrobe/products";
 import { useCartStore, useCartCount, useCartSubtotal } from "@/store/cartStore";
 
+const discountTiers = [
+  { threshold: 500, label: "5% Off", discount: 5 },
+  { threshold: 1200, label: "Free Shipping", discount: 0 },
+  { threshold: 2000, label: "10% Off", discount: 10 },
+  { threshold: 3500, label: "15% Off", discount: 15 },
+];
+
+const maxThreshold = discountTiers[discountTiers.length - 1].threshold;
+
+const DiscountProgress = ({ subtotal }) => {
+  const progress = Math.min((subtotal / maxThreshold) * 100, 100);
+
+  const currentTier = [...discountTiers].reverse().find((t) => subtotal >= t.threshold);
+  const nextTier = discountTiers.find((t) => subtotal < t.threshold);
+
+  return (
+    <div className="discount-progress">
+      <div className="discount-progress-top">
+        {currentTier ? (
+          <p className="discount-progress-msg unlocked">
+            {currentTier.label} unlocked
+          </p>
+        ) : nextTier ? (
+          <p className="discount-progress-msg">
+            &#8377;{(nextTier.threshold - subtotal).toFixed(0)} away from {nextTier.label}
+          </p>
+        ) : null}
+      </div>
+      <div className="discount-bar-track">
+        <div
+          className="discount-bar-fill"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <div className="discount-tiers">
+        {discountTiers.map((tier) => {
+          const unlocked = subtotal >= tier.threshold;
+          return (
+            <div
+              key={tier.threshold}
+              className={`discount-tier ${unlocked ? "unlocked" : ""}`}
+            >
+              <span className="tier-price">&#8377;{tier.threshold.toLocaleString()}</span>
+              <span className="tier-label">{tier.label}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const ShoppingCart = () => {
   const [isOpen, setIsOpen] = useState(false);
   const cartItems = useCartStore((state) => state.cartItems);
@@ -57,6 +109,7 @@ const ShoppingCart = () => {
               Close
             </button>
           </div>
+          {cartItems.length > 0 && <DiscountProgress subtotal={subtotal} />}
           <div
             className="cart-items"
             onWheel={(e) => {
@@ -105,10 +158,29 @@ const ShoppingCart = () => {
           </div>
           {cartItems.length > 0 && (
             <div className="cart-footer">
-              <div className="cart-summary-row">
-                <span>Total</span>
-                <span>${subtotal.toFixed(2)}</span>
-              </div>
+              {(() => {
+                const activeTier = [...discountTiers].reverse().find((t) => subtotal >= t.threshold && t.discount > 0);
+                const discountAmount = activeTier ? (subtotal * activeTier.discount) / 100 : 0;
+                const finalTotal = subtotal - discountAmount;
+                return (
+                  <>
+                    <div className="cart-summary-row">
+                      <span>Subtotal</span>
+                      <span>&#8377;{subtotal.toFixed(2)}</span>
+                    </div>
+                    {activeTier && (
+                      <div className="cart-summary-row cart-discount-row">
+                        <span>{activeTier.label}</span>
+                        <span>-&#8377;{discountAmount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="cart-summary-row cart-total-row">
+                      <span>Total</span>
+                      <span>&#8377;{finalTotal.toFixed(2)}</span>
+                    </div>
+                  </>
+                );
+              })()}
               <button className="cart-checkout">Checkout</button>
             </div>
           )}

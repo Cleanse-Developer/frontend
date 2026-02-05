@@ -1,6 +1,6 @@
 "use client";
 import "./MarqueeBanner.css";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -9,76 +9,40 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const reelsData = [
-  // Set 1
-  [
-    {
-      id: 1,
-      title: "Morning Ritual",
-      subtitle: "Golden Hour Glow",
-      video: "/videos/reel1.mp4",
-      poster: "/serum.jpg",
-      position: "left-top"
-    },
-    {
-      id: 2,
-      title: "Sacred Rituals",
-      subtitle: "Embrace Your Natural Glow",
-      video: "/videos/reel2.mp4",
-      poster: "/cream.jpg",
-      position: "center"
-    },
-    {
-      id: 3,
-      title: "Evening Care",
-      subtitle: "Restore & Rejuvenate",
-      video: "/videos/reel3.mp4",
-      poster: "/pink.jpg",
-      position: "right-bottom"
-    }
-  ],
-  // Set 2
-  [
-    {
-      id: 4,
-      title: "Deep Cleanse",
-      subtitle: "Purify Your Skin",
-      video: "/videos/reel4.mp4",
-      poster: "/tall.jpg",
-      position: "left-top"
-    },
-    {
-      id: 5,
-      title: "Hydration Boost",
-      subtitle: "Lock In Moisture",
-      video: "/videos/reel5.mp4",
-      poster: "/serum.jpg",
-      position: "center"
-    },
-    {
-      id: 6,
-      title: "Night Recovery",
-      subtitle: "Wake Up Refreshed",
-      video: "/videos/reel6.mp4",
-      poster: "/cream.jpg",
-      position: "right-bottom"
-    }
-  ]
+  {
+    id: 1,
+    title: "Morning Ritual",
+    subtitle: "Golden Hour Glow",
+    video: "/videos/reel1.mp4",
+    poster: "/serum.jpg",
+    position: "left-top"
+  },
+  {
+    id: 2,
+    title: "Sacred Rituals",
+    subtitle: "Embrace Your Natural Glow",
+    video: "/videos/reel2.mp4",
+    poster: "/cream.jpg",
+    position: "center"
+  },
+  {
+    id: 3,
+    title: "Evening Care",
+    subtitle: "Restore & Rejuvenate",
+    video: "/videos/reel3.mp4",
+    poster: "/pink.jpg",
+    position: "right-bottom"
+  }
 ];
 
 const MarqueeBanner = () => {
   const marqueeBannerRef = useRef(null);
   const marquee1Ref = useRef(null);
   const marquee2Ref = useRef(null);
-  const cardsRef = useRef([]);
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const [currentSet, setCurrentSet] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
-  const currentReels = reelsData[currentSet];
 
   useGSAP(
     () => {
-      // Marquee scroll animation
+      // Marquee scroll animation only
       ScrollTrigger.create({
         trigger: marqueeBannerRef.current,
         start: "top bottom",
@@ -94,130 +58,9 @@ const MarqueeBanner = () => {
           gsap.set(marquee2Ref.current, { x: `${marquee2X}%` });
         },
       });
-
-      // Cards entrance animation
-      cardsRef.current.forEach((card, index) => {
-        if (!card) return;
-
-        gsap.fromTo(card,
-          {
-            opacity: 0,
-            y: 60,
-            scale: 0.9,
-            rotateY: index === 0 ? -15 : index === 2 ? 15 : 0,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            rotateY: 0,
-            duration: 1,
-            delay: index * 0.15,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: marqueeBannerRef.current,
-              start: "top 80%",
-              toggleActions: "play none none reverse"
-            }
-          }
-        );
-      });
-
-      // Parallax effect on cards
-      cardsRef.current.forEach((card, index) => {
-        if (!card) return;
-
-        const yOffset = index === 0 ? -30 : index === 2 ? 30 : 0;
-
-        gsap.to(card, {
-          y: yOffset,
-          ease: "none",
-          scrollTrigger: {
-            trigger: marqueeBannerRef.current,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1
-          }
-        });
-      });
     },
     { scope: marqueeBannerRef }
   );
-
-  const handleCardHover = (index) => {
-    setHoveredCard(index);
-    const card = cardsRef.current[index];
-    if (!card) return;
-
-    const cardInner = card.querySelector('.reel-card-inner');
-    gsap.to(card, {
-      scale: 1.02,
-      duration: 0.4,
-      ease: "power2.out"
-    });
-    if (cardInner) {
-      gsap.to(cardInner, {
-        borderRadius: "1.25rem",
-        duration: 0.4,
-        ease: "power2.out"
-      });
-    }
-  };
-
-  const handleCardLeave = (index) => {
-    setHoveredCard(null);
-    const card = cardsRef.current[index];
-    if (!card) return;
-
-    const cardInner = card.querySelector('.reel-card-inner');
-    gsap.to(card, {
-      scale: 1,
-      duration: 0.4,
-      ease: "power2.out"
-    });
-    if (cardInner) {
-      gsap.to(cardInner, {
-        borderRadius: "1.25rem",
-        duration: 0.4,
-        ease: "power2.out"
-      });
-    }
-  };
-
-  const navigateReels = (direction) => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-
-    // Change set immediately
-    if (direction === 'next') {
-      setCurrentSet((prev) => (prev + 1) % reelsData.length);
-    } else {
-      setCurrentSet((prev) => (prev - 1 + reelsData.length) % reelsData.length);
-    }
-
-    // Reset cards and animate in one by one
-    setTimeout(() => {
-      cardsRef.current.forEach((card, index) => {
-        if (!card) return;
-        gsap.fromTo(card,
-          {
-            y: 40,
-          },
-          {
-            y: 0,
-            duration: 0.5,
-            delay: index * 0.1,
-            ease: "power2.out",
-            onComplete: () => {
-              if (index === cardsRef.current.length - 1) {
-                setIsTransitioning(false);
-              }
-            }
-          }
-        );
-      });
-    }, 20);
-  };
 
   return (
     <section className="marquee-banner" ref={marqueeBannerRef}>
@@ -234,36 +77,11 @@ const MarqueeBanner = () => {
         <h2 className="reels-tagline">CLEAN LIVING</h2>
       </div>
 
-      <button
-        className="reel-nav-btn reel-nav-prev"
-        onClick={() => navigateReels('prev')}
-        aria-label="Previous reels"
-        disabled={isTransitioning}
-      >
-        <svg viewBox="0 0 24 24" fill="none">
-          <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-
-      <button
-        className="reel-nav-btn reel-nav-next"
-        onClick={() => navigateReels('next')}
-        aria-label="Next reels"
-        disabled={isTransitioning}
-      >
-        <svg viewBox="0 0 24 24" fill="none">
-          <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-
       <div className="reels-container">
-        {currentReels.map((reel, index) => (
+        {reelsData.map((reel) => (
           <div
             key={reel.id}
-            className={`reel-card reel-card-${reel.position} ${hoveredCard === index ? 'active' : ''}`}
-            ref={el => cardsRef.current[index] = el}
-            onMouseEnter={() => handleCardHover(index)}
-            onMouseLeave={() => handleCardLeave(index)}
+            className={`reel-card reel-card-${reel.position}`}
           >
             <div className="reel-card-inner">
               <div className="reel-media">

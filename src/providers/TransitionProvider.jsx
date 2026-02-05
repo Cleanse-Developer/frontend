@@ -45,6 +45,7 @@ export default function TransitionProvider({ children }) {
     <TransitionRouter
       auto
       leave={(next) => {
+        window.dispatchEvent(new CustomEvent("page-transition", { detail: { active: true } }));
         gsap.set(blocksRef.current, { scaleX: 0, transformOrigin: "left" });
         const tween = gsap.to(blocksRef.current, {
           scaleX: 1,
@@ -63,7 +64,10 @@ export default function TransitionProvider({ children }) {
           delay: 0.5,
           ease: "power3.out",
           stagger: { amount: 0.3, from: "start" },
-          onComplete: next,
+          onComplete: () => {
+            window.dispatchEvent(new CustomEvent("page-transition", { detail: { active: false } }));
+            next();
+          },
         });
         return () => tween.kill();
       }}

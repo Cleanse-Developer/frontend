@@ -34,6 +34,18 @@ export const useCartStore = create((set, get) => ({
       cartItems: state.cartItems.filter((item) => item.name !== productName),
     }));
   },
+
+  updateQuantity: (productName, newQuantity) => {
+    set((state) => ({
+      cartItems: state.cartItems.map((item) =>
+        item.name === productName
+          ? { ...item, quantity: Math.max(1, newQuantity) }
+          : item
+      ),
+    }));
+  },
+
+  clearCart: () => set({ cartItems: [] }),
 }));
 
 export const useCartCount = () =>

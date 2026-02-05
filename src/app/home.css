@@ -307,7 +307,7 @@
   min-height: 100vh;
   background-color: #E7D0A6;
   padding: 2rem 0 6rem;
-  overflow: visible;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -442,6 +442,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  will-change: transform;
 }
 
 .formulas-center-image img {

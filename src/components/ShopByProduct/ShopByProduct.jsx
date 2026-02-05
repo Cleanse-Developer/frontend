@@ -2,9 +2,11 @@
 import "./ShopByProduct.css";
 import { useState } from "react";
 import Link from "next/link";
+import { useCartStore } from "@/store/cartStore";
 
 const ShopByProduct = () => {
   const [activeCategory, setActiveCategory] = useState(0);
+  const addToCart = useCartStore((state) => state.addToCart);
 
   const categories = [
     {
@@ -124,7 +126,7 @@ const ShopByProduct = () => {
               <span className="sbp-old-price">{currentCategory.products[0].oldPrice}</span>
               <span className="sbp-new-price">{currentCategory.products[0].newPrice}</span>
             </div>
-            <button className="sbp-product-card-btn">
+            <button className="sbp-product-card-btn" onClick={() => addToCart({ name: currentCategory.products[0].name, price: parseInt(currentCategory.products[0].newPrice.replace(/[^\d]/g, '')) })}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 6h15l-1.5 9h-12z"/>
                 <circle cx="9" cy="20" r="1"/>

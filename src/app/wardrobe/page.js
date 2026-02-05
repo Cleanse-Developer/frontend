@@ -35,6 +35,7 @@ const ProductCard = ({ product, productIndex, innerRef, style }) => {
 };
 
 const FaceCareCard = ({ product, productIndex, innerRef, style }) => {
+  const addToCart = useCartStore((state) => state.addToCart);
   const imgIndex = ((productIndex - 1) % 4) + 1;
   const imgPath = `/p${imgIndex}.png`;
 
@@ -47,7 +48,7 @@ const FaceCareCard = ({ product, productIndex, innerRef, style }) => {
         <h3 className="face-care-card-name">{product.name}</h3>
         <div className="face-care-card-footer">
           <span className="face-care-card-price">₹{product.price}</span>
-          <button className="face-care-view-clinicals">VIEW CLINICALS</button>
+          <button className="face-care-view-clinicals" onClick={() => addToCart(product)}>ADD TO BAG</button>
         </div>
       </div>
     </div>
@@ -108,6 +109,8 @@ export default function Wardrobe() {
     setIsAnimating(true);
     setActiveTag(newTag);
 
+    window.dispatchEvent(new CustomEvent("page-transition", { detail: { active: true } }));
+
     gsap.to(productRefs.current.filter(Boolean), {
       opacity: 0,
       y: 20,
@@ -150,6 +153,7 @@ export default function Wardrobe() {
         onComplete: () => {
           setIsAnimating(false);
           isInitialMount.current = false;
+          window.dispatchEvent(new CustomEvent("page-transition", { detail: { active: false } }));
         },
       }
     );
@@ -222,10 +226,10 @@ export default function Wardrobe() {
         </div>
       </section>
 
-      {activeTag === "Face Care" ? (
-        /* Face Care Category Layout - 2 Cards Only */
+      {activeTag === "Face Care" || activeTag === "Hair Care" || activeTag === "Body Care" ? (
+        /* Category Layout - Card Style */
         <section className="face-care-section">
-          {filteredProducts.slice(0, 2).map((product, index) => (
+          {filteredProducts.slice(0, 3).map((product, index) => (
             <FaceCareCard
               key={product.name}
               product={product}
@@ -236,7 +240,7 @@ export default function Wardrobe() {
           ))}
         </section>
       ) : (
-        /* Default Layout for All, Hair Care, Body Care */
+        /* Default Layout for All */
         <>
           {/* Section 1: 2 Products + Spotlight Banner */}
           <section className="wardrobe-section section-row-1">

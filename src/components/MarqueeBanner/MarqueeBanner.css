@@ -60,7 +60,7 @@
 /* Reels Footer - Bottom */
 .marquee-banner .reels-footer {
   position: absolute;
-  bottom: 3rem;
+  bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -173,11 +173,9 @@
 /* Reel Card Base */
 .marquee-banner .reel-card {
   position: absolute;
-  width: 280px;
-  height: 420px;
+  width: 250px;
+  height: 360px;
   cursor: pointer;
-  will-change: transform, opacity;
-  transition: filter 0.4s ease;
 }
 
 .marquee-banner .reel-card-inner {
@@ -202,7 +200,7 @@
 
 /* Card Positions */
 .marquee-banner .reel-card-left-top {
-  top: 8%;
+  top: 12%;
   left: 5%;
   transform: rotate(-3deg);
 }
@@ -211,13 +209,13 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 320px;
-  height: 480px;
+  width: 280px;
+  height: 400px;
   z-index: 3;
 }
 
 .marquee-banner .reel-card-right-bottom {
-  bottom: 8%;
+  bottom: 12%;
   right: 5%;
   transform: rotate(3deg);
 }

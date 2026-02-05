@@ -74,8 +74,8 @@ const BlogSection = () => {
             <Link href="/blog" className="blog-view-all">
               <span>View All Articles</span>
               <svg
-                width="20"
-                height="20"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"

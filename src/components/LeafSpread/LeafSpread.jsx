@@ -1,13 +1,20 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import "./LeafSpread.css";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const LeafSpread = ({ delay = 0, count = 30, triggerOnScroll = false, triggerElement = null }) => {
+const LeafSpread = forwardRef(({ delay = 0, count = 30, triggerOnScroll = false, triggerElement = null }, ref) => {
   const containerRef = useRef(null);
+  const animateFnRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    trigger: () => {
+      if (animateFnRef.current) animateFnRef.current();
+    }
+  }));
 
   // Different realistic leaf shapes (COLOR will be replaced dynamically)
   const getLeafShape = (color) => [
@@ -115,6 +122,9 @@ const LeafSpread = ({ delay = 0, count = 30, triggerOnScroll = false, triggerEle
       });
     };
 
+    // Store for external trigger via ref
+    animateFnRef.current = animateLeaves;
+
     if (triggerOnScroll) {
       // Use ScrollTrigger
       scrollTriggerInstance = ScrollTrigger.create({
@@ -123,10 +133,11 @@ const LeafSpread = ({ delay = 0, count = 30, triggerOnScroll = false, triggerEle
         onEnter: animateLeaves,
         once: true,
       });
-    } else {
-      // Animate immediately with delay
+    } else if (delay > 0) {
+      // Animate with delay
       setTimeout(animateLeaves, delay * 1000);
     }
+    // If neither triggerOnScroll nor delay > 0, wait for external trigger via ref
 
     return () => {
       if (scrollTriggerInstance) {
@@ -162,6 +173,8 @@ const LeafSpread = ({ delay = 0, count = 30, triggerOnScroll = false, triggerEle
       })}
     </div>
   );
-};
+});
+
+LeafSpread.displayName = 'LeafSpread';
 
 export default LeafSpread;

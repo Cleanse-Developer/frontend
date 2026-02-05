@@ -27,6 +27,10 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Index() {
   const heroSectionRef = useRef(null);
+  const formulasSectionRef = useRef(null);
+  const centerImageRef = useRef(null);
+  const leafSpreadRef = useRef(null);
+  const leafTriggeredRef = useRef(false);
 
   useGSAP(() => {
     if (!heroSectionRef.current) return;
@@ -42,6 +46,59 @@ export default function Index() {
         scrub: true,
       },
     });
+  }, { dependencies: [] });
+
+  // Formulas section zoom-out animation (no pin, zooms as you scroll into view)
+  useGSAP(() => {
+    if (!formulasSectionRef.current || !centerImageRef.current) return;
+
+    const section = formulasSectionRef.current;
+    const centerContainer = section.querySelector('.formulas-center');
+    const header = section.querySelector('.formulas-header');
+    const boxes = section.querySelectorAll('.formulas-boxes');
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "center center",
+        scrub: 1,
+        onUpdate: (self) => {
+          if (self.progress >= 0.8) {
+            if (!leafTriggeredRef.current) {
+              leafTriggeredRef.current = true;
+              leafSpreadRef.current?.trigger();
+            }
+            section.style.overflow = 'visible';
+            centerContainer.style.zIndex = '2';
+          } else {
+            section.style.overflow = 'hidden';
+            centerContainer.style.zIndex = '20';
+          }
+        },
+      },
+    });
+
+    // Zoom out center image from 3x to 1x
+    tl.fromTo(centerImageRef.current,
+      { scale: 3 },
+      { scale: 1, duration: 1, ease: "power2.out" },
+      0
+    );
+
+    // Fade in header
+    tl.fromTo(header,
+      { opacity: 0, y: -30 },
+      { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" },
+      0.5
+    );
+
+    // Fade in formula boxes
+    tl.fromTo(boxes,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" },
+      0.6
+    );
   }, { dependencies: [] });
 
   return (
@@ -90,7 +147,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="formulas">
+      <section className="formulas" ref={formulasSectionRef}>
         <div className="formulas-header">
           <p className="formulas-tagline">
             We are dedicated to{" "}
@@ -142,8 +199,8 @@ export default function Index() {
           </div>
 
           <div className="formulas-center">
-            <LeafSpread count={25} triggerOnScroll={true} delay={0} />
-            <div className="formulas-center-image">
+            <LeafSpread ref={leafSpreadRef} count={25} />
+            <div className="formulas-center-image" ref={centerImageRef}>
               <img src="/leaf.png" alt="Natural skincare product" />
             </div>
           </div>

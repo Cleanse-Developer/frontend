@@ -1,8 +1,10 @@
 "use client";
 import "./FeaturedSection.css";
 import Link from "next/link";
+import { useCartStore } from "@/store/cartStore";
 
 const FeaturedSection = () => {
+  const addToCart = useCartStore((state) => state.addToCart);
   const categories = [
     {
       id: 1,
@@ -87,7 +89,7 @@ const FeaturedSection = () => {
                 <h3 className="product-card-name">{product.name}</h3>
                 <div className="product-card-footer">
                   <span className="product-card-price">{product.price}</span>
-                  <button className="product-card-btn">Quick Add</button>
+                  <button className="product-card-btn" onClick={() => addToCart({ name: product.name, price: parseInt(product.price.replace(/[^\d]/g, '')) })}>Quick Add</button>
                 </div>
               </div>
             </div>

@@ -235,3 +235,43 @@ button.secondary {
     padding: 1.5rem;
   }
 }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .container,
+  .section-header,
+  .section-footer {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 10vw, 4rem);
+  }
+
+  h2 {
+    font-size: clamp(2rem, 8vw, 3.25rem);
+  }
+
+  h3 {
+    font-size: clamp(1.75rem, 6.5vw, 2.5rem);
+  }
+
+  h4 {
+    font-size: clamp(1.5rem, 4.5vw, 2rem);
+  }
+
+  h5 {
+    font-size: clamp(1.1rem, 2vw, 1.25rem);
+  }
+
+  button {
+    padding: 1rem 0.75rem;
+  }
+
+  .section-header,
+  .section-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
