@@ -217,7 +217,7 @@ const Testimonials = () => {
           {/* Fluid background that moves between cards */}
           <div className="fluid-bg" ref={fluidBgRef}></div>
 
-          <div className="testimonials-slider">
+          <div className="testimonials-slider" style={{ '--slide-index': activeIndex }}>
             {testimonials.map((testimonial, index) => (
               <div
                 key={testimonial.id}
@@ -256,6 +256,30 @@ const Testimonials = () => {
               </div>
             ))}
           </div>
+
+        </div>
+
+        {/* Mobile navigation - outside slider wrapper so it doesn't move */}
+        <div className="testimonials-mobile-nav">
+          <button className="nav-btn prev" onClick={handlePrev} aria-label="Previous testimonial">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <div className="testimonials-dots">
+            {testimonials.map((_, i) => (
+              <span
+                key={i}
+                className={`testimonial-dot ${i === activeIndex ? 'active' : ''}`}
+                onClick={() => handleTransition(i)}
+              />
+            ))}
+          </div>
+          <button className="nav-btn next" onClick={handleNext} aria-label="Next testimonial">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
         </div>
 
         <div className="testimonials-cta">

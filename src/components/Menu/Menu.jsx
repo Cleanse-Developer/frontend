@@ -34,6 +34,7 @@ const Menu = () => {
   const [isMenuVisible, setIsMenuVisible] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isScrolled, setIsScrolled] = useState(!isHomePage);
+  const [isNavGreen, setIsNavGreen] = useState(!isHomePage);
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
   const menuRef = useRef(null);
@@ -381,13 +382,11 @@ const Menu = () => {
 
       // Hero zone logic (home page only)
       if (isHomePage) {
-        // Smooth transition from green nav to transparent nav
-        if (currentScrollY < heroHeight && !isMenuHidden && isScrolled && !transitioningRef.current) {
-          // Entering hero zone while scrolling up - slide green nav up first
+        if (!isMobile && currentScrollY < heroHeight && !isMenuHidden && isScrolled && !transitioningRef.current) {
+          // Desktop: smooth transition from green nav to transparent nav
           transitioningRef.current = true;
           menuRef.current?.classList.add("hidden");
 
-          // Switch to transparent nav and reveal
           setTimeout(() => {
             setIsScrolled(false);
             setTimeout(() => {
@@ -396,12 +395,24 @@ const Menu = () => {
               transitioningRef.current = false;
             }, 30);
           }, 50);
-        } else if (currentScrollY >= heroHeight && !isScrolled) {
+        } else if (isMobile && currentScrollY < 36 && isScrolled) {
+          // Mobile: move menu back below promo banner when at top
+          setIsScrolled(false);
+        } else if (currentScrollY >= (isMobile ? 36 : heroHeight) && !isScrolled) {
           setIsScrolled(true);
+        }
+
+        // Green nav reveal at formulas section
+        const formulasSection = document.querySelector('.formulas');
+        const greenThreshold = formulasSection ? formulasSection.offsetTop : window.innerHeight;
+        if (currentScrollY >= greenThreshold && !isNavGreen) {
+          setIsNavGreen(true);
+        } else if (currentScrollY < greenThreshold && isNavGreen) {
+          setIsNavGreen(false);
         }
       }
 
-      // Skip hide/show on mobile
+      // On mobile, skip all hide/show logic - menu stays visible always
       if (isMobile) {
         lastScrollY.current = currentScrollY;
         return;
@@ -432,8 +443,13 @@ const Menu = () => {
         // Accumulate upward scroll distance
         upScrollCountRef.current += Math.abs(scrollDiff);
 
-        // Only show header after scrolling up at least 50px continuously
-        if (upScrollCountRef.current > 50) {
+        // On mobile in hero: only show menu when near the top
+        // On desktop: show after 50px of continuous upward scroll
+        const shouldShow = isMobile && !isScrolled
+          ? currentScrollY < 80
+          : upScrollCountRef.current > 50;
+
+        if (shouldShow) {
           if (menuRef.current && menuRef.current.classList.contains("hidden")) {
             menuRef.current.classList.remove("hidden");
             setIsMenuVisible(true);
@@ -455,7 +471,7 @@ const Menu = () => {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [isOpen, isMobile, isScrolled, isHomePage]);
+  }, [isOpen, isMobile, isScrolled, isNavGreen, isHomePage]);
 
   // Re-apply hidden class after React re-renders during nav style transition
   // (scrolled green → transparent). Without this, React's re-render overwrites
@@ -467,7 +483,7 @@ const Menu = () => {
   }, [isScrolled]);
 
   return (
-    <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isOpen ? 'menu-open' : ''} ${isPageTransitioning ? 'page-transitioning' : ''}`} ref={menuRef}>
+    <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isNavGreen ? 'nav-green' : ''} ${isOpen ? 'menu-open' : ''} ${isPageTransitioning ? 'page-transitioning' : ''}`} ref={menuRef}>
       <div className="menu-header">
         {/* Back arrow - shown on non-home pages when scrolled */}
         {!isHomePage && isScrolled && (

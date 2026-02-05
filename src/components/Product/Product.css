@@ -75,3 +75,19 @@
 .product .product-info .add-to-cart-btn:active {
   transform: scale(0.95);
 }
+
+@media (max-width: 480px) {
+  .product .product-info {
+    min-height: 5rem;
+    padding: 0 0.75rem 0.75rem;
+  }
+
+  .product .product-info-wrapper {
+    padding: 0.35rem;
+  }
+
+  .product .product-info .add-to-cart-btn {
+    padding: 0.65rem;
+    font-size: 0.75rem;
+  }
+}

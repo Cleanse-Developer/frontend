@@ -81,3 +81,44 @@
   display: flex;
   justify-content: flex-end;
 }
+
+@media (max-width: 768px) {
+  .peel-reveal {
+    height: 70svh;
+  }
+
+  .peel-reveal .peel-reveal-img-container {
+    border-radius: 1.5rem;
+  }
+
+  .peel-reveal .peel-reveal-img-container .pr-img {
+    width: 95%;
+    height: 95%;
+  }
+
+  .peel-reveal .peel-reveal-header {
+    width: 90%;
+  }
+
+  .peel-reveal .peel-reveal-header h1 {
+    font-size: 4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .peel-reveal {
+    height: 100svh;
+  }
+
+  .peel-reveal .peel-reveal-img-container {
+    border-radius: 1rem;
+  }
+
+  .peel-reveal .peel-reveal-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .peel-reveal .peel-reveal-intro-text-container {
+    gap: 0.25rem;
+  }
+}

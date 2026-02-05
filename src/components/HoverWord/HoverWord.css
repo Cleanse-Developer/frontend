@@ -27,6 +27,13 @@
   pointer-events: none;
 }
 
+.hover-word-image-wrapper.popup-top {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
 .hover-word-image {
   width: 140px;
   height: 70px;
@@ -35,13 +42,15 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
-/* Mobile: disable hover effects */
-@media (max-width: 768px) {
-  .hover-word-container {
-    cursor: default;
+@media (max-width: 480px) {
+  .hover-word-image {
+    width: 90px;
+    height: 45px;
   }
 
-  .hover-word-image-wrapper {
-    display: none;
+  .hover-word-image-wrapper,
+  .hover-word-image-wrapper.popup-top {
+    left: 0;
+    transform: none;
   }
 }

@@ -79,10 +79,10 @@ export default function Index() {
       },
     });
 
-    // Zoom out center image from 3x to 1x
+    // Zoom out center image from 3x to 1x and move down
     tl.fromTo(centerImageRef.current,
-      { scale: 3 },
-      { scale: 1, duration: 1, ease: "power2.out" },
+      { scale: 3, y: -300 },
+      { scale: 1, y: 0, duration: 1, ease: "power2.out" },
       0
     );
 
@@ -155,12 +155,14 @@ export default function Index() {
               word="elevating"
               imageSrc="/p1.png"
               imageAlt="Elevating standards"
+              popupPosition="top"
             />{" "}
             standards in{" "}
             <HoverWord
               word="beauty"
               imageSrc="/p2.png"
               imageAlt="Beauty products"
+              popupPosition="top"
             />{" "}
             and care, creating confidence and timeless{" "}
             <HoverWord

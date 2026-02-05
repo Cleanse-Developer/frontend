@@ -153,3 +153,51 @@
     width: 250%;
   }
 }
+
+@media (max-width: 480px) {
+  .genesis-hero {
+    height: 100svh;
+  }
+
+  .genesis-hero .gen-hero-img {
+    width: 80%;
+    height: 60%;
+  }
+
+  .genesis-hero .container {
+    padding: 8rem 1rem;
+  }
+
+  .genesis-hero .container .gen-hero-copy:nth-child(3) h1 {
+    font-size: clamp(2rem, 8vw, 3rem);
+    transform: translateY(-8rem);
+  }
+
+  .genesis-hero .container .gen-hero-copy:nth-child(3) .gen-hero-meta {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .genesis-about {
+    padding: 4rem 0;
+  }
+
+  .genesis-about .container {
+    gap: 2rem;
+  }
+
+  .genesis-about .container .genesis-about-logo {
+    width: 5rem;
+    height: 5rem;
+  }
+
+  .project-preview .project-preview-wrapper {
+    width: 350%;
+    gap: 2em;
+  }
+
+  .project-preview .project-preview-wrapper .preview-col {
+    gap: 2em;
+  }
+}

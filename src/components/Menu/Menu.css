@@ -36,11 +36,30 @@
   z-index: 2;
 }
 
-/* Scrolled state - green background with cream text */
+/* Scrolled state - layout changes, bg handled by nav-green */
 .menu.scrolled .menu-header {
-  background-color: #023020;
+  background-color: transparent;
   border-radius: 0;
   justify-content: center;
+}
+
+/* Green nav - always present pseudo, transitions both ways */
+.menu .menu-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #023020;
+  transform-origin: top;
+  transform: scaleY(0);
+  transition: transform 0.4s ease-out;
+  z-index: -1;
+}
+
+.menu.nav-green .menu-header::before {
+  transform: scaleY(1);
 }
 
 /* Menu open state - match overlay background */
@@ -143,7 +162,7 @@
   opacity: 0.7;
 }
 
-.menu.scrolled .menu-nav-link {
+.menu.nav-green .menu-nav-link {
   color: #f8f6f3;
 }
 
@@ -176,7 +195,7 @@
   transition: background 0.3s ease;
 }
 
-.menu.scrolled .menu-trigger-icon .dot {
+.menu.nav-green .menu-trigger-icon .dot {
   background: #f8f6f3;
 }
 
@@ -184,7 +203,7 @@
   background: #034d30;
 }
 
-.menu.scrolled .menu-trigger:hover .menu-trigger-icon .dot {
+.menu.nav-green .menu-trigger:hover .menu-trigger-icon .dot {
   background: #d4d0c8;
 }
 
@@ -202,7 +221,7 @@
   transition: color 0.3s ease;
 }
 
-.menu.scrolled .menu-logo {
+.menu.nav-green .menu-logo {
   color: #f8f6f3;
 }
 
@@ -239,7 +258,7 @@
   border-radius: 1px;
 }
 
-.menu.scrolled .menu-item {
+.menu.nav-green .menu-item {
   background: #f8f6f3;
 }
 
@@ -247,7 +266,7 @@
   background: #023020;
 }
 
-.menu.scrolled .menu-hamburger-icon.open .menu-item {
+.menu.nav-green .menu-hamburger-icon.open .menu-item {
   background: #f8f6f3;
 }
 
@@ -374,7 +393,7 @@
   display: block;
 }
 
-.menu.scrolled .menu-action-btn {
+.menu.nav-green .menu-action-btn {
   color: #f8f6f3;
 }
 
@@ -401,7 +420,7 @@
   line-height: 1;
 }
 
-.menu.scrolled .menu-cart-badge {
+.menu.nav-green .menu-cart-badge {
   background: #f8f6f3;
   color: #023020;
 }
@@ -494,4 +513,128 @@
   .menu .menu-scrolled-actions {
     right: 1.5rem;
   }
+}
+
+@media (max-width: 480px) {
+  .menu {
+    transition: top 0.3s ease;
+  }
+
+  .menu .menu-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .menu .menu-logo {
+    font-size: clamp(1.25rem, 5vw, 1.5rem);
+  }
+
+  .menu .menu-centered-logo .menu-logo {
+    font-size: clamp(1.25rem, 5vw, 1.5rem);
+  }
+
+  .menu .menu-overlay {
+    padding: 2rem 1.25rem 1.5rem;
+    gap: 2.5rem;
+  }
+
+  .menu .menu-overlay-items {
+    gap: 1.5rem;
+  }
+
+  .menu .menu-overlay-col-sm .menu-main-link {
+    width: 100%;
+  }
+
+  .menu .menu-overlay-col-sm .menu-main-link p {
+    font-size: 1rem;
+  }
+
+  .menu .menu-sub-links a {
+    padding: 0.75rem 0;
+    font-size: 0.8rem;
+  }
+
+  .menu .menu-overlay-footer {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .menu .menu-mobile-actions {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: 0;
+    gap: 0.25rem;
+  }
+
+  .menu .menu-mobile-actions .menu-cart-btn {
+    display: none;
+  }
+
+  .menu .menu-header-full {
+    position: relative;
+  }
+
+  .menu .menu-header-full .menu-logo-link {
+    flex: none;
+    text-align: left;
+  }
+
+  .menu .menu-toggle {
+    display: none;
+  }
+
+  .menu .menu-header-actions {
+    display: flex;
+    margin-left: 0.5rem;
+  }
+
+  .menu .menu-header-actions .menu-action-btn {
+    display: none;
+  }
+
+  .menu .menu-header-actions .menu-trigger {
+    margin-left: 0;
+  }
+
+  .menu .menu-back-arrow {
+    left: 1rem;
+  }
+
+  /* Scrolled state on mobile - just handles position, no green bg */
+  .menu.scrolled .menu-header {
+    background-color: transparent;
+  }
+
+  .menu .menu-header-full.hidden {
+    opacity: 1;
+    pointer-events: auto;
+    position: relative;
+  }
+
+  .menu .menu-header-centered {
+    display: none !important;
+  }
+
+  .menu .menu-scrolled-actions {
+    display: none !important;
+  }
+
+  .menu.scrolled .menu-logo {
+    color: #023020;
+  }
+
+  .menu.scrolled .menu-trigger-icon .dot {
+    background: #023020;
+  }
+
+  .menu.scrolled .menu-action-btn {
+    color: #023020;
+  }
+
+  .menu.scrolled .menu-cart-badge {
+    background: #023020;
+    color: #f8f6f3;
+  }
+
 }

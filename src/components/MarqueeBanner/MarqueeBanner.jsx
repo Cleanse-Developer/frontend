@@ -39,6 +39,7 @@ const MarqueeBanner = () => {
   const marqueeBannerRef = useRef(null);
   const marquee1Ref = useRef(null);
   const marquee2Ref = useRef(null);
+  const marquee3Ref = useRef(null);
 
   useGSAP(
     () => {
@@ -56,6 +57,11 @@ const MarqueeBanner = () => {
 
           const marquee2X = -25 + progress * 50;
           gsap.set(marquee2Ref.current, { x: `${marquee2X}%` });
+
+          if (marquee3Ref.current) {
+            const marquee3X = 15 - progress * 40;
+            gsap.set(marquee3Ref.current, { x: `${marquee3X}%` });
+          }
         },
       });
     },
@@ -70,6 +76,9 @@ const MarqueeBanner = () => {
         </div>
         <div className="marquee-header marquee-header-2" ref={marquee2Ref}>
           <h1>Pure ingredients for radiant skin</h1>
+        </div>
+        <div className="marquee-header marquee-header-3" ref={marquee3Ref}>
+          <h1>Timeless rituals for glowing skin</h1>
         </div>
       </div>
 

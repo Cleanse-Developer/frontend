@@ -166,3 +166,22 @@
     margin-top: 0;
   }
 }
+
+@media (max-width: 480px) {
+  .cta {
+    padding: 4rem 0 1rem;
+  }
+
+  .cta .container .cta-col:nth-child(2) .cta-main-img {
+    aspect-ratio: 3/4;
+  }
+
+  .cta .container .cta-col:nth-child(2) .cta-main-img .cta-header {
+    top: -5%;
+    width: 95%;
+  }
+
+  .cta .container .cta-col:nth-child(2) .cta-main-img .cta-main-copy-inner {
+    bottom: 3%;
+  }
+}

@@ -48,6 +48,11 @@
   transform: translateX(-25%);
 }
 
+.marquee-banner .marquees .marquee-header-3 {
+  display: none;
+  transform: translateX(15%);
+}
+
 /* Reels Header - Top */
 .marquee-banner .reels-header-top {
   position: absolute;
@@ -524,18 +529,154 @@
 }
 
 @media (max-width: 480px) {
+  .marquee-banner {
+    height: auto;
+    min-height: auto;
+    padding: 3rem 0.75rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .marquee-banner .reels-header-top {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin-bottom: 1rem;
+    z-index: 10;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .marquee-banner .reels-container {
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 0;
+    width: 100%;
+  }
+
+  /* Reel-shaped cards - override 1000px breakpoint */
   .marquee-banner .reel-card,
   .marquee-banner .reel-card-center {
-    max-width: 100%;
-    height: 380px;
+    max-width: none !important;
+    width: 55% !important;
+    height: 400px !important;
+  }
+
+  /* Zigzag: 1st left, 2nd right, 3rd left */
+  .marquee-banner .reel-card-left-top {
+    align-self: flex-start;
+  }
+
+  .marquee-banner .reel-card-center {
+    align-self: flex-end;
+  }
+
+  .marquee-banner .reel-card-right-bottom {
+    align-self: flex-start;
+  }
+
+  /* 3 marquee lines - each centered behind its card */
+  .marquee-banner .marquees {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 0;
+    gap: 1rem;
+    /* offset to match: section-padding + header + header-margin + container-padding */
+    padding-top: calc(3rem + 2rem + 1rem + 1rem);
+  }
+
+  .marquee-banner .marquees .marquee-header {
+    opacity: 0.12;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .marquee-banner .marquees .marquee-header h1 {
+    font-size: clamp(4rem, 18vw, 7rem);
+  }
+
+  .marquee-banner .marquees .marquee-header-1 {
+    transform: translateX(25%);
+  }
+
+  .marquee-banner .marquees .marquee-header-2 {
+    display: flex;
+    transform: translateX(-25%);
+  }
+
+  .marquee-banner .marquees .marquee-header-3 {
+    display: flex;
+    transform: translateX(15%);
   }
 
   .marquee-banner .reel-title {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
   }
 
   .marquee-banner .reel-card-center .reel-title {
-    font-size: 1.25rem;
+    font-size: 1rem;
+  }
+
+  .marquee-banner .reel-content {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  .marquee-banner .reel-badge {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.6rem;
+  }
+
+  .marquee-banner .reel-subtitle {
+    font-size: 0.65rem;
+  }
+
+  .marquee-banner .reels-footer {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .marquee-banner .reels-tagline {
+    font-size: clamp(2rem, 10vw, 3.5rem);
+    text-align: center;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 380px) {
+  .marquee-banner .reel-card,
+  .marquee-banner .reel-card-center {
+    height: 350px !important;
+    width: 55% !important;
+  }
+
+  .marquee-banner .marquees .marquee-header {
+    height: 350px;
+  }
+
+  .marquee-banner .reel-content {
+    padding: 0.75rem;
+    gap: 0.4rem;
+  }
+
+  .marquee-banner .reel-play {
+    width: 40px;
+    height: 40px;
+  }
+
+  .marquee-banner .reel-play svg {
+    width: 18px;
+    height: 18px;
   }
 }
 

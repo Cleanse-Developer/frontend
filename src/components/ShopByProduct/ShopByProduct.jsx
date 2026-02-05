@@ -20,6 +20,7 @@ const ShopByProduct = () => {
       price: "₹1,199.00",
       textColor: "#f8f6f3",
       imageTransform: "translate(-5%, -5%)",
+      mobileImagePosition: "55% 40%",
       products: [
         {
           name: "Golden Elixir Serum",
@@ -48,6 +49,7 @@ const ShopByProduct = () => {
       price: "₹999.00",
       textColor: "#3d2314",
       imageTransform: "translate(-6%, -2%)",
+      mobileImagePosition: "80% 40%",
       products: [
         {
           name: "Herbal Hair Oil",
@@ -76,6 +78,7 @@ const ShopByProduct = () => {
       price: "₹1,499.00",
       textColor: "#023020",
       imageTransform: "translate(-8%, -5%)",
+      mobileImagePosition: "55% 40%",
       products: [
         {
           name: "Kumkumadi Face Oil",
@@ -103,7 +106,7 @@ const ShopByProduct = () => {
         <img
           src={currentCategory.image}
           alt={currentCategory.name}
-          style={{ transform: currentCategory.imageTransform }}
+          style={{ transform: currentCategory.imageTransform, objectPosition: currentCategory.mobileImagePosition }}
         />
 
         {/* Left side vertical text */}
@@ -163,7 +166,8 @@ const ShopByProduct = () => {
               <circle cx="9" cy="20" r="1"/>
               <circle cx="18" cy="20" r="1"/>
             </svg>
-            <span>BUY KIT {currentCategory.price}</span>
+            <span className="sbp-cta-desktop">BUY KIT {currentCategory.price}</span>
+            <span className="sbp-cta-mobile">BUY NOW</span>
           </Link>
         </div>
       </div>

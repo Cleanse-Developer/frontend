@@ -83,6 +83,7 @@
   max-width: 300px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -118,6 +119,10 @@
 
 .sbp-cta span {
   color: #fff;
+}
+
+.sbp-cta-mobile {
+  display: none;
 }
 
 /* Side Text */
@@ -558,5 +563,168 @@
 
   .sbp-rating-stars .star {
     font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .shop-by-product {
+    height: auto;
+    min-height: auto;
+    padding: 1.5rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Square image with bottom-right cut */
+  .sbp-main-image {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    height: auto;
+    min-height: auto;
+    margin: 0;
+    aspect-ratio: 3 / 4;
+    border-top-left-radius: 1.25rem;
+    border-top-right-radius: 1.25rem;
+    border-bottom-left-radius: 1.25rem;
+    border-bottom-right-radius: 0;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .sbp-main-image > img {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    object-fit: cover;
+    transform: none !important;
+    border: none;
+    outline: none;
+    display: block;
+  }
+
+  .sbp-main-image::before {
+    display: block;
+    width: 180px;
+    height: 180px;
+    bottom: -1px;
+    right: -1px;
+    border-top-left-radius: 1.25rem;
+    background-color: #f8f6f3;
+  }
+
+  /* SHOP BY / CATEGORY text inside image */
+  .sbp-side-text {
+    left: 1rem;
+    top: 1rem;
+  }
+
+  .sbp-side-text span {
+    font-size: clamp(1.5rem, 7vw, 2.5rem);
+  }
+
+  /* SKIN CARE title inside the cut-out area */
+  .sbp-title {
+    font-size: 3.25rem;
+    line-height: 1;
+  }
+
+  /* Product card & rating hidden */
+  .sbp-product-card-right {
+    display: none;
+  }
+
+  .sbp-rating {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .sbp-rating-stars .star {
+    font-size: 0.75rem;
+  }
+
+  .sbp-rating-value {
+    font-size: 0.7rem;
+  }
+
+  /* Content in the cut-out area */
+  .sbp-content {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    width: 178px;
+    height: auto;
+    padding: 1rem;
+    z-index: 10;
+    margin-top: -178px;
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  .sbp-text {
+    gap: 0.25rem;
+  }
+
+  .sbp-tagline {
+    display: none;
+  }
+
+  .sbp-cta {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.65rem;
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .sbp-cta-desktop {
+    display: none;
+  }
+
+  .sbp-cta-mobile {
+    display: inline;
+  }
+
+  .sbp-cta svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Category nav bar below */
+  .sbp-nav {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin: 5rem 0 0;
+    flex-wrap: nowrap;
+    padding: 0.6rem 1rem;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .sbp-nav-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+  }
+
+  .sbp-nav-btn-img {
+    width: 130px;
+    height: 130px;
+  }
+
+
+  .sbp-hotspot {
+    display: none;
   }
 }

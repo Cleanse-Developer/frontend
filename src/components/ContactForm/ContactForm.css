@@ -155,3 +155,45 @@
     margin-top: -2rem;
   }
 }
+
+@media (max-width: 480px) {
+  .contact-form {
+    height: auto;
+    min-height: 100svh;
+  }
+
+  .contact-form .contact-parallax-image-wrapper {
+    height: 50svh;
+  }
+
+  .contact-form .contact-parallax-image-wrapper img {
+    object-position: 20% 80%;
+  }
+
+  .contact-form .contact-form-container {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    padding: 3rem 1.5rem;
+    gap: 2rem;
+  }
+
+  .contact-form .cf-submit {
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-form .cf-footer .cf-footer-copy p {
+    width: 90%;
+    font-size: 0.75rem;
+  }
+
+  .contact-form .cf-input input {
+    padding: 0.85rem;
+    font-size: 0.8rem;
+  }
+}

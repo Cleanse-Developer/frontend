@@ -85,3 +85,24 @@
     margin-bottom: 1rem;
   }
 }
+
+@media (max-width: 480px) {
+  .text-block {
+    min-height: auto;
+    height: auto;
+  }
+
+  .text-block .container {
+    padding: 2.5rem 1rem;
+    gap: 1.5rem;
+  }
+
+  .text-block .container .text-block-col:nth-child(1) {
+    gap: 3rem;
+  }
+
+  .text-block .container .text-block-logo {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+}
