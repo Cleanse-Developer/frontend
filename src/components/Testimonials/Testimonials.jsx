@@ -183,31 +183,22 @@ const Testimonials = () => {
     <section className="testimonials">
       <div className="container">
         <div className="testimonials-header">
-          <div className="testimonials-label">
-            <Copy type="flicker">
-              <p>( TESTIMONIALS )</p>
-            </Copy>
-          </div>
           <div className="testimonials-title">
             <Copy>
-              <h2>What Our<br />Customers Say</h2>
-            </Copy>
-            <Copy>
-              <p className="testimonials-desc">
-                Ancient Ayurvedic wisdom meets modern skincare,<br />
-                trusted by thousands for radiant, healthy skin.
-              </p>
+              <h2>Listen to what our<br />Clients say about us?</h2>
             </Copy>
           </div>
           <div className="testimonials-nav">
             <button className="nav-btn prev" onClick={handlePrev} aria-label="Previous testimonial">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M15 18l-6-6 6-6" />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5" />
+                <path d="M12 19l-7-7 7-7" />
               </svg>
             </button>
             <button className="nav-btn next" onClick={handleNext} aria-label="Next testimonial">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 18l6-6-6-6" />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14" />
+                <path d="M12 5l7 7-7 7" />
               </svg>
             </button>
           </div>
@@ -262,8 +253,9 @@ const Testimonials = () => {
         {/* Mobile navigation - outside slider wrapper so it doesn't move */}
         <div className="testimonials-mobile-nav">
           <button className="nav-btn prev" onClick={handlePrev} aria-label="Previous testimonial">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M15 18l-6-6 6-6" />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5" />
+              <path d="M12 19l-7-7 7-7" />
             </svg>
           </button>
           <div className="testimonials-dots">
@@ -276,31 +268,13 @@ const Testimonials = () => {
             ))}
           </div>
           <button className="nav-btn next" onClick={handleNext} aria-label="Next testimonial">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 18l6-6-6-6" />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14" />
+              <path d="M12 5l7 7-7 7" />
             </svg>
           </button>
         </div>
 
-        <div className="testimonials-cta">
-          <div className="testimonials-cta-content">
-            <Copy>
-              <h3>Do you have<br />any questions?</h3>
-            </Copy>
-            <Copy>
-              <p>Feel free to send us your questions or request a free consultation.</p>
-            </Copy>
-            <div className="btn testimonials-btn">
-              <Copy type="flicker">
-                <a href="/contact">Get in Touch</a>
-              </Copy>
-            </div>
-          </div>
-          <div className="testimonials-cta-note">
-            <span>/</span>
-            <p>Our products are crafted with pure, natural ingredients for your skin's wellness.</p>
-          </div>
-        </div>
       </div>
     </section>
   );

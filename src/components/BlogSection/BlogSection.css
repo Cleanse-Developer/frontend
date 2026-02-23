@@ -1,7 +1,7 @@
 .blog-section {
   width: 100%;
   padding: 7rem 2rem;
-  background-color: #fff;
+  background-color: #F0EDE8;
   overflow: hidden;
 }
 
@@ -13,8 +13,8 @@
 /* Header */
 .blog-section-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 4rem;
   padding-bottom: 2rem;
   border-bottom: 1px solid rgba(2, 48, 32, 0.1);
@@ -37,12 +37,13 @@
 
 .blog-section-title {
   font-family: var(--font-heading);
-  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 400;
   color: var(--base-700);
-  letter-spacing: -0.03em;
-  text-transform: none;
-  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 100%;
+  text-align: center;
 }
 
 .blog-header-right {
@@ -112,7 +113,7 @@
   display: flex;
   flex-direction: column;
   text-decoration: none;
-  background: var(--base-100);
+  background: #4F2C22;
   border-radius: 1rem;
   overflow: hidden;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
@@ -126,7 +127,7 @@
 
 /* Green Card Variant */
 .blog-card-green {
-  background: #9e9268;
+  background: #4F2C22;
 }
 
 .blog-card-green .blog-card-title {
@@ -430,7 +431,7 @@
   }
 
   .blog-section-title {
-    font-size: clamp(2.5rem, 10vw, 3rem);
+    font-size: clamp(1.25rem, 5vw, 1.5rem);
   }
 
   .blog-section-label {

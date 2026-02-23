@@ -106,6 +106,7 @@ const LeafSpread = forwardRef(({ delay = 0, count = 30, triggerOnScroll = false,
           duration: 1.8 + Math.random() * 0.8,
           ease: "power2.out",
           delay: i * 0.03,
+          force3D: true,
           onComplete: () => {
             // Start gentle floating only after spread is complete
             gsap.to(leaf, {
@@ -116,6 +117,7 @@ const LeafSpread = forwardRef(({ delay = 0, count = 30, triggerOnScroll = false,
               ease: "sine.inOut",
               repeat: -1,
               yoyo: true,
+              force3D: true,
             });
           }
         });
@@ -155,15 +157,11 @@ const LeafSpread = forwardRef(({ delay = 0, count = 30, triggerOnScroll = false,
         const shapeIndex = i % leafShapes.length;
         // Deterministic depth based on index to avoid hydration mismatch
         const zIndex = i % 3;
-        const blur = zIndex === 0 ? 2 : zIndex === 2 ? 1 : 0;
 
         return (
           <div
             key={i}
             className={`leaf leaf-depth-${zIndex}`}
-            style={{
-              filter: blur > 0 ? `blur(${blur}px)` : 'none',
-            }}
           >
             <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g dangerouslySetInnerHTML={{ __html: leafShapes[shapeIndex] }} />

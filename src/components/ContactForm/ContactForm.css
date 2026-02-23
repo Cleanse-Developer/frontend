@@ -1,48 +1,38 @@
 .contact-form {
   position: relative;
   width: 100%;
-  height: calc(30svh + 80svh);
-  overflow-x: hidden;
-  background-color: var(--base-100);
+  height: 611px;
+  overflow: visible;
+  margin-bottom: 100px;
 }
 
 .contact-form .contact-parallax-image-wrapper {
   position: relative;
   width: 100%;
-  height: 80svh;
-  margin-top: 0;
+  height: 100%;
   overflow: hidden;
-  background-color: var(--base-200);
-}
-
-.contact-form .contact-parallax-image-wrapper h1 {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  transform: scale(5);
-  color: var(--base-400);
+  z-index: 1;
 }
 
 .contact-form .contact-parallax-image-wrapper img {
-  position: relative;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 80%;
+  object-position: center;
 }
 
 .contact-form .contact-form-container {
   position: absolute;
-  top: 35svh;
+  top: 50%;
   right: 8rem;
-  width: 30%;
-  height: 75svh;
-  max-height: 850px;
-  background-color: var(--base-700);
-  color: var(--base-100);
-  border-radius: 0.75rem;
-  z-index: 2;
+  transform: translateY(-30%);
+  width: 502px;
+  height: 582px;
+  background-color: #663532;
+  color: #fff;
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 5;
   padding: 3rem 2.5rem;
   display: flex;
   flex-direction: column;
@@ -56,11 +46,22 @@
   text-align: center;
 }
 
+.contact-form .cf-header h4 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: #fff;
+}
+
 .contact-form .cf-copy p {
   color: rgba(255, 255, 255, 0.8);
   width: 80%;
   margin: 0 auto;
   text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .contact-form .cf-input {
@@ -72,25 +73,35 @@
   border: 1.5px dashed rgba(255, 255, 255, 0.15);
   border-radius: 0.5rem;
   outline: none;
-  background-color: var(--base-600);
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 1rem;
   text-transform: uppercase;
-  color: var(--base-100);
+  color: #fff;
   font-family: var(--font-body);
   font-weight: 500;
   line-height: 1;
 }
 
+.contact-form .cf-input input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
 .contact-form .cf-submit {
   width: 5rem;
   height: 5rem;
-  background-color: var(--base-300);
+  background-color: #9e8a6a;
   border-radius: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--base-700);
+  color: #fff;
   font-size: 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.contact-form .cf-submit:hover {
+  background-color: #8a7858;
 }
 
 .contact-form .cf-submit svg {
@@ -101,7 +112,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .contact-form .cf-footer .cf-divider {
@@ -112,15 +123,40 @@
 
 .contact-form .cf-footer .cf-footer-copy p {
   color: rgba(255, 255, 255, 0.6);
-  width: 40%;
+  width: 50%;
   font-size: 0.8rem;
   text-align: center;
   margin: 0 auto;
+  line-height: 1.5;
+}
+
+@media (max-width: 1200px) {
+  .contact-form .contact-form-container {
+    right: 3rem;
+    width: 420px;
+    height: 520px;
+  }
 }
 
 @media (max-width: 1000px) {
   .contact-form {
-    height: calc(80svh + 80svh);
+    height: auto;
+  }
+
+  .contact-form .contact-parallax-image-wrapper {
+    height: 400px;
+  }
+
+  .contact-form .contact-form-container {
+    position: relative;
+    top: auto;
+    right: auto;
+    transform: none;
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+    padding: 4rem 2rem;
+    margin-top: -2rem;
   }
 
   .contact-form .cf-header,
@@ -131,60 +167,21 @@
   .contact-form .cf-footer .cf-footer-copy p {
     width: 75%;
   }
-
-  .contact-form .contact-form-container {
-    top: 60svh;
-    border-radius: 0;
-    width: 100%;
-    right: 0;
-    padding: 5rem 2rem;
-  }
-}
-
-@media (min-width: 2000px) {
-  .contact-form .contact-form-container {
-    height: 60svh;
-    width: 25%;
-  }
-  .contact-form .contact-form-container h4 {
-    font-size: 2.5vw;
-    margin: 2rem auto 0rem auto;
-  }
-
-  .contact-form .cf-copy {
-    margin-top: -2rem;
-  }
 }
 
 @media (max-width: 480px) {
-  .contact-form {
-    height: auto;
-    min-height: 100svh;
-  }
-
   .contact-form .contact-parallax-image-wrapper {
-    height: 50svh;
-  }
-
-  .contact-form .contact-parallax-image-wrapper img {
-    object-position: 20% 80%;
+    height: 300px;
   }
 
   .contact-form .contact-form-container {
-    position: relative;
-    top: auto;
-    right: auto;
-    width: 100%;
-    height: auto;
-    max-height: none;
     padding: 3rem 1.5rem;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 
   .contact-form .cf-submit {
     width: 4rem;
     height: 4rem;
-    margin-bottom: 1.5rem;
   }
 
   .contact-form .cf-footer .cf-footer-copy p {

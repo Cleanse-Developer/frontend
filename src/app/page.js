@@ -5,12 +5,12 @@ import Link from "next/link";
 
 // import Preloader, { isInitialLoad } from "@/components/Preloader/Preloader";
 const isInitialLoad = false;
-import LeafSpread from "@/components/LeafSpread/LeafSpread";
+// import LeafSpread from "@/components/LeafSpread/LeafSpread";
 import MarqueeBanner from "@/components/MarqueeBanner/MarqueeBanner";
 // import TextBlock from "@/components/TextBlock/TextBlock";
 import PeelReveal from "@/components/PeelReveal/PeelReveal";
 // import CTA from "@/components/CTA/CTA";
-import FeaturedSection from "@/components/FeaturedSection/FeaturedSection";
+import FeaturedSection, { WhySkinSection, ShopByCategory, BuildYourRitual, LatestLaunches } from "@/components/FeaturedSection/FeaturedSection";
 import Testimonials from "@/components/Testimonials/Testimonials";
 import HoverWord from "@/components/HoverWord/HoverWord";
 import "@/components/HoverWord/HoverWord.css";
@@ -99,50 +99,37 @@ export default function Index() {
     gsap.to(heroSectionRef.current, {
       backgroundPositionY: "50%",
       ease: "none",
+      force3D: true,
       scrollTrigger: {
         trigger: heroSectionRef.current,
         start: "top top",
         end: "bottom top",
-        scrub: true,
+        scrub: 0.3,
       },
     });
   }, { dependencies: [] });
 
-  // Formulas section zoom-out animation (no pin, zooms as you scroll into view)
+  // Formulas section zoom-out animation
   useGSAP(() => {
     if (!formulasSectionRef.current || !centerImageRef.current) return;
 
     const section = formulasSectionRef.current;
-    const centerContainer = section.querySelector('.formulas-center');
     const header = section.querySelector('.formulas-header');
-    const boxes = section.querySelectorAll('.formulas-boxes');
+    const cards = section.querySelectorAll('.formula-box');
 
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
         start: "top bottom",
         end: "center center",
-        scrub: 1,
-        onUpdate: (self) => {
-          if (self.progress >= 0.8) {
-            if (!leafTriggeredRef.current) {
-              leafTriggeredRef.current = true;
-              leafSpreadRef.current?.trigger();
-            }
-            section.style.overflow = 'visible';
-            centerContainer.style.zIndex = '2';
-          } else {
-            section.style.overflow = 'hidden';
-            centerContainer.style.zIndex = '20';
-          }
-        },
+        scrub: 0.3,
       },
     });
 
-    // Zoom out center image from 3x to 1x and move down
+    // Zoom out center image from 3x to 1x
     tl.fromTo(centerImageRef.current,
-      { scale: 3, y: -300 },
-      { scale: 1, y: 0, duration: 1, ease: "power2.out" },
+      { scale: 3, y: -300, force3D: true },
+      { scale: 1, y: 0, duration: 1, ease: "power2.out", force3D: true },
       0
     );
 
@@ -153,12 +140,14 @@ export default function Index() {
       0.5
     );
 
-    // Fade in formula boxes
-    tl.fromTo(boxes,
+    // Fade in formula cards
+    tl.fromTo(cards,
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" },
       0.6
     );
+
+    // Leaf spread removed
   }, { dependencies: [] });
 
   return (
@@ -189,123 +178,103 @@ export default function Index() {
 {/* <div className="hero-img" ref={heroImgRef}>
           <img src="/hero.png" alt="" />
         </div> */}
-        <div className="section-footer">
-          <Copy
-            type="flicker"
-            delay={isInitialLoad ? 7.5 : 0.65}
-            animateOnScroll={false}
-          >
-            <p>Pure Ayurveda</p>
-          </Copy>
-          <Copy
-            type="flicker"
-            delay={isInitialLoad ? 7.5 : 0.65}
-            animateOnScroll={false}
-          >
-            <p>Est. 2024</p>
-          </Copy>
-        </div>
       </section>
 
       <section className="formulas" ref={formulasSectionRef}>
         <div className="formulas-header">
           <p className="formulas-tagline">
-            We are dedicated to{" "}
-            <HoverWord
-              word="elevating"
-              imageSrc="/p1.png"
-              imageAlt="Elevating standards"
-              popupPosition="top"
-            />{" "}
-            standards in{" "}
-            <HoverWord
-              word="beauty"
-              imageSrc="/p2.png"
-              imageAlt="Beauty products"
-              popupPosition="top"
-            />{" "}
-            and care, creating confidence and timeless{" "}
-            <HoverWord
-              word="elegance"
-              imageSrc="/p3.png"
-              imageAlt="Timeless elegance"
-            />{" "}
-            for everyone.
+            We aren&apos;t merely selling bottles; we are delivering a clinically-backed path to purity.
           </p>
         </div>
 
         <div className="formulas-content">
-          <div className="formulas-boxes formulas-boxes-left">
-            <div className="formula-box">
-              <div className="formula-box-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2L12 6M12 6C9 6 6 9 6 13C6 17 9 22 12 22C15 22 18 17 18 13C18 9 15 6 12 6Z" />
-                  <path d="M12 6C12 6 10 8 10 11" />
-                  <path d="M12 6C12 6 14 8 14 11" />
-                </svg>
-              </div>
-              <h4>Five ingredients.<br />Nothing more</h4>
-              <p>Targeted essentials deliver real results: Repair, renew, calm, hydrate, protect. No irritation, no wasted money.</p>
+          <div className="formula-box formula-box-tl">
+            <div className="formula-box-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" />
+                <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" />
+              </svg>
             </div>
-            <div className="formula-box">
-              <div className="formula-box-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2L2 7L12 12L22 7L12 2Z" />
-                  <path d="M2 17L12 22L22 17" />
-                  <path d="M2 12L12 17L22 12" />
-                </svg>
-              </div>
-              <h4>Quality over<br />quantity</h4>
-              <p>We use higher concentrations of effective ingredients, not cheap fillers, delivering what your skin needs, precisely where it needs it.</p>
+            <h4>Proven by<br />people like you</h4>
+            <p>In real-world tests, 94% of users saw noticeable skin improvements within 28 days.</p>
+          </div>
+
+          <div className="formula-box formula-box-tr">
+            <div className="formula-box-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L12 6M12 6C9 6 6 9 6 13C6 17 9 22 12 22C15 22 18 17 18 13C18 9 15 6 12 6Z" />
+                <path d="M12 6C12 6 10 8 10 11" />
+                <path d="M12 6C12 6 14 8 14 11" />
+              </svg>
             </div>
+            <h4>Proven by<br />people like you</h4>
+            <p>In real-world tests, 94% of users saw noticeable skin improvements within 28 days.</p>
           </div>
 
           <div className="formulas-center">
-            <LeafSpread ref={leafSpreadRef} count={25} />
             <div className="formulas-center-image" ref={centerImageRef}>
-              <img src="/leaf.png" alt="Natural skincare product" />
+              <img src="/images/a.png" alt="Natural skincare product" loading="lazy" />
             </div>
           </div>
 
-          <div className="formulas-boxes formulas-boxes-right">
-            <div className="formula-box">
-              <div className="formula-box-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" />
-                  <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" />
-                </svg>
-              </div>
-              <h4>Proven by<br />people like you</h4>
-              <p>In real-world tests, 94% of users experienced dramatic, noticeable improvements in 28 days, leading to comments from friends</p>
+          <div className="formula-box formula-box-bl">
+            <div className="formula-box-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L12 6M12 6C9 6 6 9 6 13C6 17 9 22 12 22C15 22 18 17 18 13C18 9 15 6 12 6Z" />
+                <path d="M12 6C12 6 10 8 10 11" />
+                <path d="M12 6C12 6 14 8 14 11" />
+              </svg>
             </div>
-            <div className="formula-box">
-              <div className="formula-box-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                </svg>
-              </div>
-              <h4>The last skincare<br />you'll ever need</h4>
-              <p>Essence uses five powerful, effective ingredients, chosen for proven results, not trends or irritants, to transform your skin.</p>
+            <h4>Proven by<br />people like you</h4>
+            <p>In real-world tests, 94% of users saw noticeable skin improvements within 28 days.</p>
+          </div>
+
+          <div className="formula-box formula-box-br">
+            <div className="formula-box-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+              </svg>
             </div>
+            <h4>Proven by<br />people like you</h4>
+            <p>In real-world tests, 94% of users saw noticeable skin improvements within 28 days.</p>
           </div>
         </div>
       </section>
 
       <FeaturedSection />
 
-      <ShopByProduct />
+      <MarqueeBanner />
+
+      <WhySkinSection />
+
+      <ShopByCategory />
+
+      <BuildYourRitual />
+
+      <PeelReveal />
+
+      {/* <ShopByProduct /> */}
 
       <BlogSection />
 
       {/* <CTA /> */}
 
-      <MarqueeBanner />
-
       <Testimonials />
 
-      <PeelReveal />
+      <LatestLaunches />
+
+      <section className="cta-section">
+        <div className="cta-card">
+          <img src="/images/cta.png" alt="Ancient Secrets, Modern Radiance" className="cta-image" />
+          <div className="cta-content">
+            <h2 className="cta-heading">Ancient Secrets, Modern Radiance</h2>
+            <p className="cta-desc">Infused with Turmeric and Rose Petals.</p>
+            <Link href="/wardrobe" className="cta-shop-btn">SHOP NOW</Link>
+          </div>
+        </div>
+      </section>
 
       {/* Marketing Components - Only render after client mount */}
       {isMounted && (

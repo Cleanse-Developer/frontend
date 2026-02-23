@@ -17,15 +17,16 @@ const BlogSection = () => {
       if (!img) return;
 
       gsap.fromTo(img,
-        { yPercent: -10 },
+        { yPercent: -10, force3D: true },
         {
           yPercent: 10,
           ease: "none",
+          force3D: true,
           scrollTrigger: {
             trigger: img.closest('.blog-card'),
             start: "top bottom",
             end: "bottom top",
-            scrub: 1,
+            scrub: 0.3,
           }
         }
       );
@@ -38,7 +39,7 @@ const BlogSection = () => {
       title: "The Ancient Wisdom of Ayurvedic Hair Rituals",
       category: "Hair Care",
       date: "Jan 28, 2025",
-      image: "/tall.jpg",
+      image: "/images/b1.png",
       excerpt: "Discover centuries-old techniques for naturally lustrous hair.",
       link: "/blog/ayurvedic-hair-rituals",
     },
@@ -47,7 +48,7 @@ const BlogSection = () => {
       title: "Understanding Your Dosha for Better Skin",
       category: "Skin Care",
       date: "Jan 22, 2025",
-      image: "/cream.jpg",
+      image: "/images/b2.png",
       excerpt: "Learn how your unique constitution affects your skincare needs.",
       link: "/blog/dosha-skin-care",
     },
@@ -56,7 +57,7 @@ const BlogSection = () => {
       title: "Morning Rituals for Radiant Complexion",
       category: "Wellness",
       date: "Jan 15, 2025",
-      image: "/pink.jpg",
+      image: "/images/b3.png",
       excerpt: "Simple daily practices that transform your skin from within.",
       link: "/blog/morning-rituals",
     },
@@ -66,27 +67,7 @@ const BlogSection = () => {
     <section className="blog-section" ref={sectionRef}>
       <div className="blog-section-container">
         <div className="blog-section-header">
-          <div className="blog-header-left">
-            <span className="blog-section-label">Journal</span>
-            <h2 className="blog-section-title">Stories & Insights</h2>
-          </div>
-          <div className="blog-header-right">
-            <Link href="/blog" className="blog-view-all">
-              <span>View All Articles</span>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M7 17L17 7M17 7H7M17 7V17" />
-              </svg>
-            </Link>
-          </div>
+          <h2 className="blog-section-title">STORIES AND INSIGHTS</h2>
         </div>
 
         <div className="blog-grid">
@@ -101,12 +82,7 @@ const BlogSection = () => {
                   className="blog-card-image"
                   ref={el => imagesRef.current[index] = el}
                 >
-                  <img src={blog.image} alt={blog.title} />
-                </div>
-                <div className="blog-card-overlay">
-                  <span className="blog-card-number">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
+                  <img src={blog.image} alt={blog.title} loading="lazy" />
                 </div>
               </div>
               <div className="blog-card-content">

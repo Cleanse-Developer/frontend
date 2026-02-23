@@ -7,7 +7,8 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background-color: #fff;
+  background-color: #F0EDE8;
+  contain: layout style paint;
 }
 
 .marquee-banner .marquees {
@@ -27,8 +28,7 @@
 .marquee-banner .marquees .marquee-header {
   position: relative;
   width: 200%;
-  color: var(--base-600);
-  opacity: 0.15;
+  color: #C24F35;
   will-change: transform;
 }
 
@@ -107,13 +107,13 @@
 .marquee-banner .reels-tagline {
   max-width: 678px;
   font-family: var(--font-heading);
-  font-size: clamp(3rem, 6vw, 5rem);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 400;
-  color: var(--base-700);
+  color: #663532;
   text-align: center;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   line-height: 1;
-  opacity: 0.9;
+  text-transform: uppercase;
 }
 
 /* Navigation Buttons */
@@ -589,7 +589,6 @@
   }
 
   .marquee-banner .marquees .marquee-header {
-    opacity: 0.12;
     height: 400px;
     display: flex;
     align-items: center;

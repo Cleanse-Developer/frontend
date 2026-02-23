@@ -43,27 +43,35 @@ const MarqueeBanner = () => {
 
   useGSAP(
     () => {
-      // Marquee scroll animation only
-      ScrollTrigger.create({
-        trigger: marqueeBannerRef.current,
-        start: "top bottom",
-        end: "150% top",
-        scrub: true,
-        onUpdate: (self) => {
-          const progress = self.progress;
-
-          const marquee1X = 25 - progress * 50;
-          gsap.set(marquee1Ref.current, { x: `${marquee1X}%` });
-
-          const marquee2X = -25 + progress * 50;
-          gsap.set(marquee2Ref.current, { x: `${marquee2X}%` });
-
-          if (marquee3Ref.current) {
-            const marquee3X = 15 - progress * 40;
-            gsap.set(marquee3Ref.current, { x: `${marquee3X}%` });
-          }
+      // Marquee scroll animation using timeline (GPU-optimized)
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: marqueeBannerRef.current,
+          start: "top bottom",
+          end: "150% top",
+          scrub: 0.3,
         },
       });
+
+      tl.fromTo(marquee1Ref.current,
+        { xPercent: 25, force3D: true },
+        { xPercent: -25, duration: 1, ease: "none", force3D: true },
+        0
+      );
+
+      tl.fromTo(marquee2Ref.current,
+        { xPercent: -25, force3D: true },
+        { xPercent: 25, duration: 1, ease: "none", force3D: true },
+        0
+      );
+
+      if (marquee3Ref.current) {
+        tl.fromTo(marquee3Ref.current,
+          { xPercent: 15, force3D: true },
+          { xPercent: -25, duration: 1, ease: "none", force3D: true },
+          0
+        );
+      }
     },
     { scope: marqueeBannerRef }
   );
@@ -83,7 +91,7 @@ const MarqueeBanner = () => {
       </div>
 
       <div className="reels-header-top">
-        <h2 className="reels-tagline">CLEAN LIVING</h2>
+        <h2 className="reels-tagline">VIEW TRENDING</h2>
       </div>
 
       <div className="reels-container">
@@ -98,6 +106,7 @@ const MarqueeBanner = () => {
                   src={reel.poster}
                   alt={reel.title}
                   className="reel-poster"
+                  loading="lazy"
                 />
                 <div className="reel-overlay"></div>
               </div>
