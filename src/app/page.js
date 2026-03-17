@@ -70,6 +70,16 @@ export default function Index() {
 
   const settings = useSettings();
 
+  const heroImages = ["/images/hero.png", "/hero.png", "/home/hero.png"];
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
   // Marketing popups state
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [showNewsletter, setShowNewsletter] = useState(false);
@@ -202,25 +212,33 @@ export default function Index() {
         </div>
       )}
 
-      <section
-        className="hero"
-        ref={heroSectionRef}
-        style={settings.cmsHero?.backgroundImage?.url ? { backgroundImage: `url(${settings.cmsHero.backgroundImage.url})` } : undefined}
-      >
-        <div className="container">
-          <div className="hero-header">
-            <Copy type="flicker" animateOnScroll={false} delay={isInitialLoad ? 5.5 : 0.65}>
-              <h1>{settings.cmsHero?.title || "Cleanse Ayurveda"}</h1>
-            </Copy>
-            <Copy animateOnScroll={false} delay={isInitialLoad ? 5.7 : 0.85}>
-              <p className="hero-subtitle">{settings.cmsHero?.subtitle || "Natural Skin Care for Mindful Living"}</p>
-            </Copy>
-            <div className="hero-btn-wrapper">
-              <Link href={settings.cmsHero?.ctaLink || "/wardrobe"} className="hero-btn">{settings.cmsHero?.ctaText || "Shop Now"}</Link>
+      <div className="hero-wrapper">
+        <section
+          className="hero"
+          ref={heroSectionRef}
+        >
+          {heroImages.map((src, i) => (
+            <div
+              key={src}
+              className={`hero-slide ${i === currentHeroIndex ? "active" : ""}`}
+              style={{ backgroundImage: `url(${src})` }}
+            />
+          ))}
+          <div className="container">
+            <div className="hero-header">
+              <Copy type="flicker" animateOnScroll={false} delay={isInitialLoad ? 5.5 : 0.65}>
+                <h1>{settings.cmsHero?.title || "Cleanse Ayurveda"}</h1>
+              </Copy>
+              <Copy animateOnScroll={false} delay={isInitialLoad ? 5.7 : 0.85}>
+                <p className="hero-subtitle">{settings.cmsHero?.subtitle || "Natural Skin Care for Mindful Living"}</p>
+              </Copy>
+              <div className="hero-btn-wrapper">
+                <Link href={settings.cmsHero?.ctaLink || "/wardrobe"} className="hero-btn">{settings.cmsHero?.ctaText || "Shop Now"}</Link>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <section className="formulas" ref={formulasSectionRef}>
         <div className="formulas-header">

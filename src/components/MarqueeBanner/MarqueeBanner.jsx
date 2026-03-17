@@ -48,8 +48,8 @@ const MarqueeBanner = () => {
       });
 
       tl.fromTo(marquee1Ref.current,
-        { xPercent: 25, force3D: true },
-        { xPercent: -25, duration: 1, ease: "none", force3D: true },
+        { xPercent: 5, force3D: true },
+        { xPercent: -35, duration: 1, ease: "none", force3D: true },
         0
       );
 

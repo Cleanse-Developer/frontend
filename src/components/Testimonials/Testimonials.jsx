@@ -35,34 +35,37 @@ const Testimonials = () => {
       .catch(() => {});
   }, []);
 
-  // Initialize animations after testimonials are loaded
+  // Initialize animations after testimonials are loaded and rendered
   useEffect(() => {
-    if (initRef.current) return;
-    initRef.current = true;
+    if (testimonials.length === 0) return;
 
-    // Set initial position of fluid background
-    updateFluidPosition(activeIndex, false);
+    // Wait a tick for DOM to render
+    const timer = setTimeout(() => {
+      // Set initial position of fluid background on first card
+      updateFluidPosition(0, false);
 
-    // Initialize SplitText for all headlines
-    cardsRef.current.forEach((card, i) => {
-      if (card) {
-        const headline = card.querySelector('.testimonial-headline');
-        if (headline && !headlineSplitsRef.current[i]) {
-          const split = SplitText.create(headline, {
-            type: "words,chars",
-          });
-          headlineSplitsRef.current[i] = split;
+      // Initialize SplitText for all headlines
+      cardsRef.current.forEach((card, i) => {
+        if (card) {
+          const headline = card.querySelector('.testimonial-headline');
+          if (headline && !headlineSplitsRef.current[i]) {
+            const split = SplitText.create(headline, {
+              type: "words,chars",
+            });
+            headlineSplitsRef.current[i] = split;
 
-          if (i === activeIndex) {
-            gsap.set(split.chars, { opacity: 1 });
-          } else {
-            gsap.set(split.chars, { opacity: 0 });
+            if (i === 0) {
+              gsap.set(split.chars, { opacity: 1 });
+            } else {
+              gsap.set(split.chars, { opacity: 0 });
+            }
           }
         }
-      }
-    });
+      });
+    }, 100);
 
     return () => {
+      clearTimeout(timer);
       headlineSplitsRef.current.forEach((split) => {
         if (split) split.revert();
       });

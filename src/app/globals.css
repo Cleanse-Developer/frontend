@@ -297,3 +297,85 @@ button.secondary {
     gap: 0.5rem;
   }
 }
+
+/* Large screens (1440px+) */
+@media (min-width: 1440px) {
+  .container {
+    padding: 2.5rem;
+  }
+
+  .section-header,
+  .section-footer {
+    padding: 2.5rem;
+  }
+}
+
+/* Extra large screens (1920px+) */
+@media (min-width: 1920px) {
+  .container {
+    padding: 3rem;
+    max-width: 2400px;
+  }
+
+  .section-header,
+  .section-footer {
+    padding: 3rem;
+    max-width: 2400px;
+  }
+
+  h1 {
+    font-size: clamp(5rem, 8vw, 12rem);
+  }
+
+  h2 {
+    font-size: clamp(4rem, 6vw, 10rem);
+  }
+
+  h3 {
+    font-size: clamp(3rem, 5vw, 6rem);
+  }
+
+  h4 {
+    font-size: clamp(2.5rem, 3.5vw, 5rem);
+  }
+
+  h5 {
+    font-size: clamp(1.5rem, 2vw, 3.5rem);
+  }
+
+  a,
+  p,
+  span {
+    font-size: clamp(1rem, 0.8vw, 1.4rem);
+  }
+
+  button {
+    padding: 1.5rem 1rem;
+    font-size: 1rem;
+  }
+}
+
+/* Ultra wide screens (2560px+) */
+@media (min-width: 2560px) {
+  .container {
+    padding: 4rem;
+    max-width: 2800px;
+  }
+
+  .section-header,
+  .section-footer {
+    padding: 4rem;
+    max-width: 2800px;
+  }
+
+  a,
+  p,
+  span {
+    font-size: clamp(1.1rem, 0.9vw, 1.6rem);
+  }
+
+  button {
+    padding: 1.75rem 1.25rem;
+    font-size: 1.1rem;
+  }
+}

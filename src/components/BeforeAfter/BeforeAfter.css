@@ -182,3 +182,44 @@
     max-width: 100%;
   }
 }
+
+/* Large screens */
+@media (min-width: 1440px) {
+  .before-after {
+    padding: 6rem 3rem;
+  }
+
+  .ba-container {
+    max-width: 1500px;
+  }
+}
+
+/* Extra large screens */
+@media (min-width: 1920px) {
+  .before-after {
+    padding: 8rem 4rem;
+  }
+
+  .ba-container {
+    max-width: 1800px;
+  }
+
+  .ba-title {
+    font-size: 3rem;
+  }
+}
+
+/* Ultra wide screens */
+@media (min-width: 2560px) {
+  .before-after {
+    padding: 10rem 5rem;
+  }
+
+  .ba-container {
+    max-width: 2200px;
+  }
+
+  .ba-title {
+    font-size: 3.5rem;
+  }
+}

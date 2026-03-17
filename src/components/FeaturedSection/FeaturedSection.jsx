@@ -432,7 +432,7 @@ export const LatestLaunches = () => {
   }, []);
 
   return (
-    <section className="products-section">
+    <section className="products-section latest-launches-section">
       <h2 className="products-section-title">OUR LATEST LAUNCHES</h2>
       <div className="products-grid">
         {products.map((product, i) => (

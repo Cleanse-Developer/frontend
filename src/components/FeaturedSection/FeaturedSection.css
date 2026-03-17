@@ -1,7 +1,7 @@
 /* Shop by Category Section */
 .shop-by-category {
   width: 100%;
-  padding: 4rem 2rem;
+  padding: 5rem 2rem;
   background-color: #F0EDE8;
   display: flex;
   flex-direction: column;
@@ -22,13 +22,14 @@
 
 .sbc-grid {
   display: grid;
-  grid-template-columns: repeat(3, 398px);
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  max-width: 1240px;
+  max-width: 1300px;
+  width: 100%;
 }
 
 .sbc-card {
-  width: 398px;
+  width: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -148,7 +149,7 @@
 .featured-section {
   width: 100%;
   min-height: 100vh;
-  padding: 4rem 2rem;
+  padding: 5rem 2rem;
   background-color: #F0EDE8;
   overflow: hidden;
   display: flex;
@@ -160,7 +161,7 @@
 /* Header with title + rating badge */
 .featured-section-header {
   width: 100%;
-  max-width: 1240px;
+  max-width: 1300px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -249,9 +250,9 @@
 /* Asymmetric Grid */
 .featured-grid {
   display: grid;
-  grid-template-columns: 607px 608px;
+  grid-template-columns: 1fr 1fr;
   gap: 25px;
-  max-width: 1240px;
+  max-width: 1300px;
   width: 100%;
   margin: 0 auto;
   align-items: stretch;
@@ -277,7 +278,7 @@
 
 /* Left tall card */
 .featured-card-tall {
-  height: 488px;
+  height: 580px;
 }
 
 .featured-card-tall .featured-card-inner {
@@ -350,10 +351,9 @@
 /* Right Grid */
 .featured-grid-right {
   display: grid;
-  grid-template-columns: 292px 292px;
-  grid-template-rows: 246px 215px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
   gap: 24px;
-  height: 488px;
 }
 
 /* Top right - ingredients card */
@@ -424,6 +424,7 @@
   justify-content: space-between;
   position: relative;
   overflow: hidden;
+  min-height: 260px;
 }
 
 .featured-product-bg {
@@ -487,6 +488,10 @@
   width: 100%;
   padding: 5rem 2rem;
   background-color: #F0EDE8;
+}
+
+.latest-launches-section {
+  padding-top: 2rem;
 }
 
 .products-section-title {
@@ -1084,12 +1089,16 @@
 /* Build Your Ritual Section */
 .byr-section {
   width: 100%;
-  padding: 4rem 2rem;
+  padding: 5rem 2rem;
   background-color: #F0EDE8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .byr-header {
-  max-width: 1240px;
+  max-width: 1300px;
+  width: 100%;
   margin: 0 auto 2.5rem;
 }
 
@@ -1115,22 +1124,23 @@
 
 .byr-layout {
   display: grid;
-  grid-template-columns: 1fr 399px;
+  grid-template-columns: 1fr 30%;
   gap: 24px;
-  max-width: 1240px;
+  max-width: 1300px;
+  width: 100%;
   margin: 0 auto;
   align-items: start;
 }
 
 .byr-grid {
   display: grid;
-  grid-template-columns: repeat(3, 258px);
+  grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, 338px);
   gap: 20px;
 }
 
 .byr-card {
-  width: 258px;
+  width: 100%;
   height: 338px;
   background-color: #fff;
   border-radius: 17.87px;
@@ -1191,7 +1201,7 @@
 
 /* Bundle Card */
 .byr-bundle {
-  width: 399px;
+  width: 100%;
   background-color: #663532;
   border-radius: 17.87px;
   padding: 2.5rem 2rem;
@@ -1461,5 +1471,234 @@
 
   .byr-bundle {
     padding: 1.25rem;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1440px) {
+  .shop-by-category {
+    padding: 5rem 3rem;
+  }
+
+  .sbc-grid {
+    max-width: 1300px;
+    gap: 32px;
+  }
+
+  .sbc-card-image {
+    height: 320px;
+  }
+
+  .sbc-card-box {
+    height: 160px;
+  }
+
+  .featured-section {
+    padding: 5rem 3rem;
+  }
+
+  .featured-section-header {
+    max-width: 1300px;
+  }
+
+  .featured-grid {
+    max-width: 1300px;
+  }
+
+  .products-section {
+    padding: 5rem 3rem;
+  }
+
+  .products-grid {
+    max-width: 1300px;
+    gap: 2rem;
+  }
+
+  .product-card-image {
+    height: 420px;
+  }
+
+  .byr-header {
+    max-width: 1300px;
+  }
+
+  .byr-grid {
+    max-width: 1300px;
+  }
+}
+
+/* Extra large screens */
+@media (min-width: 1920px) {
+  .shop-by-category {
+    padding: 6rem 4rem;
+  }
+
+  .sbc-grid {
+    max-width: 1800px;
+    gap: 40px;
+  }
+
+  .sbc-card-image {
+    height: 380px;
+  }
+
+  .sbc-card-box {
+    height: 180px;
+    padding-left: 2.5rem;
+  }
+
+  .sbc-card-box h3 {
+    font-size: 1.6rem;
+  }
+
+  .featured-section {
+    padding: 6rem 4rem;
+  }
+
+  .featured-section-header {
+    max-width: 1800px;
+  }
+
+  .featured-section-title {
+    font-size: 3rem;
+  }
+
+  .featured-grid {
+    max-width: 1800px;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  .featured-card-tall {
+    height: 580px;
+  }
+
+  .products-section {
+    padding: 6rem 4rem;
+  }
+
+  .products-section-title {
+    font-size: 3rem;
+  }
+
+  .products-grid {
+    max-width: 1800px;
+    gap: 2.5rem;
+  }
+
+  .product-card-image {
+    height: 480px;
+  }
+
+  .product-card-name {
+    font-size: 1.1rem;
+  }
+
+  .product-card-desc {
+    font-size: 0.95rem;
+  }
+
+  .product-card-price {
+    font-size: 1.1rem;
+  }
+
+  .byr-header {
+    max-width: 1800px;
+  }
+
+  .byr-grid {
+    max-width: 1800px;
+  }
+
+  .byr-card {
+    width: 300px;
+    height: 400px;
+  }
+}
+
+/* Ultra wide screens */
+@media (min-width: 2560px) {
+  .shop-by-category {
+    padding: 8rem 5rem;
+  }
+
+  .sbc-grid {
+    max-width: 2200px;
+    gap: 48px;
+  }
+
+  .sbc-card-image {
+    height: 450px;
+  }
+
+  .sbc-card-box {
+    height: 200px;
+  }
+
+  .sbc-card-box h3 {
+    font-size: 2rem;
+  }
+
+  .featured-section {
+    padding: 8rem 5rem;
+  }
+
+  .featured-section-header {
+    max-width: 2200px;
+  }
+
+  .featured-section-title {
+    font-size: 3.5rem;
+  }
+
+  .featured-grid {
+    max-width: 2200px;
+    gap: 40px;
+  }
+
+  .featured-card-tall {
+    height: 700px;
+  }
+
+  .products-section {
+    padding: 8rem 5rem;
+  }
+
+  .products-section-title {
+    font-size: 3.5rem;
+  }
+
+  .products-grid {
+    max-width: 2200px;
+    gap: 3rem;
+  }
+
+  .product-card-image {
+    height: 560px;
+  }
+
+  .product-card-name {
+    font-size: 1.3rem;
+  }
+
+  .product-card-desc {
+    font-size: 1.1rem;
+  }
+
+  .product-card-info {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .byr-header {
+    max-width: 2200px;
+  }
+
+  .byr-grid {
+    max-width: 2200px;
+  }
+
+  .byr-card {
+    width: 360px;
+    height: 470px;
   }
 }

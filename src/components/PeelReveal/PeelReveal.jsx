@@ -21,6 +21,7 @@ const PeelReveal = () => {
   const introTexts = cmsPeel.introTexts || ["Shop", "Now"];
 
   const peelRevealContainerRef = useRef(null);
+  const headerRef = useRef(null);
 
   useEffect(() => {
     const container = peelRevealContainerRef.current;
@@ -39,11 +40,9 @@ const PeelReveal = () => {
         const introTexts = Array.from(
           section.querySelectorAll(".peel-reveal-intro-text")
         );
-        const header = section.querySelector(".peel-reveal-header h1");
+        if (!imageContainer || !headerRef.current) return;
 
-        if (!imageContainer || !header) return;
-
-        const splitText = new SplitText(header, { type: "words" });
+        const splitText = new SplitText(headerRef.current, { type: "words" });
         const words = splitText.words;
         gsap.set(words, { opacity: 0 });
         gsap.set(imageContainer, { scale: 0, borderRadius: "3rem", force3D: true });
@@ -119,7 +118,13 @@ const PeelReveal = () => {
             <img src={peelImage} alt="Product" loading="lazy" />
           </div>
           <div className="peel-reveal-header">
-            <h1 dangerouslySetInnerHTML={{ __html: peelHeading.replace(/,\s*/g, ",<br />") }} />
+            <h1 ref={headerRef}>
+              {peelHeading.split(/,\s*/).reduce((acc, part, i, arr) => {
+                if (i > 0) acc.push(<br key={`br-${i}`} />);
+                acc.push(part + (i < arr.length - 1 ? "," : ""));
+                return acc;
+              }, [])}
+            </h1>
           </div>
         </div>
         <div className="peel-reveal-intro-text-container">
