@@ -10,6 +10,7 @@ import TransitionProvider from "@/providers/TransitionProvider";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { ToastProvider } from "@/context/ToastContext";
+import { SettingsProvider } from "@/context/SettingsContext";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary";
 
 export const metadata = {
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
       <body>
         <ErrorBoundary>
         <AuthProvider>
+        <SettingsProvider>
         <ToastProvider>
         <CartProvider>
           <TransitionProvider>
@@ -34,6 +36,7 @@ export default function RootLayout({ children }) {
           </TransitionProvider>
         </CartProvider>
         </ToastProvider>
+        </SettingsProvider>
         </AuthProvider>
         </ErrorBoundary>
       </body>

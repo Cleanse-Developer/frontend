@@ -2,6 +2,18 @@
  * Data shape transformers: backend → frontend
  */
 
+/**
+ * Build product detail URL. Appends ?variant=sku for products with sizes.
+ */
+export function productUrl(product) {
+  const base = `/unit/${product.slug}`;
+  if (product.sizes && product.sizes.length > 0) {
+    const firstSku = product.sizes[0].sku || product.sizes[0].label;
+    return `${base}?variant=${encodeURIComponent(firstSku)}`;
+  }
+  return base;
+}
+
 export function normalizeProduct(p) {
   if (!p) return null;
   return {
@@ -23,7 +35,7 @@ export function normalizeProduct(p) {
     sizes: p.sizes || [],
     sizeLabels: (p.sizes || []).map((s) => s.label),
     images: p.images || [],
-    primaryImage: p.images?.[0]?.url || "/images/placeholder.jpg",
+    primaryImage: (p.images?.find((img) => img.isPrimary) || p.images?.[0])?.url || "/images/placeholder.jpg",
     averageRating: p.averageRating || 0,
     reviewCount: p.reviewCount || 0,
     totalStock: p.totalStock || 0,

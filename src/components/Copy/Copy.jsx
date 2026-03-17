@@ -49,6 +49,7 @@ export default function Copy({
         elementRefs.current = [];
 
         let elements = [];
+        if (!containerRef.current) return;
         if (containerRef.current.hasAttribute("data-copy-wrapper")) {
           elements = Array.from(containerRef.current.children);
         } else {

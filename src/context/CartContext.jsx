@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { cartApi } from "@/lib/endpoints";
+import { cartApi, cartPricingApi, guestPricingApi } from "@/lib/endpoints";
 
 const CartContext = createContext(null);
 
@@ -24,6 +24,7 @@ function saveGuestCart(items) {
 export const CartProvider = ({ children }) => {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [cartItems, setCartItems] = useState([]);
+  const [serverPricing, setServerPricing] = useState(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const syncedRef = useRef(false);
 
@@ -47,7 +48,7 @@ export const CartProvider = ({ children }) => {
           }
           // Now fetch the full cart
           const data = await cartApi.get();
-          setCartItems(normalizeApiCart(data.cart || data));
+          handleCartResponse(data);
         } catch {
           setCartItems([]);
         }
@@ -67,6 +68,34 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartItems, isAuthenticated]);
 
+  // Fetch server pricing for guest carts
+  useEffect(() => {
+    if (authLoading || isAuthenticated) return;
+    if (!syncedRef.current || cartItems.length === 0) {
+      setServerPricing(null);
+      return;
+    }
+
+    const items = cartItems
+      .filter((item) => item.productId)
+      .map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity || 1,
+        selectedSize: item.selectedSize,
+      }));
+
+    if (items.length === 0) {
+      setServerPricing(null);
+      return;
+    }
+
+    guestPricingApi.calculate(items).then((pricing) => {
+      setServerPricing(pricing);
+    }).catch(() => {
+      setServerPricing(null);
+    });
+  }, [cartItems, isAuthenticated, authLoading]);
+
   const normalizeApiCart = (cart) => {
     if (!cart?.items) return [];
     return cart.items.map((item) => ({
@@ -74,12 +103,47 @@ export const CartProvider = ({ children }) => {
       productId: item.product?._id || item.product,
       name: item.product?.name || item.name || "Product",
       price: item.price || item.product?.price || 0,
-      image: item.product?.images?.[0]?.url || item.image || "/images/1.png",
+      image: (item.product?.images?.find((img) => img.isPrimary) || item.product?.images?.[0])?.url || item.image || "/images/1.png",
       selectedSize: item.selectedSize,
       quantity: item.quantity || 1,
       slug: item.product?.slug,
     }));
   };
+
+  // Handle API response that may be { cart, pricing } or just cart
+  const handleCartResponse = (data) => {
+    if (data?.cart && data?.pricing) {
+      setCartItems(normalizeApiCart(data.cart));
+      setServerPricing(data.pricing);
+    } else {
+      setCartItems(normalizeApiCart(data.cart || data));
+      setServerPricing(data.pricing || null);
+    }
+  };
+
+  // Fetch pricing preview from server (for coupon/gift wrap) — works for both auth and guest
+  const fetchPricingPreview = useCallback(async (couponCode, giftWrap) => {
+    try {
+      let pricing;
+      if (isAuthenticated) {
+        pricing = await cartPricingApi.preview(couponCode, giftWrap);
+      } else {
+        const items = cartItems
+          .filter((item) => item.productId)
+          .map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity || 1,
+            selectedSize: item.selectedSize,
+          }));
+        if (items.length === 0) return null;
+        pricing = await guestPricingApi.calculate(items, couponCode, giftWrap);
+      }
+      setServerPricing(pricing);
+      return pricing;
+    } catch {
+      return null;
+    }
+  }, [isAuthenticated, cartItems]);
 
   const addToCart = useCallback(async (product, selectedSize, quantity = 1) => {
     const productId = product._id || product.productId;
@@ -92,7 +156,7 @@ export const CartProvider = ({ children }) => {
     if (isAuthenticated) {
       try {
         const data = await cartApi.addItem(productId, quantity, sizeLabel);
-        setCartItems(normalizeApiCart(data.cart || data));
+        handleCartResponse(data);
       } catch (err) {
         console.error("Add to cart failed:", err);
       }
@@ -117,7 +181,7 @@ export const CartProvider = ({ children }) => {
     if (isAuthenticated) {
       try {
         const data = await cartApi.removeItem(cartItemId);
-        setCartItems(normalizeApiCart(data.cart || data));
+        handleCartResponse(data);
       } catch (err) {
         console.error("Remove from cart failed:", err);
       }
@@ -134,7 +198,7 @@ export const CartProvider = ({ children }) => {
     if (isAuthenticated) {
       try {
         const data = await cartApi.updateItem(cartItemId, qty);
-        setCartItems(normalizeApiCart(data.cart || data));
+        handleCartResponse(data);
       } catch (err) {
         console.error("Update quantity failed:", err);
       }
@@ -183,6 +247,8 @@ export const CartProvider = ({ children }) => {
     subtotal,
     isCartOpen,
     setIsCartOpen,
+    serverPricing,
+    fetchPricingPreview,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

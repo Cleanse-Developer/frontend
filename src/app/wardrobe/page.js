@@ -2,12 +2,12 @@
 import "@/components/FeaturedSection/FeaturedSection.css";
 import "./wardrobe.css";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { gsap } from "gsap";
 import { productApi } from "@/lib/endpoints";
-import { normalizeProduct } from "@/lib/normalizers";
+import { normalizeProduct, productUrl } from "@/lib/normalizers";
 
 export default function Wardrobe() {
   return (
@@ -17,11 +17,32 @@ export default function Wardrobe() {
   );
 }
 
+const TAG_MAP = {
+  face: "Face Care",
+  "face care": "Face Care",
+  "face-care": "Face Care",
+  hair: "Hair Care",
+  "hair care": "Hair Care",
+  "hair-care": "Hair Care",
+  body: "Body Care",
+  "body care": "Body Care",
+  "body-care": "Body Care",
+  skin: "Face Care",
+  "skin care": "Face Care",
+  "skin-care": "Face Care",
+};
+
+function resolveTag(param) {
+  if (!param) return "All";
+  const key = param.toLowerCase().trim();
+  return TAG_MAP[key] || "All";
+}
+
 function WardrobeContent() {
   const { addToCart } = useCart();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
-  const initialTag = categoryParam || "All";
+  const initialTag = resolveTag(categoryParam);
   const [allProducts, setAllProducts] = useState([]);
   const [activeTag, setActiveTag] = useState(initialTag);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -33,11 +54,15 @@ function WardrobeContent() {
   const isInitialMount = useRef(true);
 
   // Fetch all products from API on mount
+  const activeTagRef = useRef(activeTag);
+  activeTagRef.current = activeTag;
+
   useEffect(() => {
     productApi.getAll({ limit: 50 }).then((data) => {
       const normalized = (data.products || []).map(normalizeProduct);
       setAllProducts(normalized);
-      const initial = initialTag === "All" ? normalized : normalized.filter((p) => p.tag === initialTag);
+      const tag = activeTagRef.current;
+      const initial = tag === "All" ? normalized : normalized.filter((p) => p.tag === tag);
       setFilteredProducts(initial);
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -81,13 +106,22 @@ function WardrobeContent() {
     return result;
   };
 
+  const router = useRouter();
+
   const handleFilterChange = (newTag) => {
     if (isAnimating) return;
     if (newTag === activeTag) return;
 
-    setIsAnimating(true);
     setActiveTag(newTag);
 
+    // Sync URL with selected tag
+    const url = newTag === "All" ? "/wardrobe" : `/wardrobe?category=${newTag.toLowerCase().replace(/\s+/g, "-")}`;
+    router.replace(url, { scroll: false });
+
+    // If still loading, just update the tag — products will filter once they arrive
+    if (loading) return;
+
+    setIsAnimating(true);
     window.dispatchEvent(new CustomEvent("page-transition", { detail: { active: true } }));
 
     gsap.to(productRefs.current.filter(Boolean), {
@@ -138,18 +172,6 @@ function WardrobeContent() {
     );
   }, [filteredProducts]);
 
-  if (loading) {
-    return (
-      <div className="wardrobe-page">
-        <section className="wardrobe-hero">
-          <div className="wardrobe-hero-content">
-            <h1 className="wardrobe-hero-title">LOADING...</h1>
-          </div>
-        </section>
-      </div>
-    );
-  }
-
   return (
     <div className="wardrobe-page">
       {/* Hero Section - same as home */}
@@ -159,7 +181,7 @@ function WardrobeContent() {
             <Link href="/">HOME</Link>/ <Link href="/wardrobe">SHOP</Link>/ <span>{activeTag === "All" ? "ALL" : activeTag.toUpperCase()}</span>
           </div>
           <h1 className="wardrobe-hero-title">
-            {activeTag === "All" ? "BODY SKIN CARE" : activeTag.toUpperCase()}
+            {activeTag === "All" ? "ALL PRODUCTS" : activeTag.toUpperCase()}
           </h1>
         </div>
       </section>
@@ -213,111 +235,121 @@ function WardrobeContent() {
         </div>
       </section>
 
-      {/* Section 1: 2 Products + Spotlight Banner */}
-      <section className="wardrobe-section section-row-1">
-        <div className="products-pair">
-          {filteredProducts.slice(0, 2).map((product, index) => {
-            const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;
-            return (
-              <div key={product.name + index} className="product-card" ref={(el) => (productRefs.current[index] = el)} style={{ opacity: 0 }}>
-                <div className="product-card-image">
-                  <img src={product.primaryImage || `/images/${imgIndex}.png`} alt={product.name} loading="lazy" />
-                </div>
-                <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
-                  <span className="cart-btn-circle">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                      <line x1="3" y1="6" x2="21" y2="6" />
-                      <path d="M16 10a4 4 0 01-8 0" />
-                    </svg>
-                  </span>
-                  <span className="cart-btn-text">Add to Cart</span>
-                </button>
-                <div className="product-card-info">
-                  <h3 className="product-card-name">{product.name}</h3>
-                  <p className="product-card-desc">{product.description}</p>
-                  <div className="product-card-footer">
-                    <span className="product-card-price">₹{product.price}</span>
-                    <Link href={`/unit/${product.slug}`} className="product-card-buy-btn">Buy Now</Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="spotlight-banner">
-          <img src="/images/top.png" alt="Featured Collection" className="spotlight-banner-img" />
-        </div>
-      </section>
+      {loading && (
+        <section className="wardrobe-section section-row-2" style={{ minHeight: "40vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p style={{ opacity: 0.5, fontSize: "1rem", letterSpacing: "0.1em" }}>LOADING PRODUCTS...</p>
+        </section>
+      )}
 
-      {/* Section 2: 4 Products in a Row */}
-      <section className="wardrobe-section section-row-2">
-        {filteredProducts.slice(2, 6).map((product, index) => {
-          const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;
-          return (
-            <div key={product.name + index} className="product-card" ref={(el) => (productRefs.current[index + 2] = el)} style={{ opacity: 0 }}>
-              <div className="product-card-image">
-                <img src={product.primaryImage || `/images/${imgIndex}.png`} alt={product.name} loading="lazy" />
-              </div>
-              <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
-                <span className="cart-btn-circle">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <path d="M16 10a4 4 0 01-8 0" />
-                  </svg>
-                </span>
-                <span className="cart-btn-text">Add to Cart</span>
-              </button>
-              <div className="product-card-info">
-                <h3 className="product-card-name">{product.name}</h3>
-                <p className="product-card-desc">{product.description}</p>
-                <div className="product-card-footer">
-                  <span className="product-card-price">₹{product.price}</span>
-                  <Link href={`/unit/${product.slug}`} className="product-card-buy-btn">Buy Now</Link>
-                </div>
-              </div>
+      {!loading && (
+        <>
+          {/* Section 1: 2 Products + Spotlight Banner */}
+          <section className="wardrobe-section section-row-1">
+            <div className="products-pair">
+              {filteredProducts.slice(0, 2).map((product, index) => {
+                const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;
+                return (
+                  <div key={product.name + index} className="product-card" ref={(el) => (productRefs.current[index] = el)} style={{ opacity: 0 }}>
+                    <Link href={productUrl(product)} className="product-card-image">
+                      <img src={product.primaryImage || `/images/${imgIndex}.png`} alt={product.name} loading="lazy" />
+                    </Link>
+                    <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
+                      <span className="cart-btn-circle">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                          <line x1="3" y1="6" x2="21" y2="6" />
+                          <path d="M16 10a4 4 0 01-8 0" />
+                        </svg>
+                      </span>
+                      <span className="cart-btn-text">Add to Cart</span>
+                    </button>
+                    <div className="product-card-info">
+                      <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
+                      <p className="product-card-desc">{product.description}</p>
+                      <div className="product-card-footer">
+                        <span className="product-card-price">₹{product.price}</span>
+                        <button className="product-card-buy-btn" onClick={() => { addToCart(product); router.push("/cart"); }}>Buy Now</button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
-      </section>
+            <div className="spotlight-banner">
+              <img src="/images/top.png" alt="Featured Collection" className="spotlight-banner-img" />
+            </div>
+          </section>
 
-      {/* Section 3: Side Banner + 4 Products */}
-      <section className="wardrobe-section section-row-3">
-        <div className="side-banner">
-          <img src="/images/banner.png" alt="Ayurvedic Collection" className="side-banner-img" />
-        </div>
-        <div className="products-beside-banner">
-          {filteredProducts.slice(6, 10).map((product, index) => {
-            const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;
-            return (
-              <div key={product.name + index} className="product-card" ref={(el) => (productRefs.current[index + 6] = el)} style={{ opacity: 0 }}>
-                <div className="product-card-image">
-                  <img src={product.primaryImage || `/images/${imgIndex}.png`} alt={product.name} loading="lazy" />
-                </div>
-                <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
-                  <span className="cart-btn-circle">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                      <line x1="3" y1="6" x2="21" y2="6" />
-                      <path d="M16 10a4 4 0 01-8 0" />
-                    </svg>
-                  </span>
-                  <span className="cart-btn-text">Add to Cart</span>
-                </button>
-                <div className="product-card-info">
-                  <h3 className="product-card-name">{product.name}</h3>
-                  <p className="product-card-desc">{product.description}</p>
-                  <div className="product-card-footer">
-                    <span className="product-card-price">₹{product.price}</span>
-                    <Link href={`/unit/${product.slug}`} className="product-card-buy-btn">Buy Now</Link>
+          {/* Section 2: 4 Products in a Row */}
+          <section className="wardrobe-section section-row-2">
+            {filteredProducts.slice(2, 6).map((product, index) => {
+              const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;
+              return (
+                <div key={product.name + index} className="product-card" ref={(el) => (productRefs.current[index + 2] = el)} style={{ opacity: 0 }}>
+                  <Link href={productUrl(product)} className="product-card-image">
+                    <img src={product.primaryImage || `/images/${imgIndex}.png`} alt={product.name} loading="lazy" />
+                  </Link>
+                  <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
+                    <span className="cart-btn-circle">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 01-8 0" />
+                      </svg>
+                    </span>
+                    <span className="cart-btn-text">Add to Cart</span>
+                  </button>
+                  <div className="product-card-info">
+                    <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
+                    <p className="product-card-desc">{product.description}</p>
+                    <div className="product-card-footer">
+                      <span className="product-card-price">₹{product.price}</span>
+                      <button className="product-card-buy-btn" onClick={() => { addToCart(product); router.push("/cart"); }}>Buy Now</button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+              );
+            })}
+          </section>
+
+          {/* Section 3: Side Banner + 4 Products */}
+          <section className="wardrobe-section section-row-3">
+            <div className="side-banner">
+              <img src="/images/banner.png" alt="Ayurvedic Collection" className="side-banner-img" />
+            </div>
+            <div className="products-beside-banner">
+              {filteredProducts.slice(6, 10).map((product, index) => {
+                const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;
+                return (
+                  <div key={product.name + index} className="product-card" ref={(el) => (productRefs.current[index + 6] = el)} style={{ opacity: 0 }}>
+                    <Link href={productUrl(product)} className="product-card-image">
+                      <img src={product.primaryImage || `/images/${imgIndex}.png`} alt={product.name} loading="lazy" />
+                    </Link>
+                    <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
+                      <span className="cart-btn-circle">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                          <line x1="3" y1="6" x2="21" y2="6" />
+                          <path d="M16 10a4 4 0 01-8 0" />
+                        </svg>
+                      </span>
+                      <span className="cart-btn-text">Add to Cart</span>
+                    </button>
+                    <div className="product-card-info">
+                      <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
+                      <p className="product-card-desc">{product.description}</p>
+                      <div className="product-card-footer">
+                        <span className="product-card-price">₹{product.price}</span>
+                        <button className="product-card-buy-btn" onClick={() => { addToCart(product); router.push("/cart"); }}>Buy Now</button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }

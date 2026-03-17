@@ -1,110 +1,70 @@
 "use client";
 import "./login.css";
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Login() {
-  const { login, register, sendOtp, isAuthenticated } = useAuth();
-  const router = useRouter();
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
+  );
+}
 
-  const [activeTab, setActiveTab] = useState("login");
-  const [otpSent, setOtpSent] = useState(false);
+function LoginContent() {
+  const { loginWithPassword, register, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/profile";
+
+  // Read query params for pre-filling (from checkout redirect)
+  const paramTab = searchParams.get("tab");
+  const paramEmail = searchParams.get("email") || "";
+  const paramPhone = searchParams.get("phone") || "";
+  const paramName = searchParams.get("name") || "";
+
+  const [activeTab, setActiveTab] = useState(paramTab === "register" ? "register" : "login");
   const [showPassword, setShowPassword] = useState(false);
+  const [showRegPassword, setShowRegPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
 
-  // Form state
-  const [identifier, setIdentifier] = useState("");
-  const [regName, setRegName] = useState("");
-  const [regEmail, setRegEmail] = useState("");
-  const [regPhone, setRegPhone] = useState("");
+  // Login form state
+  const [loginEmail, setLoginEmail] = useState(paramEmail);
+  const [loginPassword, setLoginPassword] = useState("");
+
+  // Register form state
+  const [regName, setRegName] = useState(paramName);
+  const [regEmail, setRegEmail] = useState(paramEmail);
+  const [regPhone, setRegPhone] = useState(paramPhone);
   const [regPassword, setRegPassword] = useState("");
 
   // UI state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const otpRefs = useRef([]);
 
   // Redirect if already logged in
   useEffect(() => {
-    if (isAuthenticated) router.replace("/profile");
-  }, [isAuthenticated, router]);
+    if (isAuthenticated) router.replace(redirectTo);
+  }, [isAuthenticated, router, redirectTo]);
 
-  const handleOtpChange = (e, index) => {
-    const value = e.target.value;
-    if (value.length === 1 && index < 5) {
-      otpRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleOtpKeyDown = (e, index) => {
-    if (e.key === "Backspace" && !e.target.value && index > 0) {
-      otpRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleOtpPaste = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    pasted.split("").forEach((char, i) => {
-      if (otpRefs.current[i]) {
-        otpRefs.current[i].value = char;
-      }
-    });
-    if (pasted.length > 0 && pasted.length <= 6) {
-      otpRefs.current[Math.min(pasted.length, 5)]?.focus();
-    }
-  };
-
-  const getOtpValue = () =>
-    otpRefs.current.map((el) => el?.value || "").join("");
-
-  const handleSendOtp = async () => {
-    if (!identifier.trim()) {
-      setError("Please enter your email or phone number");
+    if (!loginEmail.trim() || !loginPassword) {
+      setError("Please enter your email and password");
       return;
     }
     setLoading(true);
     setError("");
     try {
-      await sendOtp(identifier.trim());
-      setOtpSent(true);
+      await loginWithPassword(loginEmail.trim(), loginPassword);
+      router.replace(redirectTo);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to send OTP");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    const otp = getOtpValue();
-    if (otp.length !== 6) {
-      setError("Please enter the full 6-digit code");
-      return;
-    }
-    setLoading(true);
-    setError("");
-    try {
-      await login(identifier.trim(), otp);
-      router.replace("/profile");
-    } catch (err) {
-      setError(err.response?.data?.message || "Invalid OTP");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      await sendOtp(identifier.trim());
-      otpRefs.current.forEach((el) => { if (el) el.value = ""; });
-      otpRefs.current[0]?.focus();
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to resend OTP");
+      console.error("[login] error:", err.response?.status, err.response?.data);
+      const data = err.response?.data;
+      const msg = data?.errors?.[0]?.message || data?.message || "Invalid email or password";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -129,9 +89,13 @@ export default function Login() {
         phone: regPhone.trim(),
         password: regPassword,
       });
-      router.replace("/profile");
+      router.replace(redirectTo);
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      console.error("[register] error:", err.response?.status, err.response?.data);
+      const data = err.response?.data;
+      // Show first validation error if available, otherwise the top-level message
+      const msg = data?.errors?.[0]?.message || data?.message || "Registration failed";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -173,7 +137,7 @@ export default function Login() {
           <div className="login-tab-toggle">
             <button
               className={`login-tab ${activeTab === "login" ? "active" : ""}`}
-              onClick={() => { setActiveTab("login"); setOtpSent(false); setError(""); }}
+              onClick={() => { setActiveTab("login"); setError(""); }}
             >
               Login
             </button>
@@ -187,56 +151,46 @@ export default function Login() {
 
           {/* Login Tab */}
           {activeTab === "login" && (
-            <form className="login-form" onSubmit={handleVerifyOtp}>
-              {!otpSent ? (
-                <>
-                  <div className="login-input-group">
-                    <label>Email or Phone</label>
-                    <input type="text" placeholder="Enter your email or phone number" value={identifier} onChange={(e) => setIdentifier(e.target.value)} disabled={loading} />
-                  </div>
+            <form className="login-form" onSubmit={handleLogin}>
+              <div className="login-input-group">
+                <label>Email</label>
+                <input type="email" placeholder="Enter your email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} disabled={loading} />
+              </div>
+              <div className="login-input-group">
+                <label>Password</label>
+                <div className="login-password-wrapper">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    disabled={loading}
+                  />
                   <button
                     type="button"
-                    className="login-submit-btn"
-                    onClick={handleSendOtp}
-                    disabled={loading}
+                    className="login-password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {loading ? "Sending..." : "Send OTP"}
+                    {showPassword ? (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+                        <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                        <path d="M14.12 14.12a3 3 0 11-4.24-4.24" />
+                      </svg>
+                    ) : (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    )}
                   </button>
-                </>
-              ) : (
-                <>
-                  <div className="login-otp-section">
-                    <p className="login-otp-label">Enter the 6-digit code sent to your device</p>
-                    <div className="login-otp-inputs">
-                      {[0, 1, 2, 3, 4, 5].map((i) => (
-                        <input
-                          key={i}
-                          type="text"
-                          maxLength="1"
-                          inputMode="numeric"
-                          className="login-otp-box"
-                          ref={(el) => (otpRefs.current[i] = el)}
-                          onChange={(e) => handleOtpChange(e, i)}
-                          onKeyDown={(e) => handleOtpKeyDown(e, i)}
-                          onPaste={i === 0 ? handleOtpPaste : undefined}
-                          disabled={loading}
-                        />
-                      ))}
-                    </div>
-                    <button
-                      type="button"
-                      className="login-resend"
-                      onClick={handleResendOtp}
-                      disabled={loading}
-                    >
-                      Resend Code
-                    </button>
-                  </div>
-                  <button type="submit" className="login-submit-btn" disabled={loading}>
-                    {loading ? "Verifying..." : "Verify & Login"}
-                  </button>
-                </>
-              )}
+                </div>
+              </div>
+              <button type="submit" className="login-submit-btn" disabled={loading}>
+                {loading ? "Logging in..." : "Login"}
+              </button>
 
               <div className="login-divider">
                 <span className="login-divider-line"></span>
@@ -267,7 +221,7 @@ export default function Login() {
                 <button
                   type="button"
                   className="login-switch-btn"
-                  onClick={() => { setActiveTab("register"); setOtpSent(false); setError(""); }}
+                  onClick={() => { setActiveTab("register"); setError(""); }}
                 >
                   Register
                 </button>
@@ -294,7 +248,7 @@ export default function Login() {
                 <label>Password</label>
                 <div className="login-password-wrapper">
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showRegPassword ? "text" : "password"}
                     placeholder="Create a password"
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
@@ -303,10 +257,10 @@ export default function Login() {
                   <button
                     type="button"
                     className="login-password-toggle"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowRegPassword(!showRegPassword)}
+                    aria-label={showRegPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? (
+                    {showRegPassword ? (
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
                         <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />

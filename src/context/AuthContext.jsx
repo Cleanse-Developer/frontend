@@ -42,6 +42,14 @@ export function AuthProvider({ children }) {
     return res;
   }, []);
 
+  const loginWithPassword = useCallback(async (email, password) => {
+    const res = await authApi.loginWithPassword(email, password);
+    const { accessToken, user: userData } = res.data;
+    localStorage.setItem("accessToken", accessToken);
+    setUser(userData);
+    return userData;
+  }, []);
+
   const login = useCallback(async (identifier, otp) => {
     const res = await authApi.verifyOtp(identifier, otp);
     const { accessToken, user: userData } = res.data;
@@ -85,6 +93,7 @@ export function AuthProvider({ children }) {
         isLoading,
         sendOtp,
         login,
+        loginWithPassword,
         register,
         logout,
         refreshProfile,

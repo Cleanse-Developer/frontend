@@ -1,32 +1,82 @@
 "use client";
 import "./lookbook.css";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { slugify } from "@/utils/slugify";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
+import { productApi } from "@/lib/endpoints";
+import { productUrl } from "@/lib/normalizers";
 
-const pins = [
-  { type: "lifestyle", title: "Morning Ritual", desc: "Start your day with ancient Ayurvedic wisdom", img: "/images/b1.png", height: "tall" },
-  { type: "product", name: "Golden Elixir Hair Oil", price: 85, img: "/images/1.png", bg: "#D9C9A8", tag: "Hair Care" },
-  { type: "quote", text: "Beauty begins the moment you decide to be yourself.", author: "Ancient Ayurveda" },
-  { type: "lifestyle", title: "Sacred Roots", desc: "Hair care rooted in tradition", img: "/images/why2.png", height: "medium" },
-  { type: "product", name: "Kumkumadi Night Elixir", price: 95, img: "/images/4.png", bg: "#C4B48C", tag: "Face Care" },
-  { type: "lifestyle", title: "Golden Hour", desc: "Saffron-infused luxury for radiant skin", img: "/images/b2.png", height: "tall" },
-  { type: "product", name: "Rose Hydra Mist", price: 32, img: "/images/2.png", bg: "#E7D0A6", tag: "Face Care" },
-  { type: "lifestyle", title: "Wellness Journey", desc: "Body care for mind and soul", img: "/images/why1.png", height: "medium" },
-  { type: "product", name: "Neem Purifying Cleanser", price: 38, img: "/images/3.png", bg: "#C8AD73", tag: "Face Care" },
-  { type: "quote", text: "Nature does not hurry, yet everything is accomplished.", author: "Ayurvedic Wisdom", dark: true },
-  { type: "lifestyle", title: "Night Elixir", desc: "Overnight repair with precious herbs", img: "/images/b3.png", height: "tall" },
-  { type: "product", name: "Ashwagandha Body Oil", price: 62, img: "/images/1.png", bg: "#D9C9A8", tag: "Body Care" },
-  { type: "lifestyle", title: "Bridal Glow", desc: "Traditional beauty rituals for the big day", img: "/images/why3.png", height: "medium" },
-  { type: "product", name: "Sandalwood Serum", price: 78, img: "/images/2.png", bg: "#C4B48C", tag: "Face Care" },
+const BG_COLORS = ["#D9C9A8", "#C4B48C", "#E7D0A6", "#C8AD73", "#D1BFA5", "#B8A47C"];
+
+// Static editorial content (lifestyle & quotes) stays the same
+const lifestyleCards = [
+  { title: "Morning Ritual", desc: "Start your day with ancient Ayurvedic wisdom", img: "/images/b1.png", height: "tall" },
+  { title: "Sacred Roots", desc: "Hair care rooted in tradition", img: "/images/why2.png", height: "medium" },
+  { title: "Golden Hour", desc: "Saffron-infused luxury for radiant skin", img: "/images/b2.png", height: "tall" },
+  { title: "Wellness Journey", desc: "Body care for mind and soul", img: "/images/why1.png", height: "medium" },
+  { title: "Night Elixir", desc: "Overnight repair with precious herbs", img: "/images/b3.png", height: "tall" },
+  { title: "Bridal Glow", desc: "Traditional beauty rituals for the big day", img: "/images/why3.png", height: "medium" },
 ];
+
+const quoteCards = [
+  { text: "Beauty begins the moment you decide to be yourself.", author: "Ancient Ayurveda" },
+  { text: "Nature does not hurry, yet everything is accomplished.", author: "Ayurvedic Wisdom", dark: true },
+];
+
+function buildPins(products) {
+  const pins = [];
+  let pIdx = 0;
+  let lIdx = 0;
+  let qIdx = 0;
+
+  // Pattern: lifestyle, product, quote, lifestyle, product, lifestyle, product, lifestyle, product, quote, lifestyle, product, lifestyle, product
+  const pattern = ["lifestyle", "product", "quote", "lifestyle", "product", "lifestyle", "product", "lifestyle", "product", "quote", "lifestyle", "product", "lifestyle", "product"];
+
+  for (const type of pattern) {
+    if (type === "lifestyle" && lIdx < lifestyleCards.length) {
+      pins.push({ type: "lifestyle", ...lifestyleCards[lIdx++] });
+    } else if (type === "product" && pIdx < products.length) {
+      const p = products[pIdx];
+      const img = (p.images?.find((i) => i.isPrimary) || p.images?.[0])?.url || `/images/${(pIdx % 4) + 1}.png`;
+      pins.push({
+        type: "product",
+        name: p.name,
+        slug: p.slug,
+        price: p.price,
+        sizes: p.sizes || [],
+        img,
+        bg: BG_COLORS[pIdx % BG_COLORS.length],
+        tag: p.tag,
+      });
+      pIdx++;
+    } else if (type === "quote" && qIdx < quoteCards.length) {
+      pins.push({ type: "quote", ...quoteCards[qIdx++] });
+    }
+  }
+  return pins;
+}
 
 export default function Lookbook() {
   const itemsRef = useRef([]);
+  const [pins, setPins] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    productApi
+      .getAll({ limit: 8 })
+      .then((data) => {
+        const products = data.products || [];
+        setPins(buildPins(products));
+      })
+      .catch(() => {
+        setPins(buildPins([]));
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   useGSAP(() => {
+    if (loading) return;
     gsap.fromTo(
       itemsRef.current.filter(Boolean),
       { opacity: 0, y: 40 },
@@ -39,7 +89,7 @@ export default function Lookbook() {
         delay: 0.3,
       }
     );
-  });
+  }, { dependencies: [loading] });
 
   return (
     <div className="lookbook-page">
@@ -82,7 +132,7 @@ export default function Lookbook() {
 
               {/* Product Card */}
               {pin.type === "product" && (
-                <Link href={`/unit/${pin.name ? slugify(pin.name) : ""}`} className="lb-product">
+                <Link href={productUrl(pin)} className="lb-product">
                   <div className="lb-product-img" style={{ backgroundColor: pin.bg }}>
                     <img src={pin.img} alt={pin.name} loading="lazy" />
                   </div>
@@ -90,7 +140,7 @@ export default function Lookbook() {
                     <span className="lb-product-tag">{pin.tag}</span>
                     <h3 className="lb-product-name">{pin.name}</h3>
                     <div className="lb-product-bottom">
-                      <span className="lb-product-price">₹{pin.price}</span>
+                      <span className="lb-product-price">{`\u20B9${pin.price}`}</span>
                       <span className="lb-product-btn">Shop Now</span>
                     </div>
                   </div>
@@ -104,7 +154,7 @@ export default function Lookbook() {
                     <path d="M11 7.05V12H6.95A5 5 0 0 0 2 17v0a5 5 0 0 0 5 5h1a3 3 0 0 0 3-3v-5a7 7 0 0 0-7-7h0v.05A5 5 0 0 1 11 7.05zM22 7.05V12h-4.05A5 5 0 0 0 13 17v0a5 5 0 0 0 5 5h1a3 3 0 0 0 3-3v-5a7 7 0 0 0-7-7h0v.05A5 5 0 0 1 22 7.05z"/>
                   </svg>
                   <p className="lb-quote-text">{pin.text}</p>
-                  <span className="lb-quote-author">— {pin.author}</span>
+                  <span className="lb-quote-author">{`\u2014 ${pin.author}`}</span>
                 </div>
               )}
             </div>

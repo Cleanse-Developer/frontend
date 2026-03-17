@@ -1,6 +1,7 @@
 "use client";
 import "./SpinWheel.css";
 import { useState, useRef } from "react";
+import { spinWheelApi } from "@/lib/endpoints";
 
 const prizes = [
   { label: "10% OFF", value: "10off", color: "#4F2C22", textColor: "#F0EDE8" },
@@ -17,24 +18,45 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
   const [result, setResult] = useState(null);
   const [email, setEmail] = useState("");
   const [hasSpun, setHasSpun] = useState(false);
+  const [error, setError] = useState("");
   const wheelRef = useRef(null);
+  const apiResultRef = useRef(null);
 
-  const spinWheel = () => {
+  const spinWheel = async () => {
     if (isSpinning || !email) return;
 
     setIsSpinning(true);
     setResult(null);
+    setError("");
 
-    const spinDegrees = 1440 + Math.floor(Math.random() * 360);
+    // Call API first to get the real result
+    try {
+      const data = await spinWheelApi.spin(email);
+      apiResultRef.current = data.prize;
+    } catch (err) {
+      const msg = err.response?.data?.message || "Something went wrong. Try again later.";
+      setError(msg);
+      setIsSpinning(false);
+      return;
+    }
+
+    // Find the winning segment index to land on the correct prize
+    const winValue = apiResultRef.current.value;
+    const winIndex = prizes.findIndex((p) => p.value === winValue);
+    const segmentSize = 360 / prizes.length;
+    // Calculate rotation to land on the winning segment
+    const targetAngle = 360 - (winIndex * segmentSize + segmentSize / 2);
+    const spinDegrees = 1440 + targetAngle;
     const newRotation = rotation + spinDegrees;
     setRotation(newRotation);
 
     setTimeout(() => {
-      const normalizedRotation = newRotation % 360;
-      const segmentSize = 360 / prizes.length;
-      const winningIndex = Math.floor((360 - normalizedRotation + segmentSize / 2) / segmentSize) % prizes.length;
-
-      setResult(prizes[winningIndex]);
+      const prize = apiResultRef.current;
+      setResult({
+        label: prize.label,
+        value: prize.value,
+        couponCode: prize.couponCode,
+      });
       setIsSpinning(false);
       setHasSpun(true);
     }, 4000);
@@ -99,6 +121,7 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
+                {error && <p style={{ color: "#c0392b", fontSize: "0.85rem", margin: "0.25rem 0 0" }}>{error}</p>}
                 <button
                   className="spin-btn"
                   onClick={spinWheel}
@@ -110,12 +133,16 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
             ) : (
               <div className="spin-result">
                 <div className="result-badge">
-                  <span className="result-label">You Won!</span>
+                  <span className="result-label">{result?.value === "tryagain" ? "Oops!" : "You Won!"}</span>
                   <span className="result-prize">{result?.label}</span>
                 </div>
-                <p className="result-code">Use code: <strong>CLEANSE{result?.value?.toUpperCase()}</strong></p>
+                {result?.couponCode ? (
+                  <p className="result-code">Use code: <strong>{result.couponCode}</strong></p>
+                ) : (
+                  <p className="result-code">Better luck next time!</p>
+                )}
                 <button className="claim-btn" onClick={handleClaim}>
-                  Claim Reward
+                  {result?.couponCode ? "Claim Reward" : "Close"}
                 </button>
               </div>
             )}

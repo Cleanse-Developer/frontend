@@ -1,8 +1,9 @@
 "use client";
 import "./FOMOPopup.css";
 import { useState, useEffect, useRef } from "react";
+import { socialProofApi } from "@/lib/endpoints";
 
-const fomoMessages = [
+const FALLBACK_MESSAGES = [
   { name: "Priya", location: "Mumbai", product: "Kumkumadi Serum", time: "2 minutes ago" },
   { name: "Ananya", location: "Delhi", product: "Rose Face Mist", time: "5 minutes ago" },
   { name: "Sneha", location: "Bangalore", product: "Neem Face Wash", time: "8 minutes ago" },
@@ -18,6 +19,19 @@ const FOMOPopup = ({ isActive }) => {
   const [isVisible, setIsVisible] = useState(false);
   const timeoutRef = useRef(null);
   const messageIndexRef = useRef(0);
+  const messagesRef = useRef(FALLBACK_MESSAGES);
+
+  // Fetch real purchase data on mount
+  useEffect(() => {
+    socialProofApi.getRecentPurchases(10)
+      .then((data) => {
+        const purchases = data.purchases || [];
+        if (purchases.length > 0) {
+          messagesRef.current = purchases;
+        }
+      })
+      .catch(() => { /* keep fallbacks */ });
+  }, []);
 
   useEffect(() => {
     if (!isActive) {
@@ -29,9 +43,9 @@ const FOMOPopup = ({ isActive }) => {
     }
 
     const showNextMessage = () => {
-      // Get next message in sequence
-      const message = fomoMessages[messageIndexRef.current];
-      messageIndexRef.current = (messageIndexRef.current + 1) % fomoMessages.length;
+      const messages = messagesRef.current;
+      const message = messages[messageIndexRef.current % messages.length];
+      messageIndexRef.current = (messageIndexRef.current + 1) % messages.length;
 
       setCurrentMessage(message);
       setIsVisible(true);
@@ -41,7 +55,7 @@ const FOMOPopup = ({ isActive }) => {
         setIsVisible(false);
 
         // Schedule next popup with random delay between 3-6 seconds
-        const nextDelay = Math.floor(Math.random() * 3000) + 3000; // 3000-6000ms
+        const nextDelay = Math.floor(Math.random() * 3000) + 3000;
         timeoutRef.current = setTimeout(showNextMessage, nextDelay);
       }, 4000);
     };

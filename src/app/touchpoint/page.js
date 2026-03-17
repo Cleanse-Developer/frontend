@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
+import { contactApi } from "@/lib/endpoints";
 
 const faqs = [
   { q: "What are your shipping times?", a: "We ship within 2-3 business days. Delivery takes 5-7 days across India and 10-14 days internationally." },
@@ -18,6 +19,29 @@ export default function Touchpoint() {
   const formRef = useRef(null);
   const faqRefs = useRef([]);
   const [openFaq, setOpenFaq] = useState(null);
+  const [formData, setFormData] = useState({ name: "", lastName: "", email: "", subject: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    if (submitting || !formData.name || !formData.email || !formData.message) return;
+    setSubmitting(true);
+    try {
+      await contactApi.submit({
+        name: `${formData.name} ${formData.lastName}`.trim(),
+        email: formData.email,
+        subject: formData.subject || "General Inquiry",
+        message: formData.message,
+      });
+      setSubmitted(true);
+      setFormData({ name: "", lastName: "", email: "", subject: "", message: "" });
+    } catch {
+      // Silent fail -- form still resets
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   useGSAP(() => {
     gsap.fromTo(
@@ -139,44 +163,57 @@ export default function Touchpoint() {
             </div>
           </div>
           <div className="touchpoint-form-right">
-            <form className="touchpoint-form" onSubmit={(e) => e.preventDefault()}>
-              <div className="touchpoint-form-row">
-                <div className="touchpoint-input-group">
-                  <label>First Name</label>
-                  <input type="text" placeholder="First name" />
-                </div>
-                <div className="touchpoint-input-group">
-                  <label>Last Name</label>
-                  <input type="text" placeholder="Last name" />
-                </div>
-              </div>
-              <div className="touchpoint-input-group">
-                <label>Email</label>
-                <input type="email" placeholder="your@email.com" />
-              </div>
-              <div className="touchpoint-input-group">
-                <label>Subject</label>
-                <select defaultValue="">
-                  <option value="" disabled>Select a topic</option>
-                  <option value="order">Order Inquiry</option>
-                  <option value="product">Product Question</option>
-                  <option value="return">Returns & Exchanges</option>
-                  <option value="wholesale">Wholesale & Partnerships</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div className="touchpoint-input-group">
-                <label>Message</label>
-                <textarea rows="5" placeholder="Tell us how we can help..."></textarea>
-              </div>
-              <button type="submit" className="touchpoint-submit-btn">
-                <span>Send Message</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                  <polyline points="12 5 19 12 12 19"/>
+            {submitted ? (
+              <div className="touchpoint-form" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1rem", minHeight: "300px" }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4F2C22" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 6L9 17l-5-5" />
                 </svg>
-              </button>
-            </form>
+                <h3 style={{ color: "#4F2C22", fontSize: "1.4rem" }}>Message Sent!</h3>
+                <p style={{ color: "#6b5c4c", textAlign: "center" }}>Thank you for reaching out. We&apos;ll get back to you soon.</p>
+                <button className="touchpoint-submit-btn" onClick={() => setSubmitted(false)} style={{ marginTop: "0.5rem" }}>
+                  <span>Send Another</span>
+                </button>
+              </div>
+            ) : (
+              <form className="touchpoint-form" onSubmit={handleContactSubmit}>
+                <div className="touchpoint-form-row">
+                  <div className="touchpoint-input-group">
+                    <label>First Name</label>
+                    <input type="text" placeholder="First name" required value={formData.name} onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))} />
+                  </div>
+                  <div className="touchpoint-input-group">
+                    <label>Last Name</label>
+                    <input type="text" placeholder="Last name" value={formData.lastName} onChange={(e) => setFormData((p) => ({ ...p, lastName: e.target.value }))} />
+                  </div>
+                </div>
+                <div className="touchpoint-input-group">
+                  <label>Email</label>
+                  <input type="email" placeholder="your@email.com" required value={formData.email} onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))} />
+                </div>
+                <div className="touchpoint-input-group">
+                  <label>Subject</label>
+                  <select value={formData.subject} onChange={(e) => setFormData((p) => ({ ...p, subject: e.target.value }))}>
+                    <option value="">Select a topic</option>
+                    <option value="Order Inquiry">Order Inquiry</option>
+                    <option value="Product Question">Product Question</option>
+                    <option value="Returns & Exchanges">Returns & Exchanges</option>
+                    <option value="Wholesale & Partnerships">Wholesale & Partnerships</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div className="touchpoint-input-group">
+                  <label>Message</label>
+                  <textarea rows="5" placeholder="Tell us how we can help..." required value={formData.message} onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))} />
+                </div>
+                <button type="submit" className="touchpoint-submit-btn" disabled={submitting}>
+                  <span>{submitting ? "Sending..." : "Send Message"}</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </section>

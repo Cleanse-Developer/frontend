@@ -2,9 +2,10 @@
 import "./cart.css";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { productApi } from "@/lib/endpoints";
-import { normalizeProduct } from "@/lib/normalizers";
+import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import Copy from "@/components/Copy/Copy";
 
 const discountTiers = [
@@ -18,6 +19,7 @@ const maxThreshold = discountTiers[discountTiers.length - 1].threshold;
 
 export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity, addToCart, cartCount, subtotal } = useCart();
+  const router = useRouter();
 
   const [giftWrap, setGiftWrap] = useState(false);
   const [giftMessage, setGiftMessage] = useState("");
@@ -204,7 +206,12 @@ export default function CartPage() {
                 <span>&#8377;{(subtotal >= 1200 ? finalTotal + giftWrapCost : finalTotal + 99 + giftWrapCost).toFixed(2)}</span>
               </div>
             </div>
-            <button className="cart-checkout-btn">Proceed to Checkout</button>
+            <button
+              className="cart-checkout-btn"
+              onClick={() => router.push("/checkout")}
+            >
+              Proceed to Checkout
+            </button>
             <Link href="/wardrobe" className="cart-continue-link">Continue Shopping</Link>
           </div>
         </div>
@@ -223,7 +230,7 @@ export default function CartPage() {
             {recommended.map((product, i) => {
               return (
                 <div key={product._id || i} className="cart-rec-card">
-                  <Link href={`/unit/${product.slug}`} className="cart-rec-card-image">
+                  <Link href={productUrl(product)} className="cart-rec-card-image">
                     <img src={product.primaryImage || `/images/${(i % 4) + 1}.png`} alt={product.name} />
                   </Link>
                   <div className="cart-rec-card-info">

@@ -1,11 +1,12 @@
 "use client";
 import "./unit.css";
-import { use, useState, useEffect, useCallback } from "react";
+import { Suspense, use, useState, useEffect, useCallback } from "react";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import { productApi, shippingApi, reviewApi } from "@/lib/endpoints";
-import { normalizeProduct } from "@/lib/normalizers";
+import { productApi, shippingApi, reviewApi, bundleApi } from "@/lib/endpoints";
+import { normalizeProduct, productUrl } from "@/lib/normalizers";
 
 const productImages = [
   "/images/1.png",
@@ -33,73 +34,75 @@ const fallbackReviews = [
   },
 ];
 
-const productInfoTabs = [
-  {
-    id: "ingredients",
-    label: "Ingredients",
-    content: "Kumkumadi Tailam base with Kashmiri Saffron, Sandalwood, Red Lotus, Manjistha, Vetiver, Licorice Root, Turmeric, Indian Madder, Banyan Tree Bark, Sesame Oil, and Almond Oil. 100% natural with no parabens, sulfates, or synthetic fragrances.",
-    values: [
-      { icon: "saffron", label: "Kashmiri Saffron" },
-      { icon: "leaf", label: "Organic Herbs" },
-      { icon: "dropper", label: "Cold Pressed Oils" },
-      { icon: "noparaben", label: "No Parabens" },
-      { icon: "chemical", label: "No Sulfates" },
-      { icon: "plant", label: "100% Natural" },
-    ],
-  },
-  {
-    id: "values",
-    label: "Our Values",
-    content: "All our products are natural, plant-based and toxic-free. Our formulations help you take care of your body without harming yourself or the environment.",
-    values: [
-      { icon: "plant", label: "Plant Based" },
-      { icon: "dropper", label: "No Artificial Color" },
-      { icon: "leaf", label: "Plant Based" },
-      { icon: "paw", label: "Cruelty Free" },
-      { icon: "chemical", label: "No Synthetic Chemicals" },
-      { icon: "lotus", label: "100% Ayurvedic" },
-    ],
-  },
-  {
-    id: "howto",
-    label: "How to Use",
-    content: "Cleanse face thoroughly. Take 3-4 drops on your fingertips and warm between palms. Gently press onto face and neck in upward strokes. Massage for 2-3 minutes on problem areas. Leave overnight for best results.",
-    values: [
-      { icon: "wash", label: "Cleanse Face" },
-      { icon: "drops", label: "3-4 Drops" },
-      { icon: "hands", label: "Warm in Palms" },
-      { icon: "massage", label: "Massage Upward" },
-      { icon: "moon", label: "Leave Overnight" },
-      { icon: "repeat", label: "Use Nightly" },
-    ],
-  },
-  {
-    id: "shipping",
-    label: "Shipping and Returns",
-    content: "Free shipping on orders above ₹999. Standard delivery in 3-5 business days. Express delivery available for ₹149. We ship across India and to select international destinations.",
-    values: [
-      { icon: "truck", label: "Free Shipping" },
-      { icon: "clock", label: "3-5 Business Days" },
-      { icon: "express", label: "Express Delivery" },
-      { icon: "globe", label: "Ships Worldwide" },
-      { icon: "returnbox", label: "7-Day Returns" },
-      { icon: "shield", label: "Damage Protection" },
-    ],
-  },
-  {
-    id: "policies",
-    label: "Policies",
-    content: "All products are dermatologically tested and certified. Shelf life of 24 months from manufacture. Store in a cool, dry place away from direct sunlight. For external use only.",
-    values: [
-      { icon: "certificate", label: "Certified Safe" },
-      { icon: "calendar", label: "24 Month Shelf Life" },
-      { icon: "sun", label: "Store Cool & Dry" },
-      { icon: "test", label: "Patch Test First" },
-      { icon: "external", label: "External Use Only" },
-      { icon: "check", label: "Quality Assured" },
-    ],
-  },
-];
+// Default highlights used when product has no tabHighlights data
+const DEFAULT_HIGHLIGHTS = {
+  ingredients: [
+    { icon: "saffron", label: "Kashmiri Saffron" },
+    { icon: "leaf", label: "Organic Herbs" },
+    { icon: "dropper", label: "Cold Pressed Oils" },
+    { icon: "noparaben", label: "No Parabens" },
+    { icon: "chemical", label: "No Sulfates" },
+    { icon: "plant", label: "100% Natural" },
+  ],
+  values: [
+    { icon: "plant", label: "Plant Based" },
+    { icon: "dropper", label: "No Artificial Color" },
+    { icon: "leaf", label: "Plant Based" },
+    { icon: "paw", label: "Cruelty Free" },
+    { icon: "chemical", label: "No Synthetic Chemicals" },
+    { icon: "lotus", label: "100% Ayurvedic" },
+  ],
+  howToUse: [
+    { icon: "wash", label: "Cleanse Face" },
+    { icon: "drops", label: "3-4 Drops" },
+    { icon: "hands", label: "Warm in Palms" },
+    { icon: "massage", label: "Massage Upward" },
+    { icon: "moon", label: "Leave Overnight" },
+    { icon: "repeat", label: "Use Nightly" },
+  ],
+  shippingInfo: [
+    { icon: "truck", label: "Free Shipping" },
+    { icon: "clock", label: "3-5 Business Days" },
+    { icon: "express", label: "Express Delivery" },
+    { icon: "globe", label: "Ships Worldwide" },
+    { icon: "returnbox", label: "7-Day Returns" },
+    { icon: "shield", label: "Damage Protection" },
+  ],
+  policies: [
+    { icon: "certificate", label: "Certified Safe" },
+    { icon: "calendar", label: "24 Month Shelf Life" },
+    { icon: "sun", label: "Store Cool & Dry" },
+    { icon: "test", label: "Patch Test First" },
+    { icon: "external", label: "External Use Only" },
+    { icon: "check", label: "Quality Assured" },
+  ],
+};
+
+const DEFAULT_TEXT = {
+  ingredients: "Pure Ayurvedic herbs and natural botanical extracts.",
+  values: "All our products are natural, plant-based and toxic-free. Our formulations help you take care of your body without harming yourself or the environment.",
+  howToUse: "Apply as directed. For external use only.",
+  shippingInfo: "Free shipping on orders above ₹999. Standard delivery in 3-5 business days.",
+  policies: "All products are dermatologically tested and certified. 30-day return policy for unopened products.",
+};
+
+function buildProductInfoTabs(product) {
+  const th = product?.tabHighlights || {};
+  const TAB_MAP = [
+    { id: "ingredients", label: "Ingredients", textKey: "ingredients", hlKey: "ingredients" },
+    { id: "values", label: "Our Values", textKey: "values", hlKey: "values" },
+    { id: "howto", label: "How to Use", textKey: "howToUse", hlKey: "howToUse" },
+    { id: "shipping", label: "Shipping and Returns", textKey: "shippingInfo", hlKey: "shippingInfo" },
+    { id: "policies", label: "Policies", textKey: "policies", hlKey: "policies" },
+  ];
+
+  return TAB_MAP.map(({ id, label, textKey, hlKey }) => ({
+    id,
+    label,
+    content: product?.[textKey] || DEFAULT_TEXT[textKey],
+    values: th[hlKey]?.length > 0 ? th[hlKey] : DEFAULT_HIGHLIGHTS[hlKey],
+  }));
+}
 
 const ValueIcon = ({ type }) => {
   const s = { viewBox: "0 0 40 40", fill: "none", stroke: "currentColor", strokeWidth: "1.2", strokeLinecap: "round", strokeLinejoin: "round" };
@@ -322,6 +325,14 @@ const ValueIcon = ({ type }) => {
 };
 
 export default function Unit({ params }) {
+  return (
+    <Suspense>
+      <UnitContent params={params} />
+    </Suspense>
+  );
+}
+
+function UnitContent({ params }) {
   const { slug } = use(params);
 
   const [product, setProduct] = useState(null);
@@ -333,7 +344,8 @@ export default function Unit({ params }) {
   const [deliveryMsg, setDeliveryMsg] = useState("");
   const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
-  const [bundleProducts, setBundleProducts] = useState([]);
+  const [bundles, setBundles] = useState([]);
+  const [activeBundleIndex, setActiveBundleIndex] = useState(0);
   const [bundleSelected, setBundleSelected] = useState([]);
   const [openTab, setOpenTab] = useState("ingredients");
   const [reviewIndex, setReviewIndex] = useState(0);
@@ -342,6 +354,9 @@ export default function Unit({ params }) {
   const [reviewForm, setReviewForm] = useState({ rating: 5, title: "", text: "" });
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const { addToCart } = useCart();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const variantParam = searchParams.get("variant");
 
   // Fetch product by slug
   useEffect(() => {
@@ -349,7 +364,11 @@ export default function Unit({ params }) {
     productApi.getBySlug(slug).then((data) => {
       const p = normalizeProduct(data.product || data);
       setProduct(p);
-      setSelectedSize(p.sizes?.[0] || null);
+      // Pre-select size from ?variant= param, fallback to first size
+      const matchedSize = variantParam && p.sizes?.length > 0
+        ? p.sizes.find((s) => s.sku === variantParam || s.label === variantParam)
+        : null;
+      setSelectedSize(matchedSize || p.sizes?.[0] || null);
       setLoading(false);
       // Fetch related products
       if (p._id) {
@@ -357,12 +376,19 @@ export default function Unit({ params }) {
           setRelatedProducts((relData.products || []).map(normalizeProduct));
         }).catch(() => {});
       }
-      // Use related as bundle products
-      productApi.getAll({ limit: 6, tag: p.tag }).then((bData) => {
-        const bundleList = (bData.products || []).filter(bp => bp._id !== p._id).slice(0, 6).map(normalizeProduct);
-        setBundleProducts(bundleList);
-        setBundleSelected(bundleList.map(() => true));
-      }).catch(() => {});
+      // Fetch bundles that include this product
+      if (p._id) {
+        bundleApi.getAll({ product: p._id }).then((bData) => {
+          const bundleList = bData.bundles || bData || [];
+          setBundles(bundleList);
+          setActiveBundleIndex(0);
+          if (bundleList.length > 0) {
+            const firstBundle = bundleList[0];
+            const products = (firstBundle.products || []).map(normalizeProduct);
+            setBundleSelected(products.map(() => true));
+          }
+        }).catch(() => {});
+      }
       // Fetch reviews
       if (p._id) {
         reviewApi.getForProduct(p._id).then((revData) => {
@@ -378,7 +404,7 @@ export default function Unit({ params }) {
         }).catch(() => {});
       }
     }).catch(() => setLoading(false));
-  }, [slug]);
+  }, [slug, variantParam]);
 
   const handleSubmitReview = async () => {
     if (!product?._id || !reviewForm.text.trim() || reviewSubmitting) return;
@@ -408,8 +434,11 @@ export default function Unit({ params }) {
   };
 
   const galleryImages = product
-    ? (product.images?.length > 0 ? product.images.map(img => img.url) : [product.primaryImage, ...productImages])
+    ? (product.images?.length > 0 ? [...product.images].sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0)).map(img => img.url) : [product.primaryImage, ...productImages])
     : [];
+
+  const activeBundle = bundles[activeBundleIndex] || null;
+  const bundleProducts = activeBundle ? (activeBundle.products || []).map(normalizeProduct) : [];
 
   const toggleBundleItem = (index) => {
     const updated = [...bundleSelected];
@@ -418,15 +447,37 @@ export default function Unit({ params }) {
     setBundleSelected(updated);
   };
 
+  const switchBundle = (index) => {
+    setActiveBundleIndex(index);
+    const bundle = bundles[index];
+    if (bundle) {
+      const products = (bundle.products || []).map(normalizeProduct);
+      setBundleSelected(products.map(() => true));
+    }
+  };
+
+  const selectedBundleCount = bundleSelected.filter(Boolean).length;
   const bundleOriginalTotal = bundleProducts.reduce((sum, p, i) =>
     bundleSelected[i] ? sum + Number(p.price) : sum, 0
   );
-  const bundleDiscountedTotal = Math.round(bundleOriginalTotal * 0.85);
 
-  const handleAddBundle = () => {
-    bundleProducts.forEach((p, i) => {
-      if (bundleSelected[i]) addToCart(p);
-    });
+  const bundleDiscountedTotal = activeBundle
+    ? activeBundle.discountType === "percentage"
+      ? Math.round(bundleOriginalTotal * (1 - activeBundle.discountValue / 100))
+      : Math.max(0, bundleOriginalTotal - activeBundle.discountValue)
+    : bundleOriginalTotal;
+
+  const bundleMeetsMin = activeBundle ? selectedBundleCount >= activeBundle.minProducts : false;
+  const bundleDiscountLabel = activeBundle
+    ? activeBundle.discountType === "percentage"
+      ? `${activeBundle.discountValue}%`
+      : `₹${activeBundle.discountValue}`
+    : "";
+
+  const handleAddBundle = async () => {
+    for (let i = 0; i < bundleProducts.length; i++) {
+      if (bundleSelected[i]) await addToCart(bundleProducts[i]);
+    }
   };
 
   const handleCheckDelivery = useCallback(async () => {
@@ -547,7 +598,13 @@ export default function Unit({ params }) {
                   <button
                     key={size.label || size}
                     className={`product-size-btn ${(selectedSize?.label || selectedSize) === (size.label || size) ? "selected" : ""}`}
-                    onClick={() => setSelectedSize(size)}
+                    onClick={() => {
+                      setSelectedSize(size);
+                      const variantKey = size.sku || size.label;
+                      if (variantKey) {
+                        router.replace(`/unit/${slug}?variant=${encodeURIComponent(variantKey)}`, { scroll: false });
+                      }
+                    }}
                   >
                     {size.label || size}{size.price ? ` - ₹${size.price}` : ""}
                   </button>
@@ -571,7 +628,15 @@ export default function Unit({ params }) {
             </div>
 
             {/* Buy Now */}
-            <button className="buy-now-btn">Buy Now</button>
+            <button
+              className="buy-now-btn"
+              onClick={() => {
+                addToCart(product, selectedSize?.label || selectedSize, quantity);
+                router.push("/checkout");
+              }}
+            >
+              Buy Now
+            </button>
 
             {/* Check Delivery */}
             <div className="product-delivery-check">
@@ -607,94 +672,131 @@ export default function Unit({ params }) {
         </div>
       </section>
 
-      <section className="bundle-section">
-        <div className="bundle-header">
-          <h3 className="bundle-title">BUILD YOUR BUNDLE</h3>
-          <p className="bundle-subtitle">Select products and save 15% on your bundle</p>
-        </div>
-        <div className="bundle-layout">
-          <div className="bundle-grid">
-            {bundleProducts.map((bp, index) => {
-              const imgIndex = (index % 4) + 1;
-              const imgPath = bp.primaryImage || `/images/${imgIndex}.png`;
-              return (
-                <button
-                  key={bp._id || bp.name}
-                  className={`bundle-card ${bundleSelected[index] ? "bundle-card-selected" : ""}`}
-                  onClick={() => toggleBundleItem(index)}
-                >
-                  <div className="bundle-card-image">
-                    <img src={imgPath} alt={bp.name} />
-                  </div>
-                  <div className="bundle-card-info">
-                    <p className="bundle-card-name">{bp.name}</p>
-                    <p className="bundle-card-price">&#8377;{bp.price}</p>
-                  </div>
-                  <div className="bundle-card-check">
-                    <div className={`bundle-check-circle ${bundleSelected[index] ? "checked" : ""}`}>
-                      {bundleSelected[index] && (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
+      {activeBundle && bundleProducts.length > 0 && (
+        <section className="bundle-section">
+          <div className="bundle-header">
+            <h3 className="bundle-title">{activeBundle.name || "BUILD YOUR BUNDLE"}</h3>
+            <p className="bundle-subtitle">
+              {activeBundle.subtitle || `Select ${activeBundle.minProducts}+ products and save ${bundleDiscountLabel}`}
+            </p>
+            {bundles.length > 1 && (
+              <div className="bundle-tabs" style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
+                {bundles.map((b, i) => (
+                  <button
+                    key={b._id}
+                    className={`bundle-tab-btn ${i === activeBundleIndex ? "active" : ""}`}
+                    onClick={() => switchBundle(i)}
+                    style={{
+                      padding: "0.4rem 1rem",
+                      fontSize: "0.8rem",
+                      border: i === activeBundleIndex ? "1.5px solid #663532" : "1px solid #ddd",
+                      borderRadius: "20px",
+                      background: i === activeBundleIndex ? "#663532" : "transparent",
+                      color: i === activeBundleIndex ? "#fff" : "#663532",
+                      cursor: "pointer",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    {b.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="bundle-summary">
-            <h4 className="bundle-summary-title">YOUR BUNDLE</h4>
-            <p className="bundle-summary-desc">Add products and save 15%</p>
-            <div className="bundle-summary-divider" />
-            <div className="bundle-summary-slots">
+          <div className="bundle-layout">
+            <div className="bundle-grid">
               {bundleProducts.map((bp, index) => {
+                const imgIndex = (index % 4) + 1;
+                const imgPath = bp.primaryImage || `/images/${imgIndex}.png`;
                 return (
-                  <div key={bp._id || bp.name} className="bundle-slot">
-                    {bundleSelected[index] ? (
-                      <>
-                        <div className="bundle-slot-img">
-                          <img src={bp.primaryImage || `/images/${(index % 4) + 1}.png`} alt={bp.name} />
-                        </div>
-                        <div className="bundle-slot-info">
-                          <span className="bundle-slot-name">{bp.name}</span>
-                          <span className="bundle-slot-price">&#8377;{bp.price}</span>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="bundle-slot-img bundle-slot-empty" />
-                        <div className="bundle-slot-info">
-                          <div className="bundle-slot-line bundle-slot-line-long" />
-                          <div className="bundle-slot-line bundle-slot-line-short" />
-                        </div>
-                      </>
-                    )}
-                  </div>
+                  <button
+                    key={bp._id || bp.name}
+                    className={`bundle-card ${bundleSelected[index] ? "bundle-card-selected" : ""}`}
+                    onClick={() => toggleBundleItem(index)}
+                  >
+                    <div className="bundle-card-image">
+                      <img src={imgPath} alt={bp.name} />
+                    </div>
+                    <div className="bundle-card-info">
+                      <p className="bundle-card-name">{bp.name}</p>
+                      <p className="bundle-card-price">&#8377;{bp.price}</p>
+                    </div>
+                    <div className="bundle-card-check">
+                      <div className={`bundle-check-circle ${bundleSelected[index] ? "checked" : ""}`}>
+                        {bundleSelected[index] && (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                  </button>
                 );
               })}
             </div>
-            <div className="bundle-summary-divider" />
-            <div className="bundle-summary-total">
-              <span>Total</span>
-              <div className="bundle-summary-prices">
-                <span className="bundle-total-original">&#8377;{bundleOriginalTotal}</span>
-                <span className="bundle-total-final">&#8377;{bundleDiscountedTotal}</span>
+            <div className="bundle-summary">
+              <h4 className="bundle-summary-title">YOUR BUNDLE</h4>
+              <p className="bundle-summary-desc">
+                {bundleMeetsMin
+                  ? `Save ${bundleDiscountLabel} on this bundle`
+                  : `Select ${activeBundle.minProducts - selectedBundleCount} more to unlock ${bundleDiscountLabel} off`}
+              </p>
+              <div className="bundle-summary-divider" />
+              <div className="bundle-summary-slots">
+                {bundleProducts.map((bp, index) => {
+                  return (
+                    <div key={bp._id || bp.name} className="bundle-slot">
+                      {bundleSelected[index] ? (
+                        <>
+                          <div className="bundle-slot-img">
+                            <img src={bp.primaryImage || `/images/${(index % 4) + 1}.png`} alt={bp.name} />
+                          </div>
+                          <div className="bundle-slot-info">
+                            <span className="bundle-slot-name">{bp.name}</span>
+                            <span className="bundle-slot-price">&#8377;{bp.price}</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="bundle-slot-img bundle-slot-empty" />
+                          <div className="bundle-slot-info">
+                            <div className="bundle-slot-line bundle-slot-line-long" />
+                            <div className="bundle-slot-line bundle-slot-line-short" />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
+              <div className="bundle-summary-divider" />
+              <div className="bundle-summary-total">
+                <span>Total</span>
+                <div className="bundle-summary-prices">
+                  {bundleMeetsMin && bundleOriginalTotal !== bundleDiscountedTotal && (
+                    <span className="bundle-total-original">&#8377;{bundleOriginalTotal}</span>
+                  )}
+                  <span className="bundle-total-final">
+                    &#8377;{bundleMeetsMin ? bundleDiscountedTotal : bundleOriginalTotal}
+                  </span>
+                </div>
+              </div>
+              {bundleMeetsMin && bundleOriginalTotal !== bundleDiscountedTotal && (
+                <p className="bundle-summary-savings">You save &#8377;{bundleOriginalTotal - bundleDiscountedTotal}</p>
+              )}
+              <button className="bundle-add-btn" onClick={handleAddBundle}>
+                Add Bundle to Cart
+              </button>
             </div>
-            <p className="bundle-summary-savings">You save &#8377;{bundleOriginalTotal - bundleDiscountedTotal}</p>
-            <button className="bundle-add-btn" onClick={handleAddBundle}>
-              Add Bundle to Cart
-            </button>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Product Info Tabs */}
       <section className="product-info-section">
         <div className="product-info-container">
           <div className="product-info-tabs">
-            {productInfoTabs.map((tab) => (
+            {buildProductInfoTabs(product).map((tab) => (
               <button
                 key={tab.id}
                 className={`info-tab ${openTab === tab.id ? "active" : ""}`}
@@ -706,7 +808,7 @@ export default function Unit({ params }) {
           </div>
           <div className="info-tab-divider"></div>
           <div className="info-tab-content">
-            {productInfoTabs.map((tab) => (
+            {buildProductInfoTabs(product).map((tab) => (
               <div
                 key={tab.id}
                 className={`info-tab-panel ${openTab === tab.id ? "active" : ""}`}
@@ -877,7 +979,7 @@ export default function Unit({ params }) {
             return (
               <div key={rp._id || rp.name} className="rec-card">
                 <div className="rec-card-image">
-                  <Link href={`/unit/${rp.slug}`}>
+                  <Link href={productUrl(rp)}>
                     <img src={rp.primaryImage || `/images/${(i % 4) + 1}.png`} alt={rp.name} />
                   </Link>
                 </div>

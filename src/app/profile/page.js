@@ -60,6 +60,7 @@ export default function ProfilePage() {
     fullName: "",
     email: "",
     phone: "",
+    countryCode: "+91",
   });
   const [preferences, setPreferences] = useState({
     orderUpdates: true,
@@ -96,6 +97,7 @@ export default function ProfilePage() {
         fullName: user.fullName || "",
         email: user.email || "",
         phone: user.phone || "",
+        countryCode: user.countryCode || "+91",
       });
       if (user.preferences) {
         setPreferences({
@@ -373,7 +375,7 @@ export default function ProfilePage() {
               <div className="profile-wishlist-grid">
                 {wishlistItems.map((product) => {
                   const pid = product._id;
-                  const img = product.images?.[0]?.url || product.primaryImage || "/images/1.png";
+                  const img = (product.images?.find((i) => i.isPrimary) || product.images?.[0])?.url || product.primaryImage || "/images/1.png";
                   return (
                     <div key={pid} className="profile-wishlist-card">
                       <div className="profile-wishlist-img-wrap">
@@ -460,7 +462,7 @@ export default function ProfilePage() {
                 <p className="profile-address-line">{addr.address1}</p>
                 <p className="profile-address-line">{addr.city}, {addr.state} {addr.pincode}</p>
                 <p className="profile-address-line">{addr.country || "India"}</p>
-                <p className="profile-address-phone">{addr.phone}</p>
+                <p className="profile-address-phone">{addr.phone ? `${addr.countryCode || "+91"} ${addr.phone}` : ""}</p>
                 <div className="profile-address-actions">
                   <button className="profile-address-delete" onClick={() => handleDeleteAddress(addr._id)}>Delete</button>
                 </div>

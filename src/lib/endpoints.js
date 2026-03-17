@@ -10,6 +10,24 @@ export const productApi = {
     api.get("/products/search", { params: { q } }).then((r) => r.data.data),
 };
 
+// ── Bundles ──
+export const bundleApi = {
+  getAll: (params) => api.get("/bundles", { params }).then((r) => r.data.data),
+  getBySlug: (slug) => api.get(`/bundles/${slug}`).then((r) => r.data.data),
+};
+
+// ── Cart (pricing preview) ──
+export const cartPricingApi = {
+  preview: (couponCode, giftWrap) =>
+    api.post("/cart/preview-pricing", { couponCode, giftWrap }).then((r) => r.data.data.pricing),
+};
+
+// ── Guest pricing (public, no auth) ──
+export const guestPricingApi = {
+  calculate: (items, couponCode, giftWrap) =>
+    api.post("/pricing/guest", { items, couponCode, giftWrap }).then((r) => r.data.data.pricing),
+};
+
 // ── Blogs ──
 export const blogApi = {
   getAll: (params) => api.get("/blogs", { params }).then((r) => r.data.data),
@@ -21,9 +39,13 @@ export const authApi = {
   sendOtp: (identifier) => api.post("/auth/send-otp", { identifier }).then((r) => r.data),
   verifyOtp: (identifier, otp) =>
     api.post("/auth/verify-otp", { identifier, otp }).then((r) => r.data),
+  loginWithPassword: (email, password) =>
+    api.post("/auth/login", { email, password }).then((r) => r.data),
   register: (data) => api.post("/auth/register", data).then((r) => r.data),
   refresh: () => api.post("/auth/refresh").then((r) => r.data),
   logout: () => api.post("/auth/logout").then((r) => r.data),
+  checkAccount: (email, phone) =>
+    api.post("/auth/check-account", { email, phone }).then((r) => r.data.data),
 };
 
 // ── Cart ──
@@ -126,4 +148,29 @@ export const referralApi = {
 // ── Loyalty ──
 export const loyaltyApi = {
   getBalance: () => api.get("/loyalty/balance").then((r) => r.data.data),
+};
+
+// ── Testimonials ──
+export const testimonialApi = {
+  getAll: (params) =>
+    api.get("/testimonials", { params }).then((r) => r.data.data),
+};
+
+// ── Spin Wheel ──
+export const spinWheelApi = {
+  spin: (email) =>
+    api.post("/spin-wheel", { email }).then((r) => r.data.data),
+};
+
+// ── Social Proof ──
+export const socialProofApi = {
+  getRecentPurchases: (limit = 8) =>
+    api
+      .get("/social-proof/recent-purchases", { params: { limit } })
+      .then((r) => r.data.data),
+};
+
+// ── Settings ──
+export const settingsApi = {
+  getPublic: () => api.get("/settings/public").then((r) => r.data.data),
 };

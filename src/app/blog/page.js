@@ -5,7 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { blogApi } from "@/lib/endpoints";
+import { blogApi, newsletterApi } from "@/lib/endpoints";
 import { normalizeBlog } from "@/lib/normalizers";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -20,6 +20,20 @@ export default function BlogPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [nlEmail, setNlEmail] = useState("");
+  const [nlSubmitted, setNlSubmitted] = useState(false);
+  const [nlSubmitting, setNlSubmitting] = useState(false);
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    if (!nlEmail || nlSubmitting) return;
+    setNlSubmitting(true);
+    try {
+      await newsletterApi.subscribe(nlEmail, "blog");
+    } catch { /* silent */ }
+    setNlSubmitted(true);
+    setNlSubmitting(false);
+  };
 
   useEffect(() => {
     blogApi.getAll({ limit: 50 }).then((data) => {
@@ -113,7 +127,7 @@ export default function BlogPage() {
         }
       );
     });
-  });
+  }, { dependencies: [filteredBlogs, activeCategory] });
 
   return (
     <div className="blog-page">
@@ -231,10 +245,14 @@ export default function BlogPage() {
             <p className="blog-newsletter-desc">
               Get weekly Ayurvedic insights, rituals, and exclusive content — straight from our journal.
             </p>
-            <form className="blog-newsletter-form" onSubmit={(e) => e.preventDefault()}>
-              <input type="email" placeholder="Enter your email" />
-              <button type="submit">Subscribe</button>
-            </form>
+            {nlSubmitted ? (
+              <p className="blog-newsletter-desc" style={{ color: "#4F2C22", fontWeight: 500 }}>Thank you for subscribing!</p>
+            ) : (
+              <form className="blog-newsletter-form" onSubmit={handleNewsletterSubmit}>
+                <input type="email" placeholder="Enter your email" required value={nlEmail} onChange={(e) => setNlEmail(e.target.value)} />
+                <button type="submit" disabled={nlSubmitting}>{nlSubmitting ? "..." : "Subscribe"}</button>
+              </form>
+            )}
           </div>
           <div className="blog-newsletter-visual">
             <img src="/images/cta.png" alt="Ayurvedic rituals" />

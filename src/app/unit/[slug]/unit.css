@@ -209,29 +209,10 @@
 
 /* Divider */
 .product-meta-header-divider {
-  position: relative;
   width: 100%;
   height: 1px;
   background-color: var(--base-200);
   margin: 0.25rem 0;
-}
-
-.product-meta-header-divider::before,
-.product-meta-header-divider::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 1px;
-  height: 0.75rem;
-  background-color: var(--base-200);
-}
-
-.product-meta-header-divider::before {
-  left: 0;
-}
-
-.product-meta-header-divider::after {
-  right: 0;
 }
 
 /* Section Label */

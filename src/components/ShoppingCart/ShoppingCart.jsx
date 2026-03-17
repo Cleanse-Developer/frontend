@@ -1,6 +1,7 @@
 "use client";
 import "./ShoppingCart.css";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 import { useCart } from "@/context/CartContext";
 
@@ -224,7 +225,8 @@ const DiscountProgress = ({ subtotal }) => {
 
 const ShoppingCart = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { cartItems, removeFromCart, cartCount, subtotal } = useCart();
+  const { cartItems, removeFromCart, cartCount, subtotal, serverPricing } = useCart();
+  const router = useRouter();
 
   const toggleCart = () => {
     setIsOpen(!isOpen);
@@ -323,31 +325,57 @@ const ShoppingCart = () => {
             <div className="cart-bottom-section">
               <CrossSellProducts cartItems={cartItems} />
               <div className="cart-footer">
-                {(() => {
-                  const activeTier = [...discountTiers].reverse().find((t) => subtotal >= t.threshold && t.discount > 0);
-                  const discountAmount = activeTier ? (subtotal * activeTier.discount) / 100 : 0;
-                  const finalTotal = subtotal - discountAmount;
-                  return (
-                    <>
+                {serverPricing ? (
+                  <>
+                    <div className="cart-summary-row">
+                      <span>Subtotal</span>
+                      <span>&#8377;{serverPricing.subtotal.toFixed(2)}</span>
+                    </div>
+                    {serverPricing.bundleDiscountTotal > 0 && serverPricing.bundleDiscounts.map((bd, i) => (
+                      <div key={i} className="cart-summary-row cart-discount-row">
+                        <span>{bd.bundleName}</span>
+                        <span>-&#8377;{bd.discountAmount.toFixed(2)}</span>
+                      </div>
+                    ))}
+                    {serverPricing.tierDiscount > 0 && (
+                      <div className="cart-summary-row cart-discount-row">
+                        <span>{serverPricing.tierLabel || `${serverPricing.tierPercent}% Off`}</span>
+                        <span>-&#8377;{serverPricing.tierDiscount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {serverPricing.shippingCost > 0 && (
                       <div className="cart-summary-row">
-                        <span>Subtotal</span>
-                        <span>&#8377;{subtotal.toFixed(2)}</span>
+                        <span>Shipping</span>
+                        <span>&#8377;{serverPricing.shippingCost.toFixed(2)}</span>
                       </div>
-                      {activeTier && (
-                        <div className="cart-summary-row cart-discount-row">
-                          <span>{activeTier.label}</span>
-                          <span>-&#8377;{discountAmount.toFixed(2)}</span>
-                        </div>
-                      )}
-                      <div className="cart-summary-row cart-total-row">
-                        <span>Total</span>
-                        <span>&#8377;{finalTotal.toFixed(2)}</span>
-                      </div>
-                    </>
-                  );
-                })()}
+                    )}
+                    <div className="cart-summary-row cart-total-row">
+                      <span>Total</span>
+                      <span>&#8377;{serverPricing.total.toFixed(2)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="cart-summary-row">
+                      <span>Subtotal</span>
+                      <span>&#8377;{subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="cart-summary-row cart-total-row">
+                      <span>Total</span>
+                      <span>&#8377;{subtotal.toFixed(2)}</span>
+                    </div>
+                  </>
+                )}
                 <LoyaltyPoints subtotal={subtotal} />
-                <button className="cart-checkout">Checkout</button>
+                <button
+                  className="cart-checkout"
+                  onClick={() => {
+                    setIsOpen(false);
+                    router.push("/checkout");
+                  }}
+                >
+                  Checkout
+                </button>
               </div>
             </div>
           )}

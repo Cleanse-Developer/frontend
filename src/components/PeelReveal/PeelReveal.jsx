@@ -1,6 +1,7 @@
 "use client";
 import "./PeelReveal.css";
 import { useRef, useEffect } from "react";
+import { useSettings } from "@/context/SettingsContext";
 
 import Copy from "../Copy/Copy";
 
@@ -11,6 +12,14 @@ import { SplitText } from "gsap/SplitText";
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 const PeelReveal = () => {
+  const settings = useSettings();
+  const cmsPeel = settings.cmsPeelReveal || {};
+  const headerTexts = cmsPeel.headerTexts || ["Ritual: Sacred", "Formula: Ayurveda_001"];
+  const footerText = cmsPeel.footerText || "Source: Himalayan";
+  const peelImage = cmsPeel.image?.url || "/category-hair.png";
+  const peelHeading = cmsPeel.heading || "Ancient Secrets, Modern Radiance";
+  const introTexts = cmsPeel.introTexts || ["Shop", "Now"];
+
   const peelRevealContainerRef = useRef(null);
 
   useEffect(() => {
@@ -94,33 +103,31 @@ const PeelReveal = () => {
     <div className="peel-reveal-container" ref={peelRevealContainerRef}>
       <section className="peel-reveal">
         <div className="section-header">
-          <Copy type="flicker">
-            <p>Ritual: Sacred</p>
-          </Copy>
-          <Copy type="flicker">
-            <p>Formula: Ayurveda_001</p>
-          </Copy>
+          {headerTexts.map((text, i) => (
+            <Copy key={i} type="flicker">
+              <p>{text}</p>
+            </Copy>
+          ))}
         </div>
         <div className="section-footer">
           <Copy type="flicker">
-            <p>Source: Himalayan</p>
+            <p>{footerText}</p>
           </Copy>
         </div>
         <div className="peel-reveal-img-container">
           <div className="pr-img">
-            <img src="/category-hair.png" alt="Product" loading="lazy" />
+            <img src={peelImage} alt="Product" loading="lazy" />
           </div>
           <div className="peel-reveal-header">
-            <h1>Ancient Secrets,<br />Modern Radiance</h1>
+            <h1 dangerouslySetInnerHTML={{ __html: peelHeading.replace(/,\s*/g, ",<br />") }} />
           </div>
         </div>
         <div className="peel-reveal-intro-text-container">
-          <div className="peel-reveal-intro-text">
-            <h1>Shop</h1>
-          </div>
-          <div className="peel-reveal-intro-text">
-            <h1>Now</h1>
-          </div>
+          {introTexts.map((text, i) => (
+            <div key={i} className="peel-reveal-intro-text">
+              <h1>{text}</h1>
+            </div>
+          ))}
         </div>
       </section>
     </div>

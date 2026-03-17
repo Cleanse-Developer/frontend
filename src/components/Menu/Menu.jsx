@@ -5,6 +5,7 @@ import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useCart } from "@/context/CartContext";
+import { useSettings } from "@/context/SettingsContext";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 
@@ -29,6 +30,20 @@ const Menu = () => {
   const router = useRouter();
   const isHomePage = pathname === "/";
   const { cartCount } = useCart();
+  const settings = useSettings();
+  const cmsHeader = settings.cmsHeader || {};
+  const navLinks = cmsHeader.navLinks || [
+    { label: "Home", href: "/" },
+    { label: "Shop", href: "/wardrobe" },
+    { label: "About", href: "/genesis" },
+    { label: "Blog", href: "/blog" },
+  ];
+  const headerSocialLinks = cmsHeader.socialLinks || {
+    twitter: "https://x.com/cleanseayurveda",
+    instagram: "https://www.instagram.com/cleanseayurveda/",
+    youtube: "https://www.youtube.com/@cleanseayurveda",
+  };
+  const logoSrc = cmsHeader.logoImage?.url || "/logo.png";
 
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -570,13 +585,12 @@ const Menu = () => {
         {/* Full header content - shown in hero section */}
         <div className={`menu-header-full ${isScrolled ? 'hidden' : ''}`}>
           <Link href="/" className="menu-logo-link">
-            <img src="/logo.png" alt="Cleanse" className="menu-logo-img" />
+            <img src={logoSrc} alt="Cleanse" className="menu-logo-img" />
           </Link>
           <div className="menu-nav-links">
-            <Link href="/" className="menu-nav-link">Home</Link>
-            <Link href="/wardrobe" className="menu-nav-link">Shop</Link>
-            <Link href="/genesis" className="menu-nav-link">About</Link>
-            <Link href="/blog" className="menu-nav-link">Blog</Link>
+            {navLinks.map((link, i) => (
+              <Link key={i} href={link.href} className="menu-nav-link">{link.label}</Link>
+            ))}
           </div>
           <div className="menu-header-actions">
             <div className="menu-selectors">
@@ -645,7 +659,7 @@ const Menu = () => {
             onClick={toggleMenu}
             aria-label="Toggle menu"
           >
-            <img src="/logo.png" alt="Cleanse" className="menu-logo-img" />
+            <img src={logoSrc} alt="Cleanse" className="menu-logo-img" />
           </button>
         </div>
 
@@ -774,36 +788,18 @@ const Menu = () => {
           </div>
         </div>
         <div className="menu-overlay-footer">
-          <div className="menu-social">
-            <a
-              href="https://x.com/cleanseayurveda"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => isOpen && closeMenu()}
-            >
-              Twitter
-            </a>
-          </div>
-          <div className="menu-social">
-            <a
-              href="https://www.instagram.com/cleanseayurveda/"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => isOpen && closeMenu()}
-            >
-              Instagram
-            </a>
-          </div>
-          <div className="menu-social">
-            <a
-              href="https://www.youtube.com/@cleanseayurveda"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => isOpen && closeMenu()}
-            >
-              YouTube
-            </a>
-          </div>
+          {Object.entries(headerSocialLinks).map(([platform, url]) => (
+            <div key={platform} className="menu-social">
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => isOpen && closeMenu()}
+              >
+                {platform.charAt(0).toUpperCase() + platform.slice(1)}
+              </a>
+            </div>
+          ))}
         </div>
       </div>
     </nav>

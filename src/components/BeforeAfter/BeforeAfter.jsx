@@ -1,13 +1,14 @@
 "use client";
 import "./BeforeAfter.css";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { testimonialApi } from "@/lib/endpoints";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const results = [
+const FALLBACK_RESULTS = [
   {
     name: "Meera S.",
     testimony: "My skin has never looked this radiant and clear.",
@@ -41,6 +42,27 @@ const results = [
 const BeforeAfter = () => {
   const sectionRef = useRef(null);
   const cardsRef = useRef([]);
+  const [results, setResults] = useState(FALLBACK_RESULTS);
+
+  useEffect(() => {
+    testimonialApi
+      .getAll({ type: "before-after", limit: 4 })
+      .then((data) => {
+        const items = data.testimonials || data;
+        if (Array.isArray(items) && items.length > 0) {
+          setResults(
+            items.map((t) => ({
+              name: t.name,
+              testimony: t.text,
+              product: t.productName || "",
+              beforeImg: t.beforeImage || "/images/why1.png",
+              afterImg: t.afterImage || "/images/why2.png",
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useGSAP(() => {
     if (!sectionRef.current) return;
@@ -64,7 +86,7 @@ const BeforeAfter = () => {
         },
       }
     );
-  }, { dependencies: [] });
+  }, { dependencies: [results] });
 
   return (
     <section className="before-after" ref={sectionRef}>

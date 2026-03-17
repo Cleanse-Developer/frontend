@@ -4,56 +4,42 @@ import { useState, useRef, useEffect } from "react";
 import Copy from "../Copy/Copy";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
+import { testimonialApi } from "@/lib/endpoints";
 
 gsap.registerPlugin(SplitText);
 
-const testimonials = [
-  {
-    id: 1,
-    name: "Priya S.",
-    role: "Verified Buyer",
-    headline: "Amazing Results!",
-    text: "I've always struggled to find a skincare routine that matches my sensitive skin. Cleanse Ayurveda's products have been a revelation! The natural ingredients are gentle yet effective, and I've seen visible improvements in just two weeks.",
-    beforeImage: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=200&h=250&fit=crop",
-    afterImage: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=200&h=250&fit=crop",
-  },
-  {
-    id: 2,
-    name: "Ananya M.",
-    role: "Verified Buyer",
-    headline: "Simply Perfect!",
-    text: "The natural ingredients really make a difference. My skin has never felt so nourished and healthy. I love that everything is rooted in Ayurvedic traditions. Highly recommend to anyone looking for clean beauty!",
-    beforeImage: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=250&fit=crop",
-    afterImage: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=200&h=250&fit=crop",
-  },
-  {
-    id: 3,
-    name: "Meera R.",
-    role: "Verified Buyer",
-    headline: "Life-Changing!",
-    text: "I struggled with dull skin for years and tried everything under the sun. Cleanse Ayurveda's Sacred Glow serum completely transformed my skin! Within weeks, I noticed a radiant glow, and my skin felt so much healthier. I can't thank Cleanse enough for giving me my confidence back.",
-    beforeImage: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=250&fit=crop",
-    afterImage: "https://images.unsplash.com/photo-1592621385612-4d7129426394?w=200&h=250&fit=crop",
-  },
-  {
-    id: 4,
-    name: "Kavya D.",
-    role: "Verified Buyer",
-    headline: "Pure & Effective!",
-    text: "The Ayurvedic approach to skincare is exactly what I was looking for. Pure, natural, and incredibly effective. My morning routine has become a sacred ritual thanks to these beautiful products.",
-    beforeImage: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=250&fit=crop",
-    afterImage: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&h=250&fit=crop",
-  },
-];
-
 const Testimonials = () => {
+  const [testimonials, setTestimonials] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const cardsRef = useRef([]);
   const fluidBgRef = useRef(null);
   const containerRef = useRef(null);
   const headlineSplitsRef = useRef([]);
+  const initRef = useRef(false);
 
+  // Fetch testimonials from API
   useEffect(() => {
+    testimonialApi.getAll({ type: "before-after", limit: 8 })
+      .then((data) => {
+        const items = data.testimonials || [];
+        setTestimonials(items.map((t, i) => ({
+          id: t._id || i + 1,
+          name: t.name,
+          role: t.role || "Verified Buyer",
+          headline: t.headline,
+          text: t.text,
+          beforeImage: t.beforeImage,
+          afterImage: t.afterImage,
+        })));
+      })
+      .catch(() => {});
+  }, []);
+
+  // Initialize animations after testimonials are loaded
+  useEffect(() => {
+    if (initRef.current) return;
+    initRef.current = true;
+
     // Set initial position of fluid background
     updateFluidPosition(activeIndex, false);
 
@@ -81,7 +67,7 @@ const Testimonials = () => {
         if (split) split.revert();
       });
     };
-  }, []);
+  }, [testimonials]);
 
   const updateFluidPosition = (index, animate = true) => {
     const card = cardsRef.current[index];
@@ -179,6 +165,8 @@ const Testimonials = () => {
     }
   };
 
+  if (testimonials.length === 0) return null;
+
   return (
     <section className="testimonials">
       <div className="container">
@@ -211,7 +199,7 @@ const Testimonials = () => {
           <div className="testimonials-slider" style={{ '--slide-index': activeIndex }}>
             {testimonials.map((testimonial, index) => (
               <div
-                key={testimonial.id}
+                key={testimonial.id || index}
                 ref={(el) => (cardsRef.current[index] = el)}
                 className={`testimonial-card ${index === activeIndex ? "active" : ""}`}
                 onClick={() => handleCardClick(index)}
@@ -224,7 +212,7 @@ const Testimonials = () => {
                       </div>
                     </div>
                     <div className="testimonial-info">
-                      <span className="testimonial-number">( 0{testimonial.id} )</span>
+                      <span className="testimonial-number">( 0{index + 1} )</span>
                       <h4>{testimonial.name}</h4>
                       <p className="testimonial-role">{testimonial.role}</p>
                     </div>

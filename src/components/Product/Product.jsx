@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useCart } from "@/context/CartContext";
+import { productUrl } from "@/lib/normalizers";
 
 const Product = ({
   product,
@@ -27,7 +28,7 @@ const Product = ({
 
   return (
     <div className={`product ${className}`} ref={innerRef} style={style}>
-      <Link href={"/unit/" + (product.slug || "")} className="product-img" onClick={handleImageClick}>
+      <Link href={productUrl(product)} className="product-img" onClick={handleImageClick}>
         <img src={imgPath} alt={product.name} />
       </Link>
       <div className="product-info">
