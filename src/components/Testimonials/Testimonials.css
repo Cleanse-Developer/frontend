@@ -594,8 +594,8 @@
 /* Large screens */
 @media (min-width: 1440px) {
   .testimonials .container {
-    max-width: 1500px;
-    padding: 0 3rem;
+    max-width: 92%;
+    padding: 0 4rem;
   }
 }
 
@@ -606,8 +606,8 @@
   }
 
   .testimonials .container {
-    max-width: 1800px;
-    padding: 0 4rem;
+    max-width: 90%;
+    padding: 0 5rem;
   }
 
   .testimonials-title h2 {
@@ -644,7 +644,7 @@
   }
 
   .testimonials .container {
-    max-width: 2200px;
+    max-width: 88%;
     padding: 0 5rem;
   }
 

@@ -531,22 +531,22 @@
 /* Large screens */
 @media (min-width: 1440px) {
   .blog-section {
-    padding: 5rem 3rem;
+    padding: 5rem 4rem;
   }
 
   .blog-section-container {
-    max-width: 1300px;
+    max-width: 92%;
   }
 }
 
 /* Extra large screens */
 @media (min-width: 1920px) {
   .blog-section {
-    padding: 6rem 4rem;
+    padding: 6rem 5rem;
   }
 
   .blog-section-container {
-    max-width: 1800px;
+    max-width: 90%;
   }
 
   .blog-section-title {
@@ -577,11 +577,11 @@
 /* Ultra wide screens */
 @media (min-width: 2560px) {
   .blog-section {
-    padding: 8rem 5rem;
+    padding: 8rem 6rem;
   }
 
   .blog-section-container {
-    max-width: 2200px;
+    max-width: 88%;
   }
 
   .blog-section-title {
