@@ -5,7 +5,7 @@ import Link from "next/link";
 
 // import Preloader, { isInitialLoad } from "@/components/Preloader/Preloader";
 const isInitialLoad = false;
-// import LeafSpread from "@/components/LeafSpread/LeafSpread";
+import LeafSpread from "@/components/LeafSpread/LeafSpread";
 import MarqueeBanner from "@/components/MarqueeBanner/MarqueeBanner";
 // import TextBlock from "@/components/TextBlock/TextBlock";
 import PeelReveal from "@/components/PeelReveal/PeelReveal";
@@ -164,7 +164,6 @@ export default function Index() {
     if (!formulasSectionRef.current || !centerImageRef.current) return;
 
     const section = formulasSectionRef.current;
-    const header = section.querySelector('.formulas-header');
     const cards = section.querySelectorAll('.formula-box');
 
     const tl = gsap.timeline({
@@ -176,18 +175,11 @@ export default function Index() {
       },
     });
 
-    // Zoom out center image from 3x to 1x
+    // Zoom out center image
     tl.fromTo(centerImageRef.current,
-      { scale: 3, y: -300, force3D: true },
-      { scale: 1, y: 0, duration: 1, ease: "power2.out", force3D: true },
+      { y: -300, force3D: true },
+      { y: 0, duration: 1, ease: "power2.out", force3D: true },
       0
-    );
-
-    // Fade in header
-    tl.fromTo(header,
-      { opacity: 0, y: -30 },
-      { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" },
-      0.5
     );
 
     // Fade in formula cards
@@ -197,7 +189,6 @@ export default function Index() {
       0.6
     );
 
-    // Leaf spread removed
   }, { dependencies: [] });
 
   return (
@@ -238,41 +229,34 @@ export default function Index() {
             </div>
           </div>
         </section>
+        <div className="hero-bottom-tagline">
+          <p>{settings.cmsFormula?.tagline || "We aren\u2019t merely selling bottles; we are delivering a clinically-backed path to purity."}</p>
+        </div>
       </div>
 
       <section className="formulas" ref={formulasSectionRef}>
-        <div className="formulas-header">
-          <p className="formulas-tagline">
-            {settings.cmsFormula?.tagline || "We aren\u2019t merely selling bottles; we are delivering a clinically-backed path to purity."}
-          </p>
-        </div>
-
         <div className="formulas-content">
-          {(settings.cmsFormula?.boxes || []).filter(b => b.position === "tl" || b.position === "tr").map((box) => (
-            <div key={box.position} className={`formula-box formula-box-${box.position}`}>
-              <div className="formula-box-icon">
-                {FORMULA_ICONS[box.icon] || FORMULA_ICONS.leaf}
+          <div className="formulas-image-layer">
+            <div className="formulas-center">
+              <div className="formulas-center-image" ref={centerImageRef}>
+                <img src={settings.cmsFormula?.centerImage?.url || "/images/a.png"} alt="Natural skincare product" loading="lazy" />
               </div>
-              <h4 dangerouslySetInnerHTML={{ __html: (box.title || "").replace(/\n/g, "<br />") }} />
-              <p>{box.description}</p>
-            </div>
-          ))}
-
-          <div className="formulas-center">
-            <div className="formulas-center-image" ref={centerImageRef}>
-              <img src={settings.cmsFormula?.centerImage?.url || "/images/a.png"} alt="Natural skincare product" loading="lazy" />
             </div>
           </div>
-
-          {(settings.cmsFormula?.boxes || []).filter(b => b.position === "bl" || b.position === "br").map((box) => (
-            <div key={box.position} className={`formula-box formula-box-${box.position}`}>
-              <div className="formula-box-icon">
-                {FORMULA_ICONS[box.icon] || FORMULA_ICONS.leaf}
+          <div className="formulas-leaf-layer">
+            <LeafSpread ref={leafSpreadRef} count={24} triggerOnScroll triggerElement={formulasSectionRef.current} />
+          </div>
+          <div className="formulas-cards-layer">
+            {(settings.cmsFormula?.boxes || []).map((box) => (
+              <div key={box.position} className={`formula-box formula-box-${box.position}`}>
+                <div className="formula-box-icon">
+                  {FORMULA_ICONS[box.icon] || FORMULA_ICONS.leaf}
+                </div>
+                <h4 dangerouslySetInnerHTML={{ __html: (box.title || "").replace(/\n/g, "<br />") }} />
+                <p>{box.description}</p>
               </div>
-              <h4 dangerouslySetInnerHTML={{ __html: (box.title || "").replace(/\n/g, "<br />") }} />
-              <p>{box.description}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 

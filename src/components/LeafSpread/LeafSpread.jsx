@@ -57,14 +57,14 @@ const LeafSpread = forwardRef(({ delay = 0, count = 30, triggerOnScroll = false,
      <path d="M25 20C29 23 32 28 32 34" stroke="rgba(0,0,0,0.1)" stroke-width="0.4"/>`,
   ];
 
-  // Natural green color palette
+  // Autumn brown color palette
   const leafColors = [
-    { main: "#2D5A27", highlight: "#3D7A37" }, // Deep forest green
-    { main: "#3E6B35", highlight: "#4E8B45" }, // Medium green
-    { main: "#4A7C42", highlight: "#5A9C52" }, // Fresh green
-    { main: "#567D46", highlight: "#669D56" }, // Sage green
-    { main: "#3B5F34", highlight: "#4B7F44" }, // Dark olive green
-    { main: "#456B3E", highlight: "#558B4E" }, // Moss green
+    { main: "#8B4513", highlight: "#A0522D" }, // Saddle brown
+    { main: "#A0522D", highlight: "#B8652F" }, // Sienna
+    { main: "#6B3410", highlight: "#8B4513" }, // Dark brown
+    { main: "#CD853F", highlight: "#D4956A" }, // Peru / golden
+    { main: "#7B3F00", highlight: "#9B5F20" }, // Chocolate
+    { main: "#D2691E", highlight: "#E07B28" }, // Chocolate orange
   ];
 
   useEffect(() => {

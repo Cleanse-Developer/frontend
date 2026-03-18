@@ -49,13 +49,15 @@
 
 .hero-wrapper {
   background-color: #F0EDE8;
-  padding-bottom: 10rem;
+  padding-bottom: 5rem;
+  position: relative;
+  z-index: 2;
 }
 
 .hero {
   position: relative;
   width: 100%;
-  height: 83svh;
+  height: 70svh;
   overflow: hidden;
   background-color: #F0EDE8;
 }
@@ -84,6 +86,23 @@
   background: linear-gradient(180deg, rgba(68, 40, 36, 0.85) 0%, rgba(68, 40, 36, 0) 100%);
   z-index: 1;
   pointer-events: none;
+}
+
+.hero-bottom-tagline {
+  padding: 0.75rem 2rem;
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero-bottom-tagline p {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 400;
+  color: var(--base-700);
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .hero .hero-header {
@@ -217,8 +236,12 @@
   object-fit: cover;
 }
 
+#featured {
+  margin-top: -5rem;
+}
+
 .featured-products {
-  padding: 6rem 0;
+  padding: 0 0 6rem;
   background-color: #E7D0A6;
 }
 
@@ -347,15 +370,13 @@
 .formulas {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  min-height: auto;
   background-color: #F0EDE8;
-  padding: 2rem 0 6rem;
-  overflow: hidden;
+  padding: 4rem 0 1rem;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  z-index: 100;
-  contain: layout style paint;
 }
 
 .formulas-header {
@@ -383,39 +404,66 @@
   position: relative;
   width: 100%;
   max-width: 1440px;
-  margin: 0 auto;
+  margin: -30px auto 0;
   padding: 0;
   min-height: 500px;
   height: 500px;
+  overflow: visible;
+}
+
+.formulas-image-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+}
+
+.formulas-leaf-layer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  z-index: 3;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.formulas-cards-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: visible;
 }
 
 /* Card positions around center image */
 .formula-box-tl {
   position: absolute;
-  top: 0;
+  top: -90px;
   left: 26.2%;
-  z-index: 15;
+  z-index: 10;
 }
 
 .formula-box-tr {
   position: absolute;
-  top: 0;
+  top: -90px;
   left: 65.8%;
-  z-index: 15;
+  z-index: 10;
 }
 
 .formula-box-bl {
   position: absolute;
-  top: 198px;
+  top: 138px;
   left: 9.4%;
-  z-index: 15;
+  z-index: 10;
 }
 
 .formula-box-br {
   position: absolute;
-  top: 198px;
+  top: 138px;
   left: 82.6%;
-  z-index: 15;
+  z-index: 10;
 }
 
 .formula-box {
@@ -463,7 +511,7 @@
 
 .formulas-center {
   position: absolute;
-  top: 89px;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%);
   width: 627px;
@@ -471,12 +519,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2;
 }
 
-.formulas-center .leaf-spread {
-  z-index: 5;
-}
 
 .formulas-center-image {
   position: relative;
@@ -492,7 +536,7 @@
 .formulas-center-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 8px;
 }
 
@@ -579,6 +623,10 @@
   .hero {
     height: 100svh;
     border-radius: 0;
+  }
+
+  .hero-bottom-tagline {
+    display: none;
   }
 
   .hero-slide {

@@ -491,7 +491,8 @@
 }
 
 .latest-launches-section {
-  padding-top: 2rem;
+  padding-top: 0;
+  margin-top: -3rem;
 }
 
 .products-section-title {
