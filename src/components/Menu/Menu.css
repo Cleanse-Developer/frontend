@@ -811,3 +811,41 @@
   color: var(--base-700);
   border-color: var(--base-100);
 }
+
+/* Large screens */
+@media (min-width: 1920px) {
+  .menu .menu-nav-link {
+    font-size: 18px;
+  }
+
+  .menu .menu-nav-links {
+    gap: 7rem;
+  }
+
+  .menu .menu-header {
+    padding: 1.5rem 3rem;
+  }
+}
+
+@media (min-width: 2560px) {
+  .menu .menu-nav-link {
+    font-size: 20px;
+  }
+
+  .menu .menu-nav-links {
+    gap: 8rem;
+  }
+
+  .menu .menu-header {
+    padding: 1.75rem 4rem;
+  }
+
+  .menu .menu-logo-img {
+    height: clamp(3rem, 4vw, 4rem);
+  }
+
+  .menu .menu-action-btn svg {
+    width: 26px;
+    height: 26px;
+  }
+}

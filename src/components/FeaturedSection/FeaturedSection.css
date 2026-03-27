@@ -366,6 +366,18 @@
   overflow: hidden;
 }
 
+.featured-ingredients-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(68, 40, 36, 0.75) 0%, rgba(68, 40, 36, 0.2) 60%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
 .ingredients-bg {
   position: absolute;
   top: 0;
@@ -557,7 +569,7 @@
 /* Cart button - circle with icon, expands to pill on hover */
 .product-card-cart-btn {
   position: absolute;
-  top: 330px;
+  top: calc(377px - 47px);
   right: 12px;
   height: 40px;
   width: 40px;
@@ -914,10 +926,6 @@
   .featured-ingredients-card {
     grid-column: 1 / 3;
   }
-
-  .ingredients-bg {
-    width: 45%;
-  }
 }
 
 @media (max-width: 640px) {
@@ -951,12 +959,8 @@
   }
 
   .ingredients-content {
-    max-width: 60%;
+    max-width: 65%;
     padding: 1.25rem;
-  }
-
-  .ingredients-bg {
-    width: 45%;
   }
 
   .ingredients-heading {
@@ -1018,11 +1022,11 @@
 
   .featured-ingredients-card {
     grid-column: 1 / -1;
-    height: 180px;
+    min-height: 180px;
   }
 
   .ingredients-content {
-    max-width: 55%;
+    max-width: 60%;
     padding: 1rem;
   }
 
@@ -1030,6 +1034,7 @@
     font-size: 0.85rem;
     width: auto;
     height: auto;
+    margin-bottom: 0.5rem;
   }
 
   .ingredients-desc {
@@ -1150,7 +1155,7 @@
 .byr-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 338px);
+  grid-template-rows: repeat(2, 370px);
   gap: 20px;
 }
 
@@ -1162,8 +1167,7 @@
   position: relative;
   overflow: hidden;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   transition: box-shadow 0.3s ease;
 }
 
@@ -1173,11 +1177,11 @@
 
 .byr-card-image {
   width: 100%;
-  height: 100%;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  overflow: hidden;
 }
 
 .byr-card-image img {
@@ -1185,17 +1189,55 @@
   min-height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.25);
+  transform: scale(1.05);
   transition: transform 0.5s ease;
 }
 
 .byr-card:hover .byr-card-image img {
-  transform: scale(1.32);
+  transform: scale(1.12);
+}
+
+.byr-card-info {
+  padding: 0.75rem 1rem;
+  background-color: #fff;
+  text-align: left;
+}
+
+.byr-card-name {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4F2C22;
+  margin: 0 0 0.2rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.byr-card-desc {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #777;
+  margin: 0 0 0.25rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.byr-card-price {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #663532;
 }
 
 .byr-check-btn {
   position: absolute;
-  bottom: 12px;
+  bottom: 70px;
   right: 12px;
 }
 
@@ -1402,7 +1444,7 @@
 
   .byr-card {
     width: 100%;
-    height: 280px;
+    height: 310px;
   }
 
   .byr-bundle {
@@ -1446,7 +1488,11 @@
   }
 
   .byr-card {
-    height: 220px;
+    height: 250px;
+  }
+
+  .byr-check-btn {
+    bottom: 65px;
   }
 
   .byr-bundle {
@@ -1484,7 +1530,28 @@
 
   .byr-card {
     width: 100%;
-    height: 180px;
+    height: 220px;
+  }
+
+  .byr-card-name {
+    font-size: 0.75rem;
+  }
+
+  .byr-card-desc {
+    font-size: 0.6rem;
+    -webkit-line-clamp: 1;
+  }
+
+  .byr-card-price {
+    font-size: 0.75rem;
+  }
+
+  .byr-card-info {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .byr-check-btn {
+    bottom: 58px;
   }
 
   .byr-bundle {
@@ -1507,19 +1574,21 @@
   .products-grid,
   .byr-header,
   .byr-layout {
-    max-width: 92%;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .sbc-grid {
     gap: 32px;
   }
 
-  .sbc-card-image {
-    height: 320px;
-  }
-
   .sbc-card-box {
     height: 160px;
+  }
+
+  .sbc-card-img {
+    height: 280px;
   }
 
   .products-grid {
@@ -1528,6 +1597,18 @@
 
   .product-card-image {
     height: 420px;
+  }
+
+  .product-card-cart-btn {
+    top: calc(420px - 47px);
+  }
+
+  .featured-grid-right {
+    grid-template-rows: 280px auto;
+  }
+
+  .featured-product-card {
+    min-height: 280px;
   }
 }
 
@@ -1546,15 +1627,13 @@
   .products-grid,
   .byr-header,
   .byr-layout {
-    max-width: 90%;
+    max-width: 1700px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .sbc-grid {
     gap: 40px;
-  }
-
-  .sbc-card-image {
-    height: 380px;
   }
 
   .sbc-card-box {
@@ -1562,8 +1641,12 @@
     padding-left: 2.5rem;
   }
 
-  .sbc-card-box h3 {
-    font-size: 1.6rem;
+  .sbc-card-name {
+    font-size: 1.4rem;
+  }
+
+  .sbc-card-img {
+    height: 320px;
   }
 
   .featured-section-title {
@@ -1576,11 +1659,45 @@
   }
 
   .featured-card-tall {
-    height: 580px;
+    height: 640px;
   }
 
-  .products-section {
-    padding: 6rem 4rem;
+  .featured-grid-right {
+    grid-template-rows: 320px auto;
+  }
+
+  .featured-product-card {
+    min-height: 300px;
+  }
+
+  .featured-ayurvedic-label {
+    width: 340px;
+    height: 150px;
+  }
+
+  .ayurvedic-title {
+    font-size: 1.6rem;
+  }
+
+  .ayurvedic-desc {
+    font-size: 1rem;
+  }
+
+  .ingredients-heading {
+    font-size: 1.75rem;
+  }
+
+  .ingredients-desc {
+    font-size: 0.95rem;
+    max-width: 420px;
+  }
+
+  .featured-product-name {
+    font-size: 1.5rem;
+  }
+
+  .featured-product-price {
+    font-size: 1.5rem;
   }
 
   .products-section-title {
@@ -1588,7 +1705,6 @@
   }
 
   .products-grid {
-    max-width: 1800px;
     gap: 2.5rem;
   }
 
@@ -1596,21 +1712,62 @@
     height: 480px;
   }
 
+  .product-card-cart-btn {
+    top: calc(480px - 47px);
+  }
+
   .product-card-name {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
 
   .product-card-desc {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .product-card-price {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+  }
+
+  .product-card-buy-btn {
+    padding: 0.7rem 2rem;
+    font-size: 0.95rem;
+  }
+
+  .product-card-info {
+    padding: 1.25rem 0.5rem;
   }
 
   .byr-card {
-    width: 300px;
-    height: 400px;
+    width: 100%;
+    height: 430px;
+  }
+
+  .byr-title {
+    font-size: 3rem;
+  }
+
+  .byr-subtitle {
+    font-size: 1.15rem;
+  }
+
+  .byr-card-name {
+    font-size: 0.95rem;
+  }
+
+  .byr-card-price {
+    font-size: 0.95rem;
+  }
+
+  .byr-bundle {
+    padding: 2.5rem 2rem;
+  }
+
+  .byr-bundle-title {
+    font-size: 1.4rem;
+  }
+
+  .byr-bundle-desc {
+    font-size: 1.1rem;
   }
 }
 
@@ -1629,27 +1786,43 @@
   .products-grid,
   .byr-header,
   .byr-layout {
-    max-width: 88%;
+    max-width: 2100px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .sbc-grid {
     gap: 48px;
   }
 
-  .sbc-card-image {
-    height: 450px;
-  }
-
   .sbc-card-box {
     height: 200px;
   }
 
-  .sbc-card-box h3 {
-    font-size: 2rem;
+  .sbc-card-name {
+    font-size: 1.6rem;
+  }
+
+  .sbc-card-img {
+    height: 380px;
   }
 
   .featured-section-title {
     font-size: 3.5rem;
+  }
+
+  .featured-rating-text {
+    font-size: 1.6rem;
+  }
+
+  .rating-ellipse {
+    width: 32px;
+    height: 32px;
+  }
+
+  .featured-rating-stars svg {
+    width: 22px;
+    height: 22px;
   }
 
   .featured-grid {
@@ -1657,7 +1830,47 @@
   }
 
   .featured-card-tall {
-    height: 700px;
+    height: 760px;
+  }
+
+  .featured-grid-right {
+    grid-template-rows: 380px auto;
+  }
+
+  .featured-product-card {
+    min-height: 360px;
+  }
+
+  .featured-ayurvedic-label {
+    width: 380px;
+    height: 170px;
+    bottom: 2rem;
+    right: 2rem;
+  }
+
+  .ayurvedic-title {
+    font-size: 1.8rem;
+  }
+
+  .ayurvedic-desc {
+    font-size: 1.1rem;
+  }
+
+  .ingredients-heading {
+    font-size: 2rem;
+  }
+
+  .ingredients-desc {
+    font-size: 1.1rem;
+    max-width: 480px;
+  }
+
+  .featured-product-name {
+    font-size: 1.75rem;
+  }
+
+  .featured-product-price {
+    font-size: 1.75rem;
   }
 
   .products-section-title {
@@ -1672,20 +1885,113 @@
     height: 560px;
   }
 
+  .product-card-cart-btn {
+    top: calc(560px - 52px);
+    height: 46px;
+    width: 46px;
+    border-radius: 23px;
+  }
+
+  .cart-btn-circle {
+    min-width: 46px;
+    height: 46px;
+  }
+
+  .cart-btn-circle svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .product-card-cart-btn:hover {
+    width: 180px;
+  }
+
   .product-card-name {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
 
   .product-card-desc {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
   }
 
   .product-card-info {
     padding: 1.5rem 0.5rem;
   }
 
+  .product-card-price {
+    font-size: 1.4rem;
+  }
+
+  .product-card-buy-btn {
+    padding: 0.8rem 2.5rem;
+    font-size: 1rem;
+    border-radius: 6px;
+  }
+
   .byr-card {
-    width: 360px;
-    height: 470px;
+    width: 100%;
+    height: 500px;
+  }
+
+  .byr-grid {
+    gap: 28px;
+  }
+
+  .byr-title {
+    font-size: 3.5rem;
+  }
+
+  .byr-subtitle {
+    font-size: 1.25rem;
+  }
+
+  .byr-card-name {
+    font-size: 1.05rem;
+  }
+
+  .byr-card-desc {
+    font-size: 0.85rem;
+  }
+
+  .byr-card-price {
+    font-size: 1.05rem;
+  }
+
+  .byr-card-info {
+    padding: 1rem 1.25rem;
+  }
+
+  .byr-bundle {
+    padding: 3rem 2.5rem;
+  }
+
+  .byr-bundle-title {
+    font-size: 1.6rem;
+  }
+
+  .byr-bundle-desc {
+    font-size: 1.25rem;
+  }
+
+  .byr-slot-name {
+    font-size: 1rem;
+  }
+
+  .byr-slot-price {
+    font-size: 0.9rem;
+  }
+
+  .byr-slot-img {
+    width: 72px;
+    height: 72px;
+  }
+
+  .byr-total-final {
+    font-size: 1.5rem;
+  }
+
+  .byr-add-btn {
+    padding: 1rem 2rem;
+    font-size: 0.95rem;
   }
 }

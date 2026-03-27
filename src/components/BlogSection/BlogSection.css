@@ -535,7 +535,9 @@
   }
 
   .blog-section-container {
-    max-width: 92%;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
@@ -546,7 +548,7 @@
   }
 
   .blog-section-container {
-    max-width: 90%;
+    max-width: 1700px;
   }
 
   .blog-section-title {
@@ -581,7 +583,7 @@
   }
 
   .blog-section-container {
-    max-width: 88%;
+    max-width: 2100px;
   }
 
   .blog-section-title {

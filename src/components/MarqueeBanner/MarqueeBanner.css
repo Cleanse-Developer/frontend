@@ -680,9 +680,29 @@
   }
 }
 
-@media (min-width: 2000px) {
+@media (min-width: 1920px) {
   .marquee-banner .marquees h1 {
-    font-size: 8vw;
+    font-size: 7vw;
+  }
+
+  .marquee-banner .reels-tagline {
+    font-size: 3.5rem;
+  }
+
+  .marquee-banner .reel-card {
+    width: 320px;
+    height: 470px;
+  }
+
+  .marquee-banner .reel-card-center {
+    width: 380px;
+    height: 550px;
+  }
+}
+
+@media (min-width: 2560px) {
+  .marquee-banner .marquees h1 {
+    font-size: 6vw;
   }
 
   .marquee-banner .reels-tagline {
@@ -690,12 +710,12 @@
   }
 
   .marquee-banner .reel-card {
-    width: 340px;
-    height: 500px;
+    width: 380px;
+    height: 560px;
   }
 
   .marquee-banner .reel-card-center {
-    width: 400px;
-    height: 580px;
+    width: 440px;
+    height: 640px;
   }
 }

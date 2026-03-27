@@ -342,6 +342,11 @@ export const BuildYourRitual = () => {
                 <div className="byr-card-image">
                   <img src={imgSrc} alt={product.name} loading="lazy" />
                 </div>
+                <div className="byr-card-info">
+                  <h4 className="byr-card-name">{product.name}</h4>
+                  {product.shortDescription && <p className="byr-card-desc">{product.shortDescription}</p>}
+                  <span className="byr-card-price">₹{product.price}</span>
+                </div>
                 <div className="byr-check-btn">
                   <div className={`byr-check-circle ${isSelected ? "byr-check-circle-checked" : ""}`}>
                     {isSelected ? (
