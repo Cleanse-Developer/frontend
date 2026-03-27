@@ -1155,13 +1155,12 @@
 .byr-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 370px);
+  grid-template-rows: repeat(2, 1fr);
   gap: 20px;
 }
 
 .byr-card {
   width: 100%;
-  height: 338px;
   background-color: #fff;
   border-radius: 17.87px;
   position: relative;
@@ -1177,11 +1176,12 @@
 
 .byr-card-image {
   width: 100%;
-  flex: 1;
+  height: 250px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  position: relative;
 }
 
 .byr-card-image img {
@@ -1237,8 +1237,8 @@
 
 .byr-check-btn {
   position: absolute;
-  bottom: 70px;
-  right: 12px;
+  bottom: 10px;
+  right: 10px;
 }
 
 .byr-check-circle {
@@ -1444,7 +1444,6 @@
 
   .byr-card {
     width: 100%;
-    height: 310px;
   }
 
   .byr-bundle {
@@ -1487,14 +1486,6 @@
     gap: 12px;
   }
 
-  .byr-card {
-    height: 250px;
-  }
-
-  .byr-check-btn {
-    bottom: 65px;
-  }
-
   .byr-bundle {
     flex-direction: column;
     padding: 1.5rem;
@@ -1530,7 +1521,6 @@
 
   .byr-card {
     width: 100%;
-    height: 220px;
   }
 
   .byr-card-name {
@@ -1548,10 +1538,6 @@
 
   .byr-card-info {
     padding: 0.5rem 0.75rem;
-  }
-
-  .byr-check-btn {
-    bottom: 58px;
   }
 
   .byr-bundle {
@@ -1739,7 +1725,6 @@
 
   .byr-card {
     width: 100%;
-    height: 430px;
   }
 
   .byr-title {
@@ -1930,7 +1915,6 @@
 
   .byr-card {
     width: 100%;
-    height: 500px;
   }
 
   .byr-grid {
