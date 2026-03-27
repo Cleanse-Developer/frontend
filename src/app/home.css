@@ -150,17 +150,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 229px;
-  height: 65px;
+  width: 14.3125rem;
+  height: 4.0625rem;
   background-color: #C8AD73;
   color: #fff;
   font-family: var(--font-body);
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0;
   border: none;
-  border-radius: 12px;
+  border-radius: 0.75rem;
   cursor: pointer;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateY(100%);
@@ -403,11 +403,11 @@
 .formulas-content {
   position: relative;
   width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
+  max-width: 90rem;
+  margin: -5.625rem auto 0;
   padding: 0;
-  min-height: 520px;
-  height: 520px;
+  min-height: 32.5rem;
+  height: 32.5rem;
   overflow: visible;
 }
 
@@ -440,39 +440,39 @@
 /* Card positions around center image — staggered layout */
 .formula-box-tl {
   position: absolute;
-  top: 10px;
+  top: 0.625rem;
   left: 18%;
   z-index: 10;
 }
 
 .formula-box-tr {
   position: absolute;
-  top: 10px;
+  top: 0.625rem;
   right: 18%;
   z-index: 10;
 }
 
 .formula-box-bl {
   position: absolute;
-  bottom: 10px;
+  bottom: 0.625rem;
   left: 6%;
   z-index: 10;
 }
 
 .formula-box-br {
   position: absolute;
-  bottom: 10px;
+  bottom: 0.625rem;
   right: 6%;
   z-index: 10;
 }
 
 .formula-box {
   background-color: #fff;
-  border-radius: 13px;
+  border-radius: 0.8125rem;
   padding: 1.25rem;
-  width: 186px;
-  height: 247px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 11.625rem;
+  height: 15.4375rem;
+  box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -514,8 +514,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 500px;
-  height: 350px;
+  width: 39.1875rem;
+  height: 21.9375rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -693,9 +693,9 @@
   }
 
   .hero .hero-btn {
-    width: 180px;
-    height: 50px;
-    font-size: 16px;
+    width: 11.25rem;
+    height: 3.125rem;
+    font-size: 1rem;
   }
 
   .about {
@@ -799,8 +799,8 @@
 }
 
 .cta-card {
-  max-width: 1244px;
-  height: 416px;
+  max-width: 77.75rem;
+  height: 26rem;
   margin: 0 auto;
   border-radius: 1rem;
   overflow: hidden;
@@ -833,18 +833,18 @@
 .cta-heading {
   font-family: var(--font-heading);
   font-weight: 400;
-  font-size: 48px;
+  font-size: 3rem;
   line-height: 100%;
   letter-spacing: 0.04em;
   text-align: right;
   color: #fff;
-  max-width: 449px;
+  max-width: 28rem;
 }
 
 .cta-desc {
   font-family: 'Helvetica Neue', sans-serif;
   font-weight: 400;
-  font-size: 24px;
+  font-size: 1.5rem;
   line-height: 100%;
   letter-spacing: 0;
   text-align: right;
@@ -855,13 +855,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 229px;
-  height: 65px;
+  width: 14.3125rem;
+  height: 4.0625rem;
   background: #ECCFA0;
-  border-radius: 12px;
+  border-radius: 0.75rem;
   font-family: 'Inter', sans-serif;
   font-weight: 700;
-  font-size: 20px;
+  font-size: 1.25rem;
   line-height: 100%;
   color: #1a1a1a;
   text-decoration: none;
@@ -874,22 +874,22 @@
 
 @media (max-width: 768px) {
   .cta-card {
-    height: 300px;
+    height: 18.75rem;
   }
 
   .cta-heading {
-    font-size: 28px;
-    max-width: 280px;
+    font-size: 1.75rem;
+    max-width: 17.5rem;
   }
 
   .cta-desc {
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   .cta-shop-btn {
-    width: 180px;
-    height: 50px;
-    font-size: 16px;
+    width: 11.25rem;
+    height: 3.125rem;
+    font-size: 1rem;
   }
 
   .cta-content {
@@ -903,24 +903,24 @@
   }
 
   .cta-card {
-    height: 200px;
-    border-radius: 12px;
+    height: 12.5rem;
+    border-radius: 0.75rem;
   }
 
   .cta-heading {
-    font-size: 18px;
-    max-width: 180px;
+    font-size: 1.125rem;
+    max-width: 11.25rem;
   }
 
   .cta-desc {
-    font-size: 12px;
+    font-size: 0.75rem;
   }
 
   .cta-shop-btn {
-    width: 120px;
-    height: 38px;
-    font-size: 12px;
-    border-radius: 8px;
+    width: 7.5rem;
+    height: 2.375rem;
+    font-size: 0.75rem;
+    border-radius: 0.5rem;
   }
 
   .cta-content {
@@ -960,8 +960,8 @@
   }
 
   .cta-card {
-    max-width: 1400px;
-    height: 450px;
+    max-width: 87.5rem;
+    height: 28.125rem;
   }
 }
 
@@ -976,9 +976,9 @@
   }
 
   .hero .hero-btn {
-    width: 220px;
-    height: 60px;
-    font-size: 18px;
+    width: 13.75rem;
+    height: 3.75rem;
+    font-size: 1.125rem;
   }
 
   .about {
@@ -998,8 +998,8 @@
   }
 
   .formulas-content {
-    max-width: 1800px;
-    height: 600px;
+    max-width: 112.5rem;
+    height: 37.5rem;
   }
 
   .formulas-header {
@@ -1011,34 +1011,34 @@
   }
 
   .formulas-center {
-    width: 750px;
-    height: 420px;
+    width: 46.875rem;
+    height: 26.25rem;
   }
 
   .formula-box {
-    width: 280px;
-    height: 280px;
+    width: 17.5rem;
+    height: 17.5rem;
     padding: 2rem;
   }
 
   .formula-box-tl {
-    top: 15px;
+    top: 1rem;
     left: 16%;
   }
 
   .formula-box-tr {
-    top: 15px;
+    top: 1rem;
     right: 16%;
   }
 
   .formula-box-bl {
-    bottom: 15px;
+    bottom: 1rem;
     top: auto;
     left: 5%;
   }
 
   .formula-box-br {
-    bottom: 15px;
+    bottom: 1rem;
     top: auto;
     right: 5%;
   }
@@ -1052,7 +1052,7 @@
   }
 
   .hero-bottom-tagline {
-    max-width: 1100px;
+    max-width: 68.75rem;
   }
 
   .hero-bottom-tagline p {
@@ -1064,18 +1064,18 @@
   }
 
   .cta-card {
-    max-width: 1700px;
-    height: 500px;
+    max-width: 106.25rem;
+    height: 31.25rem;
     margin: 0 auto;
   }
 
   .cta-heading {
-    font-size: 56px;
-    max-width: 520px;
+    font-size: 3.5rem;
+    max-width: 32.5rem;
   }
 
   .cta-desc {
-    font-size: 28px;
+    font-size: 1.75rem;
   }
 
   .cta-content {
@@ -1094,9 +1094,9 @@
   }
 
   .hero .hero-btn {
-    width: 260px;
-    height: 70px;
-    font-size: 20px;
+    width: 16.25rem;
+    height: 4.375rem;
+    font-size: 1.25rem;
   }
 
   .about {
@@ -1112,8 +1112,8 @@
   }
 
   .formulas-content {
-    max-width: 2200px;
-    height: 720px;
+    max-width: 137.5rem;
+    height: 45rem;
   }
 
   .formulas-header {
@@ -1125,34 +1125,34 @@
   }
 
   .formulas-center {
-    width: 900px;
-    height: 500px;
+    width: 56.25rem;
+    height: 31.25rem;
   }
 
   .formula-box {
-    width: 340px;
-    height: 340px;
+    width: 21.25rem;
+    height: 21.25rem;
     padding: 2.5rem;
   }
 
   .formula-box-tl {
-    top: 20px;
+    top: 1.25rem;
     left: 14%;
   }
 
   .formula-box-tr {
-    top: 20px;
+    top: 1.25rem;
     right: 14%;
   }
 
   .formula-box-bl {
-    bottom: 20px;
+    bottom: 1.25rem;
     top: auto;
     left: 4%;
   }
 
   .formula-box-br {
-    bottom: 20px;
+    bottom: 1.25rem;
     top: auto;
     right: 4%;
   }
@@ -1166,7 +1166,7 @@
   }
 
   .hero-bottom-tagline {
-    max-width: 1300px;
+    max-width: 81.25rem;
   }
 
   .hero-bottom-tagline p {
@@ -1178,23 +1178,23 @@
   }
 
   .cta-card {
-    max-width: 2100px;
-    height: 580px;
+    max-width: 131.25rem;
+    height: 36.25rem;
   }
 
   .cta-heading {
-    font-size: 64px;
-    max-width: 600px;
+    font-size: 4rem;
+    max-width: 37.5rem;
   }
 
   .cta-desc {
-    font-size: 32px;
+    font-size: 2rem;
   }
 
   .cta-shop-btn {
-    width: 280px;
-    height: 75px;
-    font-size: 22px;
+    width: 17.5rem;
+    height: 4.6875rem;
+    font-size: 1.375rem;
   }
 
   .cta-content {
