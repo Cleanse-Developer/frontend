@@ -314,8 +314,14 @@ function WardrobeContent() {
 
           {/* Section 3: Side Banner + 4 Products */}
           <section className="wardrobe-section section-row-3">
+            {/* TODO: re-enable real banner once design is finalised */}
+            {/*
             <div className="side-banner">
               <img src="/images/banner.png" alt="Ayurvedic Collection" className="side-banner-img" />
+            </div>
+            */}
+            <div className="side-banner side-banner-placeholder" aria-hidden="true">
+              <span className="side-banner-placeholder-label">BANNER</span>
             </div>
             <div className="products-beside-banner">
               {filteredProducts.slice(6, 10).map((product, index) => {

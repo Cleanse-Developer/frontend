@@ -133,14 +133,64 @@ footer {
   opacity: 0.6;
 }
 
-/* Tablet PORTRAIT: keep the DESKTOP footer layout (vertical NAVIGATION
-   column, big logo, CTA card overlapping the curved top). Only tweak
-   the corner radius + overlap so it fits the smaller viewport. */
-@media (max-width: 1199px) and (orientation: portrait) {
+/* Tablet (iPad portrait + landscape): same desktop structure, scaled down
+   so the logo, socials gap, and paddings fit the narrower viewport. */
+@media (min-width: 769px) and (max-width: 1199px) {
   footer {
+    margin-top: -150px;
     border-top-left-radius: 60px;
     border-top-right-radius: 60px;
-    margin-top: -160px;
+  }
+
+  .footer-container {
+    padding: 3rem 2rem 1.5rem;
+    gap: 2rem;
+  }
+
+  .footer-top {
+    padding-top: 1.5rem;
+  }
+
+  .footer-pages-title {
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .footer-pages-links {
+    gap: 0.6rem;
+  }
+
+  .footer-pages-links a {
+    font-size: 0.85rem;
+  }
+
+  .footer-bottom {
+    padding-top: 1.5rem;
+  }
+
+  .footer-logo {
+    width: clamp(200px, 32vw, 340px);
+  }
+
+  .footer-socials {
+    gap: 1.5rem;
+  }
+
+  .footer-socials a {
+    font-size: 0.78rem;
+  }
+
+  .footer-divider {
+    border-top-width: 2.5px;
+  }
+
+  .footer-legal-links {
+    gap: 1.5rem;
+  }
+
+  .footer-copyright,
+  .footer-legal-links a {
+    font-size: 0.72rem;
   }
 }
 

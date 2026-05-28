@@ -631,14 +631,18 @@
    to desktop. iPad LANDSCAPE falls through to desktop. */
 @media (max-width: 1199px) and (min-width: 769px) and (orientation: portrait) {
   .formulas {
-    padding: 3rem 0 6rem;
+    padding: 2rem 0 2.5rem;
+  }
+
+  .formulas-header {
+    padding: 2rem 1.5rem 0;
   }
 
   .formulas-content {
-    margin-top: -5rem;
+    margin-top: -1rem;
     max-width: 100%;
-    height: clamp(32rem, 48vw, 40rem);
-    min-height: clamp(32rem, 48vw, 40rem);
+    height: clamp(32rem, 45vw, 38rem);
+    min-height: clamp(32rem, 45vw, 38rem);
     padding: 0 1rem;
     overflow: visible;
   }
@@ -647,58 +651,56 @@
     margin-top: 0;
   }
 
-  /* Bigger image — up to 42rem at iPad Air landscape edge */
+  /* Image scaled to the container's new height */
   .formulas-center {
-    width: clamp(28rem, 55vw, 42rem);
-    height: clamp(18rem, 32vw, 24rem);
+    width: clamp(30rem, 60vw, 44rem);
+    height: clamp(20rem, 36vw, 26rem);
   }
 
-  /* Bigger cards — up to desktop's 11.625rem at the high end */
+  /* Cards a touch smaller to suit the tighter container */
   .formula-box {
-    width: clamp(10rem, 16vw, 11.625rem);
-    height: clamp(14rem, 22vw, 16rem);
-    padding: 1.3rem 1.1rem;
+    width: clamp(10rem, 16vw, 11.5rem);
+    height: clamp(13rem, 20vw, 15rem);
+    padding: 1.1rem 1rem;
   }
 
   .formula-box h4 {
-    font-size: clamp(1.05rem, 1.55vw, 1.2rem);
-    margin-bottom: 0.75rem;
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+    margin-bottom: 0.6rem;
     line-height: 1.2;
   }
 
   .formula-box p {
-    font-size: clamp(0.82rem, 1.15vw, 0.92rem);
-    line-height: 1.45;
+    font-size: clamp(0.8rem, 1.1vw, 0.9rem);
+    line-height: 1.4;
   }
 
   .formula-box-icon {
-    width: clamp(1.75rem, 2.4vw, 2.1rem);
-    height: clamp(1.75rem, 2.4vw, 2.1rem);
-    margin-bottom: 0.75rem;
+    width: clamp(1.7rem, 2.3vw, 2rem);
+    height: clamp(1.7rem, 2.3vw, 2rem);
+    margin-bottom: 0.65rem;
   }
 
-  /* Cards moved inward so they overlap the image edges like desktop
-     (z-index:10 on the boxes keeps them floating above the image).
-     Desktop uses 18% / 6%; scaled down here proportionally for tablet
-     where the image is a larger share of the viewport. */
+  /* Cards hug the container edges so the cluster reads as one unit
+     instead of four corners floating with empty space between them. */
   .formula-box-tl {
-    top: 0.625rem;
-    left: 9%;
-  }
-
-  .formula-box-tr {
-    top: 0.625rem;
-    right: 9%;
-  }
-
-  .formula-box-bl {
-    bottom: 0.625rem;
+    top: 1.5rem;
     left: 3%;
   }
 
-  .formula-box-br {
-    bottom: 0.625rem;
+  .formula-box-tr {
+    top: 1.5rem;
     right: 3%;
+  }
+
+  .formula-box-bl {
+    bottom: 0.5rem;
+    left: 1%;
+  }
+
+  .formula-box-br {
+    bottom: 0.5rem;
+    right: 1%;
   }
 }
 
@@ -1448,5 +1450,17 @@
   .reels-tagline br,
   .testimonials-title h2 br {
     display: none !important;
+  }
+
+  /* "We aren't merely selling bottles…" — same size as every other
+     heading on tablet, but wrapped to exactly 3 lines (TABLET ONLY) */
+  .hero-bottom-tagline p {
+    font-size: clamp(1.75rem, 4vw, 2.25rem) !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.04em !important;
+    /* ~25 chars per line × ~2.25rem font ≈ 28rem wraps to 3 lines */
+    max-width: 28rem !important;
+    margin: 0 auto !important;
+    white-space: normal !important;
   }
 }
