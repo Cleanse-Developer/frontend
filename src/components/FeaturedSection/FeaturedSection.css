@@ -1979,3 +1979,248 @@
     font-size: 0.95rem;
   }
 }
+
+/* ============================================================
+   Tablet PORTRAIT (481px–1199px, portrait only): adopt the mobile
+   layout structure scaled up for iPad Air / iPad Pro PORTRAIT.
+   iPad landscape (>=1180px wide) falls through to desktop rules.
+   ============================================================ */
+@media (max-width: 1199px) and (min-width: 481px) and (orientation: portrait) {
+  /* --- Shop By Category: mobile uses 3 small cards in a row,
+         tablet keeps 3-col but with larger cards --- */
+  .shop-by-category {
+    padding: 3.5rem 1.5rem;
+  }
+
+  .sbc-title {
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    margin-bottom: 2.5rem;
+  }
+
+  .sbc-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .sbc-card {
+    width: 100%;
+  }
+
+  .sbc-card-box {
+    height: 110px;
+    border-radius: 14px;
+    padding-left: 1rem;
+    align-items: center;
+  }
+
+  .sbc-card-name {
+    font-size: 0.9rem;
+    width: auto;
+    font-weight: 600;
+  }
+
+  .sbc-card-img {
+    height: 190px;
+    right: 0.25rem;
+    bottom: -10px;
+  }
+
+  /* --- Featured / Bento section: mobile = 1-col stack,
+         tablet = 1-col stack with bigger cards --- */
+  .featured-section {
+    padding: 3.5rem 1.5rem;
+    min-height: auto;
+  }
+
+  .featured-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .featured-rating-badge {
+    align-items: flex-start;
+  }
+
+  .featured-section-title {
+    font-size: clamp(2rem, 5vw, 2.75rem);
+  }
+
+  .featured-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .featured-card-tall {
+    height: 420px;
+  }
+
+  .featured-grid-right {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+    gap: 1.25rem;
+  }
+
+  .featured-ingredients-card {
+    grid-column: 1 / -1;
+    min-height: 220px;
+  }
+
+  .ingredients-content {
+    max-width: 60%;
+    padding: 1.5rem;
+  }
+
+  .ingredients-heading {
+    font-size: 1rem;
+  }
+
+  .ingredients-desc {
+    font-size: 0.8rem;
+    max-width: 100%;
+  }
+
+  .featured-product-card {
+    padding: 1rem;
+    height: 200px;
+  }
+
+  .featured-product-name {
+    font-size: 1.05rem;
+  }
+
+  .featured-product-price {
+    font-size: 1.05rem;
+  }
+
+  .featured-ayurvedic-label {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+    height: auto;
+    padding: 1.25rem;
+  }
+
+  .ayurvedic-title {
+    font-size: 1.4rem;
+  }
+
+  .ayurvedic-desc {
+    font-size: 0.9rem;
+  }
+
+  /* --- Products grid (LatestLaunches): mobile = 2-col,
+         tablet = 2-col with bigger cards --- */
+  .products-section {
+    padding: 3.5rem 1.5rem 4.5rem;
+  }
+
+  .products-section-title {
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    margin-bottom: 2.5rem;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  .product-card-image {
+    height: 320px;
+    border-radius: 0.875rem;
+  }
+
+  .product-card-cart-btn {
+    top: calc(320px - 47px);
+  }
+
+  .product-card-info {
+    padding: 0.75rem 0;
+  }
+
+  .product-card-name {
+    font-size: 1rem;
+  }
+
+  .product-card-desc {
+    font-size: 0.8rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .product-card-price {
+    font-size: 1rem;
+  }
+
+  .product-card-buy-btn {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.85rem;
+  }
+
+  /* --- Build Your Ritual: mobile = 2-col card grid + vertical
+         bundle, tablet = 2-col card grid + vertical bundle, bigger --- */
+  .byr-section {
+    padding: 3.5rem 1.5rem;
+  }
+
+  .byr-title {
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+  }
+
+  .byr-header {
+    margin-bottom: 2rem;
+  }
+
+  .byr-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .byr-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .byr-card {
+    width: 100%;
+  }
+
+  .byr-card-name {
+    font-size: 0.95rem;
+  }
+
+  .byr-card-desc {
+    font-size: 0.75rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .byr-card-price {
+    font-size: 0.95rem;
+  }
+
+  .byr-card-info {
+    padding: 0.75rem 1rem;
+  }
+
+  .byr-bundle {
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+    padding: 1.75rem;
+    gap: 1rem;
+  }
+
+  .byr-bundle-slots {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .byr-bundle-slot {
+    width: 100%;
+    height: 90px;
+  }
+}

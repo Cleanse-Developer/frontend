@@ -488,7 +488,8 @@
   display: none;
 }
 
-@media (max-width: 1000px) {
+/* Tablet PORTRAIT only — desktop nav on iPad landscape */
+@media (max-width: 1199px) and (orientation: portrait) {
   .menu {
     top: 36px;
     transform: translateY(0);

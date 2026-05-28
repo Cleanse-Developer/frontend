@@ -651,8 +651,8 @@
   }
 }
 
-/* ===== Responsive - Mobile ===== */
-@media (max-width: 768px) {
+/* ===== Responsive - Tablet portrait + Mobile (mobile layout) ===== */
+@media (max-width: 1199px) and (orientation: portrait) {
   .blog-hero {
     height: 50vh;
     min-height: 350px;

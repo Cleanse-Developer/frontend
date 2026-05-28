@@ -606,3 +606,66 @@
     font-size: 1.5rem;
   }
 }
+
+/* Tablet PORTRAIT only — iPad landscape uses desktop layout */
+@media (max-width: 1199px) and (min-width: 481px) and (orientation: portrait) {
+  .blog-section {
+    padding: 4rem 1.5rem;
+  }
+
+  .blog-section-header {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 0;
+    margin-bottom: 2.5rem;
+  }
+
+  .blog-grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 1.25rem;
+    align-items: stretch;
+  }
+
+  .blog-grid .blog-card {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .blog-grid .blog-card-featured {
+    flex: 1.6;
+    min-width: 0;
+  }
+
+  .blog-grid .blog-card-green {
+    flex: 1;
+    width: auto;
+    flex-shrink: 1;
+  }
+
+  .blog-card-featured .blog-card-image-wrapper {
+    min-height: 380px;
+    height: 100%;
+  }
+
+  .blog-card-featured .blog-card-content {
+    padding: 1.5rem;
+  }
+
+  .blog-card-featured .blog-card-title {
+    font-size: 1.5rem;
+  }
+
+  .blog-card-image-wrapper {
+    height: 320px;
+  }
+
+  .blog-card-content {
+    padding: 1.25rem;
+  }
+
+  .blog-card-title {
+    font-size: 1.1rem;
+  }
+}

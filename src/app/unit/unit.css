@@ -1457,7 +1457,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1199px) and (orientation: portrait) {
   .product-meta-container {
     padding: 2rem 1.25rem;
   }

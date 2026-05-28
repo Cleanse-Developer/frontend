@@ -453,7 +453,7 @@
   to { transform: rotate(360deg); }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1199px) and (orientation: portrait) {
   .orders-header {
     padding: 5rem 1.5rem 2.5rem;
   }

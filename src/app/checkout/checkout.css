@@ -982,8 +982,8 @@
   color: var(--base-700);
 }
 
-/* ===== Responsive - Tablet (below 900px) ===== */
-@media (max-width: 900px) {
+/* ===== Responsive - Tablet (481-1199) + cascades into mobile ===== */
+@media (max-width: 1199px) and (orientation: portrait) {
   .checkout-main {
     flex-direction: column-reverse;
     padding: 2rem 1.5rem 4rem;

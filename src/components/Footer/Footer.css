@@ -133,22 +133,24 @@ footer {
   opacity: 0.6;
 }
 
-/* Responsive */
-@media (max-width: 1000px) {
+/* Tablet PORTRAIT: keep the DESKTOP footer layout (vertical NAVIGATION
+   column, big logo, CTA card overlapping the curved top). Only tweak
+   the corner radius + overlap so it fits the smaller viewport. */
+@media (max-width: 1199px) and (orientation: portrait) {
   footer {
-    border-top-left-radius: 40px;
-    border-top-right-radius: 40px;
-    margin-top: -40px;
+    border-top-left-radius: 60px;
+    border-top-right-radius: 60px;
+    margin-top: -160px;
   }
+}
 
-  .footer-container {
-    padding: 3rem 2rem 2rem;
-    gap: 2.5rem;
-  }
-
-  .footer-socials {
-    gap: 1.5rem;
-    flex-wrap: wrap;
+/* Small tablet / large phone: CTA card shrinks here, so dial the
+   footer overlap back accordingly */
+@media (max-width: 768px) and (min-width: 481px) {
+  footer {
+    margin-top: -100px;
+    border-top-left-radius: 48px;
+    border-top-right-radius: 48px;
   }
 }
 

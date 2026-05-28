@@ -313,8 +313,8 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* ===== Responsive - Tablet ===== */
-@media (max-width: 1000px) {
+/* ===== Responsive - Tablet (mobile structure scaled) ===== */
+@media (max-width: 1199px) and (orientation: portrait) {
   .lookbook-hero {
     height: 40vh;
     min-height: 300px;

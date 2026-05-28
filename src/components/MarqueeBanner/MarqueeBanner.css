@@ -441,7 +441,7 @@
   }
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1199px) and (orientation: portrait) {
   .marquee-banner {
     height: auto;
     min-height: 100svh;
@@ -479,48 +479,81 @@
     max-width: 90%;
   }
 
+  /* Zigzag column — same pattern as mobile but with tablet-scale cards */
   .marquee-banner .reels-container {
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 1.5rem;
     padding: 2rem 0;
+    width: 100%;
   }
 
-  .marquee-banner .reel-card {
+  .marquee-banner .reel-card,
+  .marquee-banner .reel-card-center {
     position: relative;
     top: auto;
     left: auto;
     right: auto;
     bottom: auto;
     transform: none;
-    width: calc(100% - 2rem);
-    max-width: 320px;
-    height: 400px;
-  }
-
-  .marquee-banner .reel-card-center {
-    transform: none;
-    width: calc(100% - 2rem);
-    max-width: 340px;
-    height: 440px;
+    /* Portrait reel format (9:16) — smaller, vertical phone-reel look */
+    max-width: none !important;
+    width: clamp(240px, 34vw, 320px) !important;
+    aspect-ratio: 9 / 16;
+    height: auto !important;
   }
 
   .marquee-banner .reel-card-left-top {
     order: 1;
+    align-self: flex-start;
   }
 
   .marquee-banner .reel-card-center {
     order: 2;
+    align-self: flex-end;
   }
 
   .marquee-banner .reel-card-right-bottom {
     order: 3;
+    align-self: flex-start;
+  }
+
+  /* Marquee headers stacked vertically, each line drifting opposite to
+     create the parallax effect behind each card row */
+  .marquee-banner .marquees {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 0;
+    gap: 1.5rem;
+    padding-top: calc(6rem + 2rem + 1rem + 1rem);
+  }
+
+  .marquee-banner .marquees .marquee-header {
+    /* Match the reel card 9:16 height so parallax band aligns with each card */
+    height: clamp(425px, 60vw, 570px);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
   }
 
   .marquee-banner .marquees .marquee-header h1 {
-    font-size: clamp(3rem, 15vw, 6rem);
+    font-size: clamp(4rem, 12vw, 8rem);
+  }
+
+  .marquee-banner .marquees .marquee-header-1 {
+    transform: translateX(20%);
+  }
+
+  .marquee-banner .marquees .marquee-header-2 {
+    display: flex;
+    transform: translateX(-20%);
+  }
+
+  .marquee-banner .marquees .marquee-header-3 {
+    display: flex;
+    transform: translateX(12%);
   }
 
   .marquee-banner .reels-indicator {

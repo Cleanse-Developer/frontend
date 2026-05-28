@@ -393,7 +393,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1199px) and (orientation: portrait) {
   .testimonials {
     padding: 4rem 0 5rem;
     overflow: visible;

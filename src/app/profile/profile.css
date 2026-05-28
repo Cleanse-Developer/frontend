@@ -1155,8 +1155,8 @@
   }
 }
 
-/* ===== Responsive - Small Tablet ===== */
-@media (max-width: 768px) {
+/* ===== Responsive - Tablet portrait + Mobile (mobile layout structure) ===== */
+@media (max-width: 1199px) and (orientation: portrait) {
   .profile-hero {
     height: 60svh;
   }

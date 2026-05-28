@@ -528,9 +528,9 @@
   }
 }
 
-/* ===== Responsive - Mobile ===== */
+/* ===== Responsive - Tablet + Mobile ===== */
 
-@media (max-width: 768px) {
+@media (max-width: 1199px) and (orientation: portrait) {
   .login-page {
     flex-direction: column;
   }

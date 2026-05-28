@@ -268,8 +268,8 @@
   transform: translateY(-2px);
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
+/* Tablet + Mobile Responsive */
+@media (max-width: 1199px) and (orientation: portrait) {
   .spin-wheel-modal {
     max-width: 95%;
     width: 95%;

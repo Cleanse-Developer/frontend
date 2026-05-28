@@ -712,7 +712,7 @@
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
+@media (max-width: 1199px) and (orientation: portrait) {
   .cart-content {
     flex-direction: column;
   }
