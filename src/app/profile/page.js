@@ -43,7 +43,10 @@ export default function ProfilePage() {
   const [coupons, setCoupons] = useState([]);
   const [addresses, setAddresses] = useState([]);
   const [loyaltyPoints, setLoyaltyPoints] = useState(0);
+  const [loyaltyTransactions, setLoyaltyTransactions] = useState([]);
   const [referralCode, setReferralCode] = useState("");
+  const [referralStats, setReferralStats] = useState(null);
+  const [referralHistory, setReferralHistory] = useState([]);
 
   // Loading states
   const [tabLoading, setTabLoading] = useState(false);
@@ -135,12 +138,26 @@ export default function ProfilePage() {
       }).catch(() => {}).finally(() => setTabLoading(false));
     } else if (activeTab === "Settings") {
       setTabLoading(false);
-      referralApi.getCode().then((data) => {
-        setReferralCode(data.referralCode || data.code || "");
-      }).catch(() => {});
-      loyaltyApi.getBalance().then((data) => {
-        setLoyaltyPoints(data.points || data.balance || 0);
-      }).catch(() => {});
+      referralApi
+        .getCode()
+        .then((data) => {
+          setReferralCode(data.referralCode || data.code || "");
+          setReferralStats(data.stats || null);
+        })
+        .catch(() => {});
+      referralApi
+        .getHistory({ page: 1, limit: 10 })
+        .then((data) => {
+          setReferralHistory(data.referrals || []);
+        })
+        .catch(() => {});
+      loyaltyApi
+        .getBalance()
+        .then((data) => {
+          setLoyaltyPoints(data.loyaltyPoints || 0);
+          setLoyaltyTransactions(data.recentTransactions || []);
+        })
+        .catch(() => {});
     } else {
       setTabLoading(false);
     }
@@ -637,7 +654,39 @@ export default function ProfilePage() {
 
             <div className="profile-settings-card">
               <h3 className="profile-settings-title">Referral Program</h3>
-              <p className="profile-referral-desc">Share your code and earn &#8377;200 for each friend&apos;s first order</p>
+              <p className="profile-referral-desc">
+                Share your code with friends. When they place their first order,
+                you both earn rewards.
+              </p>
+              {referralStats && (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: "0.75rem",
+                    margin: "0.75rem 0 1rem",
+                  }}
+                >
+                  <div style={{ textAlign: "center", padding: "0.5rem", background: "#f7f4ef", borderRadius: 6 }}>
+                    <p style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>
+                      {referralStats.totalReferrals}
+                    </p>
+                    <p style={{ fontSize: "0.7rem", opacity: 0.7, margin: 0 }}>Referred</p>
+                  </div>
+                  <div style={{ textAlign: "center", padding: "0.5rem", background: "#f7f4ef", borderRadius: 6 }}>
+                    <p style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>
+                      {referralStats.successfulReferrals}
+                    </p>
+                    <p style={{ fontSize: "0.7rem", opacity: 0.7, margin: 0 }}>Successful</p>
+                  </div>
+                  <div style={{ textAlign: "center", padding: "0.5rem", background: "#f7f4ef", borderRadius: 6 }}>
+                    <p style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>
+                      &#8377;{referralStats.totalEarned}
+                    </p>
+                    <p style={{ fontSize: "0.7rem", opacity: 0.7, margin: 0 }}>Earned</p>
+                  </div>
+                </div>
+              )}
               <div className="profile-referral-box">
                 <span className="profile-referral-code">{referralCode || "Loading..."}</span>
                 <button className="profile-referral-copy" onClick={handleCopyReferral} disabled={!referralCode}>
@@ -647,7 +696,9 @@ export default function ProfilePage() {
               {referralCode && (
                 <div className="profile-referral-share">
                   <a
-                    href={`https://wa.me/?text=Use%20my%20referral%20code%20${referralCode}%20on%20Cleanse%20Ayurveda%20and%20get%20a%20discount!`}
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      `Use my referral code ${referralCode} on Cleanse Ayurveda and get a discount! Sign up here: ${typeof window !== "undefined" ? window.location.origin : ""}/login?tab=register&ref=${referralCode}`
+                    )}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="profile-share-btn profile-share-whatsapp"
@@ -658,7 +709,11 @@ export default function ProfilePage() {
                     WhatsApp
                   </a>
                   <a
-                    href={`mailto:?subject=Cleanse%20Ayurveda%20Referral&body=Use%20my%20referral%20code%20${referralCode}%20on%20Cleanse%20Ayurveda%20and%20get%20a%20discount!`}
+                    href={`mailto:?subject=${encodeURIComponent(
+                      "Cleanse Ayurveda Referral"
+                    )}&body=${encodeURIComponent(
+                      `Use my referral code ${referralCode} on Cleanse Ayurveda and get a discount! Sign up here: ${typeof window !== "undefined" ? window.location.origin : ""}/login?tab=register&ref=${referralCode}`
+                    )}`}
                     className="profile-share-btn profile-share-email"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -667,6 +722,70 @@ export default function ProfilePage() {
                     </svg>
                     Email
                   </a>
+                </div>
+              )}
+
+              {referralHistory.length > 0 && (
+                <div className="profile-loyalty-history" style={{ marginTop: "1rem" }}>
+                  <p style={{ fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.5rem", opacity: 0.7 }}>
+                    Recent referrals
+                  </p>
+                  {referralHistory.slice(0, 5).map((r) => (
+                    <div key={r._id} className="profile-loyalty-row">
+                      <div>
+                        <p className="profile-loyalty-row-desc">
+                          {r.referee?.fullName || r.referee?.email || "User"}
+                        </p>
+                        <p className="profile-loyalty-row-date">
+                          {new Date(r.createdAt).toLocaleDateString()}
+                          {r.qualifyingOrder?.orderId ? ` · ${r.qualifyingOrder.orderId}` : ""}
+                        </p>
+                      </div>
+                      <span
+                        className={`profile-loyalty-row-points ${
+                          r.isRewarded ? "positive" : "negative"
+                        }`}
+                      >
+                        {r.isRewarded ? `+${r.rewardAmount}` : "Pending"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="profile-settings-card">
+              <h3 className="profile-settings-title">Loyalty Points</h3>
+              <p className="profile-referral-desc">
+                Balance: <strong>{loyaltyPoints}</strong> points
+              </p>
+              {loyaltyTransactions.length === 0 ? (
+                <p className="profile-referral-desc" style={{ opacity: 0.7 }}>
+                  No transactions yet. Earn points on every order.
+                </p>
+              ) : (
+                <div className="profile-loyalty-history">
+                  {loyaltyTransactions.slice(0, 10).map((tx) => (
+                    <div key={tx._id} className="profile-loyalty-row">
+                      <div>
+                        <p className="profile-loyalty-row-desc">
+                          {tx.description || tx.type}
+                        </p>
+                        <p className="profile-loyalty-row-date">
+                          {new Date(tx.createdAt).toLocaleDateString()}
+                          {tx.order?.orderId ? ` · ${tx.order.orderId}` : ""}
+                        </p>
+                      </div>
+                      <span
+                        className={`profile-loyalty-row-points ${
+                          tx.points >= 0 ? "positive" : "negative"
+                        }`}
+                      >
+                        {tx.points >= 0 ? "+" : ""}
+                        {tx.points}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

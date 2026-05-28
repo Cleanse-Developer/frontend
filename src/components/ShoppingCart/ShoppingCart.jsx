@@ -343,6 +343,18 @@ const ShoppingCart = () => {
                         <span>-&#8377;{serverPricing.tierDiscount.toFixed(2)}</span>
                       </div>
                     )}
+                    {(serverPricing.specialCouponDiscountTotal || 0) > 0 && serverPricing.specialCouponDiscounts?.map((sp, i) => (
+                      <div key={`sp-${i}`} className="cart-summary-row cart-discount-row">
+                        <span>{sp.title || "Special Discount"}</span>
+                        <span>-&#8377;{(sp.discountAmount || 0).toFixed(2)}</span>
+                      </div>
+                    ))}
+                    {serverPricing.freeGifts?.length > 0 && serverPricing.freeGifts.map((gift, i) => (
+                      <div key={`gift-${i}`} className="cart-summary-row cart-discount-row">
+                        <span>Free Gift: {gift.productName || "Gift"}</span>
+                        <span>FREE</span>
+                      </div>
+                    ))}
                     {serverPricing.shippingCost > 0 && (
                       <div className="cart-summary-row">
                         <span>Shipping</span>

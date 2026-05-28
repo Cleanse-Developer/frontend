@@ -58,12 +58,19 @@ export function AuthProvider({ children }) {
     return userData;
   }, []);
 
-  const register = useCallback(async ({ fullName, email, phone, password }) => {
-    const res = await authApi.register({ fullName, email, phone, password });
-    const { accessToken, user: userData } = res.data;
+  const register = useCallback(async ({ fullName, email, phone, password, referralCode }) => {
+    const res = await authApi.register({
+      fullName,
+      email,
+      phone,
+      password,
+      ...(referralCode ? { referralCode } : {}),
+    });
+    const { accessToken, user: userData, referralApplied } = res.data;
     localStorage.setItem("accessToken", accessToken);
     setUser(userData);
-    return userData;
+    // Return both the user and the referral apply result so callers can show feedback
+    return { user: userData, referralApplied: referralApplied || null };
   }, []);
 
   const logout = useCallback(async () => {

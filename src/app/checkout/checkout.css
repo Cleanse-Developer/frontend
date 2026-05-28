@@ -1253,6 +1253,18 @@
   margin-bottom: 1rem;
 }
 
+.checkout-stock-errors ul {
+  margin: 0.5rem 0 0 1.25rem;
+  font-size: 0.85rem;
+  color: #c44;
+  list-style: disc;
+  font-family: var(--font-body);
+}
+
+.checkout-stock-errors li {
+  margin-bottom: 0.25rem;
+}
+
 .checkout-login-hint {
   font-size: 0.8rem;
   color: rgba(79, 44, 34, 0.5);

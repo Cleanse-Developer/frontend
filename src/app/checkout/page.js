@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { authApi, couponApi, orderApi, paymentApi, addressApi, shippingApi } from "@/lib/endpoints";
+import { authApi, couponApi, specialCouponApi, orderApi, paymentApi, checkoutApi, addressApi, shippingApi, loyaltyApi } from "@/lib/endpoints";
+import { useToast } from "@/context/ToastContext";
 import { loadRazorpay } from "@/lib/razorpay";
 import { validateField, validateShippingForm, validateBillingForm } from "@/lib/validation";
 import { saveCheckoutData, loadCheckoutData, clearCheckoutData } from "@/lib/checkoutStorage";
@@ -62,6 +63,16 @@ export default function CheckoutPage() {
   const { cartItems, cartCount, subtotal, clearCart, serverPricing, fetchPricingPreview } = useCart();
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const toast = useToast();
+
+  // Razorpay checkout session state
+  const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
+  const [paymentVerifying, setPaymentVerifying] = useState(false);
+  const [stockErrors, setStockErrors] = useState([]);
+
+  const resetCheckoutSession = useCallback(() => {
+    setIdempotencyKey(crypto.randomUUID());
+  }, []);
 
   // Step management
   const [activeStep, setActiveStep] = useState(1);
@@ -122,9 +133,19 @@ export default function CheckoutPage() {
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponDiscountType, setCouponDiscountType] = useState("percentage");
   const [couponLoading, setCouponLoading] = useState(false);
+  const [couponMessage, setCouponMessage] = useState(""); // detailed reason from backend
+  const [appliedSpecialCode, setAppliedSpecialCode] = useState(null);
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderError, setOrderError] = useState("");
   const [placedOrder, setPlacedOrder] = useState(null);
+
+  // Loyalty redemption state (only for authenticated users)
+  const [loyaltyBalance, setLoyaltyBalance] = useState(0);
+  const [loyaltyConfig, setLoyaltyConfig] = useState(null);
+  const [loyaltyMaxRedeemable, setLoyaltyMaxRedeemable] = useState(0);
+  const [loyaltyPointsInput, setLoyaltyPointsInput] = useState("");
+  const [loyaltyApplied, setLoyaltyApplied] = useState(0);
+  const [loyaltyError, setLoyaltyError] = useState("");
 
   // Validation state
   const [errors, setErrors] = useState({});
@@ -145,17 +166,86 @@ export default function CheckoutPage() {
   // ── Server pricing state ──
   const [checkoutPricing, setCheckoutPricing] = useState(null);
 
-  // Fetch server pricing on mount and when cart or coupon changes
+  // Fetch server pricing on mount and when cart/coupon/loyalty changes
   useEffect(() => {
     if (cartItems.length === 0) {
       setCheckoutPricing(null);
       return;
     }
-    const appliedCoupon = couponStatus === "valid" ? couponCode.trim() : "";
-    fetchPricingPreview(appliedCoupon, false).then((pricing) => {
-      setCheckoutPricing(pricing);
-    }).catch(() => {});
-  }, [cartItems, couponStatus, couponCode, fetchPricingPreview]);
+    const appliedCoupon = couponStatus === "valid" && !appliedSpecialCode ? couponCode.trim() : "";
+    fetchPricingPreview(appliedCoupon, false, appliedSpecialCode || null, loyaltyApplied)
+      .then((pricing) => {
+        setCheckoutPricing(pricing);
+      })
+      .catch(() => {});
+  }, [cartItems, couponStatus, couponCode, appliedSpecialCode, loyaltyApplied, fetchPricingPreview]);
+
+  // Fetch loyalty balance + config when authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLoyaltyBalance(0);
+      setLoyaltyConfig(null);
+      return;
+    }
+    loyaltyApi
+      .getBalance()
+      .then((data) => {
+        setLoyaltyBalance(data.loyaltyPoints || 0);
+        setLoyaltyConfig(data.config || null);
+      })
+      .catch(() => {});
+  }, [isAuthenticated]);
+
+  // Re-compute max redeemable whenever subtotal/discounts change
+  useEffect(() => {
+    if (!isAuthenticated || !loyaltyConfig?.enabled) {
+      setLoyaltyMaxRedeemable(0);
+      return;
+    }
+    const subAfterDiscounts = pricingSourceForLoyaltyMax();
+    if (subAfterDiscounts <= 0) {
+      setLoyaltyMaxRedeemable(0);
+      return;
+    }
+    loyaltyApi
+      .getMaxRedeemable(subAfterDiscounts)
+      .then((data) => {
+        const newMax = data.maxPoints || 0;
+        setLoyaltyMaxRedeemable(newMax);
+        // If user already applied points but cart shrank below their applied
+        // amount, clear the application and warn so they can re-apply or skip.
+        if (loyaltyApplied > 0 && loyaltyApplied > newMax) {
+          setLoyaltyApplied(0);
+          setLoyaltyPointsInput("");
+          setLoyaltyError(
+            "Loyalty points removed: your cart no longer supports the previous redemption amount."
+          );
+        } else {
+          // Clear any stale error from a prior failed apply
+          if (loyaltyError) setLoyaltyError("");
+        }
+      })
+      .catch((err) => {
+        setLoyaltyMaxRedeemable(0);
+        // Surface the error but don't block checkout
+        toast?.error?.("Could not check loyalty availability. Try refreshing the page.");
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, loyaltyConfig, checkoutPricing?.subtotal, checkoutPricing?.couponDiscount, checkoutPricing?.specialCouponDiscountTotal]);
+
+  // Helper: subtotal-after-discounts used for max-redeemable calc
+  function pricingSourceForLoyaltyMax() {
+    const p = checkoutPricing || serverPricing;
+    if (!p) return 0;
+    return Math.max(
+      0,
+      (p.subtotal || 0) -
+        (p.bundleDiscountTotal || 0) -
+        (p.tierDiscount || 0) -
+        (p.specialCouponDiscountTotal || 0) -
+        (p.couponDiscount || 0)
+    );
+  }
 
   // Use server pricing (available for both guest and authenticated users)
   const pricingSource = checkoutPricing || serverPricing;
@@ -430,27 +520,111 @@ export default function CheckoutPage() {
     }
   };
 
-  // ── Coupon ──
+  // ── Coupon (unified: tries regular coupon first, then special coupon) ──
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
     setCouponLoading(true);
     setCouponStatus(null);
+    setCouponMessage("");
+    setAppliedSpecialCode(null);
+
+    const code = couponCode.trim();
+    let regularReason = null;
+
+    // Try regular coupon first
     try {
-      const data = await couponApi.validate(couponCode.trim(), subtotal);
-      setCouponStatus("valid");
-      setCouponDiscount(data.discount || 0);
-      setCouponDiscountType(data.discountType || "percentage");
-      // Refresh server pricing with the coupon applied
-      fetchPricingPreview(couponCode.trim(), false).then((pricing) => {
-        setCheckoutPricing(pricing);
-      }).catch(() => {});
-    } catch {
+      const data = await couponApi.validate(code, subtotal);
+      // Backend returns 200 with { valid: false } for invalid coupons,
+      // so we MUST check data.valid (don't treat HTTP 200 as success).
+      if (data && data.valid) {
+        setCouponStatus("valid");
+        setCouponDiscount(data.discount || 0);
+        setCouponDiscountType(data.discountType || "percentage");
+        fetchPricingPreview(code, false, null, loyaltyApplied)
+          .then((pricing) => setCheckoutPricing(pricing))
+          .catch(() => {});
+        setCouponLoading(false);
+        return;
+      }
+      // Capture the reason for fallthrough display
+      regularReason = data?.message || null;
+    } catch (err) {
+      // Network/auth error — capture backend message if present
+      regularReason = err?.response?.data?.message || null;
+    }
+
+    // Try as special coupon
+    try {
+      const data = await specialCouponApi.validate(code, subtotal);
+      if (data.valid) {
+        setCouponStatus("valid");
+        setCouponDiscount(0);
+        setCouponDiscountType("special");
+        setAppliedSpecialCode(code);
+        fetchPricingPreview(null, false, code, loyaltyApplied)
+          .then((pricing) => setCheckoutPricing(pricing))
+          .catch(() => {});
+      } else {
+        setCouponStatus("invalid");
+        setCouponDiscount(0);
+        setCouponDiscountType("percentage");
+        // Prefer the more specific reason: special coupon msg > regular msg > generic
+        setCouponMessage(data?.message || regularReason || "Invalid coupon code");
+      }
+    } catch (err) {
       setCouponStatus("invalid");
       setCouponDiscount(0);
       setCouponDiscountType("percentage");
+      setCouponMessage(
+        err?.response?.data?.message || regularReason || "Invalid coupon code"
+      );
     } finally {
       setCouponLoading(false);
     }
+  };
+
+  // ── Loyalty redemption handlers ──
+  const handleApplyLoyalty = async () => {
+    setLoyaltyError("");
+    const points = parseInt(loyaltyPointsInput, 10);
+    if (!points || points <= 0) {
+      setLoyaltyError("Enter the number of points to redeem");
+      return;
+    }
+    if (!loyaltyConfig) {
+      setLoyaltyError("Loyalty program unavailable");
+      return;
+    }
+    if (points < loyaltyConfig.minRedemptionPoints) {
+      setLoyaltyError(`Minimum redemption is ${loyaltyConfig.minRedemptionPoints} points`);
+      return;
+    }
+    if (points > loyaltyBalance) {
+      setLoyaltyError(`You only have ${loyaltyBalance} points`);
+      return;
+    }
+    if (points > loyaltyMaxRedeemable) {
+      setLoyaltyError(`Maximum redeemable on this order: ${loyaltyMaxRedeemable} points`);
+      return;
+    }
+
+    try {
+      const subAfterDiscounts = pricingSourceForLoyaltyMax();
+      const result = await loyaltyApi.previewRedeem(points, subAfterDiscounts);
+      if (!result.valid) {
+        setLoyaltyError(result.message || "Cannot apply points");
+        return;
+      }
+      setLoyaltyApplied(points);
+    } catch (err) {
+      setLoyaltyError(err?.response?.data?.message || "Failed to apply points");
+    }
+  };
+
+  const handleRemoveLoyalty = () => {
+    setLoyaltyApplied(0);
+    setLoyaltyPointsInput("");
+    setLoyaltyError("");
   };
 
   // ── Place order ──
@@ -502,14 +676,17 @@ export default function CheckoutPage() {
     // Authenticated flow
     setOrderLoading(true);
     setOrderError("");
+    setStockErrors([]);
 
     const shippingInfo = getShippingInfo();
     const orderData = {
       shippingInfo,
       billingInfo: billingSameAsShipping ? shippingInfo : billing,
       billingSameAsShipping,
-      couponCode: couponStatus === "valid" ? couponCode.trim() : undefined,
+      couponCode: couponStatus === "valid" && !appliedSpecialCode ? couponCode.trim() : undefined,
+      specialCouponCode: appliedSpecialCode || undefined,
       giftWrap: false,
+      loyaltyPointsToRedeem: loyaltyApplied || 0,
     };
 
     try {
@@ -521,8 +698,10 @@ export default function CheckoutPage() {
         setOrderLoading(false);
         // Save address if new
         saveAddressIfNew();
-      } else {
-        // Razorpay flow
+      } else if (paymentMethod === "razorpay") {
+        // --- Razorpay two-phase checkout flow ---
+
+        // Phase 1: Load Razorpay SDK
         const loaded = await loadRazorpay();
         if (!loaded) {
           setOrderError("Failed to load payment gateway. Please try again.");
@@ -530,15 +709,34 @@ export default function CheckoutPage() {
           return;
         }
 
-        const rpData = await paymentApi.createRazorpay(orderData);
+        // Phase 2: Initiate checkout session
+        let initiateData;
+        try {
+          initiateData = await checkoutApi.initiate({
+            shippingInfo: shippingInfo,
+            billingInfo: billingSameAsShipping ? shippingInfo : billing,
+            billingSameAsShipping,
+            couponCode: orderData.couponCode,
+            specialCouponCode: orderData.specialCouponCode,
+            giftWrap: false,
+            paymentMethod: "razorpay",
+            idempotencyKey,
+            loyaltyPointsToRedeem: loyaltyApplied || 0,
+          });
+        } catch (err) {
+          handleInitiateError(err);
+          setOrderLoading(false);
+          return;
+        }
 
+        // Phase 3: Open Razorpay modal
         const options = {
-          key: rpData.razorpayKeyId,
-          amount: rpData.amount,
-          currency: rpData.currency || "INR",
+          key: initiateData.razorpayKeyId,
+          amount: initiateData.amount,
+          currency: initiateData.currency || "INR",
           name: "Cleanse Ayurveda",
           description: "Order Payment",
-          order_id: rpData.razorpayOrderId,
+          order_id: initiateData.razorpayOrderId,
           prefill: {
             name: shipping.fullName,
             email: shipping.email,
@@ -546,31 +744,21 @@ export default function CheckoutPage() {
           },
           theme: { color: "#663532" },
           handler: async (response) => {
-            try {
-              const verifyData = await paymentApi.verifyRazorpay({
-                razorpayOrderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-                ...orderData,
-              });
-              clearCart();
-              clearCheckoutData();
-              setPlacedOrder(verifyData.order);
-              saveAddressIfNew();
-            } catch {
-              setOrderError("Payment verification failed. Please contact support.");
-            } finally {
-              setOrderLoading(false);
-            }
+            await handleRazorpaySuccess(response, initiateData);
           },
           modal: {
             ondismiss: () => {
               setOrderLoading(false);
+              toast.info("Payment cancelled. You can try again -- your session is still active.");
             },
           },
         };
 
         const rzp = new window.Razorpay(options);
+        rzp.on("payment.failed", () => {
+          setOrderLoading(false);
+          toast.error("Payment failed. Please try again.");
+        });
         rzp.open();
         return;
       }
@@ -578,6 +766,149 @@ export default function CheckoutPage() {
       setOrderError(err?.response?.data?.message || err?.message || "Failed to place order. Please try again.");
       setOrderLoading(false);
     }
+  };
+
+  // --- Razorpay error handlers ---
+
+  const handleInitiateError = (err) => {
+    const status = err?.response?.status;
+    const message = err?.response?.data?.message || "";
+    const errorItems = err?.response?.data?.errors;
+
+    if (status === 409 && message.toLowerCase().includes("out of stock") && Array.isArray(errorItems)) {
+      setStockErrors(errorItems);
+      const names = errorItems.map((e) => e.name).join(", ");
+      setOrderError(`Some items are out of stock: ${names}. Please update your cart.`);
+      return;
+    }
+    if (status === 409 && message.toLowerCase().includes("already placed")) {
+      setOrderError("Your order has already been placed. Check My Orders.");
+      toast.info("Your order has already been placed.");
+      return;
+    }
+    if (status === 409 && message.toLowerCase().includes("active checkout session")) {
+      setOrderError("You already have a checkout in progress. Please wait a few minutes or check My Orders.");
+      return;
+    }
+    if (status === 400 && message.toLowerCase().includes("cart is empty")) {
+      setOrderError("Your cart is empty. Please add items before checking out.");
+      return;
+    }
+    if (status === 400 && message.toLowerCase().includes("greater than zero")) {
+      setOrderError("Order total must be greater than zero for online payment. Try Cash on Delivery instead.");
+      return;
+    }
+    if (status === 500) {
+      setOrderError("Payment gateway is temporarily unavailable. Please try again in a moment.");
+      return;
+    }
+    setOrderError(message || "Failed to initiate checkout. Please try again.");
+  };
+
+  const handleRazorpaySuccess = async (response, initiateData) => {
+    setPaymentVerifying(true);
+    setOrderError("");
+
+    try {
+      const data = await checkoutApi.confirm({
+        sessionId: initiateData.sessionId,
+        razorpayOrderId: response.razorpay_order_id,
+        razorpayPaymentId: response.razorpay_payment_id,
+        razorpaySignature: response.razorpay_signature,
+      });
+      clearCart();
+      clearCheckoutData();
+      setPlacedOrder(data.order);
+      saveAddressIfNew();
+      toast.success("Order placed successfully!");
+    } catch (err) {
+      await handleConfirmError(err, response.razorpay_order_id);
+    } finally {
+      setPaymentVerifying(false);
+      setOrderLoading(false);
+    }
+  };
+
+  const handleConfirmError = async (err, razorpayOrderId) => {
+    const status = err?.response?.status;
+    const message = err?.response?.data?.message || "";
+
+    if (status === 400 && message.toLowerCase().includes("verification failed")) {
+      setOrderError("Payment verification failed. If money was deducted, it will be refunded automatically. Please contact support if the issue persists.");
+      return;
+    }
+    if (status === 400 && message.toLowerCase().includes("amount mismatch")) {
+      setOrderError("Something went wrong with the payment amount. Please contact support.");
+      return;
+    }
+    if (status === 404) {
+      setOrderError("Checkout session not found. Please try again.");
+      resetCheckoutSession();
+      return;
+    }
+    if (status === 409 && message.toLowerCase().includes("in progress")) {
+      toast.info("Your order is being processed. Checking status...");
+      const order = await pollForOrder(razorpayOrderId);
+      if (order) {
+        clearCart();
+        clearCheckoutData();
+        setPlacedOrder(order);
+        toast.success("Order placed successfully!");
+      } else {
+        setOrderError("Your payment was received but order confirmation is taking longer than usual. Please check My Orders in a few minutes.");
+      }
+      return;
+    }
+    if (status === 409 && message.toLowerCase().includes("coupon")) {
+      setOrderError("The coupon is no longer available. Your payment will be refunded. Please restart checkout.");
+      resetCheckoutSession();
+      return;
+    }
+    if (status === 410) {
+      setOrderError("Your checkout session has expired. Please try again.");
+      resetCheckoutSession();
+      return;
+    }
+    if (!err?.response) {
+      toast.info("Network issue detected. Checking if your order was placed...");
+      const order = await pollForOrder(razorpayOrderId);
+      if (order) {
+        clearCart();
+        clearCheckoutData();
+        setPlacedOrder(order);
+        toast.success("Order placed successfully!");
+      } else {
+        setOrderError("We could not confirm your order due to a network issue. Please check My Orders -- if your order does not appear within 5 minutes, contact support.");
+      }
+      return;
+    }
+    setOrderError(message || "Failed to confirm payment. Please check My Orders or contact support.");
+  };
+
+  const pollForOrder = async (razorpayOrderId) => {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      try {
+        const data = await orderApi.getMyOrders();
+        const orders = data.orders || data || [];
+        // Match by Razorpay order ID if available (precise match)
+        if (razorpayOrderId) {
+          const match = orders.find(
+            (o) => o.payment?.razorpayOrderId === razorpayOrderId
+          );
+          if (match) return match;
+        }
+        // Fallback: match by recency (within last 2 minutes)
+        const recent = orders.find((o) => {
+          const created = new Date(o.createdAt);
+          return Date.now() - created.getTime() < 2 * 60 * 1000;
+        });
+        if (recent) return recent;
+      } catch {
+        // Continue polling
+      }
+    }
+    return null;
   };
 
   // Save shipping address for the user if it's new
@@ -908,11 +1239,11 @@ export default function CheckoutPage() {
                   </div>
                 </label>
 
-                <label className="checkout-payment-option checkout-payment-disabled">
-                  <input type="radio" name="payment" value="razorpay" disabled />
+                <label className={`checkout-payment-option ${paymentMethod === "razorpay" ? "selected" : ""}`}>
+                  <input type="radio" name="payment" value="razorpay" checked={paymentMethod === "razorpay"} onChange={() => setPaymentMethod("razorpay")} />
                   <span className="checkout-radio-custom"></span>
                   <div className="checkout-payment-info">
-                    <span className="checkout-payment-name">Online Payment <span className="checkout-coming-soon">Coming Soon</span></span>
+                    <span className="checkout-payment-name">Online Payment</span>
                     <span className="checkout-payment-logo">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
                     </span>
@@ -944,6 +1275,8 @@ export default function CheckoutPage() {
                       setCouponStatus(null);
                       setCouponDiscount(0);
                       setCouponDiscountType("percentage");
+                      setCouponMessage("");
+                      setAppliedSpecialCode(null);
                     }}
                   />
                 </div>
@@ -951,11 +1284,79 @@ export default function CheckoutPage() {
               </div>
               {couponStatus === "valid" && (
                 <p className="checkout-coupon-msg checkout-coupon-valid">
-                  {couponDiscountType === "free_shipping" ? "Free shipping applied!" : couponDiscountType === "fixed" ? `\u20B9${couponDiscount} off applied!` : `${couponDiscount}% off applied!`}
+                  {couponDiscountType === "special" ? "Promotion applied! Discount shown in summary." : couponDiscountType === "free_shipping" ? "Free shipping applied!" : couponDiscountType === "fixed" ? `\u20B9${couponDiscount} off applied!` : `${couponDiscount}% off applied!`}
                 </p>
               )}
               {couponStatus === "invalid" && (
-                <p className="checkout-coupon-msg checkout-coupon-invalid">Invalid coupon</p>
+                <p className="checkout-coupon-msg checkout-coupon-invalid">
+                  {couponMessage || "Invalid coupon"}
+                </p>
+              )}
+
+              {/* Loyalty Points Redemption (auth-only) */}
+              {isAuthenticated && loyaltyConfig?.enabled && loyaltyBalance > 0 && (
+                <>
+                  <h3 className="checkout-section-title checkout-section-title--spaced">
+                    Loyalty Points
+                  </h3>
+                  <p className="checkout-coupon-msg" style={{ marginBottom: "0.5rem" }}>
+                    Balance: <strong>{loyaltyBalance}</strong> points · Min{" "}
+                    {loyaltyConfig.minRedemptionPoints} · Max redeemable on this
+                    order: <strong>{loyaltyMaxRedeemable}</strong> points (1 point ={" "}
+                    &#8377;{loyaltyConfig.redeemRatePerPoint})
+                  </p>
+                  {loyaltyApplied > 0 ? (
+                    <div className="checkout-coupon-row">
+                      <p className="checkout-coupon-msg checkout-coupon-valid" style={{ flex: 1 }}>
+                        {loyaltyApplied} points applied (-&#8377;
+                        {(loyaltyApplied * loyaltyConfig.redeemRatePerPoint).toFixed(0)})
+                      </p>
+                      <button
+                        className="checkout-coupon-btn"
+                        onClick={handleRemoveLoyalty}
+                        type="button"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="checkout-coupon-row">
+                      <div className="checkout-input-group checkout-coupon-input">
+                        <input
+                          type="number"
+                          min={loyaltyConfig.minRedemptionPoints}
+                          max={loyaltyMaxRedeemable}
+                          placeholder={`Enter points (min ${loyaltyConfig.minRedemptionPoints})`}
+                          value={loyaltyPointsInput}
+                          onChange={(e) => {
+                            setLoyaltyPointsInput(e.target.value);
+                            setLoyaltyError("");
+                          }}
+                          disabled={loyaltyMaxRedeemable < loyaltyConfig.minRedemptionPoints}
+                        />
+                      </div>
+                      <button
+                        className="checkout-coupon-btn"
+                        onClick={handleApplyLoyalty}
+                        type="button"
+                        disabled={loyaltyMaxRedeemable < loyaltyConfig.minRedemptionPoints}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  )}
+                  {loyaltyError && (
+                    <p className="checkout-coupon-msg checkout-coupon-invalid">
+                      {loyaltyError}
+                    </p>
+                  )}
+                  {loyaltyMaxRedeemable < loyaltyConfig.minRedemptionPoints &&
+                    loyaltyApplied === 0 && (
+                      <p className="checkout-coupon-msg" style={{ opacity: 0.7 }}>
+                        Order subtotal too low to redeem points right now.
+                      </p>
+                    )}
+                </>
               )}
 
               <div className="checkout-step-actions">
@@ -992,19 +1393,34 @@ export default function CheckoutPage() {
               <h3 className="checkout-section-title checkout-section-title--spaced">Payment Method</h3>
               <div className="checkout-review-card">
                 <div className="checkout-review-details">
-                  <p className="checkout-review-name">Cash on Delivery</p>
+                  <p className="checkout-review-name">{paymentMethod === "razorpay" ? "Online Payment (Razorpay)" : "Cash on Delivery"}</p>
                 </div>
                 <button className="checkout-edit-link" onClick={() => goToStep(2)}>Edit</button>
               </div>
 
               {orderError && <p className="checkout-order-error">{orderError}</p>}
+              {stockErrors.length > 0 && (
+                <div className="checkout-stock-errors">
+                  <ul>
+                    {stockErrors.map((item, i) => (
+                      <li key={i}>{item.name} ({item.sizeLabel}) -- {item.available} available, {item.requested} requested</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <div className="checkout-step-actions">
                 <button className="checkout-back-btn" onClick={() => goToStep(2)}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
                   Back
                 </button>
-                <button className="checkout-place-order-btn" onClick={handlePlaceOrder} disabled={orderLoading}>
-                  {orderLoading ? "Processing..." : isAuthenticated ? "Place Order" : "Continue to Login"}
+                <button className="checkout-place-order-btn" onClick={handlePlaceOrder} disabled={orderLoading || paymentVerifying}>
+                  {paymentVerifying
+                    ? "Payment successful, verifying..."
+                    : orderLoading
+                      ? "Processing..."
+                      : isAuthenticated
+                        ? (paymentMethod === "razorpay" ? "Pay Now" : "Place Order")
+                        : "Continue to Login"}
                 </button>
               </div>
               {!isAuthenticated && (
@@ -1059,10 +1475,30 @@ export default function CheckoutPage() {
                   <span>-&#8377;{tierDiscount.toFixed(2)}</span>
                 </div>
               )}
+              {(pricingSource?.specialCouponDiscountTotal || 0) > 0 && pricingSource?.specialCouponDiscounts?.map((sp, i) => (
+                <div key={`sp-${i}`} className="checkout-summary-line checkout-summary-discount">
+                  <span>{sp.title || "Special Discount"}</span>
+                  <span>-&#8377;{(sp.discountAmount || 0).toFixed(2)}</span>
+                </div>
+              ))}
+              {pricingSource?.freeGifts?.length > 0 && pricingSource.freeGifts.map((gift, i) => (
+                <div key={`gift-${i}`} className="checkout-summary-line checkout-summary-discount">
+                  <span>Free Gift: {gift.productName || "Gift"}</span>
+                  <span>FREE</span>
+                </div>
+              ))}
               {couponAmount > 0 && (
                 <div className="checkout-summary-line checkout-summary-discount">
                   <span>Coupon ({pricingSource?.couponCode || couponCode})</span>
                   <span>-&#8377;{couponAmount.toFixed(2)}</span>
+                </div>
+              )}
+              {(pricingSource?.loyaltyDiscount || 0) > 0 && (
+                <div className="checkout-summary-line checkout-summary-discount">
+                  <span>
+                    Loyalty Points ({pricingSource?.loyaltyPointsRedeemed || 0} pts)
+                  </span>
+                  <span>-&#8377;{(pricingSource?.loyaltyDiscount || 0).toFixed(2)}</span>
                 </div>
               )}
               <div className="checkout-summary-line">

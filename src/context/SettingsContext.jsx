@@ -23,13 +23,22 @@ const DEFAULTS = {
   whatsappNumber: "",
   spinWheelEnabled: true,
   newsletterPopupEnabled: true,
+  newsletterPopupConfig: {
+    tag: "JOIN OUR COMMUNITY",
+    heading: "Get 10% Off",
+    description:
+      "Subscribe to our newsletter and receive exclusive offers, Ayurvedic tips, and new product updates.",
+    note: "No spam, unsubscribe anytime.",
+    image: null,
+    delaySeconds: 8,
+  },
   // CMS section defaults (match backend CMS_DEFAULTS)
   cmsHero: {
     title: "Cleanse Ayurveda",
     subtitle: "Natural Skin Care for Mindful Living",
     ctaText: "Shop Now",
     ctaLink: "/wardrobe",
-    backgroundImage: null,
+    carouselImages: [],
   },
   cmsFormula: {
     tagline:

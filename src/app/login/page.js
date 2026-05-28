@@ -4,6 +4,8 @@ import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
+import { referralApi } from "@/lib/endpoints";
 
 export default function Login() {
   return (
@@ -15,6 +17,7 @@ export default function Login() {
 
 function LoginContent() {
   const { loginWithPassword, register, isAuthenticated } = useAuth();
+  const toast = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/profile";
@@ -24,6 +27,7 @@ function LoginContent() {
   const paramEmail = searchParams.get("email") || "";
   const paramPhone = searchParams.get("phone") || "";
   const paramName = searchParams.get("name") || "";
+  const paramRef = searchParams.get("ref") || "";
 
   const [activeTab, setActiveTab] = useState(paramTab === "register" ? "register" : "login");
   const [showPassword, setShowPassword] = useState(false);
@@ -39,6 +43,9 @@ function LoginContent() {
   const [regEmail, setRegEmail] = useState(paramEmail);
   const [regPhone, setRegPhone] = useState(paramPhone);
   const [regPassword, setRegPassword] = useState("");
+  const [regReferralCode, setRegReferralCode] = useState(paramRef.toUpperCase());
+  const [referralStatus, setReferralStatus] = useState(null); // null | "checking" | "valid" | "invalid"
+  const [referralInfo, setReferralInfo] = useState(null);
 
   // UI state
   const [loading, setLoading] = useState(false);
@@ -48,6 +55,39 @@ function LoginContent() {
   useEffect(() => {
     if (isAuthenticated) router.replace(redirectTo);
   }, [isAuthenticated, router, redirectTo]);
+
+  // Switch to register tab automatically if a referral code is in the URL
+  useEffect(() => {
+    if (paramRef) {
+      setActiveTab("register");
+    }
+  }, [paramRef]);
+
+  // Debounced referral code validation
+  useEffect(() => {
+    if (!regReferralCode || regReferralCode.length < 4) {
+      setReferralStatus(null);
+      setReferralInfo(null);
+      return;
+    }
+    setReferralStatus("checking");
+    const t = setTimeout(async () => {
+      try {
+        const data = await referralApi.validate(regReferralCode.trim().toUpperCase());
+        if (data.valid) {
+          setReferralStatus("valid");
+          setReferralInfo(data);
+        } else {
+          setReferralStatus("invalid");
+          setReferralInfo(null);
+        }
+      } catch {
+        setReferralStatus("invalid");
+        setReferralInfo(null);
+      }
+    }, 500);
+    return () => clearTimeout(t);
+  }, [regReferralCode]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -83,12 +123,23 @@ function LoginContent() {
     setLoading(true);
     setError("");
     try {
-      await register({
+      const result = await register({
         fullName: regName.trim(),
         email: regEmail.trim(),
         phone: regPhone.trim(),
         password: regPassword,
+        referralCode: regReferralCode.trim().toUpperCase() || undefined,
       });
+
+      // Surface referral apply outcome to the user
+      if (regReferralCode.trim()) {
+        if (result?.referralApplied?.success) {
+          toast.success("Welcome bonus applied from referral code!");
+        } else if (result?.referralApplied?.message) {
+          toast.error(`Referral code: ${result.referralApplied.message}`);
+        }
+      }
+
       router.replace(redirectTo);
     } catch (err) {
       console.error("[register] error:", err.response?.status, err.response?.data);
@@ -275,6 +326,38 @@ function LoginContent() {
                     )}
                   </button>
                 </div>
+              </div>
+
+              <div className="login-input-group">
+                <label>
+                  Referral Code <span style={{ opacity: 0.6 }}>(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter referral code (if any)"
+                  value={regReferralCode}
+                  onChange={(e) => setRegReferralCode(e.target.value.toUpperCase())}
+                  disabled={loading}
+                />
+                {referralStatus === "checking" && (
+                  <p style={{ fontSize: "0.75rem", color: "#888", marginTop: "0.25rem" }}>
+                    Checking...
+                  </p>
+                )}
+                {referralStatus === "valid" && referralInfo && (
+                  <p style={{ fontSize: "0.75rem", color: "#2e7d32", marginTop: "0.25rem" }}>
+                    ✓ Referred by {referralInfo.referrerName}
+                    {referralInfo.refereeRewardValue > 0 &&
+                      ` — you'll get ${referralInfo.refereeRewardValue}${
+                        referralInfo.refereeRewardType === "percentage" ? "% off" : ""
+                      } as a welcome bonus`}
+                  </p>
+                )}
+                {referralStatus === "invalid" && (
+                  <p style={{ fontSize: "0.75rem", color: "#c62828", marginTop: "0.25rem" }}>
+                    Invalid referral code
+                  </p>
+                )}
               </div>
 
               <label className="login-checkbox-label">

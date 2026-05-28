@@ -1,23 +1,47 @@
 "use client";
 import "./ContactForm.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MdOutlineArrowOutward } from "react-icons/md";
 import { newsletterApi } from "@/lib/endpoints";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ContactForm = () => {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  // Reset state on every fresh mount so the success message doesn't persist
+  // across navigation if the user comes back to the same page.
+  useEffect(() => {
+    setSubmitted(false);
+    setEmail("");
+    setError("");
+  }, []);
 
   const handleSubmit = async () => {
-    if (!email.trim() || submitting) return;
+    if (submitting) return;
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setError("Please enter your email");
+      return;
+    }
+    if (!EMAIL_RE.test(trimmed)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    setError("");
     setSubmitting(true);
     try {
-      await newsletterApi.subscribe(email.trim(), "footer");
+      await newsletterApi.subscribe(trimmed, "footer");
       setSubmitted(true);
       setEmail("");
-    } catch {
-      setSubmitted(true);
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        "Failed to subscribe. Please try again.";
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -42,16 +66,35 @@ const ContactForm = () => {
           <>
             <div className="cf-input">
               <input
-                type="text"
+                type="email"
+                required
                 placeholder="Enter Your Email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError("");
+                }}
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                aria-invalid={!!error}
               />
             </div>
-            <div className="cf-submit" onClick={handleSubmit} style={{ cursor: "pointer" }}>
+            <button
+              type="button"
+              className="cf-submit"
+              onClick={handleSubmit}
+              disabled={submitting}
+              aria-label="Subscribe"
+              style={{ cursor: submitting ? "wait" : "pointer", border: "none" }}
+            >
               {submitting ? "..." : <MdOutlineArrowOutward />}
-            </div>
+            </button>
+            {error && (
+              <div className="cf-input">
+                <p className="bodyCopy sm" style={{ color: "#c62828" }}>
+                  {error}
+                </p>
+              </div>
+            )}
           </>
         ) : (
           <div className="cf-input">

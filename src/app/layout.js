@@ -12,6 +12,9 @@ import { CartProvider } from "@/context/CartContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { SettingsProvider } from "@/context/SettingsContext";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary";
+import { PopupProvider } from "@/context/PopupContext";
+import SpinWheelWrapper from "@/components/SpinWheel/SpinWheelWrapper";
+import NewsletterPopupWrapper from "@/components/NewsletterPopup/NewsletterPopupWrapper";
 
 export const metadata = {
   title: "Cleanse Ayurveda | Premium Ayurvedic Beauty",
@@ -27,13 +30,17 @@ export default function RootLayout({ children }) {
         <SettingsProvider>
         <ToastProvider>
         <CartProvider>
+          <PopupProvider>
           <TransitionProvider>
             <ClientLayout footer={<Footer />}>
               <Menu />
               {children}
             </ClientLayout>
             <ShoppingCart />
+            <SpinWheelWrapper />
+            <NewsletterPopupWrapper />
           </TransitionProvider>
+          </PopupProvider>
         </CartProvider>
         </ToastProvider>
         </SettingsProvider>

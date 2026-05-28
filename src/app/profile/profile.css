@@ -1491,3 +1491,47 @@
     font-size: 0.72rem;
   }
 }
+
+/* Loyalty / Referral history rows */
+.profile-loyalty-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.profile-loyalty-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.85rem;
+  background: #f7f4ef;
+  border-radius: 6px;
+  gap: 1rem;
+}
+
+.profile-loyalty-row-desc {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #2a2018;
+}
+
+.profile-loyalty-row-date {
+  margin: 0.15rem 0 0;
+  font-size: 0.7rem;
+  color: rgba(42, 32, 24, 0.6);
+}
+
+.profile-loyalty-row-points {
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.profile-loyalty-row-points.positive {
+  color: #2e7d32;
+}
+
+.profile-loyalty-row-points.negative {
+  color: #c62828;
+}

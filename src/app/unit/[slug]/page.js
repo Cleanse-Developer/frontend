@@ -6,6 +6,8 @@ import { Suspense, use, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { productApi, shippingApi, reviewApi, bundleApi } from "@/lib/endpoints";
 import { normalizeProduct } from "@/lib/normalizers";
 import { productUrl } from "@/lib/normalizers";
@@ -17,24 +19,8 @@ const productImages = [
   "/images/4.png",
 ];
 
-const fallbackReviews = [
-  {
-    name: "Priya S.",
-    location: "Mumbai",
-    rating: 5,
-    date: "2 weeks ago",
-    text: "I've been using this every night for a month and the difference is incredible. My skin looks more radiant and the dark spots have visibly faded.",
-    verified: true,
-  },
-  {
-    name: "Ananya M.",
-    location: "Delhi",
-    rating: 5,
-    date: "1 month ago",
-    text: "Was skeptical at first but this is genuinely transformative. A little goes a long way, and I wake up with the softest, most glowing skin.",
-    verified: true,
-  },
-];
+// Empty fallback — never show fake reviews. Empty state is shown instead.
+const fallbackReviews = [];
 
 // Default highlights used when product has no tabHighlights data
 const DEFAULT_HIGHLIGHTS = {
@@ -356,6 +342,8 @@ function UnitContent({ params }) {
   const [reviewForm, setReviewForm] = useState({ rating: 5, title: "", text: "" });
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const toast = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const variantParam = searchParams.get("variant");
@@ -393,45 +381,83 @@ function UnitContent({ params }) {
       }
       // Fetch reviews
       if (p._id) {
-        reviewApi.getForProduct(p._id).then((revData) => {
-          const apiReviews = (revData.reviews || revData || []).map((r) => ({
-            name: r.user?.fullName || r.userName || "Customer",
-            location: "",
-            rating: r.rating,
-            date: r.createdAt ? new Date(r.createdAt).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" }) : "",
-            text: r.text || r.comment || "",
-            verified: r.verified ?? true,
-          }));
-          if (apiReviews.length > 0) setReviews(apiReviews);
-        }).catch(() => {});
+        reviewApi
+          .getForProduct(p._id)
+          .then((revData) => {
+            const apiReviews = (revData.reviews || revData || []).map((r) => ({
+              _id: r._id,
+              name: r.user?.fullName || r.userName || "Customer",
+              location: "",
+              rating: r.rating,
+              date: r.createdAt
+                ? new Date(r.createdAt).toLocaleDateString("en-IN", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
+                : "",
+              text: r.text || r.comment || "",
+              verified: r.isVerifiedPurchase === true,
+            }));
+            // Always replace (don't fall back to fakes)
+            setReviews(apiReviews);
+          })
+          .catch(() => {
+            setReviews([]);
+          });
       }
     }).catch(() => setLoading(false));
   }, [slug, variantParam]);
 
   const handleSubmitReview = async () => {
     if (!product?._id || !reviewForm.text.trim() || reviewSubmitting) return;
+    if (!isAuthenticated) {
+      toast?.error?.("Please sign in to submit a review");
+      return;
+    }
     setReviewSubmitting(true);
     try {
-      await reviewApi.create({
-        product: product._id,
+      const result = await reviewApi.create({
+        productId: product._id,
         rating: reviewForm.rating,
         title: reviewForm.title,
         text: reviewForm.text,
       });
       setShowReviewForm(false);
       setReviewForm({ rating: 5, title: "", text: "" });
+      if (result?.requiresModeration) {
+        toast?.success?.(
+          "Review submitted! It will appear after admin approval."
+        );
+      } else {
+        toast?.success?.("Review posted!");
+      }
       // Refetch reviews
       const revData = await reviewApi.getForProduct(product._id);
       const apiReviews = (revData.reviews || revData || []).map((r) => ({
+        _id: r._id,
         name: r.user?.fullName || r.userName || "Customer",
         location: "",
         rating: r.rating,
-        date: r.createdAt ? new Date(r.createdAt).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" }) : "",
+        date: r.createdAt
+          ? new Date(r.createdAt).toLocaleDateString("en-IN", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })
+          : "",
         text: r.text || r.comment || "",
-        verified: r.verified ?? true,
+        verified: r.isVerifiedPurchase === true,
       }));
-      if (apiReviews.length > 0) setReviews(apiReviews);
-    } catch { /* ignore */ }
+      setReviews(apiReviews);
+      setReviewIndex(0); // Show newly submitted (or top) review
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.errors?.[0]?.message ||
+        "Failed to submit review";
+      toast?.error?.(msg);
+    }
     setReviewSubmitting(false);
   };
 
@@ -502,6 +528,7 @@ function UnitContent({ params }) {
 
   // Review scroll navigation
   const scrollToReview = useCallback((direction) => {
+    if (!reviews || reviews.length === 0) return;
     setReviewIndex((prev) => {
       if (direction === 'up') {
         return prev > 0 ? prev - 1 : reviews.length - 1;
@@ -509,7 +536,14 @@ function UnitContent({ params }) {
         return prev < reviews.length - 1 ? prev + 1 : 0;
       }
     });
-  }, []);
+  }, [reviews.length]);
+
+  // Clamp reviewIndex if reviews list shrinks
+  useEffect(() => {
+    if (reviewIndex >= reviews.length) {
+      setReviewIndex(0);
+    }
+  }, [reviews.length, reviewIndex]);
 
   if (loading) {
     return (
@@ -876,9 +910,15 @@ function UnitContent({ params }) {
                 <p className="reviews-summary-text">
                   Our customers love the natural glow and visible results. Join thousands who have transformed their skincare routine.
                 </p>
-                <button className="write-review-btn" onClick={() => setShowReviewForm(!showReviewForm)}>
-                  {showReviewForm ? "Cancel" : "Write a Review"}
-                </button>
+                {isAuthenticated ? (
+                  <button className="write-review-btn" onClick={() => setShowReviewForm(!showReviewForm)}>
+                    {showReviewForm ? "Cancel" : "Write a Review"}
+                  </button>
+                ) : (
+                  <Link href={`/login?redirect=/unit/${slug}`} className="write-review-btn">
+                    Sign in to Write a Review
+                  </Link>
+                )}
                 {showReviewForm && (
                   <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                     <div style={{ display: "flex", gap: "0.25rem" }}>
@@ -923,6 +963,18 @@ function UnitContent({ params }) {
 
             {/* Right - Review Cards */}
             <div className="reviews-right">
+              {reviews.length === 0 ? (
+                <div
+                  style={{
+                    padding: "2rem",
+                    textAlign: "center",
+                    color: "rgba(79,44,34,0.6)",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  No reviews yet. Be the first to share your experience!
+                </div>
+              ) : (
               <div className="reviews-barrel-wrapper">
                 <div className="reviews-barrel">
                   <div
@@ -968,6 +1020,7 @@ function UnitContent({ params }) {
                   </button>
                 </div>
               </div>
+              )}
             </div>
           </div>
         </div>

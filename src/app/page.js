@@ -20,8 +20,6 @@ import BeforeAfter from "@/components/BeforeAfter/BeforeAfter";
 
 import Copy from "@/components/Copy/Copy";
 
-import SpinWheel from "@/components/SpinWheel/SpinWheel";
-import NewsletterPopup from "@/components/NewsletterPopup/NewsletterPopup";
 import FOMOPopup from "@/components/FOMOPopup/FOMOPopup";
 import ChatSupport from "@/components/ChatSupport/ChatSupport";
 import { useSettings } from "@/context/SettingsContext";
@@ -70,10 +68,15 @@ export default function Index() {
 
   const settings = useSettings();
 
-  const heroImages = ["/images/hero.png", "/images/image.png", "/images/banner.png"];
+  const FALLBACK_HERO_IMAGES = ["/images/hero.png", "/images/image.png", "/images/banner.png"];
+  const cmsImages = settings.cmsHero?.carouselImages;
+  const heroImages = cmsImages?.length > 0
+    ? cmsImages.map((img) => img.url)
+    : FALLBACK_HERO_IMAGES;
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
   useEffect(() => {
+    if (heroImages.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
     }, 5000);
@@ -81,10 +84,7 @@ export default function Index() {
   }, [heroImages.length]);
 
   // Marketing popups state
-  const [showSpinWheel, setShowSpinWheel] = useState(false);
-  const [showNewsletter, setShowNewsletter] = useState(false);
   const [showFOMO, setShowFOMO] = useState(false);
-  const [spinWheelResult, setSpinWheelResult] = useState(null);
   const [isMounted, setIsMounted] = useState(false);
 
   // Handle client-side mounting + hash scroll
@@ -108,39 +108,10 @@ export default function Index() {
       setShowFOMO(true);
     }, 1000);
 
-    const hasSeenPopups = sessionStorage.getItem("cleanse_popups_seen");
-
-    let spinTimer;
-    if (!hasSeenPopups && settings.spinWheelEnabled) {
-      spinTimer = setTimeout(() => {
-        setShowSpinWheel(true);
-      }, 3000);
-    }
-
     return () => {
       clearTimeout(fomoTimer);
-      if (spinTimer) clearTimeout(spinTimer);
     };
-  }, [isMounted, settings.spinWheelEnabled]);
-
-  const handleSpinComplete = (result) => {
-    setSpinWheelResult(result);
-  };
-
-  const handleSpinClose = () => {
-    setShowSpinWheel(false);
-    // Show newsletter after spin wheel closes (if enabled)
-    if (settings.newsletterPopupEnabled) {
-      setTimeout(() => {
-        setShowNewsletter(true);
-      }, 500);
-    }
-  };
-
-  const handleNewsletterClose = () => {
-    setShowNewsletter(false);
-    sessionStorage.setItem("cleanse_popups_seen", "true");
-  };
+  }, [isMounted]);
 
   useGSAP(() => {
     if (!heroSectionRef.current) return;
@@ -306,15 +277,6 @@ export default function Index() {
       {/* Marketing Components - Only render after client mount */}
       {isMounted && (
         <>
-          <SpinWheel
-            isOpen={showSpinWheel}
-            onClose={handleSpinClose}
-            onComplete={handleSpinComplete}
-          />
-          <NewsletterPopup
-            isOpen={showNewsletter}
-            onClose={handleNewsletterClose}
-          />
           <FOMOPopup isActive={showFOMO} />
           <ChatSupport />
         </>

@@ -20,7 +20,7 @@ function getStatusGroup(status) {
   const s = status?.toLowerCase();
   if (s === "delivered") return "delivered";
   if (s === "cancelled") return "cancelled";
-  if (["return_requested", "return_approved", "returned", "refunded"].includes(s)) return "returned";
+  if (["return_requested", "return_approved", "returned", "refunded", "refund_initiated"].includes(s)) return "returned";
   return "active";
 }
 
@@ -101,7 +101,7 @@ function StatusIcon({ status }) {
   const s = status?.toLowerCase();
   if (s === "delivered") return <CheckCircleIcon />;
   if (s === "cancelled") return <XCircleIcon />;
-  if (["return_requested", "return_approved", "returned", "refunded"].includes(s)) return <RotateIcon />;
+  if (["return_requested", "return_approved", "returned", "refunded", "refund_initiated"].includes(s)) return <RotateIcon />;
   if (["shipped", "in_transit", "out_for_delivery"].includes(s)) return <TruckIcon />;
   return <ClockIcon />;
 }

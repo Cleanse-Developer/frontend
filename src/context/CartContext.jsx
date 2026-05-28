@@ -121,12 +121,12 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // Fetch pricing preview from server (for coupon/gift wrap) — works for both auth and guest
-  const fetchPricingPreview = useCallback(async (couponCode, giftWrap) => {
+  // Fetch pricing preview from server (coupon/gift wrap/special coupons/loyalty) -- works for both auth and guest
+  const fetchPricingPreview = useCallback(async (couponCode, giftWrap, specialCouponCode, loyaltyPointsToRedeem = 0) => {
     try {
       let pricing;
       if (isAuthenticated) {
-        pricing = await cartPricingApi.preview(couponCode, giftWrap);
+        pricing = await cartPricingApi.preview(couponCode, giftWrap, specialCouponCode, loyaltyPointsToRedeem);
       } else {
         const items = cartItems
           .filter((item) => item.productId)
@@ -136,7 +136,8 @@ export const CartProvider = ({ children }) => {
             selectedSize: item.selectedSize,
           }));
         if (items.length === 0) return null;
-        pricing = await guestPricingApi.calculate(items, couponCode, giftWrap);
+        // Guest cannot redeem loyalty points
+        pricing = await guestPricingApi.calculate(items, couponCode, giftWrap, specialCouponCode);
       }
       setServerPricing(pricing);
       return pricing;

@@ -138,9 +138,20 @@
   transition: all 0.3s ease;
 }
 
-.newsletter-submit:hover {
+.newsletter-submit:hover:not(:disabled) {
   background: #4F2C22;
   transform: translateY(-2px);
+}
+
+.newsletter-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.newsletter-error {
+  font-size: 0.8rem !important;
+  color: #c0392b !important;
+  margin: 0 !important;
 }
 
 .newsletter-note {

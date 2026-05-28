@@ -18,14 +18,21 @@ export const bundleApi = {
 
 // ── Cart (pricing preview) ──
 export const cartPricingApi = {
-  preview: (couponCode, giftWrap) =>
-    api.post("/cart/preview-pricing", { couponCode, giftWrap }).then((r) => r.data.data.pricing),
+  preview: (couponCode, giftWrap, specialCouponCode, loyaltyPointsToRedeem = 0) =>
+    api
+      .post("/cart/preview-pricing", {
+        couponCode,
+        giftWrap,
+        specialCouponCode,
+        loyaltyPointsToRedeem,
+      })
+      .then((r) => r.data.data.pricing),
 };
 
 // ── Guest pricing (public, no auth) ──
 export const guestPricingApi = {
-  calculate: (items, couponCode, giftWrap) =>
-    api.post("/pricing/guest", { items, couponCode, giftWrap }).then((r) => r.data.data.pricing),
+  calculate: (items, couponCode, giftWrap, specialCouponCode) =>
+    api.post("/pricing/guest", { items, couponCode, giftWrap, specialCouponCode }).then((r) => r.data.data.pricing),
 };
 
 // ── Blogs ──
@@ -72,12 +79,20 @@ export const orderApi = {
     api.post(`/orders/${orderId}/reorder`).then((r) => r.data.data),
 };
 
-// ── Payments ──
+// ── Payments (legacy -- kept for backward compat) ──
 export const paymentApi = {
   createRazorpay: (data) =>
     api.post("/payments/razorpay/create", data).then((r) => r.data.data),
   verifyRazorpay: (data) =>
     api.post("/payments/razorpay/verify", data).then((r) => r.data.data),
+};
+
+// ── Checkout (Razorpay two-phase flow) ──
+export const checkoutApi = {
+  initiate: (data) =>
+    api.post("/checkout/initiate", data).then((r) => r.data.data),
+  confirm: (data) =>
+    api.post("/checkout/confirm", data).then((r) => r.data.data),
 };
 
 // ── User ──
@@ -114,6 +129,14 @@ export const couponApi = {
   getMyCoupons: () => api.get("/coupons/my-coupons").then((r) => r.data.data),
 };
 
+// ── Special Coupons ──
+export const specialCouponApi = {
+  validate: (code, cartSubtotal) =>
+    api.post("/special-coupons/validate", { code, cartSubtotal }).then((r) => r.data.data),
+  getActivePromotions: () =>
+    api.get("/special-coupons/active-promotions").then((r) => r.data.data),
+};
+
 // ── Reviews ──
 export const reviewApi = {
   getForProduct: (productId, params) =>
@@ -121,6 +144,9 @@ export const reviewApi = {
       .get(`/products/${productId}/reviews`, { params })
       .then((r) => r.data.data),
   create: (data) => api.post("/reviews", data).then((r) => r.data.data),
+  update: (id, data) => api.patch(`/reviews/${id}`, data).then((r) => r.data.data),
+  delete: (id) => api.delete(`/reviews/${id}`).then((r) => r.data),
+  getMine: (params) => api.get("/reviews/me", { params }).then((r) => r.data.data),
 };
 
 // ── Shipping ──
@@ -143,11 +169,25 @@ export const contactApi = {
 // ── Referral ──
 export const referralApi = {
   getCode: () => api.get("/referral/code").then((r) => r.data.data),
+  validate: (code) =>
+    api.post("/referral/validate", { code }).then((r) => r.data.data),
+  getHistory: (params) =>
+    api.get("/referral/history", { params }).then((r) => r.data.data),
 };
 
 // ── Loyalty ──
 export const loyaltyApi = {
   getBalance: () => api.get("/loyalty/balance").then((r) => r.data.data),
+  getTransactions: (params) =>
+    api.get("/loyalty/transactions", { params }).then((r) => r.data.data),
+  getMaxRedeemable: (subtotal) =>
+    api
+      .get("/loyalty/max-redeemable", { params: { subtotal } })
+      .then((r) => r.data.data),
+  previewRedeem: (points, subtotal) =>
+    api
+      .post("/loyalty/redeem/preview", { points, subtotal })
+      .then((r) => r.data.data),
 };
 
 // ── Testimonials ──
@@ -158,6 +198,9 @@ export const testimonialApi = {
 
 // ── Spin Wheel ──
 export const spinWheelApi = {
+  getPrizes: () => api.get("/spin-wheel/prizes").then((r) => r.data.data),
+  check: (email) =>
+    api.get("/spin-wheel/check", { params: { email } }).then((r) => r.data.data),
   spin: (email) =>
     api.post("/spin-wheel", { email }).then((r) => r.data.data),
 };
