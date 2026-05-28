@@ -3,7 +3,7 @@
   width: 100%;
   height: 611px;
   overflow: visible;
-  margin-bottom: 100px;
+  margin-bottom: 0;
 }
 
 .contact-form .contact-parallax-image-wrapper {
@@ -23,7 +23,7 @@
 
 .contact-form .contact-form-container {
   position: absolute;
-  top: 50%;
+  top: 58%;
   right: 8rem;
   transform: translateY(-30%);
   width: 502px;

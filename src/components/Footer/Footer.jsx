@@ -30,11 +30,41 @@ const Footer = () => {
         <div className="footer-container">
           <div className="footer-top">
             <div className="footer-pages">
-              <h3 className="footer-pages-title">NAVIGATION</h3>
+              <h3 className="footer-pages-title">SHOP</h3>
               <div className="footer-pages-links">
                 {navLinks.map((link, i) => (
                   <Link key={i} href={link.href}>{link.label}</Link>
                 ))}
+              </div>
+            </div>
+
+            <div className="footer-pages">
+              <h3 className="footer-pages-title">DISCOVER</h3>
+              <div className="footer-pages-links">
+                <Link href="/genesis">OUR GENESIS</Link>
+                <Link href="/lookbook">LOOKBOOK</Link>
+                <Link href="/blog">JOURNAL</Link>
+                <Link href="/touchpoint">TOUCHPOINT</Link>
+              </div>
+            </div>
+
+            <div className="footer-pages">
+              <h3 className="footer-pages-title">ACCOUNT</h3>
+              <div className="footer-pages-links">
+                <Link href="/profile">MY PROFILE</Link>
+                <Link href="/orders">MY ORDERS</Link>
+                <Link href="/cart">SHOPPING BAG</Link>
+                <Link href="/login">SIGN IN</Link>
+              </div>
+            </div>
+
+            <div className="footer-pages">
+              <h3 className="footer-pages-title">SUPPORT</h3>
+              <div className="footer-pages-links">
+                <Link href="/touchpoint">CONTACT US</Link>
+                <Link href="/touchpoint#shipping">SHIPPING</Link>
+                <Link href="/touchpoint#returns">RETURNS</Link>
+                <Link href="/touchpoint#faq">FAQ</Link>
               </div>
             </div>
           </div>

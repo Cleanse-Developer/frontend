@@ -264,14 +264,14 @@
 .section-row-3 {
   display: flex;
   gap: 1.5rem;
-  align-items: flex-start;
+  align-items: stretch;
   margin-bottom: 4rem;
 }
 
 .side-banner {
   width: 680px;
-  height: 1000px;
   flex-shrink: 0;
+  align-self: stretch;
   border-radius: 31px;
   overflow: hidden;
   position: relative;

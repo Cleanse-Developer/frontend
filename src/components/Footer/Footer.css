@@ -4,7 +4,7 @@ footer {
   background-color: #C8AD73;
   border-top-left-radius: 80px;
   border-top-right-radius: 80px;
-  margin-top: -200px;
+  margin-top: -80px;
   z-index: 10;
 }
 
@@ -19,9 +19,13 @@ footer {
 
 /* Top section - Pages */
 .footer-top {
-  display: flex;
-  justify-content: flex-start;
-  padding-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3rem;
+  /* Generous top padding so the ContactForm card (z-index: 11) that
+     overflows ~150px below its parent + the -80px footer pull-up
+     (~230px total into footer) never covers the link columns. */
+  padding-top: 15rem;
 }
 
 .footer-pages-title {
@@ -149,6 +153,8 @@ footer {
 
   .footer-top {
     padding-top: 1.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 2.5rem;
   }
 
   .footer-pages-title {
@@ -220,21 +226,22 @@ footer {
 
   .footer-top {
     padding-top: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 1.25rem;
   }
 
   .footer-pages-title {
-    font-size: 0.8rem;
-    margin-bottom: 1rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.6rem;
   }
 
   .footer-pages-links {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.5rem 1rem;
+    flex-direction: column;
+    gap: 0.4rem;
   }
 
   .footer-pages-links a {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
 
   .footer-bottom {
