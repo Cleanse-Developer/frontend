@@ -68,11 +68,12 @@ export default function Index() {
 
   const settings = useSettings();
 
-  const FALLBACK_HERO_IMAGES = ["/images/hero.png", "/images/image.png", "/images/banner.png"];
+  /* No hardcoded fallback — only render slides once CMS images are loaded,
+     otherwise an unrelated 4th image briefly flashes on reload */
   const cmsImages = settings.cmsHero?.carouselImages;
   const heroImages = cmsImages?.length > 0
     ? cmsImages.map((img) => img.url)
-    : FALLBACK_HERO_IMAGES;
+    : [];
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
   useEffect(() => {
