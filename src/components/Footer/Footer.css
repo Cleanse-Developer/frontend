@@ -4,28 +4,49 @@ footer {
   background-color: #C8AD73;
   border-top-left-radius: 80px;
   border-top-right-radius: 80px;
-  margin-top: -80px;
+  margin-top: -160px;
   z-index: 10;
 }
 
 .footer-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 4rem 3rem 2rem;
+  padding: 0.5rem 3rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 1.5rem;
 }
 
 /* Top section - Pages */
 .footer-top {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 3rem;
-  /* Generous top padding so the ContactForm card (z-index: 11) that
-     overflows ~150px below its parent + the -80px footer pull-up
-     (~230px total into footer) never covers the link columns. */
-  padding-top: 15rem;
+  gap: 0;
+  padding-top: 0;
+}
+
+/* Thin vertical divider between each link column (not after the last) */
+.footer-top .footer-pages {
+  padding: 0 1rem;
+  border-right: 1px solid rgba(26, 26, 26, 0.18);
+}
+
+.footer-top .footer-pages:first-child {
+  padding-left: 0;
+}
+
+.footer-top .footer-pages:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+/* On desktop sizes where the ContactForm card is absolutely positioned
+   in the right portion of the screen (>1000px), constrain the link grid
+   to the LEFT half of the footer so it never sits behind the card. */
+@media (min-width: 1001px) {
+  .footer-top {
+    max-width: 50%;
+  }
 }
 
 .footer-pages-title {
@@ -51,6 +72,7 @@ footer {
   text-decoration: none;
   letter-spacing: 0.03em;
   transition: opacity 0.3s ease;
+  white-space: nowrap;
 }
 
 .footer-pages-links a:hover {
