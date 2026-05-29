@@ -10,6 +10,11 @@ export const productApi = {
     api.get("/products/search", { params: { q } }).then((r) => r.data.data),
 };
 
+// ── Categories ──
+export const categoryApi = {
+  list: () => api.get("/categories").then((r) => r.data.data.categories),
+};
+
 // ── Bundles ──
 export const bundleApi = {
   getAll: (params) => api.get("/bundles", { params }).then((r) => r.data.data),

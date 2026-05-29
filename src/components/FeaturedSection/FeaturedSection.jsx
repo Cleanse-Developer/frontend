@@ -246,9 +246,9 @@ export const BentoSection = () => {
 
 export const ShopByCategory = () => {
   const categories = [
-    { id: 1, name: "SKIN CARE", image: "/images/c1.png", link: "/wardrobe?category=skin" },
-    { id: 2, name: "HAIR CARE", image: "/images/c2.png", link: "/wardrobe?category=hair" },
-    { id: 3, name: "FACE CARE", image: "/images/c3.png", link: "/wardrobe?category=face" },
+    { id: 1, name: "SKIN CARE", image: "/images/c1.png", link: "/wardrobe?category=face-care" },
+    { id: 2, name: "HAIR CARE", image: "/images/c2.png", link: "/wardrobe?category=hair-care" },
+    { id: 3, name: "FACE CARE", image: "/images/c3.png", link: "/wardrobe?category=face-care" },
   ];
 
   return (

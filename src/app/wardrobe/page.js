@@ -6,7 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { gsap } from "gsap";
-import { productApi } from "@/lib/endpoints";
+import { productApi, categoryApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 
 export default function Wardrobe() {
@@ -17,33 +17,61 @@ export default function Wardrobe() {
   );
 }
 
-const TAG_MAP = {
-  face: "Face Care",
-  "face care": "Face Care",
-  "face-care": "Face Care",
-  hair: "Hair Care",
-  "hair care": "Hair Care",
-  "hair-care": "Hair Care",
-  body: "Body Care",
-  "body care": "Body Care",
-  "body-care": "Body Care",
-  skin: "Face Care",
-  "skin care": "Face Care",
-  "skin-care": "Face Care",
+// Legacy URL params (used by older nav links) mapped to real category slugs.
+const LEGACY_ALIAS = {
+  skin: "face-care",
+  "skin-care": "face-care",
+  face: "face-care",
+  hair: "hair-care",
+  body: "body-care",
 };
 
-function resolveTag(param) {
+function slugify(s) {
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+// Best-effort synchronous resolve before categories load: title-cases the slug.
+function initialResolve(param) {
   if (!param) return "All";
-  const key = param.toLowerCase().trim();
-  return TAG_MAP[key] || "All";
+  const key = LEGACY_ALIAS[param.toLowerCase().trim()] || param.toLowerCase().trim();
+  return key
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+// Resolve a URL param to a real category NAME, given the fetched categories.
+function resolveCategoryName(param, categories) {
+  if (!param) return "All";
+  const key = LEGACY_ALIAS[param.toLowerCase().trim()] || param.toLowerCase().trim();
+  const match = categories.find(
+    (c) => c.slug === key || slugify(c.name) === key || c.name.toLowerCase() === key
+  );
+  return match ? match.name : "All";
+}
+
+// A product matches a category name by its assigned category, falling back to
+// its tag for products that have no category assigned yet.
+function matchesCategory(product, cat) {
+  return (
+    cat === "All" ||
+    product.category?.name === cat ||
+    (!product.category && product.tag === cat)
+  );
 }
 
 function WardrobeContent() {
   const { addToCart } = useCart();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
-  const initialTag = resolveTag(categoryParam);
+  const initialTag = initialResolve(categoryParam);
   const [allProducts, setAllProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [activeTag, setActiveTag] = useState(initialTag);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -53,19 +81,27 @@ function WardrobeContent() {
   const productRefs = useRef([]);
   const isInitialMount = useRef(true);
 
-  // Fetch all products from API on mount
-  const activeTagRef = useRef(activeTag);
-  activeTagRef.current = activeTag;
+  // Fetch products + categories from API on mount
+  const categoryParamRef = useRef(categoryParam);
+  categoryParamRef.current = categoryParam;
 
   useEffect(() => {
-    productApi.getAll({ limit: 50 }).then((data) => {
-      const normalized = (data.products || []).map(normalizeProduct);
-      setAllProducts(normalized);
-      const tag = activeTagRef.current;
-      const initial = tag === "All" ? normalized : normalized.filter((p) => p.tag === tag);
-      setFilteredProducts(initial);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    Promise.all([
+      productApi.getAll({ limit: 50 }),
+      categoryApi.list().catch(() => []),
+    ])
+      .then(([data, cats]) => {
+        const normalized = (data.products || []).map(normalizeProduct);
+        const catList = Array.isArray(cats) ? cats : [];
+        setAllProducts(normalized);
+        setCategories(catList);
+        const resolved = resolveCategoryName(categoryParamRef.current, catList);
+        setActiveTag(resolved);
+        const initial = normalized.filter((p) => matchesCategory(p, resolved));
+        setFilteredProducts(initial);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sortProducts = (productsToSort, sortOption) => {
@@ -98,9 +134,7 @@ function WardrobeContent() {
   };
 
   const applyFiltersAndSort = (tag, sort, price) => {
-    let result = tag === "All"
-      ? allProducts
-      : allProducts.filter((product) => product.tag === tag);
+    let result = allProducts.filter((product) => matchesCategory(product, tag));
     result = filterByPrice(result, price);
     result = sortProducts(result, sort);
     return result;
@@ -114,8 +148,9 @@ function WardrobeContent() {
 
     setActiveTag(newTag);
 
-    // Sync URL with selected tag
-    const url = newTag === "All" ? "/wardrobe" : `/wardrobe?category=${newTag.toLowerCase().replace(/\s+/g, "-")}`;
+    // Sync URL with selected category (use the real slug when available)
+    const slug = categories.find((c) => c.name === newTag)?.slug || slugify(newTag);
+    const url = newTag === "All" ? "/wardrobe" : `/wardrobe?category=${slug}`;
     router.replace(url, { scroll: false });
 
     // If still loading, just update the tag — products will filter once they arrive
@@ -189,7 +224,7 @@ function WardrobeContent() {
       {/* Category Filter + Sort */}
       <section className="wardrobe-filters">
         <div className="category-filter">
-          {["All", "Face Care", "Hair Care", "Body Care"].map((tag) => (
+          {["All", ...categories.map((c) => c.name)].map((tag) => (
             <button
               key={tag}
               className={`category-btn ${activeTag === tag ? "active" : ""}`}
