@@ -6,6 +6,7 @@ import { ReactLenis } from "lenis/react";
 
 export default function ClientLayout({ children, footer }) {
   const pageRef = useRef();
+  const lenisRef = useRef(null);
   const pathname = usePathname();
 
   const [isMobile, setIsMobile] = useState(false);
@@ -20,8 +21,17 @@ export default function ClientLayout({ children, footer }) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // On every route change, jump to the top (hero). Lenis owns the scroll
+  // position via rAF, so a bare window.scrollTo gets reverted on the next
+  // tick — drive Lenis's own scrollTo (immediate) so the new page starts at
+  // the top. Falls back to window.scrollTo if Lenis isn't ready yet.
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const lenis = lenisRef.current?.lenis;
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true, force: true });
+    } else {
+      window.scrollTo(0, 0);
+    }
   }, [pathname]);
 
   const scrollSettings = isMobile
@@ -57,7 +67,7 @@ export default function ClientLayout({ children, footer }) {
       };
 
   return (
-    <ReactLenis root options={scrollSettings}>
+    <ReactLenis root options={scrollSettings} ref={lenisRef}>
       <div className="page" ref={pageRef}>
         {children}
         {pathname !== "/lookbook" && footer}
