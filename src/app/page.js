@@ -100,6 +100,23 @@ export default function Index() {
     }
   }, []);
 
+  // CMS data (hero/formulas/bento/cta) loads or fails asynchronously, which
+  // changes the height of sections ABOVE the pinned PeelReveal section. Without
+  // this, PeelReveal's pin/start position is computed against the stale (pre-data)
+  // layout and the "SHOP NOW" section shifts. Recompute all ScrollTrigger
+  // positions once the settings-driven layout settles.
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => cancelAnimationFrame(raf);
+  }, [settings]);
+
+  // Late-loading images can also change layout height after triggers are built.
+  useEffect(() => {
+    const onLoad = () => ScrollTrigger.refresh();
+    window.addEventListener("load", onLoad);
+    return () => window.removeEventListener("load", onLoad);
+  }, []);
+
   // Show popups after a delay on page load, controlled by settings
   useEffect(() => {
     if (!isMounted) return;

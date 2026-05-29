@@ -4,9 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import Copy from "../Copy/Copy";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { testimonialApi } from "@/lib/endpoints";
 
-gsap.registerPlugin(SplitText);
+gsap.registerPlugin(SplitText, ScrollTrigger);
 
 const Testimonials = () => {
   const [testimonials, setTestimonials] = useState([]);
@@ -32,7 +33,11 @@ const Testimonials = () => {
           afterImage: t.afterImage,
         })));
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        // Height changes after async load — recompute scroll positions.
+        requestAnimationFrame(() => ScrollTrigger.refresh());
+      });
   }, []);
 
   // Initialize animations after testimonials are loaded and rendered

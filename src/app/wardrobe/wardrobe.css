@@ -260,17 +260,22 @@
   flex: 1;
 }
 
-/* Section 3: Big banner LEFT + 4 cards RIGHT (2x2) */
+/* Section 3: Banner LEFT (2 cols) + 4 cards RIGHT (2x2).
+   Uses the SAME 4-column grid as section-row-2 above so the card columns
+   line up exactly with the row above. Banner spans 2 columns × 2 rows. */
 .section-row-3 {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   align-items: stretch;
   margin-bottom: 4rem;
 }
 
 .side-banner {
-  width: 680px;
-  flex-shrink: 0;
+  grid-column: span 2;
+  grid-row: span 2;
+  width: auto;
+  height: 100%;
   align-self: stretch;
   border-radius: 31px;
   overflow: hidden;
@@ -285,11 +290,14 @@
   margin-top: -25%;
 }
 
+/* Let the 4 cards participate directly in the section grid so they occupy
+   columns 3 & 4 and align with the 4-across row above. */
 .products-beside-banner {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  flex: 1;
+  display: contents;
+}
+
+.products-beside-banner .product-card {
+  grid-column: span 1;
 }
 
 /* Placeholder while the real banner image is sorted.
@@ -327,6 +335,16 @@
   max-width: 80%;
   max-height: 80%;
   object-fit: contain;
+  object-position: center;
+  /* Cancel the base FeaturedSection scale(1.25) zoom — with object-fit:contain
+     inside an overflow:hidden box it blows the image past the container and
+     clips tops/bottoms unevenly per product, which reads as misaligned cards. */
+  transform: none;
+}
+
+.wardrobe-page .product-card:hover .product-card-image img {
+  /* Gentle hover zoom that stays within the box (no clipping). */
+  transform: scale(1.05);
 }
 
 .wardrobe-page .product-card-cart-btn {

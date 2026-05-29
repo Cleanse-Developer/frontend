@@ -7,6 +7,14 @@ import { useCart } from "@/context/CartContext";
 import { useSettings } from "@/context/SettingsContext";
 import { productApi, bundleApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+// These sections fetch async and sit ABOVE the pinned PeelReveal section on the
+// home page. When their height settles, recompute ScrollTrigger positions so the
+// pin/start offsets aren't stale (root cause of the "SHOP NOW" scroll shift).
+const refreshScrollTriggers = () => {
+  requestAnimationFrame(() => ScrollTrigger.refresh());
+};
 
 const FeaturedSection = () => {
   const { addToCart } = useCart();
@@ -115,7 +123,7 @@ const FeaturedSection = () => {
   useEffect(() => {
     productApi.getAll({ limit: 4, sort: "featured" }).then((data) => {
       setFeaturedProducts((data.products || []).map(normalizeProduct));
-    }).catch(() => {});
+    }).catch(() => {}).finally(refreshScrollTriggers);
   }, []);
 
   return (
@@ -281,7 +289,7 @@ export const BuildYourRitual = () => {
         setBundleData(b);
         setSelected((b.products || []).map(() => true));
       }
-    }).catch(() => {});
+    }).catch(() => {}).finally(refreshScrollTriggers);
   }, []);
 
   const toggleItem = (index) => {
@@ -433,7 +441,7 @@ export const LatestLaunches = () => {
   useEffect(() => {
     productApi.getAll({ limit: 4, sort: "newest" }).then((data) => {
       setProducts((data.products || []).map(normalizeProduct));
-    }).catch(() => {});
+    }).catch(() => {}).finally(refreshScrollTriggers);
   }, []);
 
   return (

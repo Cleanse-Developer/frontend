@@ -18,7 +18,10 @@ const BlogSection = () => {
   useEffect(() => {
     blogApi.getAll({ limit: 3 }).then((data) => {
       setAllBlogs((data.blogs || []).map(normalizeBlog));
-    }).catch(() => {});
+    }).catch(() => {}).finally(() => {
+      // Height changes after async load — recompute scroll positions.
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    });
   }, []);
 
   useGSAP(() => {

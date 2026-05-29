@@ -65,10 +65,22 @@ function matchesCategory(product, cat) {
   );
 }
 
+// A product matches a free-text search across name + descriptions.
+function matchesSearch(product, q) {
+  if (!q) return true;
+  const s = q.toLowerCase();
+  return (
+    product.name?.toLowerCase().includes(s) ||
+    product.shortDescription?.toLowerCase().includes(s) ||
+    product.description?.toLowerCase().includes(s)
+  );
+}
+
 function WardrobeContent() {
   const { addToCart } = useCart();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
+  const searchQuery = searchParams.get("search") || "";
   const initialTag = initialResolve(categoryParam);
   const [allProducts, setAllProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -84,6 +96,8 @@ function WardrobeContent() {
   // Fetch products + categories from API on mount
   const categoryParamRef = useRef(categoryParam);
   categoryParamRef.current = categoryParam;
+  const searchQueryRef = useRef(searchQuery);
+  searchQueryRef.current = searchQuery;
 
   useEffect(() => {
     Promise.all([
@@ -97,12 +111,21 @@ function WardrobeContent() {
         setCategories(catList);
         const resolved = resolveCategoryName(categoryParamRef.current, catList);
         setActiveTag(resolved);
-        const initial = normalized.filter((p) => matchesCategory(p, resolved));
+        const initial = normalized.filter(
+          (p) => matchesCategory(p, resolved) && matchesSearch(p, searchQueryRef.current)
+        );
         setFilteredProducts(initial);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Re-apply filters when the URL search term changes (e.g. a new search is
+  // submitted from the header while already on this page).
+  useEffect(() => {
+    if (loading) return;
+    setFilteredProducts(applyFiltersAndSort(activeTag, sortBy, priceRange));
+  }, [searchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sortProducts = (productsToSort, sortOption) => {
     const sorted = [...productsToSort];
@@ -134,7 +157,9 @@ function WardrobeContent() {
   };
 
   const applyFiltersAndSort = (tag, sort, price) => {
-    let result = allProducts.filter((product) => matchesCategory(product, tag));
+    let result = allProducts.filter(
+      (product) => matchesCategory(product, tag) && matchesSearch(product, searchQueryRef.current)
+    );
     result = filterByPrice(result, price);
     result = sortProducts(result, sort);
     return result;
@@ -215,10 +240,10 @@ function WardrobeContent() {
       <section className="wardrobe-hero">
         <div className="wardrobe-hero-content">
           <div className="wardrobe-breadcrumb">
-            <Link href="/">HOME</Link>/ <Link href="/wardrobe">SHOP</Link>/ <span>{activeTag === "All" ? "ALL" : activeTag.toUpperCase()}</span>
+            <Link href="/">HOME</Link>/ <Link href="/wardrobe">SHOP</Link>/ <span>{searchQuery ? "SEARCH" : activeTag === "All" ? "ALL" : activeTag.toUpperCase()}</span>
           </div>
           <h1 className="wardrobe-hero-title">
-            {activeTag === "All" ? "ALL PRODUCTS" : activeTag.toUpperCase()}
+            {searchQuery ? `SEARCH: ${searchQuery.toUpperCase()}` : activeTag === "All" ? "ALL PRODUCTS" : activeTag.toUpperCase()}
           </h1>
         </div>
       </section>
@@ -278,7 +303,17 @@ function WardrobeContent() {
         </section>
       )}
 
-      {!loading && filteredProducts.length >= 10 && (
+      {/* During a search, always show a flat grid of all matches (skip the
+          category banner sections so results aren't interleaved with banners). */}
+      {!loading && searchQuery && filteredProducts.length === 0 && (
+        <section className="wardrobe-section" style={{ minHeight: "30vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p style={{ opacity: 0.55, fontSize: "1rem", letterSpacing: "0.05em" }}>
+            No products found for &ldquo;{searchQuery}&rdquo;
+          </p>
+        </section>
+      )}
+
+      {!loading && !searchQuery && filteredProducts.length >= 10 && (
         <>
           {/* Section 1: 2 Products + Spotlight Banner */}
           <section className="wardrobe-section section-row-1">
@@ -394,7 +429,7 @@ function WardrobeContent() {
         </>
       )}
 
-      {!loading && filteredProducts.length < 10 && (
+      {!loading && (searchQuery ? filteredProducts.length > 0 : filteredProducts.length < 10) && (
         <section className="wardrobe-section wardrobe-category-grid">
           {filteredProducts.map((product, index) => {
             const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;
