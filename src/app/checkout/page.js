@@ -10,6 +10,20 @@ import { useToast } from "@/context/ToastContext";
 import { loadRazorpay } from "@/lib/razorpay";
 import { validateField, validateShippingForm, validateBillingForm } from "@/lib/validation";
 import { saveCheckoutData, loadCheckoutData, clearCheckoutData } from "@/lib/checkoutStorage";
+import CouponModal from "./CouponModal";
+
+// Map a backend coupon-rejection reason to a friendly modal title.
+function couponErrorTitle(message) {
+  const m = (message || "").toLowerCase();
+  if (m.includes("expired") || m.includes("no longer active") || m.includes("not yet valid"))
+    return "This coupon isn't available";
+  if (m.includes("minimum order")) return "Almost there";
+  if (m.includes("usage limit") || m.includes("already used"))
+    return "Coupon limit reached";
+  if (m.includes("first order")) return "First orders only";
+  if (m.includes("does not apply")) return "Not valid for these items";
+  return "Invalid coupon code";
+}
 
 const indianStates = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -134,6 +148,7 @@ export default function CheckoutPage() {
   const [couponDiscountType, setCouponDiscountType] = useState("percentage");
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponMessage, setCouponMessage] = useState(""); // detailed reason from backend
+  const [showCouponModal, setShowCouponModal] = useState(false);
   const [appliedSpecialCode, setAppliedSpecialCode] = useState(null);
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderError, setOrderError] = useState("");
@@ -526,6 +541,7 @@ export default function CheckoutPage() {
     setCouponLoading(true);
     setCouponStatus(null);
     setCouponMessage("");
+    setShowCouponModal(false);
     setAppliedSpecialCode(null);
 
     const code = couponCode.trim();
@@ -553,6 +569,12 @@ export default function CheckoutPage() {
       regularReason = err?.response?.data?.message || null;
     }
 
+    // A regular-coupon reason is only meaningful when the code actually matched a
+    // regular coupon. "Invalid coupon code" means it wasn't one, so in that case let
+    // the special-coupon result speak instead of masking it.
+    const specificRegularReason =
+      regularReason && regularReason !== "Invalid coupon code" ? regularReason : null;
+
     // Try as special coupon
     try {
       const data = await specialCouponApi.validate(code, subtotal);
@@ -568,16 +590,19 @@ export default function CheckoutPage() {
         setCouponStatus("invalid");
         setCouponDiscount(0);
         setCouponDiscountType("percentage");
-        // Prefer the more specific reason: special coupon msg > regular msg > generic
-        setCouponMessage(data?.message || regularReason || "Invalid coupon code");
+        // Prefer the specific regular-coupon reason (e.g. min order, expired) over
+        // the special coupon's generic "Invalid promotion code".
+        setCouponMessage(specificRegularReason || data?.message || "Invalid coupon code");
+        setShowCouponModal(true);
       }
     } catch (err) {
       setCouponStatus("invalid");
       setCouponDiscount(0);
       setCouponDiscountType("percentage");
       setCouponMessage(
-        err?.response?.data?.message || regularReason || "Invalid coupon code"
+        specificRegularReason || err?.response?.data?.message || "Invalid coupon code"
       );
+      setShowCouponModal(true);
     } finally {
       setCouponLoading(false);
     }
@@ -1292,6 +1317,13 @@ export default function CheckoutPage() {
                   {couponMessage || "Invalid coupon"}
                 </p>
               )}
+              <CouponModal
+                open={showCouponModal}
+                type="error"
+                title={couponErrorTitle(couponMessage)}
+                message={couponMessage || "This code isn't valid for your order."}
+                onClose={() => setShowCouponModal(false)}
+              />
 
               {/* Loyalty Points Redemption (auth-only) */}
               {isAuthenticated && loyaltyConfig?.enabled && loyaltyBalance > 0 && (

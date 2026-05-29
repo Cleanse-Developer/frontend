@@ -9,9 +9,9 @@ const Footer = () => {
   const settings = useSettings();
   const cmsFooter = settings.cmsFooter || {};
   const navLinks = cmsFooter.navigationLinks || [
-    { label: "HAIR CARE", href: "/wardrobe?category=Hair Care" },
-    { label: "BODY CARE", href: "/wardrobe?category=Body Care" },
-    { label: "FACE CARE", href: "/wardrobe?category=Face Care" },
+    { label: "HAIR CARE", href: "/wardrobe?category=hair-care" },
+    { label: "BODY CARE", href: "/wardrobe?category=body-care" },
+    { label: "FACE CARE", href: "/wardrobe?category=face-care" },
     { label: "ABOUT US", href: "/genesis" },
   ];
   const socialLinks = cmsFooter.socialLinks || {

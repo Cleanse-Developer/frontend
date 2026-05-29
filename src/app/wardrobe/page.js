@@ -207,6 +207,8 @@ function WardrobeContent() {
     );
   }, [filteredProducts]);
 
+  const activeCategory = categories.find((c) => c.name === activeTag);
+
   return (
     <div className="wardrobe-page">
       {/* Hero Section - same as home */}
@@ -311,7 +313,7 @@ function WardrobeContent() {
               })}
             </div>
             <div className="spotlight-banner">
-              <img src="/images/top.png" alt="Featured Collection" className="spotlight-banner-img" />
+              <img src={activeCategory?.bannerTop || "/images/top.png"} alt="Featured Collection" className="spotlight-banner-img" />
             </div>
           </section>
 
@@ -349,15 +351,15 @@ function WardrobeContent() {
 
           {/* Section 3: Side Banner + 4 Products */}
           <section className="wardrobe-section section-row-3">
-            {/* TODO: re-enable real banner once design is finalised */}
-            {/*
-            <div className="side-banner">
-              <img src="/images/banner.png" alt="Ayurvedic Collection" className="side-banner-img" />
-            </div>
-            */}
-            <div className="side-banner side-banner-placeholder" aria-hidden="true">
-              <span className="side-banner-placeholder-label">BANNER</span>
-            </div>
+            {activeCategory?.bannerBottom ? (
+              <div className="side-banner">
+                <img src={activeCategory.bannerBottom} alt={activeTag} className="side-banner-img" />
+              </div>
+            ) : (
+              <div className="side-banner side-banner-placeholder" aria-hidden="true">
+                <span className="side-banner-placeholder-label">BANNER</span>
+              </div>
+            )}
             <div className="products-beside-banner">
               {filteredProducts.slice(6, 10).map((product, index) => {
                 const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;

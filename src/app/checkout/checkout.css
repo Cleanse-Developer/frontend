@@ -713,6 +713,117 @@
   color: #d4726a;
 }
 
+/* ===== Coupon result modal ===== */
+.coupon-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(40, 22, 16, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: couponModalFade 0.2s ease;
+}
+
+.coupon-modal {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  padding: 2.4rem 1.75rem 1.75rem;
+  text-align: center;
+  background: #faf6f1;
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(40, 22, 16, 0.28);
+  animation: couponModalPop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.coupon-modal-close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  display: flex;
+  padding: 0.3rem;
+  color: #9b8579;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+
+.coupon-modal-close:hover {
+  color: #4f2c22;
+  background: rgba(79, 44, 34, 0.07);
+}
+
+.coupon-modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.1rem;
+  border-radius: 50%;
+}
+
+.coupon-modal-icon--error {
+  color: #d4726a;
+  background: rgba(212, 114, 106, 0.14);
+}
+
+.coupon-modal-icon--success {
+  color: #5e9447;
+  background: rgba(127, 176, 105, 0.16);
+}
+
+.coupon-modal-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-heading, Georgia, serif);
+  font-size: 1.3rem;
+  letter-spacing: 0.01em;
+  color: #4f2c22;
+}
+
+.coupon-modal-message {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #7a675c;
+}
+
+.coupon-modal-btn {
+  width: 100%;
+  padding: 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f4e9d8;
+  background: #3a211a;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.coupon-modal-btn:hover {
+  background: #663532;
+}
+
+@keyframes couponModalFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes couponModalPop {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* ===== Review Step ===== */
 .checkout-review-card {
   display: flex;
