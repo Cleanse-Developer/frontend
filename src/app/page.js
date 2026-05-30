@@ -12,6 +12,7 @@ import PeelReveal from "@/components/PeelReveal/PeelReveal";
 // import CTA from "@/components/CTA/CTA";
 import FeaturedSection, { BentoSection, ShopByCategory, BuildYourRitual, LatestLaunches } from "@/components/FeaturedSection/FeaturedSection";
 import Testimonials from "@/components/Testimonials/Testimonials";
+import RitualBanner from "@/components/RitualBanner/RitualBanner";
 import HoverWord from "@/components/HoverWord/HoverWord";
 import "@/components/HoverWord/HoverWord.css";
 import ShopByProduct from "@/components/ShopByProduct/ShopByProduct";
@@ -19,6 +20,7 @@ import BlogSection from "@/components/BlogSection/BlogSection";
 import BeforeAfter from "@/components/BeforeAfter/BeforeAfter";
 
 import Copy from "@/components/Copy/Copy";
+import TaglineMarquee from "@/components/TaglineMarquee/TaglineMarquee";
 
 import FOMOPopup from "@/components/FOMOPopup/FOMOPopup";
 import ChatSupport from "@/components/ChatSupport/ChatSupport";
@@ -132,18 +134,37 @@ export default function Index() {
   }, [isMounted]);
 
   useGSAP(() => {
-    if (!heroSectionRef.current) return;
+    const hero = heroSectionRef.current;
+    if (!hero) return;
 
-    // Parallax effect on hero background only
-    gsap.to(heroSectionRef.current, {
-      backgroundPositionY: "50%",
+    // Entrance: the hero card rises and scales OUT of the page on load,
+    // reading like a wrapper lifting off the cream surface.
+    gsap.fromTo(
+      hero,
+      { scale: 0.9, yPercent: 6, autoAlpha: 0 },
+      {
+        scale: 1,
+        yPercent: 0,
+        autoAlpha: 1,
+        duration: 1.2,
+        ease: "power3.out",
+        force3D: true,
+      }
+    );
+
+    // Scroll: the card gently recedes back into the page as you scroll past,
+    // reinforcing the "coming out of the page" depth.
+    gsap.to(hero, {
+      scale: 0.94,
+      yPercent: 4,
       ease: "none",
       force3D: true,
+      immediateRender: false,
       scrollTrigger: {
-        trigger: heroSectionRef.current,
+        trigger: hero,
         start: "top top",
         end: "bottom top",
-        scrub: 0.3,
+        scrub: 0.4,
       },
     });
   }, { dependencies: [] });
@@ -219,7 +240,7 @@ export default function Index() {
           </div>
         </section>
         <div className="hero-bottom-tagline">
-          <p>{settings.cmsFormula?.tagline || "We aren\u2019t merely selling bottles; we are delivering a clinically-backed path to purity."}</p>
+          <TaglineMarquee text={settings.cmsFormula?.tagline || "We aren\u2019t merely selling bottles; we are delivering a clinically-backed path to purity."} />
         </div>
       </div>
 
@@ -276,6 +297,8 @@ export default function Index() {
       <div id="testimonials">
         <Testimonials />
       </div>
+
+      <RitualBanner />
 
       {/* <BeforeAfter /> */}
 

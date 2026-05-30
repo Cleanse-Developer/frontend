@@ -1,0 +1,339 @@
+/* =============================================================================
+   RitualBanner — "Find your ritual" home section
+   Light band (#F0EDE8) matching the testimonials / product-grid neighbours.
+   ========================================================================== */
+
+.rhr-section {
+  width: 100%;
+  background-color: #F0EDE8;
+  /* Testimonials above already contributes 6rem of bottom padding, so the top
+     here stays minimal. Extra bottom padding absorbs LatestLaunches'
+     margin-top:-6rem overlap. */
+  padding: 0 2rem clamp(5rem, 7vw, 6.5rem);
+  position: relative;
+  z-index: 4;
+}
+
+.rhr-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* Inline icons must beat globals.css `svg { width:100%; height:100% }` */
+.rhr-ico,
+.rhr-arrow {
+  object-fit: initial;
+  flex-shrink: 0;
+}
+.rhr-ico { width: 1.05em; height: 1.05em; }
+.rhr-arrow { width: 1.05rem; height: 1.05rem; }
+
+/* ---------- Header ---------- */
+.rhr-head {
+  max-width: 660px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.rhr-eyebrow {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--base-300);
+}
+
+.rhr-headline {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  color: var(--base-700);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  /* Match the other section headings (Best Sellers, Featured, etc.) */
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.rhr-sub {
+  color: var(--base-500);
+  max-width: 540px;
+}
+
+/* ---------- Cards: immersive day → night diptych ---------- */
+.rhr-cards {
+  margin-top: clamp(1.75rem, 3vw, 2.75rem);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(1.25rem, 2.4vw, 2rem);
+  /* The two panels lean toward each other to read as one day→night piece */
+  align-items: start;
+}
+
+.rhr-card {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 28px;
+  /* Full-bleed editorial panels, not image-over-white cards */
+  min-height: clamp(340px, 32vw, 440px);
+  isolation: isolate;
+  box-shadow: 0 40px 70px -46px rgba(46, 31, 20, 0.6);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s ease;
+  will-change: transform;
+}
+/* Staggered placement so it doesn't read as two plainly-aligned cards */
+.rhr-card--pm { margin-top: clamp(1.5rem, 4vw, 3.75rem); }
+
+.rhr-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 60px 90px -48px rgba(46, 31, 20, 0.65);
+}
+
+.rhr-card-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.rhr-card:hover .rhr-card-img { transform: scale(1.05); }
+
+/* Gradient scrim so overlaid copy stays legible; tinted per time of day */
+.rhr-card-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.rhr-card--am .rhr-card-scrim {
+  background:
+    linear-gradient(180deg, rgba(58, 38, 22, 0.28) 0%, rgba(58, 38, 22, 0) 32%, rgba(40, 24, 14, 0.55) 72%, rgba(28, 16, 10, 0.86) 100%),
+    linear-gradient(180deg, rgba(231, 208, 166, 0.16) 0%, rgba(231, 208, 166, 0) 40%);
+}
+.rhr-card--pm .rhr-card-scrim {
+  background:
+    linear-gradient(180deg, rgba(20, 12, 14, 0.42) 0%, rgba(20, 12, 14, 0) 30%, rgba(16, 9, 11, 0.62) 68%, rgba(10, 5, 7, 0.9) 100%);
+}
+
+/* Top row: badge + meta */
+.rhr-card-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(1.1rem, 1.8vw, 1.5rem);
+}
+.rhr-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(251, 248, 242, 0.92);
+  color: var(--base-700);
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+  border-radius: 100px;
+  backdrop-filter: blur(4px);
+}
+.rhr-card--am .rhr-card-badge .rhr-ico { color: #B8862F; }
+.rhr-card--pm .rhr-card-badge .rhr-ico { color: #6E5A7A; }
+
+.rhr-card-meta {
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.66rem;
+  text-shadow: 0 1px 8px rgba(20, 12, 8, 0.6);
+}
+
+/* Overlaid content at the bottom of the image */
+.rhr-card-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: clamp(1.5rem, 2.6vw, 2.5rem);
+  color: #fff;
+}
+.rhr-card-subtitle {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.64rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+.rhr-card-title {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  font-size: clamp(2.2rem, 3.4vw, 3rem);
+  margin-top: -0.15rem;
+}
+.rhr-card-desc {
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 40ch;
+  /* Reveal-on-hover for an editorial feel; always visible on touch via @media */
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.55s ease, opacity 0.45s ease, margin 0.45s ease;
+}
+.rhr-card:hover .rhr-card-desc,
+.rhr-card:focus-visible .rhr-card-desc {
+  max-height: 6rem;
+  opacity: 1;
+}
+
+/* Step sequence */
+.rhr-steps {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0;
+  margin: 0.1rem 0 0.2rem;
+}
+.rhr-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 100px;
+  padding: 0.35rem 0.7rem 0.35rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(3px);
+}
+.rhr-step-n {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: -0.02em;
+}
+.rhr-step-label {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.62rem;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Card link */
+.rhr-card-link {
+  margin-top: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  align-self: flex-start;
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: #fff;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+  transition: gap 0.3s ease, border-color 0.3s ease;
+}
+.rhr-card:hover .rhr-card-link { gap: 0.95rem; border-color: #fff; }
+
+/* ---------- Footer CTA ---------- */
+.rhr-foot {
+  margin-top: clamp(1.75rem, 3vw, 2.75rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  text-align: center;
+}
+.rhr-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background-color: var(--base-700);
+  color: var(--base-100);
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 1.15rem 2.6rem;
+  border-radius: 100px;
+  transition: background-color 0.3s ease, transform 0.3s ease, gap 0.3s ease;
+}
+.rhr-cta:hover {
+  background-color: var(--base-500);
+  transform: translateY(-2px);
+  gap: 1.05rem;
+}
+.rhr-foot-note {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.66rem;
+  color: var(--base-300);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .rhr-section {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .rhr-cards {
+    grid-template-columns: 1fr;
+  }
+  /* No hover on touch — keep the stagger off and the copy always visible */
+  .rhr-card--pm { margin-top: 0; }
+  .rhr-card { min-height: clamp(360px, 72vw, 440px); }
+  .rhr-card-desc {
+    max-height: 6rem;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .rhr-steps { gap: 0.4rem; }
+  .rhr-step { padding: 0.35rem 0.6rem 0.35rem 0.45rem; }
+  .rhr-cta { width: 100%; justify-content: center; padding: 1.05rem 1.5rem; }
+}
+
+@media (min-width: 1920px) {
+  .rhr-inner { max-width: 1480px; }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .rhr-card,
+  .rhr-card-img,
+  .rhr-card-desc,
+  .rhr-card-link,
+  .rhr-cta {
+    transition: none;
+  }
+  .rhr-card:hover { transform: none; }
+  .rhr-card:hover .rhr-card-img { transform: none; }
+  /* Keep the description visible when motion is reduced */
+  .rhr-card-desc { max-height: 6rem; opacity: 1; }
+}

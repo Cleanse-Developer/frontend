@@ -802,6 +802,9 @@ const Menu = () => {
                 <p>Explore</p>
               </div>
               <div className="menu-sub-links">
+                <Link href="/ritual" onClick={(e) => handleLinkClick(e, "/ritual")}>
+                  The Ritual
+                </Link>
                 <Link href="/lookbook" onClick={(e) => handleLinkClick(e, "/lookbook")}>
                   Lookbook
                 </Link>

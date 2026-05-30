@@ -52,6 +52,8 @@
   padding-bottom: 5rem;
   position: relative;
   z-index: 2;
+  /* Adds depth so the hero card reads as lifting OUT of the page */
+  perspective: 1600px;
 }
 
 .hero {
@@ -60,6 +62,15 @@
   height: 70svh;
   overflow: hidden;
   background-color: #F0EDE8;
+  /* Sharp edges; elevated only via shadow so the hero still reads as
+     coming out of the page */
+  box-shadow:
+    0 2.5rem 5rem -1.5rem rgba(68, 40, 36, 0.45),
+    0 1rem 2rem -1rem rgba(68, 40, 36, 0.25);
+  transform-origin: center top;
+  will-change: transform;
+  /* isolate the stacking context so slide/gradient z-indexes stay local */
+  isolation: isolate;
 }
 
 .hero-slide {
@@ -69,18 +80,21 @@
   background-position: center 30%;
   background-repeat: no-repeat;
   opacity: 0;
-  transition: opacity 1s ease-in-out;
+  transform: scale(1.08);
+  /* Crossfade + slow zoom so each image visibly emerges */
+  transition: opacity 1.2s ease-in-out, transform 6s ease-out;
+  z-index: 0;
 }
 
 /* Keep the first slide as the always-visible base layer so the cream
    hero background never flashes between transitions */
 .hero-slide:first-child {
   opacity: 1;
-  z-index: 0;
 }
 
 .hero-slide.active {
   opacity: 1;
+  transform: scale(1);
   z-index: 1;
 }
 
@@ -92,16 +106,18 @@
   width: 100%;
   height: 55%;
   background: linear-gradient(180deg, rgba(68, 40, 36, 0.85) 0%, rgba(68, 40, 36, 0) 100%);
-  z-index: 1;
+  /* Above the slides (max z-index 1) so it overlays the images, not sits behind */
+  z-index: 2;
   pointer-events: none;
 }
 
 .hero-bottom-tagline {
-  /* More top padding so the tagline isn't glued to the hero image */
-  padding: 2.5rem 2rem 0.75rem;
-  text-align: center;
-  max-width: 900px;
+  /* More top padding so the tagline isn't glued to the hero image.
+     Full-bleed now that it hosts a two-line marquee. */
+  padding: 1.25rem 0 0.75rem;
+  max-width: 100%;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .hero-bottom-tagline p {
@@ -127,7 +143,7 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 1.8rem;
-  z-index: 2;
+  z-index: 3;
 }
 
 .hero .hero-header h1 {
@@ -385,7 +401,7 @@
   /* Keep the two-line tagline visible on tablet (only mobile hides it) */
   .hero-bottom-tagline {
     display: block;
-    padding: 1.25rem 1.5rem 0;
+    padding: 1.25rem 0 0;
     background-color: #F0EDE8;
   }
 
@@ -554,9 +570,9 @@
 .formula-box {
   background-color: #fff;
   border-radius: 0.8125rem;
-  padding: 1.25rem;
-  width: 11.625rem;
-  height: 15.4375rem;
+  padding: 1rem;
+  width: 9.5rem;
+  height: 12.5rem;
   box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
@@ -579,19 +595,31 @@
 
 .formula-box h4 {
   font-family: var(--font-body);
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--base-700);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.6rem;
   line-height: 1.3;
 }
 
 .formula-box p {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 400;
   color: #555;
   line-height: 1.5;
+}
+
+/* CMS stores these strings in ALL CAPS — render them in sentence case
+   (lowercase with only the first letter capitalized) instead of caps */
+.formula-box h4,
+.formula-box p {
+  text-transform: lowercase;
+}
+
+.formula-box h4::first-letter,
+.formula-box p::first-letter {
+  text-transform: uppercase;
 }
 
 .formulas-center {
@@ -811,7 +839,7 @@
   /* Keep the "We aren't merely selling bottles…" tagline visible on mobile */
   .hero-bottom-tagline {
     display: block;
-    padding: 1.25rem 1rem 0.5rem;
+    padding: 1.25rem 0 0.5rem;
     background-color: #F0EDE8;
     max-width: 100%;
   }
@@ -1125,9 +1153,9 @@
   }
 
   .hero-bottom-tagline {
-    max-width: 1000px;
-    /* Push tagline further down from hero on 1440+ */
-    padding: 4rem 2rem 1.5rem;
+    /* Stay full-bleed (no max-width/side padding) so the marquee runs
+       edge to edge; just push it further down from the hero on 1440+ */
+    padding: 2.5rem 0 1.5rem;
   }
 
   .hero-bottom-tagline p {
@@ -1206,7 +1234,7 @@
   }
 
   .hero-bottom-tagline {
-    padding: 5.5rem 2rem 2rem;
+    padding: 3.5rem 0 2rem;
   }
 
   .formulas-header {
@@ -1223,9 +1251,9 @@
   }
 
   .formula-box {
-    width: 17.5rem;
-    height: 17.5rem;
-    padding: 2rem;
+    width: 13rem;
+    height: 13.5rem;
+    padding: 1.25rem;
   }
 
   .formula-box-tl {
@@ -1251,15 +1279,15 @@
   }
 
   .formula-box h4 {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 
   .formula-box p {
-    font-size: 0.95rem;
+    font-size: 0.8rem;
   }
 
   .hero-bottom-tagline {
-    max-width: 68.75rem;
+    /* full-bleed marquee — no max-width clamp */
   }
 
   .hero-bottom-tagline p {
@@ -1329,7 +1357,7 @@
   }
 
   .hero-bottom-tagline {
-    padding: 7rem 2rem 2.5rem;
+    padding: 4.5rem 0 2.5rem;
   }
 
   .formulas-header {
@@ -1346,9 +1374,9 @@
   }
 
   .formula-box {
-    width: 21.25rem;
-    height: 21.25rem;
-    padding: 2.5rem;
+    width: 15.5rem;
+    height: 16rem;
+    padding: 1.75rem;
   }
 
   .formula-box-tl {
@@ -1374,15 +1402,15 @@
   }
 
   .formula-box h4 {
-    font-size: 1.4rem;
+    font-size: 1.15rem;
   }
 
   .formula-box p {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
   }
 
   .hero-bottom-tagline {
-    max-width: 81.25rem;
+    /* full-bleed marquee — no max-width clamp */
   }
 
   .hero-bottom-tagline p {

@@ -1,0 +1,77 @@
+.tm {
+  /* Full-bleed to the viewport WITHOUT a transform (a transform here mis-clips
+     the animated track at wide widths). body has overflow-x:hidden, so 100vw
+     adds no horizontal scrollbar. */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  overflow: hidden;
+}
+
+.tm-row {
+  width: 100%;
+  overflow: hidden;
+}
+
+.tm-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+.tm-track--ltr { animation: tm-ltr 64s linear infinite; }
+.tm-track--rtl { animation: tm-rtl 64s linear infinite; }
+
+/* The text carries the type. Sized via this CLASS so it beats the global
+   `a, p, span { font-size: ~0.85rem }` element rule (and its 1920/2560 variants). */
+.tm-text {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3vw, 3.5rem);
+  font-weight: 400;
+  color: var(--base-700);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  /* Keep the text as authored (sentence case): only the first letter is
+     capital, the rest lowercase — no all-caps */
+  text-transform: none;
+}
+
+/* Top row → left to right; bottom row → right to left.
+   Two identical halves + a 50% shift = seamless loop. */
+@keyframes tm-ltr {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+@keyframes tm-rtl {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Screen-reader-only single copy */
+.tm-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 768px) {
+  .tm-text { font-size: clamp(1.65rem, 5vw, 2.6rem); }
+}
+
+@media (max-width: 480px) {
+  .tm-text { font-size: clamp(1.25rem, 6vw, 2rem); line-height: 1.1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tm-track--ltr,
+  .tm-track--rtl { animation: none; }
+}
