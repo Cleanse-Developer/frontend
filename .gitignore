@@ -2,7 +2,15 @@
 node_modules/
 
 # Next.js build output
-.next/
+# NOTE: we commit the production .next build so the (small) EC2 box can run
+# `next start` without building. Only the dev-server / cache / trace artifacts
+# below are ignored.
+.next/dev/
+.next/cache/
+.next/trace
+.next/trace-build
+.next/diagnostics/
+.next/turbopack/
 out/
 
 # Production build
