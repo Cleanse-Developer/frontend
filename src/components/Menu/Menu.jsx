@@ -32,6 +32,51 @@ const SearchIcon = () => (
   </svg>
 );
 
+const CaretIcon = () => (
+  <svg className="menu-locale-caret" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9l6 6 6-6" />
+  </svg>
+);
+
+/* Single capsule combining language + currency. Only EN and Rupees are
+   offered, shown inside the dropdown. */
+const LocaleCapsule = ({ open, toggle, close }) => (
+  <div className="menu-locale">
+    <button
+      type="button"
+      className={`menu-locale-pill ${open ? "open" : ""}`}
+      aria-haspopup="listbox"
+      aria-expanded={open}
+      aria-label="Language and currency"
+      onClick={toggle}
+    >
+      <span className="menu-locale-current">EN</span>
+      <span className="menu-locale-divider" aria-hidden="true">·</span>
+      <span className="menu-locale-current">{"₹"}</span>
+      <CaretIcon />
+    </button>
+    {open && (
+      <div className="menu-locale-dropdown" role="listbox">
+        <div className="menu-locale-group">
+          <span className="menu-locale-group-label">Language</span>
+          <button type="button" className="menu-locale-option active" onClick={(e) => { e.stopPropagation(); close(); }}>
+            <span className="menu-locale-option-code">EN</span>
+            <span className="menu-locale-option-name">English</span>
+          </button>
+        </div>
+        <span className="menu-locale-group-sep" aria-hidden="true" />
+        <div className="menu-locale-group">
+          <span className="menu-locale-group-label">Currency</span>
+          <button type="button" className="menu-locale-option active" onClick={(e) => { e.stopPropagation(); close(); }}>
+            <span className="menu-locale-option-code">{"₹"}</span>
+            <span className="menu-locale-option-name">Rupees</span>
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+);
+
 const Menu = () => {
   const pathname = usePathname();
   const router = useRouter();
@@ -123,7 +168,7 @@ const Menu = () => {
   // Close selector dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (!e.target.closest('.menu-selector') && !e.target.closest('.menu-selectors')) {
+      if (!e.target.closest('.menu-locale')) {
         setShowLangMenu(false);
         setShowCurrMenu(false);
       }
@@ -628,32 +673,7 @@ const Menu = () => {
             ))}
           </div>
           <div className="menu-header-actions">
-            <div className="menu-selectors">
-              <div className="menu-selector" onClick={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }}>
-                <span className="menu-selector-value">{lang}</span>
-                {showLangMenu && (
-                  <div className="menu-selector-dropdown">
-                    {[{code: "EN", label: "English"}, {code: "HI", label: "Hindi"}, {code: "TA", label: "Tamil"}].map(l => (
-                      <button key={l.code} className={`menu-selector-option ${lang === l.code ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); handleLangChange(l.code); }}>
-                        {l.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="menu-selector" onClick={() => { setShowCurrMenu(!showCurrMenu); setShowLangMenu(false); }}>
-                <span className="menu-selector-value">{currency === "INR" ? "\u20B9" : currency === "USD" ? "$" : currency === "EUR" ? "\u20AC" : "\u00A3"}</span>
-                {showCurrMenu && (
-                  <div className="menu-selector-dropdown">
-                    {[{code: "INR", label: "\u20B9 INR"}, {code: "USD", label: "$ USD"}, {code: "EUR", label: "\u20AC EUR"}, {code: "GBP", label: "\u00A3 GBP"}].map(c => (
-                      <button key={c.code} className={`menu-selector-option ${currency === c.code ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); handleCurrencyChange(c.code); }}>
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+            <LocaleCapsule open={showLangMenu} toggle={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }} close={() => setShowLangMenu(false)} />
             <button type="button" className="menu-action-btn" aria-label="Search" onClick={openSearch}>
               <SearchIcon />
             </button>
@@ -703,32 +723,7 @@ const Menu = () => {
 
         {/* Right-side actions - shown when scrolled */}
         <div className="menu-scrolled-actions">
-          <div className="menu-selectors">
-            <div className="menu-selector" onClick={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }}>
-              <span className="menu-selector-value">{lang}</span>
-              {showLangMenu && (
-                <div className="menu-selector-dropdown">
-                  {[{code: "EN", label: "English"}, {code: "HI", label: "Hindi"}, {code: "TA", label: "Tamil"}].map(l => (
-                    <button key={l.code} className={`menu-selector-option ${lang === l.code ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); handleLangChange(l.code); }}>
-                      {l.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="menu-selector" onClick={() => { setShowCurrMenu(!showCurrMenu); setShowLangMenu(false); }}>
-              <span className="menu-selector-value">{currency === "INR" ? "\u20B9" : currency === "USD" ? "$" : currency === "EUR" ? "\u20AC" : "\u00A3"}</span>
-              {showCurrMenu && (
-                <div className="menu-selector-dropdown">
-                  {[{code: "INR", label: "\u20B9 INR"}, {code: "USD", label: "$ USD"}, {code: "EUR", label: "\u20AC EUR"}, {code: "GBP", label: "\u00A3 GBP"}].map(c => (
-                    <button key={c.code} className={`menu-selector-option ${currency === c.code ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); handleCurrencyChange(c.code); }}>
-                      {c.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <LocaleCapsule open={showLangMenu} toggle={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }} close={() => setShowLangMenu(false)} />
           <button type="button" className="menu-action-btn" aria-label="Search" onClick={openSearch}>
             <SearchIcon />
           </button>

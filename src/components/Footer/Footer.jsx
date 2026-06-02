@@ -22,6 +22,14 @@ const Footer = () => {
   };
   const copyrightText = cmsFooter.copyrightText || "2026 CLEANSE AYURVEDA . ALL RIGHTS RESERVED";
 
+  const contact = cmsFooter.contact || {};
+  const addressLines = contact.addressLines || [
+    "Cleanse Ayurveda Pvt. Ltd.",
+    "42 Wellness Avenue, Bandra West, Mumbai 400050",
+  ];
+  const email = contact.email || "care@cleanseayurveda.com";
+  const phone = contact.phone || "+91 80000 00000";
+
   return (
     <>
       <ContactForm />
@@ -69,19 +77,28 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="footer-bottom">
-            <img src="/logo.png" alt="Cleanse" className="footer-logo" />
-            <div className="footer-socials">
-              {Object.entries(socialLinks).map(([platform, url]) => (
-                <a key={platform} href={url} target="_blank" rel="noopener noreferrer">{platform.toUpperCase()}</a>
-              ))}
-            </div>
-          </div>
+          <img src="/logo.png" alt="Cleanse" className="footer-logo" />
+
+          <address className="footer-contact">
+            {addressLines.map((line, i) => (
+              <span key={i} className="footer-contact-line">{line}</span>
+            ))}
+            <span className="footer-contact-line footer-contact-actions">
+              <a href={`mailto:${email}`}>{email}</a>
+              <span className="footer-contact-sep">•</span>
+              <a href={`tel:${phone.replace(/\s+/g, "")}`}>{phone}</a>
+            </span>
+          </address>
 
           <div className="footer-divider"></div>
 
           <div className="footer-legal">
             <p className="footer-copyright">&copy;{copyrightText}</p>
+            <div className="footer-socials">
+              {Object.entries(socialLinks).map(([platform, url]) => (
+                <a key={platform} href={url} target="_blank" rel="noopener noreferrer">{platform.toUpperCase()}</a>
+              ))}
+            </div>
             <div className="footer-legal-links">
               <Link href="/terms">TERMS OF SERVICE</Link>
               <Link href="/privacy">PRIVACY POLICY</Link>

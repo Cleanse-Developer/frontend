@@ -5,7 +5,6 @@ import Link from "next/link";
 
 // import Preloader, { isInitialLoad } from "@/components/Preloader/Preloader";
 const isInitialLoad = false;
-import LeafSpread from "@/components/LeafSpread/LeafSpread";
 import MarqueeBanner from "@/components/MarqueeBanner/MarqueeBanner";
 // import TextBlock from "@/components/TextBlock/TextBlock";
 import PeelReveal from "@/components/PeelReveal/PeelReveal";
@@ -20,7 +19,6 @@ import BlogSection from "@/components/BlogSection/BlogSection";
 import BeforeAfter from "@/components/BeforeAfter/BeforeAfter";
 
 import Copy from "@/components/Copy/Copy";
-import TaglineMarquee from "@/components/TaglineMarquee/TaglineMarquee";
 
 import FOMOPopup from "@/components/FOMOPopup/FOMOPopup";
 import ChatSupport from "@/components/ChatSupport/ChatSupport";
@@ -65,8 +63,6 @@ export default function Index() {
   const heroSectionRef = useRef(null);
   const formulasSectionRef = useRef(null);
   const centerImageRef = useRef(null);
-  const leafSpreadRef = useRef(null);
-  const leafTriggeredRef = useRef(false);
 
   const settings = useSettings();
 
@@ -137,8 +133,9 @@ export default function Index() {
     const hero = heroSectionRef.current;
     if (!hero) return;
 
-    // Entrance: the hero card rises and scales OUT of the page on load,
-    // reading like a wrapper lifting off the cream surface.
+    // Entrance only: the hero card rises and scales OUT of the page on load,
+    // reading like a wrapper lifting off the cream surface. It then stays
+    // fixed — no scroll-driven scaling.
     gsap.fromTo(
       hero,
       { scale: 0.9, yPercent: 6, autoAlpha: 0 },
@@ -151,22 +148,6 @@ export default function Index() {
         force3D: true,
       }
     );
-
-    // Scroll: the card gently recedes back into the page as you scroll past,
-    // reinforcing the "coming out of the page" depth.
-    gsap.to(hero, {
-      scale: 0.94,
-      yPercent: 4,
-      ease: "none",
-      force3D: true,
-      immediateRender: false,
-      scrollTrigger: {
-        trigger: hero,
-        start: "top top",
-        end: "bottom top",
-        scrub: 0.4,
-      },
-    });
   }, { dependencies: [] });
 
   // Formulas section zoom-out animation
@@ -240,7 +221,9 @@ export default function Index() {
           </div>
         </section>
         <div className="hero-bottom-tagline">
-          <TaglineMarquee text={settings.cmsFormula?.tagline || "We aren\u2019t merely selling bottles; we are delivering a clinically-backed path to purity."} />
+          <img className="hero-tagline-leaf hero-tagline-leaf--left" src="/cleanse-hero/1.png" alt="" aria-hidden="true" loading="lazy" />
+          <p className="hero-tagline">{`\u201c${settings.cmsFormula?.tagline || "We aren\u2019t merely selling bottles; we are delivering a clinically-backed path to purity."}\u201d`}</p>
+          <img className="hero-tagline-leaf hero-tagline-leaf--right" src="/cleanse-hero/2.png" alt="" aria-hidden="true" loading="lazy" />
         </div>
       </div>
 
@@ -252,9 +235,6 @@ export default function Index() {
                 <img src={settings.cmsFormula?.centerImage?.url || "/images/a.png"} alt="Natural skincare product" loading="lazy" />
               </div>
             </div>
-          </div>
-          <div className="formulas-leaf-layer">
-            <LeafSpread ref={leafSpreadRef} count={24} triggerOnScroll triggerElement={formulasSectionRef.current} />
           </div>
           <div className="formulas-cards-layer">
             {(settings.cmsFormula?.boxes || []).map((box) => (
@@ -306,10 +286,10 @@ export default function Index() {
 
       <section className="cta-section">
         <div className="cta-card">
-          <img src={settings.cmsCta?.image?.url || "/images/cta.png"} alt={settings.cmsCta?.heading || "Ancient Secrets, Modern Radiance"} className="cta-image" />
+          <img src={settings.cmsCta?.image?.url || "/images/cta.png"} alt="Ancient Secrets, Modern Radiance" className="cta-image" />
           <div className="cta-content">
-            <h2 className="cta-heading">{settings.cmsCta?.heading || "Ancient Secrets, Modern Radiance"}</h2>
-            <p className="cta-desc">{settings.cmsCta?.description || "Infused with Turmeric and Rose Petals."}</p>
+            <h2 className="cta-heading">Ancient Secrets, Modern Radiance</h2>
+            <p className="cta-desc">Crafted with turmeric, saffron and rose petals for naturally glowing skin.</p>
             <Link href={settings.cmsCta?.ctaLink || "/wardrobe"} className="cta-shop-btn">{settings.cmsCta?.ctaText || "SHOP NOW"}</Link>
           </div>
         </div>

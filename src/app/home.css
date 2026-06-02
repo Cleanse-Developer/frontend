@@ -62,11 +62,11 @@
   height: 70svh;
   overflow: hidden;
   background-color: #F0EDE8;
-  /* Sharp edges; elevated only via shadow so the hero still reads as
-     coming out of the page */
-  box-shadow:
-    0 2.5rem 5rem -1.5rem rgba(68, 40, 36, 0.45),
-    0 1rem 2rem -1rem rgba(68, 40, 36, 0.25);
+  /* Slightly curved bottom corners (top stays sharp) */
+  border-bottom-left-radius: 1.25rem;
+  border-bottom-right-radius: 1.25rem;
+  /* Soft shadow cast below the hero */
+  box-shadow: 0 1.75rem 2.5rem -1.25rem rgba(68, 40, 36, 0.45);
   transform-origin: center top;
   will-change: transform;
   /* isolate the stacking context so slide/gradient z-indexes stay local */
@@ -112,22 +112,58 @@
 }
 
 .hero-bottom-tagline {
-  /* More top padding so the tagline isn't glued to the hero image.
-     Full-bleed now that it hosts a two-line marquee. */
-  padding: 1.25rem 0 0.75rem;
-  max-width: 100%;
+  /* Static centered tagline (no longer a full-bleed marquee). Leaf ornaments
+     sit BEHIND the text, one on each side, vertically centered with it. */
+  position: relative;
+  padding: 2.5rem 1.5rem 1.25rem;
+  max-width: 80rem;
   margin: 0 auto;
-  overflow: hidden;
+}
+
+/* Leaf ornaments behind the tagline. Class beats globals.css `img{width/height:100%}`. */
+.hero-tagline-leaf {
+  position: absolute;
+  top: 50%;
+  /* scaleX(-1) flips both ornaments horizontally */
+  transform: translateY(-50%) scaleX(-1);
+  z-index: 0;
+  width: clamp(520px, 66vw, 1120px);
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+/* Pushed further out toward the screen edges (body has overflow-x:hidden,
+   so the negative offsets never add a scrollbar) */
+.hero-tagline-leaf--left { left: -32vw; }
+.hero-tagline-leaf--right { right: -32vw; }
+
+/* Decorative desktop-only flourish — drop the big ornaments on tablet/phone
+   (tablet portrait runs up to 1199px) so they never overflow or crowd */
+@media (max-width: 1199px) {
+  .hero-tagline-leaf { display: none; }
 }
 
 .hero-bottom-tagline p {
-  font-family: var(--font-heading);
+  /* Lexend — same family as the header nav (Home, Shop, …) */
+  font-family: var(--font-body);
+  /* Same scale as the section headings */
   font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 400;
+  font-style: italic;
   color: var(--base-700);
-  line-height: 1.3;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  text-align: center;
+  text-transform: none;
+  /* ~46 characters per line => the sentence falls into exactly two
+     balanced (equal-length) lines at any heading-scale font size */
+  max-width: 46ch;
+  text-wrap: balance;
+  margin: 0 auto;
+  /* Sit on top of the leaf ornaments */
+  position: relative;
+  z-index: 1;
 }
 
 .hero .hero-header {
@@ -262,7 +298,9 @@
 }
 
 #featured {
-  margin-top: -5rem;
+  /* Was -5rem (pulled OUR BEST SELLERS up into the formulas section);
+     0 lets it sit lower with the formulas section's bottom padding intact */
+  margin-top: 0;
 }
 
 .featured-products {
@@ -401,12 +439,13 @@
   /* Keep the two-line tagline visible on tablet (only mobile hides it) */
   .hero-bottom-tagline {
     display: block;
-    padding: 1.25rem 0 0;
+    padding: 1.5rem 1.5rem 0;
     background-color: #F0EDE8;
   }
 
   .hero-bottom-tagline p {
     font-size: clamp(1.1rem, 3vw, 1.75rem);
+    max-width: 36ch;
   }
 
   .hero-slide {
@@ -472,9 +511,10 @@
   width: 100%;
   min-height: auto;
   background-color: #F0EDE8;
-  padding: 4rem 0 1rem;
-  overflow: visible;
-  overflow-x: clip;
+  /* Symmetric vertical padding so the gap below (before OUR BEST SELLERS)
+     matches the other section gaps instead of being cramped */
+  padding: 4rem 0 4rem;
+  overflow: clip;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -526,7 +566,9 @@
   transform: translate(-50%, -50%);
   width: 0;
   height: 0;
-  z-index: 3;
+  /* Behind the center image (image-layer is z-index 1) so leaves spread
+     out from behind it, not over the top of it */
+  z-index: 0;
   overflow: visible;
   pointer-events: none;
 }
@@ -542,14 +584,14 @@
 .formula-box-tl {
   position: absolute;
   top: 0.625rem;
-  left: 18%;
+  left: 13%;
   z-index: 10;
 }
 
 .formula-box-tr {
   position: absolute;
   top: 0.625rem;
-  right: 18%;
+  right: 13%;
   z-index: 10;
 }
 
@@ -570,9 +612,9 @@
 .formula-box {
   background-color: #fff;
   border-radius: 0.8125rem;
-  padding: 1rem;
-  width: 9.5rem;
-  height: 12.5rem;
+  padding: 1.15rem;
+  width: 10.75rem;
+  height: 13.75rem;
   box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
@@ -648,9 +690,16 @@
 
 .formulas-center-image img {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 8px;
+  /* Follow the image's own aspect ratio so it fully fills its box with no
+     letterbox bands. With object-fit: contain the wide source (2.29:1) was
+     letterboxed top/bottom inside the 1.79:1 box, leaving the visible image's
+     left/right edges as sharp square corners while the radius rounded the
+     empty box corners. height: auto eliminates the gap so the radius rounds
+     the actual image corners. */
+  height: auto;
+  max-height: 100%;
+  /* Match the corner cards' radius */
+  border-radius: 0.8125rem;
 }
 
 /* Formulas Responsive */
@@ -839,14 +888,15 @@
   /* Keep the "We aren't merely selling bottles…" tagline visible on mobile */
   .hero-bottom-tagline {
     display: block;
-    padding: 1.25rem 0 0.5rem;
+    padding: 1.25rem 1.25rem 0.5rem;
     background-color: #F0EDE8;
     max-width: 100%;
   }
 
   .hero-bottom-tagline p {
     font-size: clamp(0.95rem, 4.5vw, 1.35rem);
-    line-height: 1.25;
+    line-height: 1.3;
+    max-width: 32ch;
   }
 
   .hero-slide {
@@ -1062,6 +1112,7 @@
   letter-spacing: 0;
   text-align: right;
   color: #fff;
+  text-transform: none;
 }
 
 .cta-shop-btn {
@@ -1291,7 +1342,7 @@
   }
 
   .hero-bottom-tagline p {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 
   .cta-section {
@@ -1414,7 +1465,7 @@
   }
 
   .hero-bottom-tagline p {
-    font-size: 3.5rem;
+    font-size: 2.5rem;
   }
 
   .cta-section {

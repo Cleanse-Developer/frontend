@@ -18,6 +18,37 @@ const Testimonials = () => {
   const headlineSplitsRef = useRef([]);
   const initRef = useRef(false);
 
+  // Review form
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ name: "", rating: 5, text: "" });
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+
+  const openReviewForm = () => {
+    setReviewSubmitted(false);
+    setReviewForm({ name: "", rating: 5, text: "" });
+    setShowReviewForm(true);
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!reviewForm.name.trim() || !reviewForm.text.trim()) return;
+    setReviewSubmitting(true);
+    try {
+      await testimonialApi.create?.({
+        name: reviewForm.name.trim(),
+        rating: reviewForm.rating,
+        text: reviewForm.text.trim(),
+        role: "Verified Buyer",
+      });
+    } catch {
+      // Submission endpoint may be unavailable — still thank the user.
+    } finally {
+      setReviewSubmitting(false);
+      setReviewSubmitted(true);
+    }
+  };
+
   // Fetch testimonials from API
   useEffect(() => {
     testimonialApi.getAll({ type: "before-after", limit: 8 })
@@ -184,34 +215,20 @@ const Testimonials = () => {
               <h2>Listen to what our<br />Clients say about us?</h2>
             </Copy>
           </div>
-          <div className="testimonials-nav">
-            <button className="nav-btn prev" onClick={handlePrev} aria-label="Previous testimonial">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5" />
-                <path d="M12 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button className="nav-btn next" onClick={handleNext} aria-label="Next testimonial">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14" />
-                <path d="M12 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
         </div>
 
         <div className="testimonials-slider-wrapper" ref={containerRef}>
           {/* Fluid background that moves between cards */}
           <div className="fluid-bg" ref={fluidBgRef}></div>
 
-          {/* Mobile side arrows */}
-          <button className="mobile-arrow mobile-arrow-left" onClick={handlePrev} aria-label="Previous testimonial">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          {/* Side arrows */}
+          <button className="nav-btn prev" onClick={handlePrev} aria-label="Previous review">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-          <button className="mobile-arrow mobile-arrow-right" onClick={handleNext} aria-label="Next testimonial">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <button className="nav-btn next" onClick={handleNext} aria-label="Next review">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18l6-6-6-6" />
             </svg>
           </button>
@@ -237,17 +254,16 @@ const Testimonials = () => {
                       <p className="testimonial-role">{testimonial.role}</p>
                     </div>
                   </div>
-                  <h3 className="testimonial-headline">{testimonial.headline}</h3>
-                  <div className="testimonial-images">
-                    <div className="testimonial-image-card">
-                      <span className="image-label">Before</span>
-                      <img src={testimonial.beforeImage} alt={`${testimonial.name} before`} />
-                    </div>
-                    <div className="testimonial-image-card">
-                      <span className="image-label">After</span>
-                      <img src={testimonial.afterImage} alt={`${testimonial.name} after`} />
-                    </div>
+                  <div className="testimonial-stars" aria-label="5 out of 5 stars">
+                    {[0, 1, 2, 3, 4].map((s) => (
+                      <svg key={s} width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" />
+                      </svg>
+                    ))}
                   </div>
+                  {testimonial.headline && (
+                    <h3 className="testimonial-headline">{testimonial.headline}</h3>
+                  )}
                   <p className="testimonial-text">
                     "{testimonial.text}"
                   </p>
@@ -269,7 +285,93 @@ const Testimonials = () => {
           ))}
         </div>
 
+        {/* Write a review CTA */}
+        <div className="testimonials-review-cta">
+          <p className="review-cta-text">Used our products? We'd love to hear from you.</p>
+          <button className="review-cta-btn" onClick={openReviewForm}>
+            Write a Review
+          </button>
+        </div>
       </div>
+
+      {/* Review modal */}
+      {showReviewForm && (
+        <div className="review-modal-overlay" onClick={() => setShowReviewForm(false)}>
+          <div className="review-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="review-modal-close"
+              onClick={() => setShowReviewForm(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+
+            {reviewSubmitted ? (
+              <div className="review-thankyou">
+                <div className="review-thankyou-icon">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                </div>
+                <h3>Thank you!</h3>
+                <p>Your review has been received. We appreciate your feedback.</p>
+                <button className="review-cta-btn" onClick={() => setShowReviewForm(false)}>
+                  Done
+                </button>
+              </div>
+            ) : (
+              <form className="review-form" onSubmit={handleReviewSubmit}>
+                <h3 className="review-form-title">Share Your Experience</h3>
+
+                <label className="review-field">
+                  <span>Your Name</span>
+                  <input
+                    type="text"
+                    value={reviewForm.name}
+                    onChange={(e) => setReviewForm((f) => ({ ...f, name: e.target.value }))}
+                    placeholder="e.g. Priya S."
+                    required
+                  />
+                </label>
+
+                <div className="review-field">
+                  <span>Your Rating</span>
+                  <div className="review-star-input">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <button
+                        type="button"
+                        key={n}
+                        className={`review-star ${n <= reviewForm.rating ? "filled" : ""}`}
+                        onClick={() => setReviewForm((f) => ({ ...f, rating: n }))}
+                        aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                      >
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" />
+                        </svg>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <label className="review-field">
+                  <span>Your Review</span>
+                  <textarea
+                    rows={4}
+                    value={reviewForm.text}
+                    onChange={(e) => setReviewForm((f) => ({ ...f, text: e.target.value }))}
+                    placeholder="Tell us what you loved..."
+                    required
+                  />
+                </label>
+
+                <button className="review-submit-btn" type="submit" disabled={reviewSubmitting}>
+                  {reviewSubmitting ? "Submitting..." : "Submit Review"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 };

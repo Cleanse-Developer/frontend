@@ -295,28 +295,87 @@
   color: var(--base-300);
 }
 
-/* ---------- Responsive ---------- */
-@media (max-width: 768px) {
+/* ---------- Responsive ----------
+   Covers tablets too (≤1024): they're touch devices that can't hover, so the
+   desktop hover-reveal would hide the description forever. Stack to one column
+   with the copy always visible and the card growing to fit. */
+@media (max-width: 1024px) {
   .rhr-section {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
   }
   .rhr-cards {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
-  /* No hover on touch — keep the stagger off and the copy always visible */
+  /* No hover on touch — keep the stagger off */
   .rhr-card--pm { margin-top: 0; }
-  .rhr-card { min-height: clamp(360px, 72vw, 440px); }
+
+  /* Overlaying the copy on the photo is unreadable on a phone — the text fell
+     over the bright product bottle. On mobile we STACK instead: photo on top,
+     the copy in a solid dark panel below. Guaranteed legibility, clean rhythm. */
+  .rhr-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .rhr-card--am { background-color: #3A2616; }
+  .rhr-card--pm { background-color: #170E13; }
+
+  /* Photo becomes a real block at the top instead of a full-bleed background */
+  .rhr-card-img {
+    position: relative;
+    height: clamp(220px, 56vw, 300px);
+    flex-shrink: 0;
+  }
+  /* Scrim now only darkens the top of the photo so the badge + meta stay legible */
+  .rhr-card-scrim,
+  .rhr-card--am .rhr-card-scrim,
+  .rhr-card--pm .rhr-card-scrim {
+    bottom: auto;
+    height: 110px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 100%);
+  }
+
+  /* Copy sits in normal flow inside the solid panel */
+  .rhr-card-content {
+    position: static;
+    gap: 0.75rem;
+    padding: 1.5rem 1.35rem 1.6rem;
+  }
   .rhr-card-desc {
-    max-height: 6rem;
+    max-height: none;
     opacity: 1;
+    overflow: visible;
+    max-width: none;
+  }
+  .rhr-card-title { font-size: clamp(2rem, 9vw, 2.6rem); }
+
+  /* Full-width CTA that can't overflow the viewport (was being cut on the right) */
+  .rhr-foot { width: 100%; }
+  .rhr-cta {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+    padding: 1.05rem 1.25rem;
+    letter-spacing: 0.1em;
   }
 }
 
 @media (max-width: 480px) {
+  .rhr-card-top { padding: 1rem 1.1rem; }
+  .rhr-card-content { padding: 1.35rem 1.2rem 1.5rem; }
   .rhr-steps { gap: 0.4rem; }
-  .rhr-step { padding: 0.35rem 0.6rem 0.35rem 0.45rem; }
-  .rhr-cta { width: 100%; justify-content: center; padding: 1.05rem 1.5rem; }
+  .rhr-step { padding: 0.32rem 0.6rem 0.32rem 0.45rem; }
+  .rhr-step-label { font-size: 0.6rem; }
+  .rhr-card-desc { font-size: 0.9rem; }
+  .rhr-cta {
+    padding: 1rem 1rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+  }
 }
 
 @media (min-width: 1920px) {

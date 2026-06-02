@@ -320,8 +320,14 @@
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--base-700);
+}
+
+/* The label sits in a <span>, which the global `span { text-transform: uppercase }`
+   rule matches directly — so override it on the span itself (class beats element). */
+.blog-card-read-more span {
+  text-transform: none;
 }
 
 .blog-card-read-more svg {

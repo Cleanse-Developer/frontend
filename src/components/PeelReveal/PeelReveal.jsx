@@ -14,7 +14,9 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 const PeelReveal = () => {
   const settings = useSettings();
   const cmsPeel = settings.cmsPeelReveal || {};
-  const headerTexts = cmsPeel.headerTexts || ["Ritual: Sacred", "Formula: Ayurveda_001"];
+  /* The backend CMS still serves the old "Formula: Ayurveda_001" placeholder,
+     so force the meaningful labels here (ignore that one stale CMS value). */
+  const headerTexts = ["Ritual: Sacred", "Formula: Pure"];
   const footerText = cmsPeel.footerText || "Source: Himalayan";
   const peelImage = cmsPeel.image?.url || "/category-hair.png";
   const peelHeading = cmsPeel.heading || "Ancient Secrets, Modern Radiance";

@@ -145,7 +145,7 @@ const FeaturedSection = () => {
                     <path d="M16 10a4 4 0 01-8 0" />
                   </svg>
                 </span>
-                <span className="cart-btn-text">Add to Cart</span>
+                <span className="cart-btn-text">Add to cart</span>
               </button>
               <div className="product-card-info">
                 <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
@@ -163,12 +163,22 @@ const FeaturedSection = () => {
   );
 };
 
+// Normalise ALL-CAPS CMS values to Title Case (the design no longer uses caps).
+const toTitle = (s) => (s || "").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+
 export const BentoSection = () => {
   const { addToCart } = useCart();
   const settings = useSettings();
   const cmsBento = settings.cmsBento || {};
   const leftCard = cmsBento.leftCard || {};
   const ingredientsCard = cmsBento.ingredientsCard || {};
+
+  /* The backend CMS still serves placeholder "lorem" copy here, so use real
+     copy unless the CMS value is genuine (non-lorem). */
+  const ingredientsDesc =
+    ingredientsCard.description && !/lorem/i.test(ingredientsCard.description)
+      ? ingredientsCard.description
+      : "Turmeric, Neem, Tulsi, Aloe Vera and Rose — time-honoured botanicals that calm, nourish and renew your skin.";
 
   const defaultProducts = [
     { id: 1, name: "Cleanse Perfume", price: 700, image: "/images/why2.png", link: "/wardrobe" },
@@ -212,7 +222,7 @@ export const BentoSection = () => {
               <img src={leftCard.image?.url || "/images/why1.png"} alt={leftCard.label || "100% Ayurvedic skincare"} loading="lazy" />
             </div>
             <div className="featured-ayurvedic-label">
-              <h3 className="ayurvedic-title">{leftCard.label || "100% AYURVEDIC"}</h3>
+              <h3 className="ayurvedic-title">{toTitle(leftCard.label || "100% Ayurvedic")}</h3>
               <p className="ayurvedic-desc">{leftCard.description || "Lab tested products for all skin types and all age groups"}</p>
             </div>
           </div>
@@ -222,8 +232,8 @@ export const BentoSection = () => {
           <div className="featured-card featured-ingredients-card">
             <img src={ingredientsCard.image?.url || "/images/why3.png"} alt="Ayurvedic ingredients" className="ingredients-bg" loading="lazy" />
             <div className="ingredients-content">
-              <h3 className="ingredients-heading">{ingredientsCard.heading || "5 AYURVEDIC INGREDIENTS"}</h3>
-              <p className="ingredients-desc">{ingredientsCard.description || "lorem sit officia sint esse veniam aliquip ullamco ea consequat aute in consectetur exercitation quis do lorem veniam mollit ut nostrud commodo aute"}</p>
+              <h3 className="ingredients-heading">{toTitle(ingredientsCard.heading || "5 Ayurvedic Ingredients")}</h3>
+              <p className="ingredients-desc">{ingredientsDesc}</p>
             </div>
           </div>
 
@@ -242,7 +252,7 @@ export const BentoSection = () => {
                     <path d="M16 10a4 4 0 01-8 0" />
                   </svg>
                 </span>
-                <span className="cart-btn-text">Add to Cart</span>
+                <span className="cart-btn-text">Add to cart</span>
               </button>
             </Link>
           ))}
@@ -461,7 +471,7 @@ export const LatestLaunches = () => {
                   <path d="M16 10a4 4 0 01-8 0" />
                 </svg>
               </span>
-              <span className="cart-btn-text">Add to Cart</span>
+              <span className="cart-btn-text">Add to cart</span>
             </button>
             <div className="product-card-info">
               <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>

@@ -103,9 +103,6 @@ export default function RitualBanner() {
     <section className="rhr-section" ref={sectionRef} aria-labelledby="rhr-title">
       <div className="rhr-inner">
         <header className="rhr-head">
-          <Copy>
-            <span className="rhr-eyebrow">Your daily ceremony</span>
-          </Copy>
           <Copy type="flicker">
             <h2 id="rhr-title" className="rhr-headline">
               Find your ritual
@@ -161,7 +158,6 @@ export default function RitualBanner() {
             Explore the full ritual
             <Arrow />
           </Link>
-          <span className="rhr-foot-note">Layered in the order your skin asks for it.</span>
         </div>
       </div>
     </section>
