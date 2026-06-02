@@ -187,6 +187,53 @@
   margin-bottom: 0;
 }
 
+.newsletter-coupon {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1.25rem auto 0.5rem;
+  max-width: 320px;
+}
+
+.newsletter-coupon-code {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  background: #F0EDE8;
+  border: 1px dashed rgba(79, 44, 34, 0.4);
+  border-radius: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--base-700);
+}
+
+.newsletter-coupon-copy {
+  padding: 0 1.25rem;
+  background: #663532;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.newsletter-coupon-copy:hover {
+  background: #4F2C22;
+}
+
+.newsletter-coupon-hint {
+  font-size: 0.75rem !important;
+  color: rgba(79, 44, 34, 0.5) !important;
+  margin-top: 0.25rem !important;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .newsletter-modal {

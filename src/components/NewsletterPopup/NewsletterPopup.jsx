@@ -17,7 +17,8 @@ const NewsletterPopup = ({ isOpen, onClose }) => {
   const popupConfig = settings.newsletterPopupConfig || {};
 
   const tag = popupConfig.tag || "JOIN OUR COMMUNITY";
-  const heading = popupConfig.heading || "Get 10% Off";
+  const discountPercent = popupConfig.discountPercent || 10;
+  const heading = popupConfig.heading || `Get ${discountPercent}% Off`;
   const description =
     popupConfig.description ||
     "Subscribe to our newsletter and receive exclusive offers, Ayurvedic tips, and new product updates.";
@@ -27,15 +28,30 @@ const NewsletterPopup = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle"); // idle | submitting | success | error
   const [errorMsg, setErrorMsg] = useState("");
+  const [couponCode, setCouponCode] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   // Reset state when popup opens (so reopening after success shows the form)
   useEffect(() => {
     if (isOpen) {
       setStatus("idle");
       setErrorMsg("");
+      setCouponCode(null);
+      setCopied(false);
       // Don't clear email — user may want to retry the same address
     }
   }, [isOpen]);
+
+  const handleCopy = async () => {
+    if (!couponCode) return;
+    try {
+      await navigator.clipboard.writeText(couponCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard unavailable
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,12 +61,18 @@ const NewsletterPopup = ({ isOpen, onClose }) => {
     setErrorMsg("");
 
     try {
-      await newsletterApi.subscribe(email, "popup");
+      const res = await newsletterApi.subscribe(email, "popup");
+      const code = res?.data?.couponCode || null;
+      setCouponCode(code);
       setStatus("success");
       safeSetItem(sessionStorage, "newsletterPopupSubscribed", "true");
-      setTimeout(() => {
-        onClose();
-      }, 2000);
+      // Auto-close only when there's no code to copy; otherwise let the user
+      // read/copy the code and close manually.
+      if (!code) {
+        setTimeout(() => {
+          onClose();
+        }, 2000);
+      }
     } catch (err) {
       const msg =
         err?.response?.data?.message || "Something went wrong. Please try again.";
@@ -84,7 +106,26 @@ const NewsletterPopup = ({ isOpen, onClose }) => {
                   </svg>
                 </div>
                 <h2>You&apos;re subscribed!</h2>
-                <p>Thanks for joining. Watch your inbox for our next update.</p>
+                {couponCode ? (
+                  <>
+                    <p>Here&apos;s your {discountPercent}% off code — apply it at checkout.</p>
+                    <div className="newsletter-coupon">
+                      <span className="newsletter-coupon-code">{couponCode}</span>
+                      <button
+                        type="button"
+                        className="newsletter-coupon-copy"
+                        onClick={handleCopy}
+                      >
+                        {copied ? "Copied!" : "Copy"}
+                      </button>
+                    </div>
+                    <p className="newsletter-coupon-hint">
+                      We&apos;ve also emailed it to you.
+                    </p>
+                  </>
+                ) : (
+                  <p>Thanks for joining. Watch your inbox for our next update.</p>
+                )}
               </div>
             ) : (
               <>

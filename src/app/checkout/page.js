@@ -25,6 +25,23 @@ function couponErrorTitle(message) {
   return "Invalid coupon code";
 }
 
+// Build a friendly modal body. For min-order rejections, tell the user exactly how
+// much more to add to unlock the coupon they typed.
+function couponErrorMessage(message, code, subtotal) {
+  const m = (message || "").toLowerCase();
+  const upper = (code || "").trim().toUpperCase();
+  if (m.includes("minimum order")) {
+    const match = (message || "").match(/[\d,]+(?:\.\d+)?/);
+    const min = match ? Number(match[0].replace(/,/g, "")) : null;
+    if (min != null) {
+      const remaining = Math.max(0, Math.round(min - (subtotal || 0)));
+      const codePart = upper ? ` to unlock ${upper}` : "";
+      return `Add ₹${remaining} more${codePart} — it needs a minimum order of ₹${min}.`;
+    }
+  }
+  return message || "This code isn't valid for your order.";
+}
+
 const indianStates = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
   "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
@@ -1321,7 +1338,7 @@ export default function CheckoutPage() {
                 open={showCouponModal}
                 type="error"
                 title={couponErrorTitle(couponMessage)}
-                message={couponMessage || "This code isn't valid for your order."}
+                message={couponErrorMessage(couponMessage, couponCode, subtotal)}
                 onClose={() => setShowCouponModal(false)}
               />
 
