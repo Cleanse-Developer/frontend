@@ -32,6 +32,13 @@
   --fs-card-tag:   clamp(0.55rem, 0.5rem + 0.2vw, 0.65rem);
   --fs-section-title: clamp(1.5rem, 3vw, 2.5rem);
 
+  /* Horizontal spacing tokens — single source of truth for the page gutter and
+     the standard content width, so every section/footer/hero/nav lines up.
+     Reference: the home "Our Best Sellers" section. Values scale per breakpoint
+     via the :root overrides below. */
+  --gutter: 2rem;
+  --page-max: 1300px;
+
   /* Earthy Brown Color Palette */
   --base-100: #E7D0A6;  /* Light Cream - primary background */
   --base-200: #9E9268;  /* Olive Brown - light accent */
@@ -40,6 +47,23 @@
   --base-500: #5A2510;  /* Deep Brown - secondary text */
   --base-600: #422D1C;  /* Very Dark Brown - near dark */
   --base-700: #2E1F14;  /* Darkest Brown - primary text, dark bg */
+}
+
+/* Responsive gutter + content width — mirrors the reference section scale. */
+@media (max-width: 1199px) and (orientation: portrait) {
+  :root { --gutter: 1.5rem; }
+}
+@media (max-width: 480px) {
+  :root { --gutter: 1rem; }
+}
+@media (min-width: 1440px) {
+  :root { --gutter: 4rem; --page-max: 1400px; }
+}
+@media (min-width: 1920px) {
+  :root { --gutter: 5rem; --page-max: 1700px; }
+}
+@media (min-width: 2560px) {
+  :root { --gutter: 6rem; --page-max: 2100px; }
 }
 
 * {
