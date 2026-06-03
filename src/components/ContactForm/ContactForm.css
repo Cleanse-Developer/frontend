@@ -28,7 +28,7 @@
   top: 74.3%;
   /* Align the card's right edge with the footer's right content edge
      (footer container: max-width var(--page-max), centered, var(--gutter) padding). */
-  right: max(var(--gutter), calc((100% - var(--page-max)) / 2 + var(--gutter)));
+  right: max(var(--gutter), calc((100% - var(--page-max)) / 2));
   transform: translateY(-50%);
   width: 452px;
   height: 510px;

@@ -9,9 +9,7 @@ footer {
 }
 
 .footer-container {
-  max-width: var(--page-max);
-  margin: 0 auto;
-  padding: 1.25rem var(--gutter) 1.5rem;
+  padding: 1.25rem max(var(--gutter), (100% - var(--page-max)) / 2) 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -294,7 +292,7 @@ footer {
   }
 
   .footer-container {
-    padding: 3rem var(--gutter) 1.5rem;
+    padding: 3rem max(var(--gutter), (100% - var(--page-max)) / 2) 1.5rem;
     gap: 2rem;
   }
 
@@ -372,7 +370,7 @@ footer {
   }
 
   .footer-container {
-    padding: 2rem var(--gutter) 1.5rem;
+    padding: 2rem max(var(--gutter), (100% - var(--page-max)) / 2) 1.5rem;
     gap: 1.5rem;
   }
 
@@ -479,15 +477,13 @@ footer {
 /* Large screens */
 @media (min-width: 1440px) {
   .footer-container {
-    max-width: var(--page-max);
-    padding: 5rem var(--gutter) 3rem;
+    padding: 5rem max(var(--gutter), (100% - var(--page-max)) / 2) 3rem;
   }
 }
 
 @media (min-width: 1920px) {
   .footer-container {
-    max-width: var(--page-max);
-    padding: 6rem var(--gutter) 3rem;
+    padding: 6rem max(var(--gutter), (100% - var(--page-max)) / 2) 3rem;
     gap: 4rem;
   }
 
@@ -511,8 +507,7 @@ footer {
 
 @media (min-width: 2560px) {
   .footer-container {
-    max-width: var(--page-max);
-    padding: 7rem var(--gutter) 4rem;
+    padding: 7rem max(var(--gutter), (100% - var(--page-max)) / 2) 4rem;
     gap: 5rem;
   }
 

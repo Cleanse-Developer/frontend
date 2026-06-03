@@ -574,6 +574,9 @@ function UnitContent({ params }) {
     <div className="unit-page">
       <section className="product-hero">
         <div className="product-hero-col product-hero-left">
+          <div className="product-hero-image">
+            <img src={galleryImages[activeImage]} alt={product.name} />
+          </div>
           <div className="product-thumbnails">
             {galleryImages.map((img, index) => (
               <button
@@ -584,9 +587,6 @@ function UnitContent({ params }) {
                 <img src={img} alt={`Product view ${index + 1}`} />
               </button>
             ))}
-          </div>
-          <div className="product-hero-image">
-            <img src={galleryImages[activeImage]} alt={product.name} />
           </div>
         </div>
         <div className="product-hero-col product-meta">

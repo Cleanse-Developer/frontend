@@ -86,7 +86,7 @@
   gap: 1.6rem;
   color: #fff;
   max-width: 820px;
-  padding: 0 1.5rem;
+  padding: 0 var(--gutter);
 }
 
 .gen-hero-header h1 {
@@ -142,7 +142,7 @@
   position: relative;
   z-index: 2;
   background-color: #F0EDE8;
-  padding: 7rem 0;
+  padding: 7rem var(--gutter);
 }
 
 .gen-lead .container {
@@ -184,7 +184,7 @@
   position: relative;
   z-index: 2;
   background-color: #F0EDE8;
-  padding: 4rem 0 7rem;
+  padding: 4rem var(--gutter) 7rem;
 }
 
 .gen-values .container {
@@ -252,7 +252,7 @@
   z-index: 2;
   background-color: var(--base-700);
   color: var(--base-100);
-  padding: 4.5rem 0;
+  padding: 4.5rem var(--gutter);
 }
 
 .gen-stats-grid {
@@ -305,12 +305,12 @@
   position: relative;
   z-index: 2;
   background-color: #F0EDE8;
-  padding: 7rem 0;
+  padding: 7rem var(--gutter);
 }
 
 .gen-journey .container {
   height: auto;
-  max-width: 1100px;
+  max-width: var(--page-max);
 }
 
 .gen-journey-list {
@@ -382,7 +382,7 @@
   position: relative;
   z-index: 2;
   background-color: #E9E2D7;
-  padding: 7rem 0;
+  padding: 7rem var(--gutter);
   text-align: center;
 }
 
@@ -418,13 +418,13 @@
   position: relative;
   z-index: 2;
   background-color: #F0EDE8;
-  padding: 4rem 2rem 8rem;
+  padding: 4rem var(--gutter) 8rem;
   text-align: center;
 }
 
 .gen-cta .container {
   height: auto;
-  max-width: 1100px;
+  max-width: var(--page-max);
   /* Brown, rounded card */
   background: var(--base-700);
   border-radius: 2.25rem;
@@ -545,15 +545,15 @@
   .gen-lead,
   .gen-journey,
   .gen-quote {
-    padding: 4.5rem 0;
+    padding: 4.5rem var(--gutter);
   }
 
   .gen-values {
-    padding: 2.5rem 0 4.5rem;
+    padding: 2.5rem var(--gutter) 4.5rem;
   }
 
   .gen-cta {
-    padding: 4.5rem 0 5.5rem;
+    padding: 4.5rem var(--gutter) 5.5rem;
   }
 
   .gen-lead-grid {
@@ -617,4 +617,16 @@
   .project-preview .project-preview-wrapper .preview-col {
     gap: 2em;
   }
+}
+
+/* Genesis containers follow the home pattern: the section supplies the gutter
+   (padding-inline: var(--gutter)) and the container is purely max-width-centered
+   with no inner padding, so content lines up with every other section.
+   (.gen-cta .container keeps its own card padding; .gen-stats-grid isn't a
+   global .container so it's unaffected.) */
+.gen-lead .container,
+.gen-values .container,
+.gen-journey .container,
+.gen-quote .container {
+  padding: 0;
 }
