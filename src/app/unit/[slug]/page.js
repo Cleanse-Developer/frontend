@@ -11,6 +11,16 @@ import { useToast } from "@/context/ToastContext";
 import { productApi, shippingApi, reviewApi, bundleApi } from "@/lib/endpoints";
 import { normalizeProduct } from "@/lib/normalizers";
 import { productUrl } from "@/lib/normalizers";
+// Realistic, name-matched icons from react-icons — botanicals from Game Icons,
+// everything else from Font Awesome 6 (solid) for one consistent, filled look.
+import { GiBerryBush, GiDaisy, GiThreeLeaves, GiHerbsBundle, GiVineLeaf, GiAgave, GiLotus, GiVineFlower } from "react-icons/gi";
+import {
+  FaSeedling, FaDroplet, FaLeaf, FaPaw, FaFlask, FaHandsBubbles,
+  FaHandHoldingDroplet, FaHandsHolding, FaHandSparkles, FaMoon, FaArrowsRotate,
+  FaTruckFast, FaClock, FaBolt, FaEarthAmericas, FaRotateLeft, FaShieldHalved,
+  FaCertificate, FaCalendarDays, FaSun, FaVial, FaHand, FaCircleCheck,
+  FaChevronUp, FaChevronDown,
+} from "react-icons/fa6";
 
 const productImages = [
   "/images/1.png",
@@ -25,12 +35,12 @@ const fallbackReviews = [];
 // Default highlights used when product has no tabHighlights data
 const DEFAULT_HIGHLIGHTS = {
   ingredients: [
-    { icon: "saffron", label: "Kashmiri Saffron" },
-    { icon: "leaf", label: "Organic Herbs" },
-    { icon: "dropper", label: "Cold Pressed Oils" },
-    { icon: "noparaben", label: "No Parabens" },
-    { icon: "chemical", label: "No Sulfates" },
-    { icon: "plant", label: "100% Natural" },
+    { icon: "amla", label: "Amla" },
+    { icon: "bhringraj", label: "Bhringraj" },
+    { icon: "neem", label: "Neem" },
+    { icon: "tulsi", label: "Tulsi" },
+    { icon: "brahmi", label: "Brahmi" },
+    { icon: "aloe", label: "Aloe Vera" },
   ],
   values: [
     { icon: "plant", label: "Plant Based" },
@@ -67,11 +77,11 @@ const DEFAULT_HIGHLIGHTS = {
 };
 
 const DEFAULT_TEXT = {
-  ingredients: "Pure Ayurvedic herbs and natural botanical extracts.",
-  values: "All our products are natural, plant-based and toxic-free. Our formulations help you take care of your body without harming yourself or the environment.",
-  howToUse: "Apply as directed. For external use only.",
-  shippingInfo: "Free shipping on orders above ₹999. Standard delivery in 3-5 business days.",
-  policies: "All products are dermatologically tested and certified. 30-day return policy for unopened products.",
+  ingredients: "Every formula is built on pure Ayurvedic herbs and cold-pressed botanical extracts, from Amla and Bhringraj to Neem, Tulsi, Brahmi and Aloe Vera. Each ingredient is chosen for its proven benefits and blended with nothing synthetic, so your skin receives only what nature intended. Centuries of traditional wisdom meet modern, clinically minded care in every drop.",
+  values: "All our products are natural, plant-based and free from toxins. Our formulations help you care for your skin without harming yourself or the environment. We never test on animals, and every blend is crafted to be as gentle on the planet as it is on you, from the botanicals we source to the packaging we choose.",
+  howToUse: "Begin with freshly cleansed skin. Warm three to four drops between your palms and press gently into the face and neck using slow, upward strokes. Leave on overnight for the deepest absorption, and use nightly as part of your ritual to see visible results over time.",
+  shippingInfo: "Enjoy free shipping on all orders above ₹999, with standard delivery in three to five business days and express options available at checkout. We ship worldwide, and every order is carefully packed and protected so it reaches you in perfect condition.",
+  policies: "Every product is dermatologically tested, certified safe and intended for external use only. We offer a seven-day return policy on unopened items and recommend a patch test before first use. Store in a cool, dry place away from direct sunlight to preserve potency.",
 };
 
 function buildProductInfoTabs(product) {
@@ -93,221 +103,44 @@ function buildProductInfoTabs(product) {
 }
 
 const ValueIcon = ({ type }) => {
-  const s = { viewBox: "0 0 40 40", fill: "none", stroke: "currentColor", strokeWidth: "1.2", strokeLinecap: "round", strokeLinejoin: "round" };
   const icons = {
-    plant: (
-      <svg {...s}>
-        <path d="M20 32V20" />
-        <path d="M20 20c0-6 4-10 10-12-2 6-6 10-10 12z" />
-        <path d="M20 24c0-5-3.5-8.5-9-10 1.5 5 5 8.5 9 10z" />
-      </svg>
-    ),
-    dropper: (
-      <svg {...s}>
-        <path d="M28 8l4 4-3 3" />
-        <path d="M24 12l-12 12c-1 1-1 3 0 4s3 1 4 0l12-12" />
-        <path d="M20 16l4 4" />
-      </svg>
-    ),
-    leaf: (
-      <svg {...s}>
-        <path d="M12 32c0-12 6-18 18-20-2 12-8 18-18 20z" />
-        <path d="M12 32C16 24 22 18 30 12" />
-      </svg>
-    ),
-    paw: (
-      <svg {...s}>
-        <ellipse cx="20" cy="24" rx="5" ry="4" />
-        <circle cx="14" cy="18" r="2.5" />
-        <circle cx="26" cy="18" r="2.5" />
-        <circle cx="10" cy="23" r="2" />
-        <circle cx="30" cy="23" r="2" />
-      </svg>
-    ),
-    chemical: (
-      <svg {...s}>
-        <path d="M20 8v8" />
-        <path d="M20 8c0-1 3-1 3 0" />
-        <path d="M20 8c0-1-3-1-3 0" />
-        <path d="M15 16l-5 12c-1 2 1 4 3 4h14c2 0 4-2 3-4l-5-12" />
-        <path d="M15 16h10" />
-        <line x1="14" y1="26" x2="26" y2="26" strokeDasharray="2 2" />
-      </svg>
-    ),
-    lotus: (
-      <svg {...s}>
-        <path d="M20 10c-2 6-2 12 0 18" />
-        <path d="M20 10c2 6 2 12 0 18" />
-        <path d="M20 12c-5 2-9 6-10 12 4-1 8-4 10-8" />
-        <path d="M20 12c5 2 9 6 10 12-4-1-8-4-10-8" />
-        <path d="M20 16c-8 1-13 5-14 10 5 0 10-3 14-8" />
-        <path d="M20 16c8 1 13 5 14 10-5 0-10-3-14-8" />
-      </svg>
-    ),
-    saffron: (
-      <svg {...s}>
-        <path d="M20 8v24" />
-        <path d="M20 14c-3-2-6-1-8 1 3 0 6 1 8 4" />
-        <path d="M20 14c3-2 6-1 8 1-3 0-6 1-8 4" />
-        <path d="M20 22c-3-1-6 0-7 2 2 0 5 0 7 3" />
-        <path d="M20 22c3-1 6 0 7 2-2 0-5 0-7 3" />
-      </svg>
-    ),
-    noparaben: (
-      <svg {...s}>
-        <circle cx="20" cy="20" r="10" />
-        <line x1="13" y1="13" x2="27" y2="27" />
-        <text x="17" y="23" fontSize="8" fill="currentColor" stroke="none" fontFamily="monospace">P</text>
-      </svg>
-    ),
-    wash: (
-      <svg {...s}>
-        <path d="M12 18c0-5 3.5-8 8-8s8 3 8 8" />
-        <path d="M10 22c2-2 4-3 6-3" />
-        <path d="M24 19c2 0 4 1 6 3" />
-        <path d="M14 28c2-4 4-6 6-6s4 2 6 6" />
-        <circle cx="20" cy="14" r="1" fill="currentColor" />
-      </svg>
-    ),
-    drops: (
-      <svg {...s}>
-        <path d="M14 14c0 0-4 5-4 8a4 4 0 008 0c0-3-4-8-4-8z" />
-        <path d="M22 10c0 0-3 4-3 6a3 3 0 006 0c0-2-3-6-3-6z" />
-        <path d="M28 16c0 0-2 3-2 5a2 2 0 004 0c0-2-2-5-2-5z" />
-      </svg>
-    ),
-    hands: (
-      <svg {...s}>
-        <path d="M10 24c2-6 5-10 10-10s8 4 10 10" />
-        <path d="M14 26c1-2 3-4 6-4s5 2 6 4" />
-        <path d="M10 24c-1 2 0 4 2 5h16c2-1 3-3 2-5" />
-      </svg>
-    ),
-    massage: (
-      <svg {...s}>
-        <circle cx="20" cy="16" r="6" />
-        <path d="M16 22c-2 2-3 4-3 6" />
-        <path d="M24 22c2 2 3 4 3 6" />
-        <path d="M14 12l-4-2" />
-        <path d="M26 12l4-2" />
-        <path d="M20 10V7" />
-      </svg>
-    ),
-    moon: (
-      <svg {...s}>
-        <path d="M26 20a8 8 0 11-10-10 6 6 0 0010 10z" />
-        <circle cx="28" cy="10" r="1" fill="currentColor" />
-        <circle cx="32" cy="14" r="0.5" fill="currentColor" />
-        <circle cx="30" cy="8" r="0.5" fill="currentColor" />
-      </svg>
-    ),
-    repeat: (
-      <svg {...s}>
-        <path d="M28 14a8 8 0 01-1 11.5A8 8 0 0113 26" />
-        <path d="M12 26a8 8 0 011-11.5A8 8 0 0127 14" />
-        <polyline points="28 10 28 14 24 14" />
-        <polyline points="12 30 12 26 16 26" />
-      </svg>
-    ),
-    truck: (
-      <svg {...s}>
-        <rect x="6" y="14" width="18" height="12" rx="1" />
-        <path d="M24 18h5l3 4v4h-8" />
-        <circle cx="14" cy="28" r="2" />
-        <circle cx="28" cy="28" r="2" />
-        <line x1="16" y1="26" x2="26" y2="26" />
-      </svg>
-    ),
-    clock: (
-      <svg {...s}>
-        <circle cx="20" cy="20" r="10" />
-        <path d="M20 14v6l4 3" />
-      </svg>
-    ),
-    express: (
-      <svg {...s}>
-        <path d="M8 20h8" />
-        <path d="M10 16h6" />
-        <path d="M12 24h4" />
-        <path d="M22 12l6 8-6 8" />
-      </svg>
-    ),
-    globe: (
-      <svg {...s}>
-        <circle cx="20" cy="20" r="10" />
-        <ellipse cx="20" cy="20" rx="4" ry="10" />
-        <line x1="10" y1="20" x2="30" y2="20" />
-        <path d="M12 14h16" />
-        <path d="M12 26h16" />
-      </svg>
-    ),
-    returnbox: (
-      <svg {...s}>
-        <path d="M12 16v12h16V16" />
-        <path d="M10 16l10-6 10 6" />
-        <path d="M22 22l-4 4 4 4" />
-        <line x1="18" y1="26" x2="28" y2="26" />
-      </svg>
-    ),
-    shield: (
-      <svg {...s}>
-        <path d="M20 8l-10 4v6c0 6 4 10 10 14 6-4 10-8 10-14v-6l-10-4z" />
-        <polyline points="16 20 19 23 25 17" />
-      </svg>
-    ),
-    certificate: (
-      <svg {...s}>
-        <rect x="10" y="8" width="20" height="16" rx="2" />
-        <line x1="14" y1="13" x2="26" y2="13" />
-        <line x1="14" y1="17" x2="22" y2="17" />
-        <circle cx="20" cy="28" r="4" />
-        <polyline points="18 31 20 34 22 31" />
-      </svg>
-    ),
-    calendar: (
-      <svg {...s}>
-        <rect x="10" y="12" width="20" height="18" rx="2" />
-        <line x1="10" y1="18" x2="30" y2="18" />
-        <line x1="16" y1="8" x2="16" y2="14" />
-        <line x1="24" y1="8" x2="24" y2="14" />
-        <text x="17" y="27" fontSize="7" fill="currentColor" stroke="none" fontFamily="monospace">24</text>
-      </svg>
-    ),
-    sun: (
-      <svg {...s}>
-        <circle cx="20" cy="20" r="5" />
-        <line x1="20" y1="10" x2="20" y2="13" />
-        <line x1="20" y1="27" x2="20" y2="30" />
-        <line x1="10" y1="20" x2="13" y2="20" />
-        <line x1="27" y1="20" x2="30" y2="20" />
-        <line x1="13" y1="13" x2="15" y2="15" />
-        <line x1="25" y1="25" x2="27" y2="27" />
-        <line x1="13" y1="27" x2="15" y2="25" />
-        <line x1="25" y1="15" x2="27" y2="13" />
-      </svg>
-    ),
-    test: (
-      <svg {...s}>
-        <path d="M16 8v14l-4 8c-1 2 1 4 3 4h10c2 0 4-2 3-4l-4-8V8" />
-        <line x1="14" y1="8" x2="26" y2="8" />
-        <circle cx="18" cy="26" r="1.5" fill="currentColor" />
-        <circle cx="22" cy="23" r="1" fill="currentColor" />
-      </svg>
-    ),
-    external: (
-      <svg {...s}>
-        <circle cx="20" cy="18" r="6" />
-        <path d="M14 24c-2 2-4 4-4 6h20c0-2-2-4-4-6" />
-        <line x1="20" y1="24" x2="20" y2="32" />
-        <line x1="16" y1="32" x2="24" y2="32" />
-      </svg>
-    ),
-    check: (
-      <svg {...s}>
-        <circle cx="20" cy="20" r="10" />
-        <polyline points="15 20 18.5 23.5 26 16" />
-      </svg>
-    ),
+    /* Botanical herbs — Game Icons (detailed, name-matched) */
+    amla: <GiBerryBush />,
+    bhringraj: <GiDaisy />,
+    neem: <GiThreeLeaves />,
+    tulsi: <GiHerbsBundle />,
+    brahmi: <GiVineLeaf />,
+    aloe: <GiAgave />,
+    saffron: <GiVineFlower />,
+    lotus: <GiLotus />,
+    /* Values */
+    plant: <FaSeedling />,
+    dropper: <FaDroplet />,
+    leaf: <FaLeaf />,
+    paw: <FaPaw />,
+    chemical: <FaFlask />,
+    noparaben: <FaDroplet />,
+    /* How to use */
+    wash: <FaHandsBubbles />,
+    drops: <FaHandHoldingDroplet />,
+    hands: <FaHandsHolding />,
+    massage: <FaHandSparkles />,
+    moon: <FaMoon />,
+    repeat: <FaArrowsRotate />,
+    /* Shipping */
+    truck: <FaTruckFast />,
+    clock: <FaClock />,
+    express: <FaBolt />,
+    globe: <FaEarthAmericas />,
+    returnbox: <FaRotateLeft />,
+    shield: <FaShieldHalved />,
+    /* Policies */
+    certificate: <FaCertificate />,
+    calendar: <FaCalendarDays />,
+    sun: <FaSun />,
+    test: <FaVial />,
+    external: <FaHand />,
+    check: <FaCircleCheck />,
   };
   return icons[type] || null;
 };
@@ -755,6 +588,7 @@ function UnitContent({ params }) {
                     </div>
                     <div className="bundle-card-info">
                       <p className="bundle-card-name">{bp.name}</p>
+                      <p className="bundle-card-desc">{bp.shortDescription || bp.description}</p>
                       <p className="bundle-card-price">&#8377;{bp.price}</p>
                     </div>
                     <div className="bundle-card-check">
@@ -873,12 +707,14 @@ function UnitContent({ params }) {
       {/* Client Reviews */}
       <section className="reviews-section">
         <div className="reviews-container">
+          <div className="reviews-header">
+            <p className="reviews-label">What Our Customers Say</p>
+            <h3 className="reviews-title">Customer Reviews</h3>
+          </div>
           <div className="reviews-layout">
             {/* Left - Summary & Write Review */}
             <div className="reviews-left">
               <div className="reviews-left-sticky">
-                <p className="reviews-label">What Our Customers Say</p>
-                <h3 className="reviews-title">Customer Reviews</h3>
                 <div className="reviews-score">
                   <span className="reviews-avg">{(product?.averageRating || 4.9).toFixed(1)}</span>
                   <span className="reviews-out-of">/ 5</span>
@@ -1009,14 +845,10 @@ function UnitContent({ params }) {
                 </div>
                 <div className="reviews-nav-buttons">
                   <button className="reviews-nav-btn reviews-nav-up" aria-label="Previous review" onClick={() => scrollToReview('up')}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M18 15l-6-6-6 6"/>
-                    </svg>
+                    <FaChevronUp />
                   </button>
                   <button className="reviews-nav-btn reviews-nav-down" aria-label="Next review" onClick={() => scrollToReview('down')}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M6 9l6 6 6-6"/>
-                    </svg>
+                    <FaChevronDown />
                   </button>
                 </div>
               </div>

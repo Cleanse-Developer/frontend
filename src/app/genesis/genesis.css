@@ -2,8 +2,9 @@
   position: relative;
   z-index: 4;
   background-color: #F0EDE8;
-  /* One vertical rhythm for every content band */
-  --gen-pad-y: clamp(4.5rem, 9vw, 8rem);
+  /* Match the home page's section rhythm (even 5rem top & bottom) so the
+     vertical spacing is consistent with shop-by-category / the bundle. */
+  --gen-pad-y: 5rem;
 }
 
 /* Single inner container: section owns the gutter, this owns max-width
@@ -181,7 +182,9 @@
 
 .gen-lead-media {
   position: relative;
-  aspect-ratio: 4 / 5;
+  /* full column width; only the height is reduced (image crops via object-fit) */
+  width: 100%;
+  height: clamp(360px, 34vw, 440px);
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 30px 60px -30px rgba(46, 31, 20, 0.45);
@@ -223,8 +226,12 @@
   position: relative;
   z-index: 2;
   background-color: #F0EDE8;
-  /* tighter top: it follows the lead band (same cream bg) */
-  padding-block: 0 var(--gen-pad-y);
+  /* "What we stand for" and "Our heritage" are both cream, so the usual doubled
+     padding (10rem) reads as one big empty gap. Drop this section's bottom pad
+     so the gap to Heritage matches a single band's spacing (the same ~5rem the
+     heritage band uses at its bottom). */
+  padding-top: var(--gen-pad-y);
+  padding-bottom: 0;
   padding-inline: var(--gutter);
 }
 
@@ -287,6 +294,7 @@
   position: relative;
   z-index: 2;
   background-color: #F0EDE8;
+  /* even top & bottom, consistent with every other band */
   padding-block: var(--gen-pad-y);
   padding-inline: var(--gutter);
 }
@@ -488,8 +496,7 @@
   position: relative;
   z-index: 2;
   background-color: #E9E2D7;
-  /* extra bottom so it reads as a deliberate close before the footer */
-  padding-block: var(--gen-pad-y) calc(var(--gen-pad-y) + 1.5rem);
+  padding-block: var(--gen-pad-y);
   padding-inline: var(--gutter);
   text-align: center;
 }
@@ -609,6 +616,7 @@
 
   .gen-lead-media {
     order: -1;
+    height: auto;
     aspect-ratio: 4 / 3;
   }
 

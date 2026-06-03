@@ -9,7 +9,7 @@
   /* Testimonials above already contributes 6rem of bottom padding, so the top
      here stays minimal. Extra bottom padding absorbs LatestLaunches'
      margin-top:-6rem overlap. */
-  padding: 0 var(--gutter) clamp(5rem, 7vw, 6.5rem);
+  padding: var(--section-py) var(--gutter) var(--section-py);
   position: relative;
   z-index: 4;
 }

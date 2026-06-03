@@ -7,13 +7,19 @@
 .product-hero {
   position: relative;
   width: 100%;
-  height: 100svh;
-  display: flex;
-  overflow: hidden;
+  /* Grow with content: a long description must extend the page, not get
+     clipped inside a fixed 100svh box. */
+  min-height: 100svh;
+  /* Two strictly-equal columns (flex skewed them because of the image's
+     intrinsic width); grid keeps both halves exactly 50% so the centered
+     image and details get symmetric outer spacing. */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
 }
 
 .product-hero-col {
-  flex: 1;
+  min-width: 0;
 }
 
 .product-meta {
@@ -22,23 +28,33 @@
 
 .product-meta-container {
   width: 100%;
-  height: 100%;
-  padding: 6rem var(--gutter) 3rem var(--gutter);
+  /* Mirror the image block (max-width 540, centered in its half) so the space
+     to the LEFT of the image equals the space to the RIGHT of the details at
+     every width — and the details sit inset from the right edge. */
+  max-width: 540px;
+  margin: 0 auto;
+  /* Fills the viewport for short copy, but grows (no inner scroll / clipping)
+     when the description is long. */
+  min-height: 100svh;
+  padding: 6rem 0 3rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  overflow-y: auto;
   justify-content: center;
 }
 
 .product-hero-left {
-  position: relative;
+  /* Sticky so the image stays centred in view while a long description
+     scrolls past, instead of the image drifting/getting cut. */
+  position: sticky;
+  top: 0;
+  align-self: start;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  height: 100%;
+  min-height: 100svh;
   padding: 6rem var(--gutter) 3rem;
 }
 
@@ -58,12 +74,16 @@
 .product-hero-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* Show the whole product, centred — `cover` was cropping the bottle's
+     bottom and making it look shifted down. */
+  object-fit: contain;
+  object-position: center;
 }
 
 .product-thumbnails {
   display: flex;
   flex-direction: row;
+  justify-content: center;
   gap: 0.6rem;
   width: 100%;
   max-width: 540px;
@@ -162,7 +182,7 @@
 
 .rating-count {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: var(--base-500);
 }
 
@@ -214,7 +234,7 @@
 .product-description {
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   line-height: 1.7;
   color: var(--base-500);
 }
@@ -365,13 +385,11 @@
   transform: scale(0.98);
 }
 
-/* Delivery Check */
+/* Delivery Check — flush-left with the rest of the content (no inset card),
+   so the input row spans the full width like the Buy Now button. */
 .product-delivery-check {
   display: flex;
   flex-direction: column;
-  background: rgba(240, 237, 232, 0.6);
-  border-radius: 12px;
-  padding: 1.25rem;
 }
 
 .delivery-input-row {
@@ -386,7 +404,7 @@
   flex: 1;
   font-family: var(--font-body);
   font-size: 0.8rem;
-  padding: 0.7rem 1rem;
+  padding: 0.85rem 1rem;
   border: none;
   border-radius: 0;
   outline: none;
@@ -409,7 +427,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  padding: 0.7rem 1.25rem;
+  padding: 0.85rem 1.5rem;
   background: rgba(79, 44, 34, 0.06);
   border: none;
   border-left: 1px solid rgba(79, 44, 34, 0.1);
@@ -425,7 +443,7 @@
 
 .delivery-msg {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   color: #663532;
   margin-top: 0.5rem;
 }
@@ -445,7 +463,7 @@
 
 .policy-item span {
   font-family: var(--font-body);
-  font-size: 0.65rem;
+  font-size: 0.82rem;
   font-weight: 500;
   color: var(--base-500);
   white-space: nowrap;
@@ -549,20 +567,35 @@
 .bundle-card-info {
   padding: 0 1.25rem 1.25rem;
   width: 100%;
+  text-align: left;
 }
 
+/* Match the home bundle cards (.byr-card) — same title/desc/price scale */
 .bundle-card-name {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--fs-card-title);
   font-weight: 600;
   color: #663532;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
   line-height: 1.3;
+}
+
+.bundle-card-desc {
+  font-family: var(--font-body);
+  font-size: var(--fs-card-desc);
+  font-weight: 400;
+  color: #777;
+  margin-bottom: 0.45rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .bundle-card-price {
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: var(--fs-card-price);
   font-weight: 600;
   color: #663532;
 }
@@ -612,7 +645,7 @@
 
 .bundle-summary-desc {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 1rem;
+  font-size: 18px;
   font-weight: 400;
   color: #fff;
   opacity: 0.7;
@@ -702,7 +735,14 @@
   align-items: center;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 1rem;
-  font-weight: 400;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+/* The "Total" label is a bare <span>; globals.css `span { color: var(--base-700) }`
+   overrides the inherited white, leaving it dark-on-dark. Restore white. */
+.bundle-summary-total > span {
   color: #fff;
 }
 
@@ -736,12 +776,12 @@
   width: 100%;
   font-family: var(--font-body);
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
   padding: 0.85rem 1.5rem;
   background: #C8AD73;
   border: none;
   border-radius: 10px;
-  color: #fff;
+  color: #4F2C22;
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -768,6 +808,10 @@
   width: 100%;
   max-width: var(--page-max);
   margin: 0 auto;
+  /* Framed as a bordered box */
+  border: 1px solid var(--base-200);
+  border-radius: 1.25rem;
+  padding: clamp(1.5rem, 3vw, 2.75rem);
 }
 
 .product-info-tabs {
@@ -783,10 +827,10 @@
   border: 1.5px solid transparent;
   cursor: pointer;
   font-family: var(--font-body);
-  font-size: 0.65rem;
+  font-size: 0.82rem;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   color: var(--base-400);
   text-align: center;
   white-space: nowrap;
@@ -814,15 +858,23 @@
 .info-tab-content {
   position: relative;
   min-height: 250px;
+  /* Stack every panel in the SAME grid cell so the content area is always
+     as tall as the tallest tab. Switching tabs then never resizes the box
+     or shifts the page below it. */
+  display: grid;
 }
 
 .info-tab-panel {
-  display: none;
+  grid-area: 1 / 1;
   padding: 3rem 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
 }
 
 .info-tab-panel.active {
-  display: block;
+  opacity: 1;
+  visibility: visible;
 }
 
 .info-tab-panel-inner {
@@ -834,7 +886,7 @@
 .info-tab-text {
   flex: 1;
   font-family: var(--font-body);
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   line-height: 1.8;
   color: var(--base-500);
   max-width: 560px;
@@ -856,8 +908,8 @@
 }
 
 .info-value-icon {
-  width: 70px;
-  height: 70px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   border: 1.5px solid var(--base-300);
   display: flex;
@@ -868,8 +920,8 @@
 }
 
 .info-value-icon svg {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
 }
 
 .info-value-item:hover .info-value-icon {
@@ -879,10 +931,10 @@
 
 .info-value-label {
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: var(--base-700);
   line-height: 1.4;
 }
@@ -892,7 +944,7 @@
 .reviews-section {
   width: 100%;
   background: #F0EDE8;
-  padding: 5rem 2rem;
+  padding: 5rem var(--gutter);
 }
 
 .reviews-container {
@@ -912,6 +964,12 @@
   width: 280px;
 }
 
+/* Section heading, centered across the full width (above the two columns) */
+.reviews-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
 .reviews-left-sticky {
   position: sticky;
   top: 6rem;
@@ -921,7 +979,7 @@
 
 .reviews-label {
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -929,13 +987,18 @@
   margin-bottom: 0.5rem;
 }
 
-.reviews-title {
+/* .unit-page prefix lets the uppercase win over the global natural-case
+   :is() rule; size matches the other section headings on the page. */
+.unit-page .reviews-title {
   font-family: var(--font-heading);
   font-weight: 400;
-  font-size: clamp(2rem, 3vw, 2.5rem);
+  /* full section-heading size now that it spans the centered header */
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
   color: var(--base-700);
-  line-height: 1;
-  margin-bottom: 1.5rem;
+  line-height: 1.1;
+  margin-bottom: 0;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 .reviews-score {
@@ -974,7 +1037,7 @@
 
 .reviews-rating-count {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   color: var(--base-400);
   margin-bottom: 1.5rem;
 }
@@ -994,10 +1057,10 @@
 
 .review-bar-label {
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   font-weight: 500;
   color: var(--base-400);
-  width: 12px;
+  width: 14px;
   text-align: right;
 }
 
@@ -1018,7 +1081,7 @@
 
 .reviews-summary-text {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.7;
   color: var(--base-500);
   margin-bottom: 1.5rem;
@@ -1026,7 +1089,7 @@
 
 .write-review-btn {
   font-family: var(--font-body);
-  font-size: 0.65rem;
+  font-size: 0.78rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -1107,6 +1170,7 @@
 .reviews-nav-btn {
   width: 36px;
   height: 36px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: 1px solid var(--base-200);
   background: #F0EDE8;
@@ -1116,6 +1180,14 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+/* Pin the arrow size — the global `svg{width:100%;height:100%;object-fit:cover}`
+   was scaling/cropping the chevron until it disappeared inside the button. */
+.reviews-nav-btn svg {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
 }
 
 .reviews-nav-btn:hover {
@@ -1172,7 +1244,7 @@
 
 .review-date {
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   color: var(--base-400);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -1187,7 +1259,7 @@
 
 .review-text {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.7;
   color: var(--base-500);
 }
@@ -1221,14 +1293,14 @@
 
 .review-name {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--base-700);
 }
 
 .review-location {
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   color: var(--base-300);
 }
 
@@ -1237,7 +1309,14 @@
 .recommended-section {
   width: 100%;
   background: #F0EDE8;
-  padding: 5rem 2rem;
+  padding: 5rem var(--gutter);
+}
+
+/* Match the home grids: constrain to page-max and center so the cards line
+   up with every other section's content edges. */
+.recommended-section .products-grid {
+  max-width: var(--page-max);
+  margin: 0 auto;
 }
 
 .recommended-title {
@@ -1262,12 +1341,15 @@
   }
 
   .product-hero {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    min-height: 0;
     height: auto;
     background: #F0EDE8;
   }
 
   .product-hero-col.product-hero-left {
+    position: static;
+    min-height: 0;
     height: auto;
     padding: 5rem var(--gutter) 2rem;
   }
@@ -1287,7 +1369,9 @@
   }
 
   .product-meta-container {
+    max-width: none;
     padding: 2.5rem var(--gutter);
+    min-height: 0;
     height: auto;
     overflow-y: visible;
   }
@@ -1483,7 +1567,7 @@
 
 @media (min-width: 2000px) {
   .product-meta-container {
-    padding: 12rem var(--gutter) 4rem;
+    padding: 12rem 0 4rem;
   }
 
   .product-info-container,
@@ -1532,10 +1616,6 @@
 
   .buy-now-btn {
     width: 100%;
-  }
-
-  .product-delivery-check {
-    padding: 1rem;
   }
 
   .product-policies {
@@ -1652,7 +1732,7 @@
   }
 
   .recommended-section {
-    padding: 3rem 0.75rem;
+    padding: 3rem var(--gutter);
   }
 
   .recommended-title {

@@ -1,7 +1,7 @@
 .testimonials {
   position: relative;
   width: 100%;
-  padding: 6rem var(--gutter) 6rem;
+  padding: var(--section-py) var(--gutter) var(--section-py);
   background-color: #F0EDE8;
   overflow: hidden;
 }
@@ -368,7 +368,7 @@
 
 @media (max-width: 1199px) and (orientation: portrait) {
   .testimonials {
-    padding: 4rem var(--gutter) 5rem;
+    padding: var(--section-py) var(--gutter) var(--section-py);
     overflow: visible;
   }
 
@@ -542,7 +542,7 @@
 
 @media (max-width: 480px) {
   .testimonials {
-    padding: 3rem var(--gutter) 4rem;
+    padding: var(--section-py) var(--gutter) var(--section-py);
   }
 
   .testimonials .container {
@@ -654,7 +654,7 @@
 /* Extra large screens */
 @media (min-width: 1920px) {
   .testimonials {
-    padding: 8rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .testimonials .container {
@@ -687,7 +687,7 @@
 /* Ultra wide screens */
 @media (min-width: 2560px) {
   .testimonials {
-    padding: 10rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .testimonials .container {

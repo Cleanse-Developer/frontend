@@ -1057,7 +1057,7 @@
 /* CTA Section */
 .cta-section {
   width: 100%;
-  padding: 4rem var(--gutter);
+  padding: var(--section-py) var(--gutter);
   background-color: #F0EDE8;
 }
 
@@ -1163,7 +1163,7 @@
 
 @media (max-width: 480px) {
   .cta-section {
-    padding: 3rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .cta-card {
@@ -1231,7 +1231,7 @@
   }
 
   .cta-section {
-    padding: 5rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .cta-card {
@@ -1346,7 +1346,7 @@
   }
 
   .cta-section {
-    padding: 6rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .cta-card {
@@ -1469,7 +1469,7 @@
   }
 
   .cta-section {
-    padding: 8rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .cta-card {

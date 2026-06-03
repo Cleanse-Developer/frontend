@@ -147,7 +147,7 @@ export default function BlogPage() {
           <div className="blog-breadcrumb">
             <Link href="/">HOME</Link> / <span>JOURNAL</span>
           </div>
-          <h1 className="blog-hero-title">THE<br />JOURNAL</h1>
+          <h1 className="blog-hero-title">THE JOURNAL</h1>
           <p className="blog-hero-subtitle">
             Ancient wisdom, modern stories, explore the art of Ayurvedic living.
           </p>

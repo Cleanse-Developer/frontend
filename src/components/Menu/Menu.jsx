@@ -80,6 +80,8 @@ const Menu = () => {
   const pathname = usePathname();
   const router = useRouter();
   const isHomePage = pathname === "/";
+  // Product detail pages have a light hero — use a transparent header with dark text/icons
+  const isUnitPage = pathname?.startsWith("/unit");
   const { cartCount } = useCart();
   const settings = useSettings();
   const cmsHeader = settings.cmsHeader || {};
@@ -649,7 +651,7 @@ const Menu = () => {
   }, [isScrolled, isNavGreen]);
 
   return (
-    <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isNavGreen ? 'nav-green' : ''} ${isOpen ? 'menu-open' : ''} ${isPageTransitioning ? 'page-transitioning' : ''}`} ref={menuRef}>
+    <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isNavGreen ? 'nav-green' : ''} ${isOpen ? 'menu-open' : ''} ${isPageTransitioning ? 'page-transitioning' : ''} ${isUnitPage ? 'menu-light' : ''}`} ref={menuRef}>
       <div className="menu-header">
         {/* Single hero header used in all states; gains a brown bg on scroll */}
         <div className="menu-header-full">

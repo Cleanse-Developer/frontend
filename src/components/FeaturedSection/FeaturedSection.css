@@ -1,7 +1,7 @@
 /* Shop by Category Section */
 .shop-by-category {
   width: 100%;
-  padding: 5rem var(--gutter);
+  padding: var(--section-py) var(--gutter);
   background-color: #F0EDE8;
   display: flex;
   flex-direction: column;
@@ -104,7 +104,7 @@
 
 @media (max-width: 480px) {
   .shop-by-category {
-    padding: 3rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .sbc-title {
@@ -148,8 +148,7 @@
 
 .featured-section {
   width: 100%;
-  min-height: 100vh;
-  padding: 5rem var(--gutter);
+  padding: var(--section-py) var(--gutter);
   background-color: #F0EDE8;
   overflow: hidden;
   display: flex;
@@ -497,23 +496,15 @@
 /* Our Featured Products Section */
 .products-section {
   width: 100%;
-  padding: 5rem var(--gutter);
+  padding: var(--section-py) var(--gutter);
   background-color: #F0EDE8;
 }
 
 .latest-launches-section {
-  padding-top: 0;
-  margin-top: -6rem;
+  /* Same vertical rhythm as every other section (no overlap pull) so the gap
+     above it matches the rest of the page. */
   position: relative;
   z-index: 10;
-}
-
-/* On mobile the -6rem pull crowds "Our Latest Launches" right under the
-   ritual CTA — ease it down for more breathing room. */
-@media (max-width: 768px) {
-  .latest-launches-section {
-    margin-top: -1rem;
-  }
 }
 
 .products-section-title {
@@ -712,7 +703,7 @@
   }
 
   .products-section {
-    padding: 3rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 }
 
@@ -956,7 +947,7 @@
 
 @media (max-width: 640px) {
   .featured-section {
-    padding: 3rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
     min-height: auto;
   }
 
@@ -1000,7 +991,7 @@
 
 @media (max-width: 480px) {
   .featured-section {
-    padding: 3rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .featured-section-header {
@@ -1080,7 +1071,7 @@
   }
 
   .products-section {
-    padding: 3rem var(--gutter) 4.5rem;
+    padding: var(--section-py) var(--gutter) var(--section-py);
   }
 
   .products-grid {
@@ -1129,7 +1120,7 @@
 /* Build Your Ritual Section */
 .byr-section {
   width: 100%;
-  padding: 5rem var(--gutter);
+  padding: var(--section-py) var(--gutter);
   background-color: #F0EDE8;
   display: flex;
   flex-direction: column;
@@ -1560,7 +1551,7 @@
 
 @media (max-width: 480px) {
   .byr-section {
-    padding: 3rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .byr-title {
@@ -1622,7 +1613,7 @@
   .featured-section,
   .products-section,
   .byr-section {
-    padding: 5rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .sbc-grid,
@@ -1675,7 +1666,7 @@
   .featured-section,
   .products-section,
   .byr-section {
-    padding: 6rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .sbc-grid,
@@ -1825,7 +1816,7 @@
   .featured-section,
   .products-section,
   .byr-section {
-    padding: 8rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .sbc-grid,
@@ -2043,7 +2034,7 @@
   /* --- Shop By Category: mobile uses 3 small cards in a row,
          tablet keeps 3-col but with larger cards --- */
   .shop-by-category {
-    padding: 3.5rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .sbc-title {
@@ -2085,7 +2076,7 @@
   /* --- Featured / Bento section: mobile = 1-col stack,
          tablet = 1-col stack with bigger cards --- */
   .featured-section {
-    padding: 3.5rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
     min-height: auto;
   }
 
@@ -2169,7 +2160,7 @@
   /* --- Products grid (LatestLaunches): mobile = 2-col,
          tablet = 2-col with bigger cards --- */
   .products-section {
-    padding: 3.5rem var(--gutter) 4.5rem;
+    padding: var(--section-py) var(--gutter) var(--section-py);
   }
 
   .products-section-title {
@@ -2212,7 +2203,7 @@
   /* --- Build Your Ritual: mobile = 2-col card grid + vertical
          bundle, tablet = 2-col card grid + vertical bundle, bigger --- */
   .byr-section {
-    padding: 3.5rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .byr-title {

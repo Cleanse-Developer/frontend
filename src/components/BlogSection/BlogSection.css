@@ -1,6 +1,6 @@
 .blog-section {
   width: 100%;
-  padding: 5rem var(--gutter);
+  padding: var(--section-py) var(--gutter);
   background-color: #F0EDE8;
   overflow: hidden;
 }
@@ -16,8 +16,6 @@
   justify-content: center;
   align-items: center;
   margin-bottom: 4rem;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid rgba(79, 44, 34, 0.1);
 }
 
 .blog-header-left {
@@ -382,7 +380,7 @@
 
 @media (max-width: 768px) {
   .blog-section {
-    padding: 5rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .blog-section-header {
@@ -425,7 +423,7 @@
 
 @media (max-width: 480px) {
   .blog-section {
-    padding: 3rem var(--gutter);
+    padding: var(--section-py) var(--gutter);
   }
 
   .blog-section-header {
@@ -537,7 +535,7 @@
 /* Large screens */
 @media (min-width: 1440px) {
   .blog-section {
-    padding: 5rem 4rem;
+    padding: var(--section-py) 4rem;
   }
 
   .blog-section-container {
@@ -550,7 +548,7 @@
 /* Extra large screens */
 @media (min-width: 1920px) {
   .blog-section {
-    padding: 6rem 5rem;
+    padding: var(--section-py) 5rem;
   }
 
   .blog-section-container {
@@ -585,7 +583,7 @@
 /* Ultra wide screens */
 @media (min-width: 2560px) {
   .blog-section {
-    padding: 8rem 6rem;
+    padding: var(--section-py) 6rem;
   }
 
   .blog-section-container {
@@ -616,7 +614,7 @@
 /* Tablet PORTRAIT only — iPad landscape uses desktop layout */
 @media (max-width: 1199px) and (min-width: 481px) and (orientation: portrait) {
   .blog-section {
-    padding: 4rem 1.5rem;
+    padding: var(--section-py) 1.5rem;
   }
 
   .blog-section-header {

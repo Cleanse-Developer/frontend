@@ -38,6 +38,9 @@
      via the :root overrides below. */
   --gutter: 2rem;
   --page-max: 1300px;
+  /* Vertical rhythm: one top/bottom padding for every content section so the
+     gaps between sections are identical down the page. */
+  --section-py: 5rem;
 
   /* Earthy Brown Color Palette */
   --base-100: #E7D0A6;  /* Light Cream - primary background */
@@ -51,19 +54,19 @@
 
 /* Responsive gutter + content width — mirrors the reference section scale. */
 @media (max-width: 1199px) and (orientation: portrait) {
-  :root { --gutter: 1.5rem; }
+  :root { --gutter: 1.5rem; --section-py: 3.5rem; }
 }
 @media (max-width: 480px) {
-  :root { --gutter: 1rem; }
+  :root { --gutter: 1rem; --section-py: 3rem; }
 }
 @media (min-width: 1440px) {
   :root { --gutter: 4rem; --page-max: 1400px; }
 }
 @media (min-width: 1920px) {
-  :root { --gutter: 5rem; --page-max: 1700px; }
+  :root { --gutter: 5rem; --page-max: 1700px; --section-py: 6rem; }
 }
 @media (min-width: 2560px) {
-  :root { --gutter: 6rem; --page-max: 2100px; }
+  :root { --gutter: 6rem; --page-max: 2100px; --section-py: 7rem; }
 }
 
 * {

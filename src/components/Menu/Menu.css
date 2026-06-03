@@ -1057,3 +1057,48 @@
     width: 100%;
   }
 }
+
+/* ===== Light-page header (product detail): transparent bar, dark text/icons.
+   Appended last so it wins on source order over the scrolled/nav-green rules.
+   The :not(.menu-open) guard hands control back to the dark overlay styling
+   while the full-screen menu is open. ===== */
+.menu.menu-light .menu-header::before {
+  /* no brown bar — keep the header transparent over the light hero */
+  transform: scaleY(0) !important;
+}
+
+.menu.menu-light:not(.menu-open) .menu-nav-link,
+.menu.menu-light:not(.menu-open) .menu-action-btn {
+  color: var(--base-700);
+}
+
+.menu.menu-light:not(.menu-open) .menu-trigger-icon .dot,
+.menu.menu-light:not(.menu-open) .menu-item {
+  background: var(--base-700);
+}
+
+.menu.menu-light:not(.menu-open) .menu-trigger:hover .menu-trigger-icon .dot {
+  background: #8a6a52;
+}
+
+.menu.menu-light:not(.menu-open) .menu-locale-pill {
+  color: var(--base-700);
+  background: rgba(79, 44, 34, 0.06);
+  border-color: rgba(79, 44, 34, 0.35);
+}
+
+.menu.menu-light:not(.menu-open) .menu-locale-pill:hover,
+.menu.menu-light:not(.menu-open) .menu-locale-pill.open {
+  background: rgba(79, 44, 34, 0.12);
+  border-color: rgba(79, 44, 34, 0.6);
+}
+
+.menu.menu-light:not(.menu-open) .menu-locale-current,
+.menu.menu-light:not(.menu-open) .menu-locale-divider {
+  color: var(--base-700);
+}
+
+.menu.menu-light:not(.menu-open) .menu-cart-badge {
+  background: var(--base-700);
+  color: #fff;
+}
