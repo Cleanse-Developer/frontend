@@ -1,12 +1,12 @@
 .blog-section {
   width: 100%;
-  padding: 5rem 2rem;
+  padding: 5rem var(--gutter);
   background-color: #F0EDE8;
   overflow: hidden;
 }
 
 .blog-section-container {
-  max-width: 1300px;
+  max-width: var(--page-max);
   margin: 0 auto;
 }
 
@@ -382,7 +382,7 @@
 
 @media (max-width: 768px) {
   .blog-section {
-    padding: 5rem 1.5rem;
+    padding: 5rem var(--gutter);
   }
 
   .blog-section-header {
@@ -425,7 +425,7 @@
 
 @media (max-width: 480px) {
   .blog-section {
-    padding: 3rem 0.75rem;
+    padding: 3rem var(--gutter);
   }
 
   .blog-section-header {
@@ -541,7 +541,7 @@
   }
 
   .blog-section-container {
-    max-width: 1400px;
+    max-width: var(--page-max);
     margin-left: auto;
     margin-right: auto;
   }

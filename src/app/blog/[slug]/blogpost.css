@@ -46,7 +46,7 @@
   z-index: 2;
   /* Extra bottom padding lifts the meta row above the zone the article card
      overlaps into, so the card no longer covers the date/author. */
-  padding: 3.5rem 3.5rem 5rem;
+  padding: 3.5rem var(--gutter) 5rem;
   max-width: 850px;
 }
 
@@ -148,7 +148,7 @@
 .blogpost-body {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--gutter);
 }
 
 .blogpost-article {
@@ -314,12 +314,12 @@
 /* ===== Related Posts ===== */
 .blogpost-related {
   background: #2E1F14;
-  padding: 5rem 2rem;
+  padding: 5rem var(--gutter);
   margin-top: 4rem;
 }
 
 .blogpost-related-inner {
-  max-width: 1300px;
+  max-width: var(--page-max);
   margin: 0 auto;
 }
 
@@ -551,7 +551,7 @@
   }
 
   .blogpost-hero-content {
-    padding: 2.5rem 2.5rem 4.5rem;
+    padding: 2.5rem var(--gutter) 4.5rem;
   }
 
   .blogpost-hero-title {
@@ -563,7 +563,7 @@
   }
 
   .blogpost-related {
-    padding: 4rem 2rem;
+    padding: 4rem var(--gutter);
   }
 
   .blogpost-related-grid {
@@ -583,7 +583,7 @@
   }
 
   .blogpost-hero-content {
-    padding: 1.5rem 1.5rem 3.5rem;
+    padding: 1.5rem var(--gutter) 3.5rem;
   }
 
   .blogpost-breadcrumb {
@@ -628,7 +628,7 @@
   }
 
   .blogpost-body {
-    padding: 0 1rem;
+    padding: 0 var(--gutter);
   }
 
   .blogpost-article {
@@ -678,7 +678,7 @@
   }
 
   .blogpost-related {
-    padding: 3rem 1rem;
+    padding: 3rem var(--gutter);
     margin-top: 3rem;
   }
 
@@ -735,7 +735,7 @@
   }
 
   .blogpost-hero-content {
-    padding: 1rem 1rem 3rem;
+    padding: 1rem var(--gutter) 3rem;
   }
 
   .blogpost-breadcrumb {
@@ -843,7 +843,7 @@
   }
 
   .blogpost-related {
-    padding: 2.5rem 1rem;
+    padding: 2.5rem var(--gutter);
     margin-top: 2.5rem;
   }
 

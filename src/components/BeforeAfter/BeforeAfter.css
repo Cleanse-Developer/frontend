@@ -7,7 +7,7 @@
 }
 
 .ba-container {
-  max-width: 1240px;
+  max-width: var(--page-max);
   margin: 0 auto;
 }
 

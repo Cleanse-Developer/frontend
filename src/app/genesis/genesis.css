@@ -147,7 +147,7 @@
 
 .gen-lead .container {
   height: auto;
-  max-width: 1300px;
+  max-width: var(--page-max);
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -189,7 +189,7 @@
 
 .gen-values .container {
   height: auto;
-  max-width: 1300px;
+  max-width: var(--page-max);
 }
 
 .gen-values-grid {
@@ -257,7 +257,7 @@
 
 .gen-stats-grid {
   height: auto;
-  max-width: 1300px;
+  max-width: var(--page-max);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;

@@ -5,7 +5,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 2rem;
+  padding: 0 var(--gutter);
 }
 
 .promo-bar span {
@@ -34,7 +34,7 @@
 @media (max-width: 1199px) and (orientation: portrait) {
   .promo-bar {
     height: 36px;
-    padding: 0 1rem;
+    padding: 0 var(--gutter);
   }
 
   .promo-bar .promo-left,
@@ -1057,12 +1057,12 @@
 /* CTA Section */
 .cta-section {
   width: 100%;
-  padding: 4rem 2rem;
+  padding: 4rem var(--gutter);
   background-color: #F0EDE8;
 }
 
 .cta-card {
-  max-width: 77.75rem;
+  max-width: var(--page-max);
   height: 26rem;
   margin: 0 auto;
   border-radius: 1rem;
@@ -1163,7 +1163,7 @@
 
 @media (max-width: 480px) {
   .cta-section {
-    padding: 3rem 0.75rem;
+    padding: 3rem var(--gutter);
   }
 
   .cta-card {
@@ -1231,11 +1231,11 @@
   }
 
   .cta-section {
-    padding: 5rem 3rem;
+    padding: 5rem var(--gutter);
   }
 
   .cta-card {
-    max-width: 87.5rem;
+    max-width: var(--page-max);
     height: 28.125rem;
   }
 }
@@ -1346,11 +1346,11 @@
   }
 
   .cta-section {
-    padding: 6rem 4rem;
+    padding: 6rem var(--gutter);
   }
 
   .cta-card {
-    max-width: 106.25rem;
+    max-width: var(--page-max);
     height: 31.25rem;
     margin: 0 auto;
   }
@@ -1469,11 +1469,11 @@
   }
 
   .cta-section {
-    padding: 8rem 5rem;
+    padding: 8rem var(--gutter);
   }
 
   .cta-card {
-    max-width: 131.25rem;
+    max-width: var(--page-max);
     height: 36.25rem;
   }
 

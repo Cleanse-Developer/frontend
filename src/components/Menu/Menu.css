@@ -28,7 +28,7 @@
 
 .menu .menu-header {
   position: relative;
-  padding: 1.625rem 4.7%;
+  padding: 1.625rem var(--gutter);
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -525,7 +525,7 @@
   }
 
   .menu .menu-header {
-    padding: 1rem 1.5rem;
+    padding: 1rem var(--gutter);
   }
 
   .menu .menu-nav-links {
@@ -578,7 +578,7 @@
 
 @media (max-width: 480px) {
   .menu .menu-header {
-    padding: 0.75rem 1rem;
+    padding: 0.75rem var(--gutter);
   }
 
   .menu .menu-logo {
@@ -954,7 +954,7 @@
   }
 
   .menu .menu-header {
-    padding: 1.5rem 3rem;
+    padding: 1.5rem var(--gutter);
   }
 }
 
@@ -968,7 +968,7 @@
   }
 
   .menu .menu-header {
-    padding: 1.75rem 4rem;
+    padding: 1.75rem var(--gutter);
   }
 
   .menu .menu-logo-img {

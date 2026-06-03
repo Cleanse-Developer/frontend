@@ -7,7 +7,7 @@
 
 .orders-header {
   background: var(--base-700);
-  padding: 6rem 2rem 3rem;
+  padding: 6rem var(--gutter) 3rem;
   text-align: center;
 }
 
@@ -32,7 +32,7 @@
 .orders-content {
   max-width: 800px;
   margin: 0 auto;
-  padding: 2.5rem 2rem 6rem;
+  padding: 2.5rem var(--gutter) 6rem;
 }
 
 .orders-filters {
@@ -455,11 +455,11 @@
 
 @media (max-width: 1199px) and (orientation: portrait) {
   .orders-header {
-    padding: 5rem 1.5rem 2.5rem;
+    padding: 5rem var(--gutter) 2.5rem;
   }
 
   .orders-content {
-    padding: 1.5rem 1.5rem 4rem;
+    padding: 1.5rem var(--gutter) 4rem;
   }
 
   .orders-card {
@@ -490,11 +490,11 @@
 
 @media (max-width: 480px) {
   .orders-header {
-    padding: 4.5rem 1rem 2rem;
+    padding: 4.5rem var(--gutter) 2rem;
   }
 
   .orders-content {
-    padding: 1.25rem 0.75rem 3rem;
+    padding: 1.25rem var(--gutter) 3rem;
   }
 
   .orders-card {

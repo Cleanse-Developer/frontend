@@ -162,7 +162,7 @@
   background-color: #F0EDE8;
 }
 .ritual-flow-head {
-  max-width: 1240px;
+  max-width: var(--page-max);
   margin: 0 auto clamp(3rem, 6vw, 5rem);
   display: flex;
   flex-direction: column;

@@ -38,7 +38,7 @@
 .lookbook-hero-content {
   position: relative;
   z-index: 2;
-  padding: 3rem;
+  padding: 3rem var(--gutter);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -88,9 +88,9 @@
 
 /* ===== Gallery Section ===== */
 .lookbook-gallery {
-  max-width: 1300px;
+  max-width: var(--page-max);
   margin: 0 auto;
-  padding: 3rem 1.5rem;
+  padding: 3rem var(--gutter);
 }
 
 /* ===== Masonry Layout ===== */
@@ -321,7 +321,7 @@
   }
 
   .lookbook-hero-content {
-    padding: 2rem;
+    padding: 2rem var(--gutter);
   }
 
   .lookbook-masonry {
@@ -334,7 +334,7 @@
   }
 
   .lookbook-gallery {
-    padding: 2rem 1.5rem;
+    padding: 2rem var(--gutter);
   }
 
 
@@ -355,7 +355,7 @@
   }
 
   .lookbook-hero-content {
-    padding: 1.5rem;
+    padding: 1.5rem var(--gutter);
   }
 
   .lookbook-hero-title {
@@ -363,7 +363,7 @@
   }
 
   .lookbook-gallery {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem var(--gutter);
   }
 
   .lookbook-masonry {
@@ -458,7 +458,7 @@
   }
 
   .lookbook-hero-content {
-    padding: 1rem;
+    padding: 1rem var(--gutter);
     gap: 0.5rem;
   }
 
@@ -475,7 +475,7 @@
   }
 
   .lookbook-gallery {
-    padding: 1rem;
+    padding: 1rem var(--gutter);
   }
 
   .lookbook-masonry {

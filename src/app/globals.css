@@ -231,7 +231,7 @@ button.secondary {
 .container {
   width: 100%;
   height: 100%;
-  padding: 2rem;
+  padding: var(--gutter);
   max-width: 2000px;
   margin: 0 auto;
 }
@@ -242,7 +242,7 @@ button.secondary {
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  padding: 2.125rem;
+  padding: var(--gutter);
   max-width: 2000px;
   margin: 0 auto;
   display: flex;
@@ -292,7 +292,7 @@ button.secondary {
   .container,
   .section-header,
   .section-footer {
-    padding: 1.5rem;
+    padding: var(--gutter);
   }
 }
 
@@ -301,7 +301,7 @@ button.secondary {
   .container,
   .section-header,
   .section-footer {
-    padding: 1rem;
+    padding: var(--gutter);
   }
 
   h1 {
@@ -339,25 +339,25 @@ button.secondary {
 /* Large screens (1440px+) */
 @media (min-width: 1440px) {
   .container {
-    padding: 2.5rem;
+    padding: var(--gutter);
   }
 
   .section-header,
   .section-footer {
-    padding: 2.5rem;
+    padding: var(--gutter);
   }
 }
 
 /* Extra large screens (1920px+) */
 @media (min-width: 1920px) {
   .container {
-    padding: 3rem;
+    padding: var(--gutter);
     max-width: 2400px;
   }
 
   .section-header,
   .section-footer {
-    padding: 3rem;
+    padding: var(--gutter);
     max-width: 2400px;
   }
 
@@ -396,13 +396,13 @@ button.secondary {
 /* Ultra wide screens (2560px+) */
 @media (min-width: 2560px) {
   .container {
-    padding: 4rem;
+    padding: var(--gutter);
     max-width: 2800px;
   }
 
   .section-header,
   .section-footer {
-    padding: 4rem;
+    padding: var(--gutter);
     max-width: 2800px;
   }
 

@@ -23,7 +23,7 @@
 .product-meta-container {
   width: 100%;
   height: 100%;
-  padding: 6rem 3.5rem 3rem 3.5rem;
+  padding: 6rem var(--gutter) 3rem var(--gutter);
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -451,11 +451,11 @@
 .bundle-section {
   width: 100%;
   background: #F0EDE8;
-  padding: 5rem 2rem;
+  padding: 5rem var(--gutter);
 }
 
 .bundle-header {
-  max-width: 1240px;
+  max-width: var(--page-max);
   margin: 0 auto 2.5rem;
 }
 
@@ -482,7 +482,7 @@
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 24px;
-  max-width: 1240px;
+  max-width: var(--page-max);
   margin: 0 auto;
   align-items: stretch;
 }
@@ -751,12 +751,12 @@
 .product-info-section {
   width: 100%;
   background: #F0EDE8;
-  padding: 5rem 2rem;
+  padding: 5rem var(--gutter);
 }
 
 .product-info-container {
   width: 100%;
-  max-width: 1240px;
+  max-width: var(--page-max);
   margin: 0 auto;
 }
 
@@ -887,7 +887,7 @@
 
 .reviews-container {
   width: 100%;
-  max-width: 1240px;
+  max-width: var(--page-max);
   margin: 0 auto;
 }
 
@@ -1275,7 +1275,7 @@
   }
 
   .product-meta-container {
-    padding: 2.5rem 1.5rem;
+    padding: 2.5rem var(--gutter);
     height: auto;
     overflow-y: visible;
   }
@@ -1347,7 +1347,7 @@
   }
 
   .bundle-section {
-    padding: 5rem 2rem;
+    padding: 5rem var(--gutter);
   }
 
   .bundle-layout {
@@ -1382,7 +1382,7 @@
 
 @media (max-width: 1199px) and (orientation: portrait) {
   .product-meta-container {
-    padding: 2rem 1.25rem;
+    padding: 2rem var(--gutter);
   }
 
   .product-title {
@@ -1390,7 +1390,7 @@
   }
 
   .bundle-section {
-    padding: 3rem 1.5rem;
+    padding: 3rem var(--gutter);
   }
 
   .bundle-grid {
@@ -1471,12 +1471,12 @@
 
 @media (min-width: 2000px) {
   .product-meta-container {
-    padding: 12rem 4rem 4rem;
+    padding: 12rem var(--gutter) 4rem;
   }
 
   .product-info-container,
   .reviews-container {
-    max-width: 1400px;
+    max-width: var(--page-max);
   }
 
 }
@@ -1488,7 +1488,7 @@
   }
 
   .product-meta-container {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem var(--gutter);
     gap: 1rem;
   }
 
@@ -1537,7 +1537,7 @@
   }
 
   .bundle-section {
-    padding: 3rem 0.75rem;
+    padding: 3rem var(--gutter);
   }
 
   .bundle-grid {
@@ -1717,7 +1717,7 @@
 
   .reviews-section,
   .product-info-section {
-    padding: 3rem 0.75rem;
+    padding: 3rem var(--gutter);
   }
 
   .product-thumbnails {

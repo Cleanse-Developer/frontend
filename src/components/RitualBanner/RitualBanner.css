@@ -9,13 +9,13 @@
   /* Testimonials above already contributes 6rem of bottom padding, so the top
      here stays minimal. Extra bottom padding absorbs LatestLaunches'
      margin-top:-6rem overlap. */
-  padding: 0 2rem clamp(5rem, 7vw, 6.5rem);
+  padding: 0 var(--gutter) clamp(5rem, 7vw, 6.5rem);
   position: relative;
   z-index: 4;
 }
 
 .rhr-inner {
-  max-width: 1240px;
+  max-width: var(--page-max);
   margin: 0 auto;
 }
 
@@ -300,10 +300,6 @@
    desktop hover-reveal would hide the description forever. Stack to one column
    with the copy always visible and the card growing to fit. */
 @media (max-width: 1024px) {
-  .rhr-section {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-  }
   .rhr-cards {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -379,7 +375,7 @@
 }
 
 @media (min-width: 1920px) {
-  .rhr-inner { max-width: 1480px; }
+  .rhr-inner { max-width: var(--page-max); }
 }
 
 /* Respect reduced-motion preferences */

@@ -46,7 +46,7 @@
 .blog-hero-content {
   position: relative;
   z-index: 2;
-  padding: 3rem;
+  padding: 3rem var(--gutter);
   max-width: 700px;
 }
 
@@ -140,9 +140,7 @@
 
 /* ===== Featured Article ===== */
 .blog-featured {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 3rem 2rem 0;
+  padding: 3rem max(var(--gutter), (100% - var(--page-max)) / 2) 0;
 }
 
 .blog-featured-card {
@@ -299,9 +297,7 @@
 
 /* ===== Category Filter ===== */
 .blog-filter {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 2.5rem 2rem 0;
+  padding: 2.5rem max(var(--gutter), (100% - var(--page-max)) / 2) 0;
 }
 
 .blog-filter-inner {
@@ -356,9 +352,7 @@
 
 /* ===== Blog Grid - Bento Layout ===== */
 .blog-grid-section {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 2.5rem 2rem 4rem;
+  padding: 2.5rem max(var(--gutter), (100% - var(--page-max)) / 2) 4rem;
 }
 
 /* Clean equal-height grid: every card is the same size so the tops AND bottoms
@@ -541,11 +535,11 @@
 /* Contained rounded card on the page background — not a full-bleed band */
 .blog-newsletter {
   background: #F0EDE8;
-  padding: 2rem 2rem 5rem;
+  padding: 2rem var(--gutter) 5rem;
 }
 
 .blog-newsletter-inner {
-  max-width: 1300px;
+  max-width: var(--page-max);
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -659,7 +653,7 @@
   }
 
   .blog-hero-content {
-    padding: 2.5rem;
+    padding: 2.5rem var(--gutter);
   }
 
   .blog-featured-card {
@@ -692,7 +686,7 @@
   }
 
   .blog-hero-content {
-    padding: 1.5rem;
+    padding: 1.5rem var(--gutter);
   }
 
   .blog-hero-title {
@@ -705,7 +699,7 @@
   }
 
   .blog-featured {
-    padding: 1.5rem 1rem 0;
+    padding: 1.5rem var(--gutter) 0;
   }
 
   .blog-featured-card {
@@ -738,7 +732,7 @@
   }
 
   .blog-filter {
-    padding: 1.5rem 1rem 0;
+    padding: 1.5rem var(--gutter) 0;
   }
 
   .blog-filter-inner {
@@ -769,7 +763,7 @@
   }
 
   .blog-grid-section {
-    padding: 1.5rem 1rem 2rem;
+    padding: 1.5rem var(--gutter) 2rem;
   }
 
   /* 2-column grid on mobile */
@@ -826,7 +820,7 @@
   }
 
   .blog-newsletter {
-    padding: 3rem 1rem;
+    padding: 3rem var(--gutter);
   }
 
   .blog-newsletter-inner {
@@ -860,7 +854,7 @@
   }
 
   .blog-hero-content {
-    padding: 1rem;
+    padding: 1rem var(--gutter);
   }
 
   .blog-hero-title {
@@ -961,7 +955,7 @@
   }
 
   .blog-newsletter {
-    padding: 2.5rem 1rem;
+    padding: 2.5rem var(--gutter);
   }
 
   .blog-newsletter-title {

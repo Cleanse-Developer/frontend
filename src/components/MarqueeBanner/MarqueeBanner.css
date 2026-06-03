@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   height: 100svh;
-  padding: 1rem;
+  padding: 1rem var(--gutter);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -170,7 +170,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  max-width: 1400px;
+  max-width: var(--page-max);
   z-index: 2;
   perspective: 1000px;
 }
@@ -447,7 +447,7 @@
   .marquee-banner {
     height: auto;
     min-height: 100svh;
-    padding: 6rem 1rem 4rem;
+    padding: 6rem var(--gutter) 4rem;
   }
 
   .marquee-banner .reels-header-top {
@@ -567,7 +567,7 @@
   .marquee-banner {
     height: auto;
     min-height: auto;
-    padding: 3rem 0.75rem;
+    padding: 3rem var(--gutter);
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;

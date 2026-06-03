@@ -46,7 +46,7 @@
   align-items: center;
   text-align: center;
   gap: 1.25rem;
-  padding: 2rem;
+  padding: 2rem var(--gutter);
 }
 
 .legal-breadcrumb {
@@ -126,7 +126,7 @@
 .legal-body {
   max-width: 860px;
   margin: 0 auto;
-  padding: 4rem 2rem 2rem;
+  padding: 4rem var(--gutter) 2rem;
 }
 
 .legal-body-inner {
@@ -183,7 +183,7 @@
   }
 
   .legal-body {
-    padding: 3rem 1.5rem 2rem;
+    padding: 3rem var(--gutter) 2rem;
   }
 
   .legal-body-inner {
@@ -211,7 +211,7 @@
   }
 
   .legal-body {
-    padding: 2rem 1rem 1.5rem;
+    padding: 2rem var(--gutter) 1.5rem;
   }
 
   .legal-body-inner {
@@ -251,7 +251,7 @@
   }
 
   .legal-hero-content {
-    padding: 1.5rem;
+    padding: 1.5rem var(--gutter);
     gap: 1rem;
   }
 
@@ -268,7 +268,7 @@
   }
 
   .legal-body {
-    padding: 1.5rem 0.75rem 1rem;
+    padding: 1.5rem var(--gutter) 1rem;
   }
 
   .legal-body-inner {

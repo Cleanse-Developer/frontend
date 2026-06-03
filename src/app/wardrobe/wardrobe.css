@@ -39,7 +39,7 @@
 .wardrobe-hero-content {
   position: relative;
   z-index: 2;
-  padding: 3rem;
+  padding: 3rem var(--gutter);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -83,9 +83,7 @@
 /* Filters Section */
 .wardrobe-filters {
   /* Match .wardrobe-section so the bar's left/right align with the cards */
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2.5rem 2rem 1rem;
+  padding: 2.5rem max(var(--gutter), (100% - var(--page-max)) / 2) 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -185,9 +183,7 @@
 /* Wardrobe Sections */
 .wardrobe-section {
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 max(var(--gutter), (100% - var(--page-max)) / 2);
   margin-bottom: 1.5rem;
 }
 
@@ -423,13 +419,13 @@
   }
 
   .wardrobe-hero-content {
-    padding: 2rem;
+    padding: 2rem var(--gutter);
   }
 
   .wardrobe-filters {
     flex-direction: column;
     align-items: flex-start;
-    padding: 2rem 1.5rem 1rem;
+    padding: 2rem var(--gutter) 1rem;
     gap: 1.5rem;
   }
 
@@ -443,7 +439,7 @@
   }
 
   .wardrobe-section {
-    padding: 0 1.5rem;
+    padding: 0 var(--gutter);
   }
 
   /* Tablet layout: 2-cols throughout to keep things tidy */
@@ -571,7 +567,7 @@
   }
 
   .wardrobe-hero-content {
-    padding: 1.5rem;
+    padding: 1.5rem var(--gutter);
   }
 
   .wardrobe-hero-title {
@@ -583,7 +579,7 @@
   }
 
   .wardrobe-filters {
-    padding: 1.5rem 1rem 0.5rem;
+    padding: 1.5rem var(--gutter) 0.5rem;
   }
 
   .sort-filter-bar {
@@ -606,7 +602,7 @@
   }
 
   .wardrobe-section {
-    padding: 0 1rem;
+    padding: 0 var(--gutter);
     margin-bottom: 1rem;
   }
 
@@ -672,7 +668,7 @@
   }
 
   .wardrobe-hero-content {
-    padding: 1rem;
+    padding: 1rem var(--gutter);
     gap: 0.5rem;
   }
 
@@ -685,7 +681,7 @@
   }
 
   .wardrobe-filters {
-    padding: 1rem 0.75rem 0.5rem;
+    padding: 1rem var(--gutter) 0.5rem;
     gap: 1rem;
   }
 
@@ -713,7 +709,7 @@
   }
 
   .wardrobe-section {
-    padding: 0 0.75rem;
+    padding: 0 var(--gutter);
     margin-bottom: 0.75rem;
   }
 

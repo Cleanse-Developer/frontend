@@ -46,7 +46,7 @@
   align-items: center;
   text-align: center;
   gap: 1.25rem;
-  padding: 2rem;
+  padding: 2rem var(--gutter);
 }
 
 .touchpoint-breadcrumb {
@@ -125,7 +125,7 @@
 .touchpoint-info-strip {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 3rem 2rem;
+  padding: 3rem var(--gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -197,7 +197,7 @@ a.touchpoint-info-value:hover {
 .touchpoint-form-section {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem 2rem 4rem;
+  padding: 1rem var(--gutter) 4rem;
 }
 
 .touchpoint-form-split {
@@ -381,7 +381,7 @@ a.touchpoint-info-value:hover {
 .touchpoint-faq {
   max-width: 800px;
   margin: 0 auto;
-  padding: 2rem 2rem 4rem;
+  padding: 2rem var(--gutter) 4rem;
 }
 
 .touchpoint-faq-header {
@@ -495,7 +495,7 @@ a.touchpoint-info-value:hover {
   .touchpoint-info-strip {
     flex-wrap: wrap;
     gap: 1.25rem;
-    padding: 2.5rem 1.5rem;
+    padding: 2.5rem var(--gutter);
   }
 
   .touchpoint-info-item {
@@ -524,11 +524,11 @@ a.touchpoint-info-value:hover {
   }
 
   .touchpoint-form-section {
-    padding: 0 1.5rem 3rem;
+    padding: 0 var(--gutter) 3rem;
   }
 
   .touchpoint-faq {
-    padding: 2rem 1.5rem 3rem;
+    padding: 2rem var(--gutter) 3rem;
   }
 }
 
@@ -554,7 +554,7 @@ a.touchpoint-info-value:hover {
   .touchpoint-info-strip {
     flex-direction: column;
     gap: 0;
-    padding: 0 1rem;
+    padding: 0 var(--gutter);
     background: #fff;
     border-radius: 16px;
     margin: 2rem 1rem 0;
@@ -590,7 +590,7 @@ a.touchpoint-info-value:hover {
   }
 
   .touchpoint-form-section {
-    padding: 0 1rem 2.5rem;
+    padding: 0 var(--gutter) 2.5rem;
     margin-top: 1.5rem;
   }
 
@@ -645,7 +645,7 @@ a.touchpoint-info-value:hover {
   }
 
   .touchpoint-faq {
-    padding: 1.5rem 1rem 3rem;
+    padding: 1.5rem var(--gutter) 3rem;
   }
 
   .touchpoint-faq-title {
@@ -690,7 +690,7 @@ a.touchpoint-info-value:hover {
   }
 
   .touchpoint-hero-content {
-    padding: 1.5rem;
+    padding: 1.5rem var(--gutter);
     gap: 1rem;
   }
 
@@ -726,7 +726,7 @@ a.touchpoint-info-value:hover {
   }
 
   .touchpoint-form-section {
-    padding: 0 0.75rem 2rem;
+    padding: 0 var(--gutter) 2rem;
     margin-top: 1.25rem;
   }
 
@@ -760,7 +760,7 @@ a.touchpoint-info-value:hover {
   }
 
   .touchpoint-faq {
-    padding: 1rem 0.75rem 2rem;
+    padding: 1rem var(--gutter) 2rem;
   }
 
   .touchpoint-faq-question h4 {

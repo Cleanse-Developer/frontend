@@ -119,7 +119,7 @@
 
 /* ===== Tabs ===== */
 .profile-tabs-section {
-  padding: 0 2rem;
+  padding: 0 var(--gutter);
   max-width: 900px;
   margin: 2.5rem auto 0;
   position: relative;
@@ -162,7 +162,7 @@
 .profile-tab-content {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 2rem 6rem;
+  padding: 2rem var(--gutter) 6rem;
 }
 
 /* ===== Orders ===== */
@@ -1172,12 +1172,12 @@
   }
 
   .profile-tabs-section {
-    padding: 0 1.5rem;
+    padding: 0 var(--gutter);
     margin-top: 1.5rem;
   }
 
   .profile-tab-content {
-    padding: 1.5rem 1.5rem 4rem;
+    padding: 1.5rem var(--gutter) 4rem;
   }
 
   .profile-addresses {
@@ -1284,7 +1284,7 @@
   }
 
   .profile-tabs-section {
-    padding: 0 0.75rem;
+    padding: 0 var(--gutter);
     margin-top: -1.5rem;
   }
 
@@ -1300,7 +1300,7 @@
   }
 
   .profile-tab-content {
-    padding: 1.25rem 0.75rem 3rem;
+    padding: 1.25rem var(--gutter) 3rem;
     background: #F0EDE8;
   }
 
