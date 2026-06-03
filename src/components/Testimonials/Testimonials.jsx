@@ -210,28 +210,27 @@ const Testimonials = () => {
     <section className="testimonials">
       <div className="container">
         <div className="testimonials-header">
-          <div className="testimonials-title">
-            <Copy>
-              <h2>Listen to what our<br />Clients say about us?</h2>
-            </Copy>
-          </div>
-        </div>
-
-        <div className="testimonials-slider-wrapper" ref={containerRef}>
-          {/* Fluid background that moves between cards */}
-          <div className="fluid-bg" ref={fluidBgRef}></div>
-
-          {/* Side arrows */}
+          {/* Arrows flank the header title (left/right) */}
           <button className="nav-btn prev" onClick={handlePrev} aria-label="Previous review">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
+          <div className="testimonials-title">
+            <Copy>
+              <h2>Listen to what our<br />Clients say about us?</h2>
+            </Copy>
+          </div>
           <button className="nav-btn next" onClick={handleNext} aria-label="Next review">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18l6-6-6-6" />
             </svg>
           </button>
+        </div>
+
+        <div className="testimonials-slider-wrapper" ref={containerRef}>
+          {/* Fluid background that moves between cards */}
+          <div className="fluid-bg" ref={fluidBgRef}></div>
 
           <div className="testimonials-slider" style={{ '--slide-index': activeIndex }}>
             {testimonials.map((testimonial, index) => (

@@ -1,7 +1,6 @@
 "use client";
 import "./genesis.css";
 import { useRef } from "react";
-import Link from "next/link";
 
 import Copy from "@/components/Copy/Copy";
 import TextBlock from "@/components/TextBlock/TextBlock";
@@ -201,28 +200,25 @@ export default function Genesis() {
         </div>
       </section>
 
-      {/* Editorial lead */}
+      {/* Editorial lead — image + philosophy split */}
       <section className="gen-lead">
-        <div className="container">
-          <span className="gen-eyebrow">The philosophy</span>
-          <Copy>
-            <h2 className="gen-lead-title">
-              Beauty should flow from nature, never forced, only revealed.
-            </h2>
-          </Copy>
-          <div className="gen-lead-grid">
+        <div className="gen-inner gen-lead-split">
+          <div className="gen-lead-media">
+            <img src="/model.png" alt="A Cleanse Ayurveda ritual" loading="lazy" />
+          </div>
+          <div className="gen-lead-content">
+            <span className="gen-eyebrow">The philosophy</span>
             <Copy>
-              <p className="gen-lead-text">
-                Cleanse Ayurveda is rooted in the belief that beauty should flow from nature.
-                Every formula is crafted with sacred intention, shaped by ancient Ayurvedic
-                wisdom and designed for modern self-care rituals.
-              </p>
+              <h2 className="gen-lead-title">
+                Beauty should flow from nature, never forced, only revealed.
+              </h2>
             </Copy>
-            <Copy delay={0.2}>
-              <p className="gen-lead-text">
-                Our heritage lies in the Himalayan foothills, where Ayurveda was born. We honour
-                this lineage with formulas that are pure, potent and profoundly effective,
-                harmonising nature and science for those who seek authentic beauty.
+            <Copy delay={0.15}>
+              <p className="gen-body">
+                Cleanse Ayurveda is rooted in the belief that beauty flows from nature. Every
+                formula is crafted with sacred intention, shaped by ancient Ayurvedic wisdom and
+                the Himalayan foothills where it was born, then refined for the modern self-care
+                ritual.
               </p>
             </Copy>
           </div>
@@ -231,7 +227,7 @@ export default function Genesis() {
 
       {/* Pillars / values */}
       <section className="gen-values">
-        <div className="container">
+        <div className="gen-inner">
           <div className="gen-section-head">
             <span className="gen-eyebrow">What we stand for</span>
             <Copy>
@@ -250,9 +246,30 @@ export default function Genesis() {
         </div>
       </section>
 
+      {/* Heritage — full-bleed image band */}
+      <section className="gen-heritage">
+        <div className="gen-inner gen-heritage-card">
+          <img className="gen-heritage-img" src="/skin.jpg" alt="Botanicals of the Himalayan foothills" loading="lazy" />
+          <span className="gen-heritage-scrim" aria-hidden="true"></span>
+          <div className="gen-heritage-content">
+            <span className="gen-eyebrow gen-eyebrow--light">Our heritage</span>
+            <Copy>
+              <h2 className="gen-section-title gen-heritage-title">Born in the Himalayan foothills</h2>
+            </Copy>
+            <Copy delay={0.15}>
+              <p className="gen-body gen-heritage-body">
+                Where the air runs clean and the herbs grow wild, Ayurveda was born. We honour
+                that lineage with formulas that are pure, potent and profoundly effective,
+                harmonising nature and science for those who seek authentic beauty.
+              </p>
+            </Copy>
+          </div>
+        </div>
+      </section>
+
       {/* Stats band */}
       <section className="gen-stats">
-        <div className="container gen-stats-grid">
+        <div className="gen-inner gen-stats-grid">
           {STATS.map((s, i) => (
             <div className="gen-stat" key={i}>
               <span className="gen-stat-value">{s.value}</span>
@@ -270,7 +287,7 @@ export default function Genesis() {
 
       {/* Journey timeline */}
       <section className="gen-journey">
-        <div className="container">
+        <div className="gen-inner">
           <div className="gen-section-head">
             <span className="gen-eyebrow">Our journey</span>
             <Copy>
@@ -294,28 +311,15 @@ export default function Genesis() {
         </div>
       </section>
 
-      {/* Founder quote */}
+      {/* Founder quote — closing */}
       <section className="gen-quote">
-        <div className="container">
+        <div className="gen-inner">
           <Copy>
             <blockquote className="gen-quote-text">
               “We aren’t merely selling bottles; we are delivering a clinically-backed path to purity.”
             </blockquote>
           </Copy>
           <span className="gen-quote-cite">Cleanse Ayurveda</span>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="gen-cta">
-        <div className="container">
-          <Copy>
-            <h2 className="gen-cta-title">Begin your ritual</h2>
-          </Copy>
-          <p className="gen-cta-text">
-            Discover formulas crafted with intention, rooted in nature and made for modern self-care.
-          </p>
-          <Link href="/wardrobe" className="gen-cta-btn">Explore the collection</Link>
         </div>
       </section>
     </div>

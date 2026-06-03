@@ -5,10 +5,11 @@ import Copy from "../Copy/Copy";
 const TextBlock = () => {
   return (
     <section className="text-block">
+      <img className="text-block-aside-img" src="/about.png" alt="" />
       <div className="container">
         <div className="text-block-col">
           <Copy>
-            <h3>Pure nature, timeless beauty.</h3>
+            <h3>Pure nature,<br />timeless beauty.</h3>
           </Copy>
         </div>
         <div className="text-block-col">

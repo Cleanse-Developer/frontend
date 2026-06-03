@@ -15,11 +15,12 @@
 /* Header */
 .testimonials-header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: center;
   align-items: center;
   text-align: center;
   margin-bottom: 3rem;
-  gap: 2rem;
+  gap: 1.75rem;
 }
 
 .testimonials-label {
@@ -44,9 +45,8 @@
 }
 
 .nav-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  position: static;
+  flex-shrink: 0;
   z-index: 10;
   width: 56px;
   height: 56px;
@@ -61,12 +61,7 @@
   color: #fff;
 }
 
-.nav-btn.prev {
-  left: -2.75rem;
-}
-
 .nav-btn.next {
-  right: -2.75rem;
   background-color: #663532;
   border-color: #663532;
   color: #fff;
@@ -382,11 +377,13 @@
   }
 
   .testimonials-header {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: center;
     align-items: center;
     text-align: center;
     margin-bottom: 2rem;
     padding: 0 0.5rem;
+    gap: 1rem;
   }
 
   .nav-btn {

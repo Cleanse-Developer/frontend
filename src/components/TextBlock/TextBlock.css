@@ -6,7 +6,11 @@
   color: var(--base-100);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
+  overflow: hidden;
+  /* gutter lives on the section (like every other band); the inner container
+     only owns max-width — so left/right edges line up exactly with them */
+  padding-inline: var(--gutter);
 }
 
 .text-block p {
@@ -18,9 +22,30 @@
   text-transform: none;
 }
 
+/* Botanical accent anchored low on the left; text rides on top of it.
+   Clipped only by the section's overflow (never the text, which sets height). */
+.text-block-aside-img {
+  position: absolute;
+  /* sit low — part of the stem runs off the bottom edge */
+  bottom: -7rem;
+  /* align with the content's left edge — identical formula to the other bands */
+  left: max(var(--gutter), calc((100% - var(--page-max)) / 2));
+  width: clamp(220px, 26vw, 320px);
+  height: auto;
+  object-fit: contain;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .text-block .container {
+  position: relative;
+  z-index: 1;
   display: flex;
-  padding: 3rem;
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  /* vertical only — the section supplies the horizontal gutter */
+  padding: 2.5rem 0;
 }
 
 .text-block .container .text-block-col {
@@ -30,6 +55,7 @@
 .text-block .container .text-block-col:nth-child(1) {
   display: flex;
   flex-direction: column;
+  /* top-aligned so the heading lines up with the paragraphs opposite it */
   justify-content: flex-start;
   gap: 2rem;
 }
