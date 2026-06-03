@@ -178,7 +178,7 @@ export const BentoSection = () => {
   const ingredientsDesc =
     ingredientsCard.description && !/lorem/i.test(ingredientsCard.description)
       ? ingredientsCard.description
-      : "Turmeric, Neem, Tulsi, Aloe Vera and Rose — time-honoured botanicals that calm, nourish and renew your skin.";
+      : "Turmeric, Neem, Tulsi, Aloe Vera and Rose, time-honoured botanicals that calm, nourish and renew your skin.";
 
   const defaultProducts = [
     { id: 1, name: "Cleanse Perfume", price: 700, image: "/images/why2.png", link: "/wardrobe" },

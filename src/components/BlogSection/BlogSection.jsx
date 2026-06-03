@@ -72,7 +72,7 @@ const BlogSection = () => {
               <div className="blog-card-content">
                 <div className="blog-card-meta">
                   <span className="blog-card-category">{blog.category}</span>
-                  <span className="blog-card-divider">—</span>
+                  <span className="blog-card-divider">·</span>
                   <span className="blog-card-date">{blog.date}</span>
                 </div>
                 <h3 className="blog-card-title">{blog.title}</h3>

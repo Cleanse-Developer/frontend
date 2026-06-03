@@ -11,11 +11,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 /* =============================================================================
-   RitualBanner — home "Find your ritual" section (light, on-brand)
+   RitualBanner, home "Find your ritual" section (light, on-brand)
 
    Sits on the same #F0EDE8 background as the testimonials above and the
-   product grid below. Two refined cards — Morning "Awaken" and Evening
-   "Restore" — each previews its five-step sequence and deep-links into the
+   product grid below. Two refined cards, Morning "Awaken" and Evening
+   "Restore", each previews its five-step sequence and deep-links into the
    /ritual page (the PM card opens it in evening mode via the #evening hash,
    which the ritual page now honours).
 
@@ -110,16 +110,16 @@ export default function RitualBanner() {
           </Copy>
           <Copy>
             <p className="bodyCopy rhr-sub">
-              Skincare, slowed down. Two unhurried ceremonies — one to greet the
-              morning, one to release the night — each made with Cleanse.
+              Skincare, slowed down. Two unhurried ceremonies, one to greet the
+              morning, one to release the night, each made with Cleanse.
             </p>
           </Copy>
         </header>
 
         <div className="rhr-cards">
           {RITUALS.map(({ key, eyebrow, title, subtitle, href, img, meta, Icon, desc, steps, link }) => (
-            <Link href={href} className={`rhr-card rhr-card--${key}`} key={key} aria-label={`${title} — the ${eyebrow.toLowerCase()} ritual`}>
-              <img className="rhr-card-img" src={img} alt={`${title} — the ${eyebrow.toLowerCase()} ritual`} loading="lazy" />
+            <Link href={href} className={`rhr-card rhr-card--${key}`} key={key} aria-label={`${title}, the ${eyebrow.toLowerCase()} ritual`}>
+              <img className="rhr-card-img" src={img} alt={`${title}, the ${eyebrow.toLowerCase()} ritual`} loading="lazy" />
               <span className="rhr-card-scrim" aria-hidden="true" />
 
               <div className="rhr-card-top">

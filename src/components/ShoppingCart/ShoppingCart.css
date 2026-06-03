@@ -367,7 +367,7 @@
 
 .shopping-cart-container .cart-item-name {
   color: #5C3D1E;
-  text-transform: uppercase;
+  text-transform: none;
   margin: 0;
 }
 

@@ -1,7 +1,7 @@
 "use client";
 import "./ShoppingCart.css";
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import { useCart } from "@/context/CartContext";
 
@@ -227,6 +227,7 @@ const ShoppingCart = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { cartItems, removeFromCart, cartCount, subtotal, serverPricing } = useCart();
   const router = useRouter();
+  const pathname = usePathname();
 
   const toggleCart = () => {
     setIsOpen(!isOpen);
@@ -242,6 +243,9 @@ const ShoppingCart = () => {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  // No floating cart/bag on the login page
+  if (pathname === "/login") return null;
 
   return (
     <div className="shopping-cart-container">

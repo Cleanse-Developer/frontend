@@ -32,8 +32,7 @@ export default function RootLayout({ children }) {
         <CartProvider>
           <PopupProvider>
           <TransitionProvider>
-            <ClientLayout footer={<Footer />}>
-              <Menu />
+            <ClientLayout footer={<Footer />} header={<Menu />}>
               {children}
             </ClientLayout>
             <ShoppingCart />

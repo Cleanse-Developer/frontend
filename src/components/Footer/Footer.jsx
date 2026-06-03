@@ -4,15 +4,21 @@ import Link from "next/link";
 import { useSettings } from "@/context/SettingsContext";
 
 import ContactForm from "../ContactForm/ContactForm";
+import Logo from "@/components/Logo/Logo";
+
+// Footer link labels can come from the CMS in ALL CAPS — render them in
+// Title Case so the footer links read small, not shouty.
+const titleCase = (s = "") =>
+  s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
 const Footer = () => {
   const settings = useSettings();
   const cmsFooter = settings.cmsFooter || {};
   const navLinks = cmsFooter.navigationLinks || [
-    { label: "HAIR CARE", href: "/wardrobe?category=hair-care" },
-    { label: "BODY CARE", href: "/wardrobe?category=body-care" },
-    { label: "FACE CARE", href: "/wardrobe?category=face-care" },
-    { label: "ABOUT US", href: "/genesis" },
+    { label: "Hair Care", href: "/wardrobe?category=hair-care" },
+    { label: "Body Care", href: "/wardrobe?category=body-care" },
+    { label: "Face Care", href: "/wardrobe?category=face-care" },
+    { label: "About Us", href: "/genesis" },
   ];
   const socialLinks = cmsFooter.socialLinks || {
     instagram: "https://www.instagram.com/cleanseayurveda/",
@@ -41,7 +47,7 @@ const Footer = () => {
               <h3 className="footer-pages-title">SHOP</h3>
               <div className="footer-pages-links">
                 {navLinks.map((link, i) => (
-                  <Link key={i} href={link.href}>{link.label}</Link>
+                  <Link key={i} href={link.href}>{titleCase(link.label)}</Link>
                 ))}
               </div>
             </div>
@@ -49,35 +55,35 @@ const Footer = () => {
             <div className="footer-pages">
               <h3 className="footer-pages-title">DISCOVER</h3>
               <div className="footer-pages-links">
-                <Link href="/genesis">OUR GENESIS</Link>
-                <Link href="/lookbook">LOOKBOOK</Link>
-                <Link href="/blog">JOURNAL</Link>
-                <Link href="/touchpoint">TOUCHPOINT</Link>
+                <Link href="/genesis">Our Genesis</Link>
+                <Link href="/lookbook">Lookbook</Link>
+                <Link href="/blog">Journal</Link>
+                <Link href="/touchpoint">Touchpoint</Link>
               </div>
             </div>
 
             <div className="footer-pages">
               <h3 className="footer-pages-title">ACCOUNT</h3>
               <div className="footer-pages-links">
-                <Link href="/profile">MY PROFILE</Link>
-                <Link href="/orders">MY ORDERS</Link>
-                <Link href="/cart">SHOPPING BAG</Link>
-                <Link href="/login">SIGN IN</Link>
+                <Link href="/profile">My Profile</Link>
+                <Link href="/orders">My Orders</Link>
+                <Link href="/cart">Shopping Bag</Link>
+                <Link href="/login">Sign In</Link>
               </div>
             </div>
 
             <div className="footer-pages">
               <h3 className="footer-pages-title">SUPPORT</h3>
               <div className="footer-pages-links">
-                <Link href="/touchpoint">CONTACT US</Link>
-                <Link href="/touchpoint#shipping">SHIPPING</Link>
-                <Link href="/touchpoint#returns">RETURNS</Link>
+                <Link href="/touchpoint">Contact Us</Link>
+                <Link href="/touchpoint#shipping">Shipping</Link>
+                <Link href="/touchpoint#returns">Returns</Link>
                 <Link href="/touchpoint#faq">FAQ</Link>
               </div>
             </div>
           </div>
 
-          <img src="/logo.png" alt="Cleanse" className="footer-logo" />
+          <Logo src="/logo.png" className="footer-logo-mark" imgClassName="footer-logo" />
 
           <address className="footer-contact">
             {addressLines.map((line, i) => (

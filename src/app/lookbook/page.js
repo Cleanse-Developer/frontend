@@ -97,9 +97,9 @@ export default function Lookbook() {
       <section className="lookbook-hero">
         <div className="lookbook-hero-content">
           <div className="lookbook-breadcrumb">
-            <Link href="/">HOME</Link>/ <span>LOOKBOOK</span>
+            <Link href="/">Home</Link>/ <span>Lookbook</span>
           </div>
-          <h1 className="lookbook-hero-title">LOOKBOOK</h1>
+          <h1 className="lookbook-hero-title">Lookbook</h1>
           <p className="lookbook-hero-subtitle">
             Explore our curated collections and sacred beauty rituals.
           </p>

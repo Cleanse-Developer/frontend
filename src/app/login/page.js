@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { referralApi } from "@/lib/endpoints";
+import Logo from "@/components/Logo/Logo";
 
 export default function Login() {
   return (
@@ -162,7 +163,7 @@ function LoginContent() {
         <div className="login-visual-overlay"></div>
         <div className="login-visual-content">
           <Link href="/" className="login-visual-logo">
-            <img src="/images/logo.png" alt="Cleanse Ayurveda" />
+            <Logo src="/images/logo.png" alt="Cleanse Ayurveda" className="login-logo-mark" />
           </Link>
           <div className="login-visual-text">
             <h2 className="login-visual-heading">Welcome to Cleanse Ayurveda</h2>
@@ -348,7 +349,7 @@ function LoginContent() {
                   <p style={{ fontSize: "0.75rem", color: "#2e7d32", marginTop: "0.25rem" }}>
                     ✓ Referred by {referralInfo.referrerName}
                     {referralInfo.refereeRewardValue > 0 &&
-                      ` — you'll get ${referralInfo.refereeRewardValue}${
+                      `, you'll get ${referralInfo.refereeRewardValue}${
                         referralInfo.refereeRewardType === "percentage" ? "% off" : ""
                       } as a welcome bonus`}
                   </p>

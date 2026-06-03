@@ -82,7 +82,8 @@
 
 /* Filters Section */
 .wardrobe-filters {
-  max-width: 1300px;
+  /* Match .wardrobe-section so the bar's left/right align with the cards */
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2.5rem 2rem 1rem;
   display: flex;
@@ -824,22 +825,15 @@
     height: 32px;
   }
 
-  .wardrobe-page .product-card-name {
-    font-size: 0.75rem;
-  }
-
+  /* Card text sizes now come from the shared --fs-card-* tokens (globals.css)
+     so the wardrobe grid matches Best Sellers on mobile. Only layout tweaks
+     remain here. */
   .wardrobe-page .product-card-desc {
-    font-size: 0.65rem;
     margin-bottom: 0.5rem;
-  }
-
-  .wardrobe-page .product-card-price {
-    font-size: 0.75rem;
   }
 
   .wardrobe-page .product-card-buy-btn {
     padding: 0.4rem 0.8rem;
-    font-size: 0.65rem;
   }
 
   .wardrobe-page .product-card-info {

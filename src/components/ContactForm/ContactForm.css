@@ -24,9 +24,12 @@
 
 .contact-form .contact-form-container {
   position: absolute;
-  top: 58%;
-  right: 8rem;
-  transform: translateY(-30%);
+  /* Bottom edge lines up with the footer contact/email text row */
+  top: 74.3%;
+  /* Align the card's right edge with the footer's right content edge
+     (footer container: max-width 1400px, centered, 3rem side padding). */
+  right: max(3rem, calc(50% - 700px + 3rem));
+  transform: translateY(-50%);
   width: 452px;
   height: 510px;
   background-color: #663532;
@@ -134,9 +137,30 @@
 
 @media (max-width: 1200px) {
   .contact-form .contact-form-container {
-    right: 3rem;
+    /* Footer uses 2rem side padding in this range (no max-width constraint) */
+    right: 2rem;
     width: 420px;
     height: 520px;
+  }
+}
+
+/* Large screens: mirror the footer container's max-width + padding so the
+   card's right edge keeps lining up with the footer content edge. */
+@media (min-width: 1440px) {
+  .contact-form .contact-form-container {
+    right: calc(50% - 700px + 4rem);
+  }
+}
+
+@media (min-width: 1920px) {
+  .contact-form .contact-form-container {
+    right: calc(50% - 850px + 5rem);
+  }
+}
+
+@media (min-width: 2560px) {
+  .contact-form .contact-form-container {
+    right: calc(50% - 1050px + 6rem);
   }
 }
 

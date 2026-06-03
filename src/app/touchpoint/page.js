@@ -144,7 +144,7 @@ export default function Touchpoint() {
           </div>
           <div className="touchpoint-info-text">
             <span className="touchpoint-info-label">Hours</span>
-            <span className="touchpoint-info-value">Mon — Sat, 10am–6pm</span>
+            <span className="touchpoint-info-value">Mon to Sat, 10am–6pm</span>
           </div>
         </div>
       </section>
@@ -156,7 +156,7 @@ export default function Touchpoint() {
             <span className="touchpoint-form-eyebrow">Get in Touch</span>
             <h2 className="touchpoint-form-heading">Send Us<br />A Message</h2>
             <p className="touchpoint-form-copy">
-              Whether it&apos;s a question about our products, a partnership inquiry, or just to say hello — we&apos;d love to hear from you.
+              Whether it&apos;s a question about our products, a partnership inquiry, or just to say hello, we&apos;d love to hear from you.
             </p>
             <div className="touchpoint-form-image">
               <img src="/images/why1.png" alt="Cleanse Ayurveda" />

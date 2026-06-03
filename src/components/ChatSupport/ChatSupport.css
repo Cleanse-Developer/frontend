@@ -206,6 +206,8 @@
   font-size: 0.7rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  /* Natural case instead of the global button uppercase */
+  text-transform: none;
 }
 
 .quick-reply-btn:hover {

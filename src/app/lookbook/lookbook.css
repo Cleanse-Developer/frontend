@@ -223,7 +223,7 @@
 
 .lb-product-tag {
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: var(--fs-card-tag);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -232,7 +232,7 @@
 
 .lb-product-name {
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: var(--fs-card-title);
   font-weight: 600;
   color: #4F2C22;
   text-transform: uppercase;
@@ -251,14 +251,14 @@
 
 .lb-product-price {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: var(--fs-card-price);
   font-weight: 600;
   color: #4F2C22;
 }
 
 .lb-product-btn {
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: var(--fs-card-btn);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -393,19 +393,15 @@
   }
 
   .lb-product-tag {
-    font-size: 0.5rem;
   }
 
   .lb-product-name {
-    font-size: 0.75rem;
   }
 
   .lb-product-price {
-    font-size: 0.8rem;
   }
 
   .lb-product-btn {
-    font-size: 0.6rem;
     padding: 0.4rem 0.75rem;
   }
 
@@ -509,15 +505,12 @@
   }
 
   .lb-product-name {
-    font-size: 0.68rem;
   }
 
   .lb-product-price {
-    font-size: 0.72rem;
   }
 
   .lb-product-btn {
-    font-size: 0.55rem;
     padding: 0.35rem 0.6rem;
   }
 
@@ -541,4 +534,24 @@
   .lb-quote-text {
     font-size: 0.78rem;
   }
+}
+
+/* =============================================================================
+   Lookbook typography: everything in Lexend and in natural (not all-caps) case.
+   Card titles previously used the decorative heading font and CSS forced caps.
+   `:is(...)` keeps specificity just above the per-element rules so this wins.
+   ========================================================================== */
+.lookbook-page,
+.lookbook-page * {
+  font-family: 'Lexend', sans-serif;
+}
+
+.lookbook-page :is(h1, h2, h3, h4, h5, p, span, a, div, button, li) {
+  text-transform: none;
+}
+
+/* Exception: the hero title keeps the original display font and all-caps. */
+.lookbook-page .lookbook-hero-title {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
 }

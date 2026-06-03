@@ -36,11 +36,17 @@
   z-index: 2;
 }
 
-/* Scrolled state - layout changes, bg handled by nav-green */
+/* Scrolled state - keep the hero header layout, brown bg via ::before */
 .menu.scrolled .menu-header {
   background-color: transparent;
   border-radius: 0;
-  justify-content: center;
+  justify-content: flex-start;
+}
+
+/* Brown header bar once scrolled past the hero */
+.menu.scrolled .menu-header::before {
+  transform: scaleY(1);
+  transition: transform 0.4s ease-out;
 }
 
 /* Green nav - always present pseudo, transitions both ways */
@@ -224,6 +230,12 @@
 
 .menu .menu-logo-link {
   flex-shrink: 0;
+}
+
+/* Registered mark matches the gold wordmark */
+.menu .menu-logo-mark {
+  --logo-r-color: #E5AD07;
+  --logo-r-size: 0.5rem;
 }
 
 .menu .menu-logo-img {
@@ -659,6 +671,11 @@
     background-color: transparent;
   }
 
+  /* Keep mobile transparent until deep scroll (nav-green) like before */
+  .menu.scrolled:not(.nav-green) .menu-header::before {
+    transform: scaleY(0);
+  }
+
   .menu .menu-header-full.hidden {
     opacity: 1;
     visibility: visible;
@@ -891,20 +908,11 @@
 /* Mobile Overlay Selectors */
 .menu-overlay-selectors {
   display: flex;
+  align-items: center;
   gap: 2rem;
-  padding: 1.5rem 0;
+  padding: 0.85rem 0 0;
   border-top: 1px solid rgba(255,255,255,0.1);
   margin-top: 1rem;
-}
-
-.menu-overlay-selector-label {
-  display: block;
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  opacity: 0.5;
-  margin-bottom: 0.6rem;
-  font-family: var(--font-body);
 }
 
 .menu-overlay-selector-pills {

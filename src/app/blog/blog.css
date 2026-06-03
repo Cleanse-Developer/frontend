@@ -90,6 +90,7 @@
   color: rgba(255, 255, 255, 0.65);
   line-height: 1.6;
   max-width: 400px;
+  text-transform: none;
 }
 
 .blog-hero-scroll-indicator {
@@ -267,6 +268,16 @@
   text-transform: uppercase;
   color: #fff;
   transition: gap 0.3s ease;
+  white-space: nowrap;
+}
+
+/* globals.css forces `svg { width:100%; height:100% }`, which blew the arrow
+   up to full width and wrapped "Read Full Story" onto 3 lines. Pin it. */
+.blog-featured-cta svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  object-fit: initial;
 }
 
 .blog-featured-card:hover .blog-featured-cta {
@@ -322,6 +333,7 @@
   font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: rgba(79, 44, 34, 0.5);
   background: transparent;
   border: 1px solid rgba(79, 44, 34, 0.12);
@@ -349,20 +361,18 @@
   padding: 2.5rem 2rem 4rem;
 }
 
+/* Clean equal-height grid: every card is the same size so the tops AND bottoms
+   line up across every row. */
 .blog-grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
+  grid-auto-rows: 1fr;
+  gap: 1.5rem;
 }
 
-/* Wide card spans 2 columns */
-.blog-grid-card-wide {
-  grid-column: span 2;
-}
-
-/* Tall card spans 2 rows */
+.blog-grid-card-wide,
 .blog-grid-card-tall {
-  grid-row: span 2;
+  /* span classes no longer used */
 }
 
 .blog-grid-card {
@@ -373,6 +383,8 @@
   overflow: hidden;
   text-decoration: none;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
+  width: 100%;
+  height: 100%;
 }
 
 .blog-grid-card:hover {
@@ -382,19 +394,10 @@
 
 .blog-grid-card-img {
   width: 100%;
-  height: 220px;
+  height: 230px;
+  flex-shrink: 0;
   overflow: hidden;
   position: relative;
-}
-
-.blog-grid-card-wide .blog-grid-card-img {
-  height: 280px;
-}
-
-.blog-grid-card-tall .blog-grid-card-img {
-  height: 100%;
-  min-height: 240px;
-  flex: 1;
 }
 
 .blog-grid-card-img img {
@@ -476,9 +479,42 @@
   letter-spacing: 0.05em;
 }
 
+/* Visible "Read More" link in the card footer */
+.blog-grid-card-readmore {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #663532;
+  white-space: nowrap;
+  transition: gap 0.3s ease;
+}
+
+.blog-grid-card-readmore svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  object-fit: initial;
+  transition: transform 0.3s ease;
+}
+
+.blog-grid-card:hover .blog-grid-card-readmore {
+  gap: 0.65rem;
+  color: #2E1F14;
+}
+
+.blog-grid-card:hover .blog-grid-card-readmore svg {
+  transform: translateX(2px);
+}
+
 .blog-grid-card-arrow {
   width: 36px;
   height: 36px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: 1px solid rgba(79, 44, 34, 0.1);
   display: flex;
@@ -486,6 +522,12 @@
   justify-content: center;
   color: rgba(79, 44, 34, 0.3);
   transition: all 0.3s ease;
+}
+
+.blog-grid-card-arrow svg {
+  width: 18px;
+  height: 18px;
+  object-fit: initial;
 }
 
 .blog-grid-card:hover .blog-grid-card-arrow {
@@ -496,9 +538,10 @@
 }
 
 /* ===== Newsletter CTA ===== */
+/* Contained rounded card on the page background — not a full-bleed band */
 .blog-newsletter {
-  background: #2E1F14;
-  padding: 5rem 2rem;
+  background: #F0EDE8;
+  padding: 2rem 2rem 5rem;
 }
 
 .blog-newsletter-inner {
@@ -507,6 +550,9 @@
   display: flex;
   align-items: center;
   gap: 4rem;
+  background: #2E1F14;
+  border-radius: 32px;
+  padding: clamp(2.5rem, 4vw, 4rem);
 }
 
 .blog-newsletter-content {
@@ -628,19 +674,6 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .blog-grid-card-wide {
-    grid-column: span 2;
-  }
-
-  .blog-grid-card-tall {
-    grid-row: span 1;
-  }
-
-  .blog-grid-card-tall .blog-grid-card-img {
-    height: 220px;
-    flex: none;
-  }
-
   .blog-newsletter-inner {
     gap: 2.5rem;
   }
@@ -739,24 +772,10 @@
     padding: 1.5rem 1rem 2rem;
   }
 
-  /* 2 columns on mobile for clean card arrangement */
+  /* 2-column grid on mobile */
   .blog-grid-container {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
-  }
-
-  /* Reset bento spans on mobile */
-  .blog-grid-card-wide {
-    grid-column: span 1;
-  }
-
-  .blog-grid-card-tall {
-    grid-row: span 1;
-  }
-
-  .blog-grid-card-tall .blog-grid-card-img {
-    height: 140px;
-    flex: none;
   }
 
   .blog-grid-card {
@@ -764,11 +783,7 @@
   }
 
   .blog-grid-card-img {
-    height: 140px;
-  }
-
-  .blog-grid-card-wide .blog-grid-card-img {
-    height: 140px;
+    height: 160px;
   }
 
   .blog-grid-card-body {
@@ -906,12 +921,7 @@
   }
 
   .blog-grid-card-img {
-    height: 120px;
-  }
-
-  .blog-grid-card-wide .blog-grid-card-img,
-  .blog-grid-card-tall .blog-grid-card-img {
-    height: 120px;
+    height: 140px;
   }
 
   .blog-grid-card-body {
@@ -981,4 +991,23 @@
     padding: 0.8rem 1.5rem;
     font-size: 0.72rem;
   }
+}
+
+/* =============================================================================
+   Case rule: ONLY the hero is all-caps. Everything below it (featured story,
+   filter, grid cards, newsletter) uses its natural sentence/title case.
+   The copy is already capitalised in the source — these elements were only
+   uppercased by CSS here and by globals.css `a,p,span { text-transform:uppercase }`.
+   `:is(...)` keeps specificity just above those rules so this wins cleanly.
+   ========================================================================== */
+.blog-featured :is(h1, h2, h3, h4, h5, p, span, a, div, li, button),
+.blog-grid-section :is(h1, h2, h3, h4, h5, p, span, a, div, li, button),
+.blog-newsletter :is(h1, h2, h3, h4, h5, p, span, a, div, li, button) {
+  text-transform: none;
+}
+
+/* All blog typography — headings, paragraphs, everything — in Lexend. */
+.blog-page,
+.blog-page * {
+  font-family: 'Lexend', sans-serif;
 }

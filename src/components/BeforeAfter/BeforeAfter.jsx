@@ -32,7 +32,7 @@ const FALLBACK_RESULTS = [
   },
   {
     name: "Divya M.",
-    testimony: "The natural glow I always wanted — finally achieved.",
+    testimony: "The natural glow I always wanted, finally achieved.",
     product: "Turmeric Glow Mask",
     beforeImg: "/images/b1.png",
     afterImg: "/images/b3.png",

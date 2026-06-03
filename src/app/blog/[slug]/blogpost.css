@@ -11,8 +11,7 @@
 .blogpost-hero {
   position: relative;
   width: 100%;
-  height: 100vh;
-  min-height: 550px;
+  height: clamp(460px, 72vh, 660px);
   overflow: hidden;
   display: flex;
   align-items: flex-end;
@@ -45,7 +44,9 @@
 .blogpost-hero-content {
   position: relative;
   z-index: 2;
-  padding: 3.5rem;
+  /* Extra bottom padding lifts the meta row above the zone the article card
+     overlaps into, so the card no longer covers the date/author. */
+  padding: 3.5rem 3.5rem 5rem;
   max-width: 850px;
 }
 
@@ -152,7 +153,7 @@
 
 .blogpost-article {
   max-width: 780px;
-  margin: -4rem auto 0;
+  margin: -3rem auto 0;
   position: relative;
   z-index: 3;
   background: #FDFCF9;
@@ -250,8 +251,10 @@
   border: 1px solid rgba(79, 44, 34, 0.1);
   border-radius: 18px;
   display: flex;
-  align-items: flex-start;
-  gap: 1.5rem;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.9rem;
 }
 
 .blogpost-author-avatar {
@@ -293,8 +296,8 @@
   font-size: 1.25rem;
   font-weight: 400;
   color: #2E1F14;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  text-transform: none;
+  letter-spacing: 0.01em;
   line-height: 1.1;
   margin-bottom: 0.5rem;
 }
@@ -340,14 +343,15 @@
   font-size: clamp(1.75rem, 3.5vw, 2.75rem);
   font-weight: 400;
   color: #F0EDE8;
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  line-height: 1.05;
+  text-transform: none;
+  letter-spacing: 0.01em;
 }
 
 .blogpost-related-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
   gap: 1.25rem;
 }
 
@@ -419,9 +423,9 @@
   font-size: clamp(1.05rem, 1.4vw, 1.35rem);
   font-weight: 400;
   color: #F0EDE8;
-  line-height: 1.15;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-transform: none;
+  letter-spacing: 0.01em;
   transition: color 0.3s ease;
 }
 
@@ -542,12 +546,12 @@
 /* ===== Responsive - Tablet (1000px) ===== */
 @media (max-width: 1000px) {
   .blogpost-hero {
-    height: 85vh;
-    min-height: 480px;
+    height: clamp(440px, 70vh, 600px);
+    min-height: 440px;
   }
 
   .blogpost-hero-content {
-    padding: 2.5rem;
+    padding: 2.5rem 2.5rem 4.5rem;
   }
 
   .blogpost-hero-title {
@@ -579,7 +583,7 @@
   }
 
   .blogpost-hero-content {
-    padding: 1.5rem;
+    padding: 1.5rem 1.5rem 3.5rem;
   }
 
   .blogpost-breadcrumb {
@@ -731,7 +735,7 @@
   }
 
   .blogpost-hero-content {
-    padding: 1rem;
+    padding: 1rem 1rem 3rem;
   }
 
   .blogpost-breadcrumb {
@@ -907,4 +911,12 @@
     font-size: 0.7rem;
     padding: 0.8rem 1.5rem;
   }
+}
+
+/* All blog-post typography — headings, paragraphs, everything — in Lexend. */
+.blogpost-page,
+.blogpost-page *,
+.blogpost-not-found,
+.blogpost-not-found * {
+  font-family: 'Lexend', sans-serif;
 }

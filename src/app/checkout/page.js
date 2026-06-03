@@ -36,7 +36,7 @@ function couponErrorMessage(message, code, subtotal) {
     if (min != null) {
       const remaining = Math.max(0, Math.round(min - (subtotal || 0)));
       const codePart = upper ? ` to unlock ${upper}` : "";
-      return `Add ₹${remaining} more${codePart} — it needs a minimum order of ₹${min}.`;
+      return `Add ₹${remaining} more${codePart}, it needs a minimum order of ₹${min}.`;
     }
   }
   return message || "This code isn't valid for your order.";
@@ -120,7 +120,7 @@ export default function CheckoutPage() {
         setActiveStep(step);
         stepRef.current = step;
       } else if (stepRef.current > 1) {
-        // No checkout state — user pressed back from step 1, let it navigate away
+        // No checkout state, user pressed back from step 1, let it navigate away
         // But if we were on step 2+, go back to previous step instead
         const prev = stepRef.current - 1;
         setActiveStep(prev);
@@ -527,7 +527,7 @@ export default function CheckoutPage() {
         return;
       }
       if (pincodeStatus === null && /^\d{6}$/.test(shipping.pincode)) {
-        // Pincode entered but check hasn't fired yet — trigger it and block
+        // Pincode entered but check hasn't fired yet, trigger it and block
         checkPincode(shipping.pincode);
         setErrors({ pincode: "Please wait while we check delivery availability" });
         return;
@@ -542,7 +542,7 @@ export default function CheckoutPage() {
           return;
         }
       }
-      // Note: UPI validation removed — UPI not yet available
+      // Note: UPI validation removed, UPI not yet available
     }
     setActiveStep(step);
     stepRef.current = step;
@@ -582,7 +582,7 @@ export default function CheckoutPage() {
       // Capture the reason for fallthrough display
       regularReason = data?.message || null;
     } catch (err) {
-      // Network/auth error — capture backend message if present
+      // Network/auth error, capture backend message if present
       regularReason = err?.response?.data?.message || null;
     }
 
@@ -696,12 +696,12 @@ export default function CheckoutPage() {
         }
 
         if (result.emailExists || result.phoneExists) {
-          // Existing account — redirect to login
+          // Existing account, redirect to login
           const params = new URLSearchParams({ redirect: "/checkout" });
           if (shipping.email) params.set("email", shipping.email);
           router.push(`/login?${params.toString()}`);
         } else {
-          // No account — redirect to register
+          // No account, redirect to register
           const params = new URLSearchParams({ redirect: "/checkout", tab: "register" });
           if (shipping.email) params.set("email", shipping.email);
           if (fullPhone) params.set("phone", fullPhone);
@@ -975,7 +975,7 @@ export default function CheckoutPage() {
         });
       }
     } catch {
-      // Silent — don't block order confirmation for address save failure
+      // Silent, don't block order confirmation for address save failure
     }
   };
 
@@ -1142,7 +1142,7 @@ export default function CheckoutPage() {
                       >
                         <span className="checkout-address-label">{addr.label || "Address"}</span>
                         <span className="checkout-address-preview">
-                          {addr.fullName}, {addr.address1}, {addr.city} — {addr.pincode}
+                          {addr.fullName}, {addr.address1}, {addr.city}, {addr.pincode}
                         </span>
                       </button>
                     ))}

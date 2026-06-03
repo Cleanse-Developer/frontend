@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 
 import { ReactLenis } from "lenis/react";
 
-export default function ClientLayout({ children, footer }) {
+export default function ClientLayout({ children, footer, header }) {
   const pageRef = useRef();
   const lenisRef = useRef(null);
   const pathname = usePathname();
@@ -69,8 +69,9 @@ export default function ClientLayout({ children, footer }) {
   return (
     <ReactLenis root options={scrollSettings} ref={lenisRef}>
       <div className="page" ref={pageRef}>
+        {pathname !== "/login" && header}
         {children}
-        {pathname !== "/lookbook" && footer}
+        {pathname !== "/lookbook" && pathname !== "/login" && footer}
       </div>
     </ReactLenis>
   );

@@ -190,6 +190,8 @@
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--base-700);
+  /* Natural case instead of the global h4 uppercase */
+  text-transform: none;
 }
 
 .testimonial-card.active .testimonial-info h4 {
@@ -200,6 +202,8 @@
   font-family: var(--font-body);
   font-size: 0.75rem;
   color: #888;
+  /* Natural case instead of the global p uppercase */
+  text-transform: none;
 }
 
 .testimonial-card.active .testimonial-role {
@@ -240,17 +244,19 @@
 
 .testimonial-text {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 1rem;
   color: #555;
   line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+  /* Natural case instead of the global p uppercase */
+  text-transform: none;
+  /* Trim long reviews to ~4 lines, clipped cleanly with no ellipsis */
+  display: block;
+  max-height: 6em; /* 4 × 1.5 line-height */
   overflow: hidden;
 }
 
 .testimonial-card.active .testimonial-text {
-  font-size: 0.8rem;
+  font-size: 1rem;
   color: rgba(0, 0, 0, 0.65);
 }
 
@@ -485,9 +491,8 @@
   }
 
   .testimonial-text {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
+    display: block;
+    max-height: 6em;
     overflow: hidden;
     color: rgba(0, 0, 0, 0.65);
     font-size: 0.85rem;
@@ -581,7 +586,9 @@
 
   .testimonial-text {
     font-size: 0.85rem;
-    -webkit-line-clamp: 3;
+    display: block;
+    max-height: 6em;
+    overflow: hidden;
   }
 
   .testimonial-avatar {
@@ -720,9 +727,12 @@
 
 .review-cta-text {
   font-family: var(--font-body);
-  font-size: 1rem;
+  /* Match the "Find your ritual" body paragraph (p.bodyCopy) */
+  font-size: clamp(1.125rem, 0.75vw, 1.25rem);
   color: #4F2C22;
   opacity: 0.75;
+  /* Natural case instead of the global p uppercase */
+  text-transform: none;
 }
 
 .review-cta-btn {

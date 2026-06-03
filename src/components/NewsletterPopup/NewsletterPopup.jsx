@@ -38,7 +38,7 @@ const NewsletterPopup = ({ isOpen, onClose }) => {
       setErrorMsg("");
       setCouponCode(null);
       setCopied(false);
-      // Don't clear email — user may want to retry the same address
+      // Don't clear email, user may want to retry the same address
     }
   }, [isOpen]);
 
@@ -108,7 +108,7 @@ const NewsletterPopup = ({ isOpen, onClose }) => {
                 <h2>You&apos;re subscribed!</h2>
                 {couponCode ? (
                   <>
-                    <p>Here&apos;s your {discountPercent}% off code — apply it at checkout.</p>
+                    <p>Here&apos;s your {discountPercent}% off code, apply it at checkout.</p>
                     <div className="newsletter-coupon">
                       <span className="newsletter-coupon-code">{couponCode}</span>
                       <button

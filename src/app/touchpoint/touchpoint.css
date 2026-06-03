@@ -437,6 +437,7 @@ a.touchpoint-info-value:hover {
   font-weight: 500;
   color: #4F2C22;
   line-height: 1.3;
+  text-transform: none;
 }
 
 .touchpoint-faq-toggle {

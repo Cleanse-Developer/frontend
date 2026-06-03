@@ -30,7 +30,7 @@ const RITUALS = {
         time: "60 sec",
         img: "/images/facecream%20mock.png",
         how: "Massage a coin-sized amount over damp skin in slow upward circles, then rinse with cool water.",
-        desc: "Sweeps away the night without ever stripping — skin is left soft, never tight.",
+        desc: "Sweeps away the night without ever stripping, skin is left soft, never tight.",
         tags: ["Purifies", "Balances"],
       },
       {
@@ -69,7 +69,7 @@ const RITUALS = {
         product: "Mineral Veil SPF 40",
         time: "30 sec",
         img: "/images/sun.png",
-        how: "Finish with a generous, even layer — always the final step, reapplied through the day.",
+        how: "Finish with a generous, even layer, always the final step, reapplied through the day.",
         desc: "A sheer mineral shield against UV light and city pollution.",
         tags: ["Protects", "Everyday"],
       },
@@ -89,7 +89,7 @@ const RITUALS = {
         time: "60 sec",
         img: "/images/oil.png",
         how: "Massage onto dry skin to dissolve sunscreen and grime, then emulsify with water and rinse.",
-        desc: "The first cleanse — it lifts the whole day away in one warm sweep.",
+        desc: "The first cleanse, it lifts the whole day away in one warm sweep.",
         tags: ["Dissolves", "Comforts"],
       },
       {
@@ -108,7 +108,7 @@ const RITUALS = {
         product: "Bakuchiol Renewal Serum",
         time: "30 sec",
         img: "/serum.png",
-        how: "Press three or four drops into clean skin — a gentle, plant-born alternative to retinol.",
+        how: "Press three or four drops into clean skin, a gentle, plant-born alternative to retinol.",
         desc: "Smooths the look of fine lines and refines texture as you rest.",
         tags: ["Renews", "Firms"],
       },
@@ -128,7 +128,7 @@ const RITUALS = {
         product: "Kumkumadi Facial Oil",
         time: "60 sec",
         img: "/jar.png",
-        how: "Warm four or five drops and press over the face — finish with three slow breaths.",
+        how: "Warm four or five drops and press over the face, finish with three slow breaths.",
         desc: "Locks in every layer beneath a veil of saffron and 24-herb gold.",
         tags: ["Seals", "Glows"],
       },
@@ -227,7 +227,7 @@ export default function Ritual() {
           <Copy>
             <h2 className="ritual-intro-statement">
               A ritual is not a routine. It is a few honest minutes you give
-              back to yourself — to breathe, to touch your skin with intention,
+              back to yourself, to breathe, to touch your skin with intention,
               and to let nature do the rest.
             </h2>
           </Copy>
@@ -310,7 +310,7 @@ export default function Ritual() {
         </div>
       </section>
 
-      {/* ===== The Pause — mindful self-care moment ===== */}
+      {/* ===== The Pause, mindful self-care moment ===== */}
       <section className="ritual-pause">
         <div className="ritual-pause-inner">
           <span className="ritual-eyebrow ritual-eyebrow-light">The pause</span>
@@ -370,7 +370,7 @@ export default function Ritual() {
             “Nature does not hurry, yet everything is accomplished.”
           </p>
         </Copy>
-        <span className="ritual-quote-author">— Ayurvedic Wisdom</span>
+        <span className="ritual-quote-author">Ayurvedic Wisdom</span>
       </section>
     </div>
   );

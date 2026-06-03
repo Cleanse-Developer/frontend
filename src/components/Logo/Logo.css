@@ -1,0 +1,25 @@
+.logo-mark {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+
+.logo-mark > img {
+  display: block;
+}
+
+.logo-mark-r {
+  position: absolute;
+  /* Glyph right edge ≈ 94% of width, top ≈ 18% of height — sit the mark
+     just above and right of the final "E". */
+  left: 93.5%;
+  top: 6%;
+  line-height: 1;
+  font-family: var(--font-body, sans-serif);
+  font-weight: 500;
+  /* Each placement sets --logo-r-size to roughly track its logo width. */
+  font-size: var(--logo-r-size, 0.5rem);
+  color: var(--logo-r-color, currentColor);
+  pointer-events: none;
+  user-select: none;
+}

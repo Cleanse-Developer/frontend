@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { useCart } from "@/context/CartContext";
 import { useSettings } from "@/context/SettingsContext";
+import Logo from "@/components/Logo/Logo";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 
@@ -20,8 +21,8 @@ const ProfileIcon = () => (
 
 const CartIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M6 6h12l1.5 12H4.5L6 6z" />
-    <path d="M9 6V4a3 3 0 016 0v2" />
+    <path d="M6 9h12l1.5 12H4.5L6 9z" />
+    <path d="M9 9V7a3 3 0 016 0v2" />
   </svg>
 );
 
@@ -58,7 +59,6 @@ const LocaleCapsule = ({ open, toggle, close }) => (
     {open && (
       <div className="menu-locale-dropdown" role="listbox">
         <div className="menu-locale-group">
-          <span className="menu-locale-group-label">Language</span>
           <button type="button" className="menu-locale-option active" onClick={(e) => { e.stopPropagation(); close(); }}>
             <span className="menu-locale-option-code">EN</span>
             <span className="menu-locale-option-name">English</span>
@@ -66,7 +66,6 @@ const LocaleCapsule = ({ open, toggle, close }) => (
         </div>
         <span className="menu-locale-group-sep" aria-hidden="true" />
         <div className="menu-locale-group">
-          <span className="menu-locale-group-label">Currency</span>
           <button type="button" className="menu-locale-option active" onClick={(e) => { e.stopPropagation(); close(); }}>
             <span className="menu-locale-option-code">{"₹"}</span>
             <span className="menu-locale-option-name">Rupees</span>
@@ -652,20 +651,10 @@ const Menu = () => {
   return (
     <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isNavGreen ? 'nav-green' : ''} ${isOpen ? 'menu-open' : ''} ${isPageTransitioning ? 'page-transitioning' : ''}`} ref={menuRef}>
       <div className="menu-header">
-        {/* Back arrow - shown on non-home pages when scrolled */}
-        {!isHomePage && isScrolled && (
-          <Link href="/" className="menu-back-arrow" aria-label="Back to home">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5" />
-              <path d="M12 19l-7-7 7-7" />
-            </svg>
-          </Link>
-        )}
-
-        {/* Full header content - shown in hero section */}
-        <div className={`menu-header-full ${isScrolled ? 'hidden' : ''}`}>
+        {/* Single hero header used in all states; gains a brown bg on scroll */}
+        <div className="menu-header-full">
           <Link href="/" className="menu-logo-link">
-            <img src={logoSrc} alt="Cleanse" className="menu-logo-img" />
+            <Logo src={logoSrc} className="menu-logo-mark" imgClassName="menu-logo-img" />
           </Link>
           <div className="menu-nav-links">
             {navLinks.map((link, i) => (
@@ -708,32 +697,6 @@ const Menu = () => {
               <span className="menu-item"></span>
             </div>
           </button>
-        </div>
-
-        {/* Centered CLEANSE - shown when scrolled */}
-        <div className="menu-header-centered">
-          <button
-            className="menu-centered-logo"
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-          >
-            <img src={logoSrc} alt="Cleanse" className="menu-logo-img" />
-          </button>
-        </div>
-
-        {/* Right-side actions - shown when scrolled */}
-        <div className="menu-scrolled-actions">
-          <LocaleCapsule open={showLangMenu} toggle={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }} close={() => setShowLangMenu(false)} />
-          <button type="button" className="menu-action-btn" aria-label="Search" onClick={openSearch}>
-            <SearchIcon />
-          </button>
-          <Link href="/profile" className="menu-action-btn" aria-label="Profile">
-            <ProfileIcon />
-          </Link>
-          <Link href="/cart" className="menu-action-btn menu-cart-btn" aria-label="Cart">
-            <CartIcon />
-            {cartCount > 0 && <span className="menu-cart-badge">{cartCount}</span>}
-          </Link>
         </div>
 
         {/* Search bar overlay — opens from either header state */}
@@ -834,7 +797,6 @@ const Menu = () => {
         </div>
         <div className="menu-overlay-selectors">
           <div className="menu-overlay-selector-group">
-            <span className="menu-overlay-selector-label">Language</span>
             <div className="menu-overlay-selector-pills">
               {["EN", "HI", "TA"].map(l => (
                 <button key={l} className={`menu-overlay-pill ${lang === l ? "active" : ""}`} onClick={() => handleLangChange(l)}>{l}</button>
@@ -842,7 +804,6 @@ const Menu = () => {
             </div>
           </div>
           <div className="menu-overlay-selector-group">
-            <span className="menu-overlay-selector-label">Currency</span>
             <div className="menu-overlay-selector-pills">
               {["INR", "USD", "EUR", "GBP"].map(c => (
                 <button key={c} className={`menu-overlay-pill ${currency === c ? "active" : ""}`} onClick={() => handleCurrencyChange(c)}>{c}</button>

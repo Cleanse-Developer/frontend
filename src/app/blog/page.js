@@ -48,59 +48,65 @@ export default function BlogPage() {
     : blogs.filter((b) => b.category === activeCategory);
 
   const featuredBlog = blogs.find((b) => b.featured);
-  const gridBlogs = filteredBlogs.filter((b) => !b.featured || activeCategory !== "All");
+  // The featured banner stays visible for every filter (so it never disappears
+  // and the layout doesn't shift). The grid always excludes the featured post.
+  const gridBlogs = filteredBlogs.filter((b) => b._id !== featuredBlog?._id && b.slug !== featuredBlog?.slug);
 
+  // Hero parallax, set up ONCE. Must not depend on the filter, or the hero
+  // image re-animates (scale 1.15 → 1) every time a category is clicked.
   useGSAP(() => {
-    // Hero parallax
-    if (heroRef.current) {
-      const heroImg = heroRef.current.querySelector(".blog-hero-bg img");
-      if (heroImg) {
-        gsap.fromTo(heroImg,
-          { scale: 1.15 },
-          {
-            scale: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: heroRef.current,
-              start: "top top",
-              end: "bottom top",
-              scrub: 0.5,
-            },
-          }
-        );
+    if (!heroRef.current) return;
+    const heroImg = heroRef.current.querySelector(".blog-hero-bg img");
+    if (!heroImg) return;
+    gsap.fromTo(heroImg,
+      { scale: 1.15 },
+      {
+        scale: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.5,
+        },
       }
-    }
+    );
+  }, { dependencies: [] });
 
-    // Featured card reveal
-    if (featuredRef.current) {
-      gsap.fromTo(featuredRef.current,
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1, y: 0,
-          duration: 0.8,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: featuredRef.current,
-            start: "top 85%",
-            once: true,
-          },
-        }
-      );
-    }
+  // Featured banner reveal, runs once when posts load (not on filter changes),
+  // so the banner stays put and never re-fades while filtering.
+  useGSAP(() => {
+    if (!featuredRef.current) return;
+    gsap.fromTo(featuredRef.current,
+      { opacity: 0, y: 60 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: featuredRef.current,
+          start: "top 85%",
+          once: true,
+        },
+      }
+    );
+  }, { dependencies: [blogs] });
 
-    // Grid cards stagger
+  // Grid reveals, re-run when the results change. Cards fade in place (no
+  // vertical slide) so switching filters doesn't shift the layout.
+  useGSAP(() => {
     const cards = cardsRef.current.filter(Boolean);
     if (cards.length) {
       gsap.fromTo(cards,
-        { opacity: 0, y: 50 },
+        { opacity: 0 },
         {
-          opacity: 1, y: 0,
-          duration: 0.6,
-          stagger: 0.08,
-          ease: "power3.out",
+          opacity: 1,
+          duration: 0.5,
+          stagger: 0.06,
+          ease: "power2.out",
           scrollTrigger: {
             trigger: gridRef.current,
-            start: "top 85%",
+            start: "top 90%",
             once: true,
           },
         }
@@ -127,7 +133,7 @@ export default function BlogPage() {
         }
       );
     });
-  }, { dependencies: [filteredBlogs, activeCategory] });
+  }, { dependencies: [blogs, activeCategory] });
 
   return (
     <div className="blog-page">
@@ -143,7 +149,7 @@ export default function BlogPage() {
           </div>
           <h1 className="blog-hero-title">THE<br />JOURNAL</h1>
           <p className="blog-hero-subtitle">
-            Ancient wisdom, modern stories — explore the art of Ayurvedic living.
+            Ancient wisdom, modern stories, explore the art of Ayurvedic living.
           </p>
         </div>
         <div className="blog-hero-scroll-indicator">
@@ -152,8 +158,8 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* Featured Article - Full width cinematic card */}
-      {activeCategory === "All" && featuredBlog && (
+      {/* Featured Article - Full width cinematic card (always visible) */}
+      {featuredBlog && (
         <section className="blog-featured" ref={featuredRef} style={{ opacity: 0 }}>
           <Link href={`/blog/${featuredBlog.slug}`} className="blog-featured-card">
             <div className="blog-featured-img">
@@ -208,7 +214,7 @@ export default function BlogPage() {
             <Link
               href={`/blog/${blog.slug}`}
               key={blog._id || blog.slug}
-              className={`blog-grid-card ${index === 0 ? "blog-grid-card-wide" : ""} ${index === 3 ? "blog-grid-card-tall" : ""}`}
+              className="blog-grid-card"
               ref={(el) => (cardsRef.current[index] = el)}
               style={{ opacity: 0 }}
             >
@@ -224,11 +230,12 @@ export default function BlogPage() {
                 <p className="blog-grid-card-excerpt">{blog.excerpt}</p>
                 <div className="blog-grid-card-footer">
                   <span className="blog-grid-card-date">{blog.date}</span>
-                  <div className="blog-grid-card-arrow">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M7 17L17 7M17 7H7M17 7v10" />
+                  <span className="blog-grid-card-readmore">
+                    Read More
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
                     </svg>
-                  </div>
+                  </span>
                 </div>
               </div>
             </Link>
@@ -243,7 +250,7 @@ export default function BlogPage() {
             <span className="blog-newsletter-tag">STAY ROOTED</span>
             <h2 className="blog-newsletter-title">Stories Delivered<br />To Your Inbox</h2>
             <p className="blog-newsletter-desc">
-              Get weekly Ayurvedic insights, rituals, and exclusive content — straight from our journal.
+              Get weekly Ayurvedic insights, rituals, and exclusive content, straight from our journal.
             </p>
             {nlSubmitted ? (
               <p className="blog-newsletter-desc" style={{ color: "#4F2C22", fontWeight: 500 }}>Thank you for subscribing!</p>

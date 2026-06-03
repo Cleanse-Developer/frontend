@@ -21,6 +21,17 @@
   --font-heading: 'Caelune Beauty', serif;
   --font-body: 'Lexend', sans-serif;
 
+  /* Type scale tokens — single source of truth for repeated text roles.
+     Fluid clamp() values so every instance is identical at any viewport width
+     (no per-component @media overrides needed). Product-card roles use the
+     HOME "Our Best Sellers" card as the reference: 1.1 / 0.85 / 1.1 / 0.85rem. */
+  --fs-card-title: clamp(0.8rem, 0.55rem + 1.1vw, 1.1rem);
+  --fs-card-price: clamp(0.8rem, 0.55rem + 1.1vw, 1.1rem);
+  --fs-card-desc:  clamp(0.7rem, 0.58rem + 0.55vw, 0.85rem);
+  --fs-card-btn:   clamp(0.75rem, 0.66rem + 0.4vw, 0.85rem);
+  --fs-card-tag:   clamp(0.55rem, 0.5rem + 0.2vw, 0.65rem);
+  --fs-section-title: clamp(1.5rem, 3vw, 2.5rem);
+
   /* Earthy Brown Color Palette */
   --base-100: #E7D0A6;  /* Light Cream - primary background */
   --base-200: #9E9268;  /* Olive Brown - light accent */
@@ -97,7 +108,10 @@ a,
 p,
 span {
   text-decoration: none;
-  text-transform: uppercase;
+  /* Default body text to natural case. Caps is opt-in (nav, buttons, eyebrows,
+     badges and other labels set `text-transform: uppercase` themselves), so
+     ordinary copy — paragraphs, names, descriptions — is no longer shouted. */
+  text-transform: none;
   color: var(--base-700);
   font-family: var(--font-body);
   font-weight: 400;

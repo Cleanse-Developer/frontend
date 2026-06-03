@@ -1731,3 +1731,17 @@
     border-radius: 4px;
   }
 }
+
+/* ===== Case policy: natural case across the product page; only the
+   essential purchase CTAs stay in caps. The :is() selector (0,1,1) beats
+   both the global uppercase and the per-element class rules; the CTA
+   re-assert below (0,2,0) then wins back uppercase for the buy buttons. */
+.unit-page :is(h1, h2, h3, h4, h5, h6, p, span, a, li, label, input, textarea, button, div, blockquote) {
+  text-transform: none;
+}
+
+.unit-page .add-to-cart-btn,
+.unit-page .buy-now-btn,
+.unit-page .bundle-add-btn {
+  text-transform: uppercase;
+}

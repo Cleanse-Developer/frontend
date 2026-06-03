@@ -68,6 +68,12 @@
   filter: brightness(0) invert(1);
 }
 
+/* White ® to match the inverted (white) login logo */
+.login-logo-mark {
+  --logo-r-color: #fff;
+  --logo-r-size: 0.5rem;
+}
+
 .login-visual-text {
   display: flex;
   flex-direction: column;
