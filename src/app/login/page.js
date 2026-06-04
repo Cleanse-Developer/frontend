@@ -17,7 +17,7 @@ export default function Login() {
 }
 
 function LoginContent() {
-  const { loginWithPassword, register, isAuthenticated } = useAuth();
+  const { loginWithPassword, sendOtp, login, register, isAuthenticated } = useAuth();
   const toast = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,8 +36,13 @@ function LoginContent() {
   const [agreed, setAgreed] = useState(false);
 
   // Login form state
+  const [loginMethod, setLoginMethod] = useState("password"); // "password" | "mobile"
   const [loginEmail, setLoginEmail] = useState(paramEmail);
   const [loginPassword, setLoginPassword] = useState("");
+  // Mobile OTP login state
+  const [loginPhone, setLoginPhone] = useState(paramPhone);
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
   // Register form state
   const [regName, setRegName] = useState(paramName);
@@ -106,6 +111,46 @@ function LoginContent() {
       const data = err.response?.data;
       const msg = data?.errors?.[0]?.message || data?.message || "Invalid email or password";
       setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    const phone = loginPhone.trim();
+    if (!phone) {
+      setError("Please enter your mobile number");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      await sendOtp(phone);
+      setOtpSent(true);
+      toast.success("OTP sent to your mobile number");
+    } catch (err) {
+      const data = err.response?.data;
+      setError(data?.errors?.[0]?.message || data?.message || "Couldn't send OTP. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!otp.trim()) {
+      setError("Please enter the OTP sent to your mobile");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      await login(loginPhone.trim(), otp.trim());
+      router.replace(redirectTo);
+    } catch (err) {
+      const data = err.response?.data;
+      setError(data?.errors?.[0]?.message || data?.message || "Invalid or expired OTP");
     } finally {
       setLoading(false);
     }
@@ -203,46 +248,121 @@ function LoginContent() {
 
           {/* Login Tab */}
           {activeTab === "login" && (
-            <form className="login-form" onSubmit={handleLogin}>
-              <div className="login-input-group">
-                <label>Email</label>
-                <input type="email" placeholder="Enter your email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} disabled={loading} />
+            <>
+              {/* Login method: email+password or mobile OTP */}
+              <div className="login-method-toggle">
+                <button
+                  type="button"
+                  className={`login-method-btn ${loginMethod === "password" ? "active" : ""}`}
+                  onClick={() => { setLoginMethod("password"); setError(""); }}
+                >
+                  Email &amp; Password
+                </button>
+                <button
+                  type="button"
+                  className={`login-method-btn ${loginMethod === "mobile" ? "active" : ""}`}
+                  onClick={() => { setLoginMethod("mobile"); setError(""); setOtpSent(false); setOtp(""); }}
+                >
+                  Mobile OTP
+                </button>
               </div>
-              <div className="login-input-group">
-                <label>Password</label>
-                <div className="login-password-wrapper">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    disabled={loading}
-                  />
-                  <button
-                    type="button"
-                    className="login-password-toggle"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-                        <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-                        <line x1="1" y1="1" x2="23" y2="23" />
-                        <path d="M14.12 14.12a3 3 0 11-4.24-4.24" />
-                      </svg>
-                    ) : (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                    )}
+
+              {loginMethod === "password" ? (
+                <form className="login-form" onSubmit={handleLogin}>
+                  <div className="login-input-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="Enter your email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} disabled={loading} />
+                  </div>
+                  <div className="login-input-group">
+                    <label>Password</label>
+                    <div className="login-password-wrapper">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        disabled={loading}
+                      />
+                      <button
+                        type="button"
+                        className="login-password-toggle"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+                            <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+                            <line x1="1" y1="1" x2="23" y2="23" />
+                            <path d="M14.12 14.12a3 3 0 11-4.24-4.24" />
+                          </svg>
+                        ) : (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <button type="submit" className="login-submit-btn" disabled={loading}>
+                    {loading ? "Logging in..." : "Login"}
                   </button>
-                </div>
-              </div>
-              <button type="submit" className="login-submit-btn" disabled={loading}>
-                {loading ? "Logging in..." : "Login"}
-              </button>
+                </form>
+              ) : (
+                <form className="login-form" onSubmit={otpSent ? handleVerifyOtp : handleSendOtp}>
+                  <div className="login-input-group">
+                    <label>Mobile Number</label>
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      placeholder="Enter your mobile number"
+                      value={loginPhone}
+                      onChange={(e) => setLoginPhone(e.target.value)}
+                      disabled={loading || otpSent}
+                    />
+                  </div>
+                  {otpSent && (
+                    <div className="login-input-group">
+                      <label>OTP</label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        placeholder="Enter the OTP sent to your mobile"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                        disabled={loading}
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        className="login-switch-btn"
+                        style={{ alignSelf: "flex-start", marginTop: "0.4rem" }}
+                        onClick={handleSendOtp}
+                        disabled={loading}
+                      >
+                        Resend OTP
+                      </button>
+                    </div>
+                  )}
+                  <button type="submit" className="login-submit-btn" disabled={loading}>
+                    {loading
+                      ? (otpSent ? "Verifying..." : "Sending OTP...")
+                      : (otpSent ? "Verify & Login" : "Send OTP")}
+                  </button>
+                  {otpSent && (
+                    <button
+                      type="button"
+                      className="login-switch-btn"
+                      style={{ alignSelf: "center" }}
+                      onClick={() => { setOtpSent(false); setOtp(""); setError(""); }}
+                    >
+                      Change number
+                    </button>
+                  )}
+                </form>
+              )}
 
               <div className="login-divider">
                 <span className="login-divider-line"></span>
@@ -278,7 +398,7 @@ function LoginContent() {
                   Register
                 </button>
               </p>
-            </form>
+            </>
           )}
 
           {/* Register Tab */}

@@ -192,8 +192,9 @@
   font-weight: 400;
   font-size: clamp(1.75rem, 2.5vw, 2.25rem);
   color: var(--base-700);
-  line-height: 1;
+  line-height: 1.25;
   letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
 }
 
 /* Price Row */

@@ -112,31 +112,75 @@
 }
 
 .hero-bottom-tagline {
-  /* Static centered tagline (no longer a full-bleed marquee). Leaf ornaments
-     sit BEHIND the text, one on each side, vertically centered with it. */
+  /* Static centered tagline. Botanical ornaments sit BEHIND the text on each
+     side, anchored to the bottom of this band. Full width + overflow:hidden so
+     the art is confined to THIS section (never bleeds into the section below). */
   position: relative;
   padding: 2.5rem 1.5rem 1.25rem;
-  max-width: 80rem;
+  max-width: 100%;
   margin: 0 auto;
+  overflow: hidden;
 }
 
-/* Leaf ornaments behind the tagline. Class beats globals.css `img{width/height:100%}`. */
+/* Botanical ornaments behind the tagline. Class beats globals.css `img{width/height:100%}`.
+   Directional art (flowers in the bottom corners) — no flip; anchored bottom so
+   they rise from the band's lower edge and stay inside the section. */
 .hero-tagline-leaf {
   position: absolute;
-  top: 50%;
-  /* scaleX(-1) flips both ornaments horizontally */
-  transform: translateY(-50%) scaleX(-1);
+  bottom: -2.5rem;
   z-index: 0;
-  width: clamp(520px, 66vw, 1120px);
+  width: clamp(820px, 82vw, 1720px);
   height: auto;
   object-fit: contain;
   pointer-events: none;
   user-select: none;
+  /* Whole bottom edge stays pinned; only the upper part leans. skewX with the
+     origin at the bottom shears horizontally by height — the bottom row is
+     fixed and the top sways the most, like grass rooted in the ground. */
+  transform-origin: bottom center;
+  animation: hero-leaf-sway 8s ease-in-out infinite;
+  will-change: transform;
 }
-/* Pushed further out toward the screen edges (body has overflow-x:hidden,
-   so the negative offsets never add a scrollbar) */
-.hero-tagline-leaf--left { left: -32vw; }
-.hero-tagline-leaf--right { right: -32vw; }
+/* Offsets keep them near the screen edges; staggered timing so they drift out
+   of sync (the bottom stays pinned on both). */
+.hero-tagline-leaf--left {
+  left: -1vw;
+  animation-duration: 5.5s;
+}
+.hero-tagline-leaf--right {
+  right: -1vw;
+  animation-duration: 6.5s;
+  animation-direction: reverse;
+}
+
+@keyframes hero-leaf-sway {
+  0%, 100% { transform: skewX(-2deg); }
+  50% { transform: skewX(2deg); }
+}
+
+/* Soft cream gradient at the band's lower edge: hides the clipped bottom so the
+   botanicals appear to rise OUT of the page. Above the images (z-index 0,
+   painted after) but below the text (z-index 1). */
+.hero-bottom-tagline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5.5rem;
+  background: linear-gradient(
+    to top,
+    #F0EDE8 0%,
+    rgba(240, 237, 232, 0.92) 22%,
+    rgba(240, 237, 232, 0) 100%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-tagline-leaf { animation: none; }
+}
 
 /* Decorative desktop-only flourish — drop the big ornaments on tablet/phone
    (tablet portrait runs up to 1199px) so they never overflow or crowd */
@@ -584,14 +628,14 @@
 .formula-box-tl {
   position: absolute;
   top: 0.625rem;
-  left: 13%;
+  left: 18%;
   z-index: 10;
 }
 
 .formula-box-tr {
   position: absolute;
   top: 0.625rem;
-  right: 13%;
+  right: 18%;
   z-index: 10;
 }
 
@@ -612,9 +656,9 @@
 .formula-box {
   background-color: #fff;
   border-radius: 0.8125rem;
-  padding: 1.15rem;
-  width: 10.75rem;
-  height: 13.75rem;
+  padding: 1.25rem;
+  width: 11.5rem;
+  height: 14.5rem;
   box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
@@ -637,7 +681,8 @@
 
 .formula-box h4 {
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  /* Match the product-card title role */
+  font-size: var(--fs-card-title);
   font-weight: 600;
   color: var(--base-700);
   margin-bottom: 0.6rem;
@@ -646,22 +691,19 @@
 
 .formula-box p {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  /* Match the product-card description role */
+  font-size: var(--fs-card-desc);
   font-weight: 400;
   color: #555;
   line-height: 1.5;
 }
 
-/* CMS stores these strings in ALL CAPS — render them in sentence case
-   (lowercase with only the first letter capitalized) instead of caps */
+/* Render exactly as authored in the CMS/admin — no forced casing.
+   (The global `h4 { text-transform: uppercase }` is overridden here so the
+   heading shows the admin's own capitalisation too.) */
 .formula-box h4,
 .formula-box p {
-  text-transform: lowercase;
-}
-
-.formula-box h4::first-letter,
-.formula-box p::first-letter {
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .formulas-center {
@@ -742,13 +784,13 @@
   }
 
   .formula-box h4 {
-    font-size: clamp(1rem, 1.5vw, 1.15rem);
+    font-size: var(--fs-card-title);
     margin-bottom: 0.6rem;
     line-height: 1.2;
   }
 
   .formula-box p {
-    font-size: clamp(0.8rem, 1.1vw, 0.9rem);
+    font-size: var(--fs-card-desc);
     line-height: 1.4;
   }
 
@@ -1011,12 +1053,12 @@
   }
 
   .formula-box h4 {
-    font-size: 0.85rem;
+    font-size: var(--fs-card-title);
     margin-bottom: 0.35rem;
   }
 
   .formula-box p {
-    font-size: 0.7rem;
+    font-size: var(--fs-card-desc);
     line-height: 1.4;
   }
 
@@ -1302,19 +1344,23 @@
   }
 
   .formula-box {
-    width: 13rem;
-    height: 13.5rem;
-    padding: 1.25rem;
+    width: 14.5rem;
+    height: 15.5rem;
+    padding: 1.4rem;
   }
 
   .formula-box-tl {
     top: 1rem;
-    left: 16%;
+    left: 23%;
+    width: 16rem;
+    height: 16rem;
   }
 
   .formula-box-tr {
     top: 1rem;
-    right: 16%;
+    right: 23%;
+    width: 16rem;
+    height: 16rem;
   }
 
   .formula-box-bl {
@@ -1330,11 +1376,11 @@
   }
 
   .formula-box h4 {
-    font-size: 1rem;
+    font-size: var(--fs-card-title);
   }
 
   .formula-box p {
-    font-size: 0.8rem;
+    font-size: var(--fs-card-desc);
   }
 
   .hero-bottom-tagline {
@@ -1425,19 +1471,23 @@
   }
 
   .formula-box {
-    width: 15.5rem;
-    height: 16rem;
-    padding: 1.75rem;
+    width: 17rem;
+    height: 18rem;
+    padding: 1.9rem;
   }
 
   .formula-box-tl {
     top: 1.25rem;
-    left: 14%;
+    left: 21%;
+    width: 19rem;
+    height: 19rem;
   }
 
   .formula-box-tr {
     top: 1.25rem;
-    right: 14%;
+    right: 21%;
+    width: 19rem;
+    height: 19rem;
   }
 
   .formula-box-bl {
@@ -1453,11 +1503,11 @@
   }
 
   .formula-box h4 {
-    font-size: 1.15rem;
+    font-size: var(--fs-card-title);
   }
 
   .formula-box p {
-    font-size: 0.9rem;
+    font-size: var(--fs-card-desc);
   }
 
   .hero-bottom-tagline {

@@ -635,6 +635,8 @@
   font-weight: 600;
   color: #663532;
   margin-bottom: 0.15rem;
+  /* Proper spacing when the name wraps (was inheriting the global h3 0.9) */
+  line-height: 1.3;
   /* Show natural casing instead of the global h3 uppercase */
   text-transform: none;
 }

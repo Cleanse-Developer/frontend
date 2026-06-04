@@ -1,0 +1,1 @@
+.image-trail{z-index:5;pointer-events:none;position:absolute;inset:0;overflow:hidden}.image-trail-card{aspect-ratio:4/5;opacity:0;will-change:transform,opacity;border:3px solid #fbf8f2e6;border-radius:14px;width:clamp(130px,12vw,190px);position:absolute;top:0;left:0;overflow:hidden}.image-trail-card img{object-fit:cover;width:100%;height:100%;display:block}
