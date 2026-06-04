@@ -1,3 +1,0 @@
-module.exports=[93452,a=>{"use strict";var b=a.i(80418),c=a.i(69069),d=a.i(12113);function e(){let a=(0,c.useRouter)();return(0,b.useEffect)(()=>{d.productApi.getAll({limit:1}).then(b=>{let c=b.products?.[0];c?a.replace(`/unit/${c.slug}`):a.replace("/wardrobe")}).catch(()=>a.replace("/wardrobe"))},[a]),null}a.s(["default",()=>e])}];
-
-//# sourceMappingURL=Documents_cleanse_frontend_src_app_unit_page_57e68295.js.map

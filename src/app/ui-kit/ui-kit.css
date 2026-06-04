@@ -1,0 +1,18 @@
+/* Showcase page styling (demo only). */
+.kit { padding: 6rem 0 5rem; background: #F0EDE8; min-height: 100vh; }
+.kit-head { text-align: center; margin-bottom: 2.5rem; }
+.kit-head h1 { font-family: var(--font-heading); font-size: clamp(2rem, 5vw, 3.5rem); text-transform: uppercase; color: var(--base-700); }
+.kit-head p { font-family: var(--font-body); color: rgba(46,31,20,0.6); margin-top: 0.5rem; }
+.kit-block { margin: 2.5rem 0; padding: 1.75rem; background: #fff; border: 1px solid rgba(46,31,20,0.08); border-radius: 1rem; }
+.kit-block > h2 {
+  font-family: var(--font-body);
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--base-300); margin-bottom: 1.25rem;
+}
+.kit-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.kit-swatch { display: flex; flex-direction: column; gap: 0.4rem; align-items: center; }
+.kit-chip { width: 64px; height: 64px; border-radius: 0.6rem; border: 1px solid rgba(0,0,0,0.06); }
+.kit-chip-label { font-family: var(--font-body); font-size: 0.62rem; color: rgba(46,31,20,0.6); }
+.kit-col { display: flex; flex-direction: column; gap: 0.85rem; max-width: 420px; }
+.kit-note { font-family: var(--font-body); font-size: 0.78rem; color: rgba(46,31,20,0.55); margin-top: 0.75rem; }
+.kit-dark { background: var(--base-700); padding: 1rem; border-radius: 0.6rem; }
