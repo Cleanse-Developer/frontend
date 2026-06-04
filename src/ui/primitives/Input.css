@@ -1,0 +1,26 @@
+.ui-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--base-700);
+  background: #fff;
+  border: 1px solid rgba(46, 31, 20, 0.18);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  text-transform: none;
+}
+.ui-input::placeholder { color: rgba(46, 31, 20, 0.45); }
+.ui-input:focus {
+  border-color: var(--base-300);
+  box-shadow: 0 0 0 3px rgba(132, 89, 44, 0.12);
+}
+.ui-input--invalid {
+  border-color: #b3261e;
+}
+.ui-input[disabled] {
+  background: #f3efe9;
+  cursor: not-allowed;
+}

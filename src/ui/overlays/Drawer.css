@@ -1,0 +1,49 @@
+.ui-drawer-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: none;
+}
+.ui-drawer-root.is-open { pointer-events: auto; }
+
+.ui-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 16, 10, 0.5);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.ui-drawer-root.is-open .ui-drawer-backdrop { opacity: 1; }
+
+.ui-drawer {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: #fff;
+  box-shadow: 0 0 60px rgba(28, 16, 10, 0.25);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  overflow-y: auto;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+.ui-drawer--right { right: 0; transform: translateX(100%); }
+.ui-drawer--left { left: 0; transform: translateX(-100%); }
+.ui-drawer-root.is-open .ui-drawer { transform: translateX(0); }
+
+.ui-drawer-close {
+  align-self: flex-end;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  color: var(--base-600);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-drawer, .ui-drawer-backdrop { transition: none; }
+}

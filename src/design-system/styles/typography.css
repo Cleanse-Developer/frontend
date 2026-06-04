@@ -1,0 +1,65 @@
+/* =============================================================================
+   Design System — Typography (opt-in classes)
+
+   Bare element styling (h1–h5, p, a, span, button) lives in globals.css and is
+   intentionally NOT re-declared here (that would duplicate the cascade). These
+   `ds-*` classes expose the same type roles for use on any element, so the
+   design system can be applied without relying on tag selectors.
+   Values are copied verbatim from globals.css.
+   ========================================================================== */
+
+.ds-heading {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+.ds-h1 { font-size: clamp(4rem, 10vw, 10rem); letter-spacing: clamp(-0.15rem, -1vw, -0.25rem); }
+.ds-h2 { font-size: clamp(3.25rem, 8vw, 8rem); letter-spacing: clamp(-0.0125rem, -0.75vw, -0.2rem); }
+.ds-h3 { font-size: clamp(2.5rem, 6.5vw, 5rem); letter-spacing: clamp(-0.035rem, -0.5vw, -0.075rem); }
+.ds-h4 { font-size: clamp(2rem, 4.5vw, 4rem); letter-spacing: clamp(0rem, -0.5vw, -0.075rem); }
+.ds-h5 { font-size: clamp(1.25rem, 2vw, 3rem); letter-spacing: clamp(0rem, -0.25vw, -0.05rem); }
+
+/* Section title — the shared "OUR BEST SELLERS / FIND YOUR RITUAL" heading role. */
+.ds-section-title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-section-title);
+  font-weight: 400;
+  color: var(--base-700);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Body text roles. */
+.ds-text {
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.2;
+  text-transform: none;
+  color: var(--base-700);
+  font-size: clamp(0.8rem, 0.75vw, 0.85rem);
+}
+.ds-text--md { font-size: clamp(1rem, 0.8vw, 1.25rem); }
+.ds-text--lg { font-size: clamp(1.1rem, 0.85vw, 1.35rem); }
+
+.ds-body-copy {
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.01rem;
+  text-transform: none;
+  font-size: clamp(1.125rem, 0.75vw, 1.25rem);
+}
+.ds-body-copy.ds-text--md { font-size: clamp(1.25rem, 0.85vw, 1.35rem); }
+.ds-body-copy.ds-text--lg { font-size: clamp(1.375rem, 0.95vw, 1.45rem); }
+
+/* Eyebrow / small uppercase label (newsletter tag, section eyebrows, badges). */
+.ds-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--base-300);
+}

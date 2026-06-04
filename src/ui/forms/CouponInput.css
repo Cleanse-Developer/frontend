@@ -1,0 +1,19 @@
+.ui-coupon { width: 100%; }
+.ui-coupon-row { display: flex; gap: 0.5rem; }
+.ui-coupon-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--base-700);
+  background: #fff;
+  border: 1px solid rgba(46, 31, 20, 0.18);
+  border-radius: 0.5rem;
+  outline: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.ui-coupon-input::placeholder { letter-spacing: 0; text-transform: none; color: rgba(46, 31, 20, 0.45); }
+.ui-coupon-msg { margin-top: 0.4rem; font-size: 0.78rem; }
+.ui-coupon-msg--error { color: #b3261e; }
+.ui-coupon-msg--ok { color: #2e7d32; }

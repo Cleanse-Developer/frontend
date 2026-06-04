@@ -1,0 +1,30 @@
+.ui-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 220px;
+  max-width: 360px;
+  padding: 0.85rem 1rem;
+  border-radius: 0.6rem;
+  background: var(--base-700);
+  color: var(--base-100);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  box-shadow: 0 10px 30px rgba(28, 16, 10, 0.28);
+}
+.ui-toast--success { background: #2f6b3a; }
+.ui-toast--error { background: #8c2b22; }
+.ui-toast--info { background: var(--base-700); }
+.ui-toast-msg { flex: 1; }
+.ui-toast-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.8;
+  padding: 0;
+}
+.ui-toast-close:hover { opacity: 1; }

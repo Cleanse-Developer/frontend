@@ -1,0 +1,40 @@
+/* =============================================================================
+   Design System — Animations
+
+   Shared @keyframes and motion helpers extracted from the codebase. CSS-only
+   helpers here; scroll/timeline animations live in src/ui/animations (GSAP).
+   ========================================================================== */
+
+/* Button rise-in (from home .hero-btn). */
+@keyframes ds-btn-reveal {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Seamless marquee tracks (from TaglineMarquee). */
+@keyframes ds-marquee-ltr {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+@keyframes ds-marquee-rtl {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Simple fade / rise entrance (CSS fallback for non-GSAP contexts). */
+@keyframes ds-fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ds-animate-fade-up { animation: ds-fade-up 0.8s ease both; }
+
+/* Standard transition tokens (match the durations used across components). */
+.ds-transition { transition: all 0.3s ease; }
+.ds-transition--slow { transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* Respect reduced-motion for the CSS helpers above. */
+@media (prefers-reduced-motion: reduce) {
+  .ds-animate-fade-up { animation: none; }
+  .ds-transition,
+  .ds-transition--slow { transition: none; }
+}

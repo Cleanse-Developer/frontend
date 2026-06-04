@@ -1,4 +1,5 @@
 import "./globals.css";
+import "@/design-system/styles/index.css";
 
 import ClientLayout from "@/client-layout";
 

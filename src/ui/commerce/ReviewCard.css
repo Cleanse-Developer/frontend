@@ -1,0 +1,24 @@
+/* ReviewCard — from the Testimonials card */
+.ui-review {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.75rem 1.25rem;
+  background: #fff;
+  border-radius: 1rem;
+  text-align: center;
+  align-items: center;
+}
+.ui-review-head { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.ui-review-meta { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+.ui-review-name { font-family: var(--font-body); font-size: 0.9rem; font-weight: 500; color: var(--base-700); }
+.ui-review-role { font-family: var(--font-body); font-size: 0.75rem; color: #888; }
+.ui-review-stars { color: #663532; }
+.ui-review-text {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1.5;
+  text-transform: none;
+}
+.ui-review-date { font-family: var(--font-body); font-size: 0.72rem; color: #999; }

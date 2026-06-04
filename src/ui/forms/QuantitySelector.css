@@ -1,0 +1,31 @@
+.ui-qty {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(46, 31, 20, 0.2);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.ui-qty-btn {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--base-700);
+  border: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.ui-qty-btn:hover:not([disabled]) { background: rgba(132, 89, 44, 0.1); }
+.ui-qty-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+.ui-qty-value {
+  min-width: 2.25rem;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--base-700);
+}

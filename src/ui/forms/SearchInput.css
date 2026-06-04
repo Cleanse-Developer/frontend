@@ -1,0 +1,28 @@
+/* SearchInput — from the Menu search box */
+.ui-search {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: #fff;
+  border: 1px solid rgba(46, 31, 20, 0.18);
+  border-radius: 0.75rem;
+}
+.ui-search-icon {
+  display: inline-flex;
+  color: var(--base-500);
+  flex-shrink: 0;
+}
+.ui-search-icon svg { width: 18px; height: 18px; }
+.ui-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--base-700);
+  text-transform: none;
+}
+.ui-search-input::placeholder { color: rgba(46, 31, 20, 0.45); }

@@ -1,0 +1,12 @@
+/* =============================================================================
+   Design System — style entrypoint.
+
+   Imported ONCE from src/app/layout.js (after globals.css). Everything here is
+   additive: a token mirror (identical values) plus new `ds-*` opt-in classes.
+   It does not restyle any existing markup, so it cannot change the rendered UI.
+   ========================================================================== */
+@import "./variables.css";
+@import "./typography.css";
+@import "./layout.css";
+@import "./animations.css";
+@import "./utilities.css";

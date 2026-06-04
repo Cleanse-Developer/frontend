@@ -1,0 +1,49 @@
+/* Modal — from NewsletterPopup overlay + modal */
+.ui-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(28, 16, 10, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: ui-modal-fade 0.25s ease both;
+}
+.ui-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  border: 1px solid rgba(79, 44, 34, 0.1);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+  animation: ui-modal-rise 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.ui-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.85rem;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--base-600);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  padding: 0;
+}
+@keyframes ui-modal-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ui-modal-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .ui-modal-overlay, .ui-modal { animation: none; }
+}

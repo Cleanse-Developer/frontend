@@ -1,0 +1,18 @@
+.ui-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #C8AD73; /* gold, matches the testimonial stars */
+}
+.ui-stars-star {
+  width: 16px;
+  height: 16px;
+  fill: rgba(46, 31, 20, 0.18);
+}
+.ui-stars-star.is-filled { fill: currentColor; }
+.ui-stars-value {
+  margin-left: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--base-600);
+}

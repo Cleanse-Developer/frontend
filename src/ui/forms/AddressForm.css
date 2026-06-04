@@ -1,0 +1,12 @@
+.ui-address-form { width: 100%; }
+.ui-address-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+.ui-address-col-2 { grid-column: 1 / -1; }
+.ui-address-submit { margin-top: 1rem; }
+@media (max-width: 600px) {
+  .ui-address-grid { grid-template-columns: 1fr; }
+  .ui-address-col-2 { grid-column: auto; }
+}

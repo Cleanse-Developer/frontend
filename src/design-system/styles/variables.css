@@ -1,0 +1,51 @@
+/* =============================================================================
+   Design System — CSS variables (token mirror)
+
+   This mirrors the `:root` block in src/app/globals.css so the design system is
+   self-describing and portable. globals.css remains the canonical runtime
+   declaration; the values here are IDENTICAL, so re-declaring them is a no-op
+   for appearance. Keep the two in sync.
+   ========================================================================== */
+:root {
+  /* Fonts */
+  --font-heading: 'Caelune Beauty', serif;
+  --font-body: 'Lexend', sans-serif;
+
+  /* Type scale roles */
+  --fs-card-title: clamp(0.8rem, 0.55rem + 1.1vw, 1.1rem);
+  --fs-card-price: clamp(0.8rem, 0.55rem + 1.1vw, 1.1rem);
+  --fs-card-desc:  clamp(0.7rem, 0.58rem + 0.55vw, 0.85rem);
+  --fs-card-btn:   clamp(0.75rem, 0.66rem + 0.4vw, 0.85rem);
+  --fs-card-tag:   clamp(0.55rem, 0.5rem + 0.2vw, 0.65rem);
+  --fs-section-title: clamp(1.5rem, 3vw, 2.5rem);
+
+  /* Spacing rhythm */
+  --gutter: 2rem;
+  --page-max: 1300px;
+  --section-py: 5rem;
+
+  /* Earthy Brown palette */
+  --base-100: #E7D0A6;
+  --base-200: #9E9268;
+  --base-300: #84592C;
+  --base-400: #722F14;
+  --base-500: #5A2510;
+  --base-600: #422D1C;
+  --base-700: #2E1F14;
+}
+
+@media (max-width: 1199px) and (orientation: portrait) {
+  :root { --gutter: 1.5rem; --section-py: 3.5rem; }
+}
+@media (max-width: 480px) {
+  :root { --gutter: 1rem; --section-py: 3rem; }
+}
+@media (min-width: 1440px) {
+  :root { --gutter: 4rem; --page-max: 1400px; }
+}
+@media (min-width: 1920px) {
+  :root { --gutter: 5rem; --page-max: 1700px; --section-py: 6rem; }
+}
+@media (min-width: 2560px) {
+  :root { --gutter: 6rem; --page-max: 2100px; --section-py: 7rem; }
+}

@@ -1,0 +1,21 @@
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+.ui-badge--solid { background: var(--base-700); color: var(--base-100); }
+.ui-badge--soft { background: rgba(132, 89, 44, 0.14); color: var(--base-600); }
+.ui-badge--outline {
+  background: transparent;
+  color: var(--base-600);
+  border: 1px solid rgba(46, 31, 20, 0.3);
+}

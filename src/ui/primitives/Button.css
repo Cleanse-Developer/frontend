@@ -1,0 +1,77 @@
+/* Button — values copied verbatim from the existing canonical buttons so each
+   variant renders identically to its source. */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 500;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* rect — from .add-to-cart-btn */
+.ui-btn--rect {
+  background-color: #E7D0A6;
+  color: var(--base-700);
+  padding: 0.75rem;
+  font-size: clamp(0.75rem, 0.9vw, 0.8rem);
+  border-radius: 0.5rem;
+  transition: transform 0.2s ease;
+}
+.ui-btn--rect:active { transform: scale(0.95); }
+
+/* pill — from .featured-cta-btn */
+.ui-btn--pill {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background-color: var(--base-300);
+  color: var(--base-100);
+  font-size: 0.9rem;
+  border-radius: 9999px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ui-btn--pill:hover {
+  background-color: var(--base-400);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(132, 89, 44, 0.3);
+}
+
+/* hero — from home .hero-btn */
+.ui-btn--hero {
+  width: 14.3125rem;
+  height: 4.0625rem;
+  background-color: #C8AD73;
+  color: #fff;
+  font-size: 1.25rem;
+  letter-spacing: 0;
+  border-radius: 0.75rem;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ui-btn--hero:hover { transform: scale(1.05); }
+
+/* primary / secondary — from globals button.primary / .secondary */
+.ui-btn--primary {
+  background: var(--base-700);
+  color: var(--base-100);
+  padding: 1.25rem 0.75rem;
+  font-size: clamp(0.85rem, 1vw, 0.85rem);
+  border-radius: 0.5rem;
+  line-height: 1;
+  transition: 300ms all ease-in-out;
+}
+.ui-btn--secondary {
+  background: var(--base-400);
+  color: var(--base-100);
+  padding: 1.25rem 0.75rem;
+  font-size: clamp(0.85rem, 1vw, 0.85rem);
+  border-radius: 0.5rem;
+  line-height: 1;
+  transition: 300ms all ease-in-out;
+}
+.ui-btn--primary:active,
+.ui-btn--secondary:active { transform: scale(0.95); }
+
+.ui-btn[disabled] { opacity: 0.5; cursor: not-allowed; }

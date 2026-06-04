@@ -1,0 +1,38 @@
+.ui-order-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  background: #fff;
+  border: 1px solid rgba(46, 31, 20, 0.1);
+  border-radius: 0.75rem;
+}
+.ui-order-card-thumbs { display: flex; }
+.ui-order-card-thumb {
+  width: 46px;
+  height: 54px;
+  border-radius: 0.4rem;
+  overflow: hidden;
+  background: #F0EDE8;
+  margin-left: -10px;
+  border: 2px solid #fff;
+}
+.ui-order-card-thumb:first-child { margin-left: 0; }
+.ui-order-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ui-order-card-info { flex: 1; display: flex; flex-direction: column; gap: 0.3rem; }
+.ui-order-card-head { display: flex; align-items: center; gap: 0.6rem; }
+.ui-order-card-id { font-family: var(--font-body); font-weight: 600; color: var(--base-700); }
+.ui-order-card-meta { font-family: var(--font-body); font-size: 0.8rem; color: rgba(46, 31, 20, 0.55); }
+.ui-order-card-foot { display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem; }
+.ui-order-card-view {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--base-500);
+  cursor: pointer;
+}
+.ui-order-card-view:hover { color: var(--base-700); }

@@ -1,0 +1,43 @@
+/* =============================================================================
+   Design System — Layout utilities (opt-in)
+
+   Reusable container / section / grid / stack helpers built from the project's
+   --gutter / --page-max / --section-py rhythm. New selectors only.
+   ========================================================================== */
+
+/* Centered content column, gutter padding — the shared section content width. */
+.ds-container {
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Full-bleed band with the standard vertical rhythm. */
+.ds-section {
+  width: 100%;
+  padding-block: var(--section-py);
+  padding-inline: var(--gutter);
+}
+.ds-section > .ds-container {
+  padding-inline: 0; /* avoid double gutter when nesting */
+}
+
+/* Equal-column grids (the recurring repeat(N, 1fr) pattern). */
+.ds-grid { display: grid; gap: 1.5rem; }
+.ds-grid--2 { grid-template-columns: repeat(2, 1fr); }
+.ds-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.ds-grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 1024px) {
+  .ds-grid--4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .ds-grid--3,
+  .ds-grid--4 { grid-template-columns: 1fr; }
+}
+
+/* Flex stacks. */
+.ds-stack { display: flex; flex-direction: column; gap: 1rem; }
+.ds-stack--row { flex-direction: row; align-items: center; }
+.ds-stack--center { align-items: center; justify-content: center; }

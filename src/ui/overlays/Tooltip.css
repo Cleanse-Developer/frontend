@@ -1,0 +1,32 @@
+.ui-tooltip {
+  position: relative;
+  display: inline-flex;
+  outline: none;
+}
+.ui-tooltip-bubble {
+  position: absolute;
+  z-index: 50;
+  padding: 0.35rem 0.6rem;
+  background: var(--base-700);
+  color: var(--base-100);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  border-radius: 0.4rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.ui-tooltip:hover .ui-tooltip-bubble,
+.ui-tooltip:focus-visible .ui-tooltip-bubble { opacity: 1; transform: translateY(0); }
+
+.ui-tooltip--top .ui-tooltip-bubble { bottom: 100%; left: 50%; transform: translate(-50%, 4px); margin-bottom: 0.4rem; }
+.ui-tooltip--top:hover .ui-tooltip-bubble { transform: translate(-50%, 0); }
+.ui-tooltip--bottom .ui-tooltip-bubble { top: 100%; left: 50%; transform: translate(-50%, -4px); margin-top: 0.4rem; }
+.ui-tooltip--bottom:hover .ui-tooltip-bubble { transform: translate(-50%, 0); }
+.ui-tooltip--left .ui-tooltip-bubble { right: 100%; top: 50%; transform: translate(4px, -50%); margin-right: 0.4rem; }
+.ui-tooltip--left:hover .ui-tooltip-bubble { transform: translate(0, -50%); }
+.ui-tooltip--right .ui-tooltip-bubble { left: 100%; top: 50%; transform: translate(-4px, -50%); margin-left: 0.4rem; }
+.ui-tooltip--right:hover .ui-tooltip-bubble { transform: translate(0, -50%); }

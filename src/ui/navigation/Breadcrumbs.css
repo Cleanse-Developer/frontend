@@ -1,0 +1,20 @@
+/* Breadcrumbs — from .blog-breadcrumb / .wardrobe-breadcrumb */
+.ui-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ui-breadcrumbs-item { display: inline-flex; align-items: center; gap: 0.35rem; }
+.ui-breadcrumbs-link {
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+.ui-breadcrumbs-link:hover { opacity: 1; }
+.ui-breadcrumbs-current { color: inherit; opacity: 1; }
+.ui-breadcrumbs-sep { opacity: 0.5; }

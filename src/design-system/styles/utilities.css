@@ -1,0 +1,123 @@
+/* =============================================================================
+   Design System — Utilities (opt-in, consolidated patterns)
+
+   Reusable classes distilled from the most copy-pasted blocks across the app.
+   New selectors only — adopting them is opt-in and pixel-identical to the
+   originals they were extracted from. See docs/COMPONENT_MAP.md for the
+   migration backlog mapping existing classes to these.
+   ========================================================================== */
+
+/* ---- Buttons ------------------------------------------------------------- */
+
+/* Pill CTA — from .featured-cta-btn / .sbp-cta / .rhr-cta */
+.ds-btn--pill {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background-color: var(--base-300);
+  color: var(--base-100);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ds-btn--pill:hover {
+  background-color: var(--base-400);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(132, 89, 44, 0.3);
+}
+
+/* Rect button — from .add-to-cart-btn / .product-card-buy-btn */
+.ds-btn--rect {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #E7D0A6;
+  color: var(--base-700);
+  padding: 0.75rem;
+  font-size: clamp(0.75rem, 0.9vw, 0.8rem);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 0.5rem;
+  transition: transform 0.2s ease;
+}
+.ds-btn--rect:active { transform: scale(0.95); }
+
+/* Hero button — from home .hero-btn */
+.ds-btn--hero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14.3125rem;
+  height: 4.0625rem;
+  background-color: #C8AD73;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ds-btn--hero:hover { transform: scale(1.05); }
+
+/* ---- Cards --------------------------------------------------------------- */
+
+/* Generic white rounded card. */
+.ds-card {
+  position: relative;
+  background-color: #fff;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.08);
+}
+/* Tan media card — from .featured-card */
+.ds-card--tan {
+  background-color: #D9C9A8;
+  border-radius: 1.5rem;
+  box-shadow: none;
+}
+
+/* ---- Badge / chip -------------------------------------------------------- */
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* ---- Layout helpers ------------------------------------------------------ */
+.ds-flex { display: flex; }
+.ds-flex-center { display: flex; align-items: center; justify-content: center; }
+.ds-flex-between { display: flex; align-items: center; justify-content: space-between; }
+.ds-flex-col { display: flex; flex-direction: column; }
+.ds-gap-sm { gap: 0.5rem; }
+.ds-gap-md { gap: 1rem; }
+.ds-gap-lg { gap: 1.5rem; }
+.ds-w-full { width: 100%; }
+.ds-text-center { text-align: center; }
+.ds-relative { position: relative; }
+.ds-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
