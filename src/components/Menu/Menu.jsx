@@ -96,7 +96,7 @@ const Menu = () => {
     instagram: "https://www.instagram.com/cleanseayurveda/",
     youtube: "https://www.youtube.com/@cleanseayurveda",
   };
-  const logoSrc = cmsHeader.logoImage?.url || "/logo.png";
+  const logoSrc = cmsHeader.logoImage?.url || "/cleanse-logo.svg";
 
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);

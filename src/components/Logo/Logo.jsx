@@ -1,13 +1,12 @@
 import "./Logo.css";
 
 /*
-  Brand wordmark with a registered-trademark (®) mark anchored to the
-  top-right of the actual "CLEANSE" glyph (the PNG has ~6% transparent
-  padding on the right / ~18% on top, accounted for below). The ® scales
-  with the logo via container units and inherits color from --logo-r-color.
+  Brand wordmark. The registered-trademark (®) mark is baked into the SVG
+  itself (top-right of the "CLEANSE" glyph) so it scales and recolors
+  (via CSS filters) together with the logo at every placement.
 */
 const Logo = ({
-  src = "/logo.png",
+  src = "/cleanse-logo.svg",
   alt = "Cleanse",
   className = "",
   imgClassName = "",
@@ -15,7 +14,6 @@ const Logo = ({
 }) => (
   <span className={`logo-mark ${className}`}>
     <img src={src} alt={alt} className={imgClassName} {...imgProps} />
-    <span className="logo-mark-r" aria-hidden="true">&reg;</span>
   </span>
 );
 

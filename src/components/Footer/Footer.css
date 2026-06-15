@@ -155,13 +155,11 @@ footer {
   width: clamp(180px, 30vw, 340px);
   height: auto;
   display: block;
-  filter: brightness(0);
 }
 
-/* Wrapper carries the wordmark's left-padding compensation so the ® stays
-   anchored to the glyph; black mark to match the brightness(0) logo. */
+/* Tightly-cropped SVG wordmark (brand orange, ® baked in) sits flush at the
+   column's left edge. */
 .footer-logo-mark {
-  margin-left: -1.5rem;
   /* Don't let the flex column stretch the wrapper to full width */
   align-self: flex-start;
   --logo-r-color: #1a1a1a;

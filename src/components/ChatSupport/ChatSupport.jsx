@@ -108,7 +108,7 @@ const ChatSupport = () => {
         <div className="chat-header">
           <div className="chat-header-info">
             <div className="chat-avatar">
-              <img src="/logo.png" alt="Cleanse" />
+              <img src="/cleanse-monogram.svg" alt="Cleanse" />
             </div>
             <div>
               <h4>Cleanse Support</h4>
@@ -134,7 +134,7 @@ const ChatSupport = () => {
             <div key={index} className={`chat-message ${message.type}`}>
               {message.type === "bot" && (
                 <div className="message-avatar">
-                  <img src="/logo.png" alt="Bot" />
+                  <img src="/cleanse-monogram.svg" alt="Bot" />
                 </div>
               )}
               <div className="message-bubble">

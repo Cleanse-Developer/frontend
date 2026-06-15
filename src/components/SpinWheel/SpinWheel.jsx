@@ -357,7 +357,7 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
                   <circle cx={centerX} cy={centerY} r="35" fill="#4F2C22" stroke="#663532" strokeWidth="3" />
                 </svg>
                 <div className="wheel-center-logo">
-                  <img src="/logo.png" alt="Cleanse" />
+                  <img src="/cleanse-monogram.svg" alt="Cleanse" />
                 </div>
               </div>
             </div>

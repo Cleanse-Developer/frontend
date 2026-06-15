@@ -208,9 +208,9 @@ export default function Index() {
           ))}
           <div className="container">
             <div className="hero-header">
-              <Copy type="flicker" animateOnScroll={false} delay={isInitialLoad ? 5.5 : 0.65}>
-                <h1>{settings.cmsHero?.title || "Cleanse Ayurveda"}</h1>
-              </Copy>
+              <h1 className="hero-logo-heading">
+                <img src="/cleanse-logo.svg" alt={settings.cmsHero?.title || "Cleanse Ayurveda"} />
+              </h1>
               <Copy animateOnScroll={false} delay={isInitialLoad ? 5.7 : 0.85}>
                 <p className="hero-subtitle">{settings.cmsHero?.subtitle || "Natural Skin Care for Mindful Living"}</p>
               </Copy>

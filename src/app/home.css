@@ -235,6 +235,22 @@
   text-transform: uppercase;
 }
 
+/* Brand wordmark used in place of the hero heading text. A subtle shadow
+   keeps the orange logo legible over the rotating photo backgrounds. */
+.hero .hero-header h1.hero-logo-heading {
+  line-height: 0;
+}
+
+.hero .hero-header h1.hero-logo-heading img {
+  width: clamp(200px, 30vw, 440px);
+  height: auto;
+  display: inline-block;
+  vertical-align: top;
+  /* Nudge the wordmark slightly toward the right edge */
+  transform: translateX(clamp(0.75rem, 2vw, 2rem));
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+}
+
 .hero .hero-subtitle {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 1rem;
@@ -243,6 +259,9 @@
   line-height: 1;
   letter-spacing: 0;
   text-align: center;
+  /* Without this, flexbox sizes the line to max-content (one long line) which
+     overflows the right-aligned header and gets clipped by the hero. */
+  max-width: 100%;
 }
 
 .hero .hero-btn-wrapper {

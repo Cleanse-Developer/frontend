@@ -83,7 +83,7 @@ const Footer = () => {
             </div>
           </div>
 
-          <Logo src="/logo.png" className="footer-logo-mark" imgClassName="footer-logo" />
+          <Logo src="/cleanse-logo.svg" className="footer-logo-mark" imgClassName="footer-logo" />
 
           <address className="footer-contact">
             {addressLines.map((line, i) => (
