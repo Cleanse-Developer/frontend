@@ -19,6 +19,7 @@ import BlogSection from "@/components/BlogSection/BlogSection";
 import BeforeAfter from "@/components/BeforeAfter/BeforeAfter";
 
 import Copy from "@/components/Copy/Copy";
+import Logo from "@/components/Logo/Logo";
 
 import FOMOPopup from "@/components/FOMOPopup/FOMOPopup";
 import ChatSupport from "@/components/ChatSupport/ChatSupport";
@@ -209,7 +210,12 @@ export default function Index() {
           <div className="container">
             <div className="hero-header">
               <h1 className="hero-logo-heading">
-                <img src="/cleanse-logo.svg" alt={settings.cmsHero?.title || "Cleanse Ayurveda"} />
+                <Logo
+                  src="/logo.png"
+                  alt={settings.cmsHero?.title || "Cleanse Ayurveda"}
+                  className="hero-logo-mark"
+                  imgClassName="hero-logo-img"
+                />
               </h1>
               <Copy animateOnScroll={false} delay={isInitialLoad ? 5.7 : 0.85}>
                 <p className="hero-subtitle">{settings.cmsHero?.subtitle || "Natural Skin Care for Mindful Living"}</p>
@@ -221,9 +227,7 @@ export default function Index() {
           </div>
         </section>
         <div className="hero-bottom-tagline">
-          <img className="hero-tagline-leaf hero-tagline-leaf--left" src="/cleanse-hero/1.png" alt="" aria-hidden="true" loading="lazy" />
           <p className="hero-tagline">{`\u201c${settings.cmsFormula?.tagline || "We aren\u2019t merely selling bottles; we are delivering a clinically-backed path to purity."}\u201d`}</p>
-          <img className="hero-tagline-leaf hero-tagline-leaf--right" src="/cleanse-hero/2.png" alt="" aria-hidden="true" loading="lazy" />
         </div>
       </div>
 

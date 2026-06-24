@@ -208,7 +208,7 @@ function LoginContent() {
         <div className="login-visual-overlay"></div>
         <div className="login-visual-content">
           <Link href="/" className="login-visual-logo">
-            <Logo src="/cleanse-logo.svg" alt="Cleanse Ayurveda" className="login-logo-mark" />
+            <Logo src="/logo.png" alt="Cleanse Ayurveda" className="login-logo-mark" />
           </Link>
           <div className="login-visual-text">
             <h2 className="login-visual-heading">Welcome to Cleanse Ayurveda</h2>

@@ -7,6 +7,7 @@
   "/checkout/page": "app/checkout/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/genesis/page": "app/genesis/page.js",
+  "/icon.svg/route": "app/icon.svg/route.js",
   "/login/page": "app/login/page.js",
   "/lookbook/page": "app/lookbook/page.js",
   "/orders/page": "app/orders/page.js",

@@ -108,7 +108,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/Users/moon",
+    "outputFileTracingRoot": "/Volumes/Moon/cleanse/frontend",
     "cacheComponents": false,
     "cacheLife": {
       "default": {
@@ -306,12 +306,12 @@
         "es-set-tostringtag": "./src/lib/empty.js",
         "hasown": "./src/lib/empty.js"
       },
-      "root": "/Users/moon"
+      "root": "/Volumes/Moon/cleanse/frontend"
     },
     "distDirRoot": ".next"
   },
-  "appDir": "/Users/moon/Documents/cleanse/frontend",
-  "relativeAppDir": "Documents/cleanse/frontend",
+  "appDir": "/Volumes/Moon/cleanse/frontend",
+  "relativeAppDir": "",
   "files": [
     ".next/routes-manifest.json",
     ".next/server/pages-manifest.json",

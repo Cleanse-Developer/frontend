@@ -155,16 +155,32 @@ footer {
   width: clamp(180px, 30vw, 340px);
   height: auto;
   display: block;
+  opacity: 0;
 }
 
-/* Tightly-cropped SVG wordmark (brand orange, ® baked in) sits flush at the
-   column's left edge. */
+/* Tightly-cropped wordmark sits flush at the column's left edge. */
 .footer-logo-mark {
   /* Don't let the flex column stretch the wrapper to full width */
   align-self: flex-start;
-  --logo-r-color: #1a1a1a;
-  /* Tracks the clamp(180px, 30vw, 340px) logo width */
-  --logo-r-size: clamp(0.7rem, 1.86vw, 1.3rem);
+  transform: translateX(-1.25rem);
+  --logo-r-color: #422D1C;
+  --logo-r-size: clamp(0.42rem, 0.75vw, 0.7rem);
+  --logo-r-top: 2%;
+  --logo-r-right: -1.05em;
+}
+
+.footer-logo-mark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #422D1C;
+  -webkit-mask: url("/logo.png") center / contain no-repeat;
+  mask: url("/logo.png") center / contain no-repeat;
+  pointer-events: none;
+}
+
+.footer-logo-mark .logo-registered {
+  z-index: 1;
 }
 
 /* Address + contact details */
@@ -416,6 +432,7 @@ footer {
     align-self: center;
     margin-left: 0;
     margin-bottom: 0.25rem;
+    transform: none;
   }
 
   .footer-logo {

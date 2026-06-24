@@ -112,80 +112,10 @@
 }
 
 .hero-bottom-tagline {
-  /* Static centered tagline. Botanical ornaments sit BEHIND the text on each
-     side, anchored to the bottom of this band. Full width + overflow:hidden so
-     the art is confined to THIS section (never bleeds into the section below). */
   position: relative;
   padding: 2.5rem 1.5rem 1.25rem;
   max-width: 100%;
   margin: 0 auto;
-  overflow: hidden;
-}
-
-/* Botanical ornaments behind the tagline. Class beats globals.css `img{width/height:100%}`.
-   Directional art (flowers in the bottom corners) — no flip; anchored bottom so
-   they rise from the band's lower edge and stay inside the section. */
-.hero-tagline-leaf {
-  position: absolute;
-  bottom: -2.5rem;
-  z-index: 0;
-  width: clamp(820px, 82vw, 1720px);
-  height: auto;
-  object-fit: contain;
-  pointer-events: none;
-  user-select: none;
-  /* Whole bottom edge stays pinned; only the upper part leans. skewX with the
-     origin at the bottom shears horizontally by height — the bottom row is
-     fixed and the top sways the most, like grass rooted in the ground. */
-  transform-origin: bottom center;
-  animation: hero-leaf-sway 8s ease-in-out infinite;
-  will-change: transform;
-}
-/* Offsets keep them near the screen edges; staggered timing so they drift out
-   of sync (the bottom stays pinned on both). */
-.hero-tagline-leaf--left {
-  left: -1vw;
-  animation-duration: 5.5s;
-}
-.hero-tagline-leaf--right {
-  right: -1vw;
-  animation-duration: 6.5s;
-  animation-direction: reverse;
-}
-
-@keyframes hero-leaf-sway {
-  0%, 100% { transform: skewX(-2deg); }
-  50% { transform: skewX(2deg); }
-}
-
-/* Soft cream gradient at the band's lower edge: hides the clipped bottom so the
-   botanicals appear to rise OUT of the page. Above the images (z-index 0,
-   painted after) but below the text (z-index 1). */
-.hero-bottom-tagline::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 5.5rem;
-  background: linear-gradient(
-    to top,
-    #F0EDE8 0%,
-    rgba(240, 237, 232, 0.92) 22%,
-    rgba(240, 237, 232, 0) 100%
-  );
-  z-index: 0;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-tagline-leaf { animation: none; }
-}
-
-/* Decorative desktop-only flourish — drop the big ornaments on tablet/phone
-   (tablet portrait runs up to 1199px) so they never overflow or crowd */
-@media (max-width: 1199px) {
-  .hero-tagline-leaf { display: none; }
 }
 
 .hero-bottom-tagline p {
@@ -205,7 +135,6 @@
   max-width: 46ch;
   text-wrap: balance;
   margin: 0 auto;
-  /* Sit on top of the leaf ornaments */
   position: relative;
   z-index: 1;
 }
@@ -236,18 +165,24 @@
 }
 
 /* Brand wordmark used in place of the hero heading text. A subtle shadow
-   keeps the orange logo legible over the rotating photo backgrounds. */
+   keeps the gold logo legible over the rotating photo backgrounds. */
 .hero .hero-header h1.hero-logo-heading {
   line-height: 0;
 }
 
-.hero .hero-header h1.hero-logo-heading img {
+.hero .hero-header h1.hero-logo-heading .hero-logo-mark {
+  --logo-r-color: #E5AD07;
+  --logo-r-size: clamp(0.55rem, 1.2vw, 0.95rem);
+  --logo-r-top: 2%;
+  --logo-r-right: -1.05em;
+  transform: translateX(clamp(0.75rem, 2vw, 2rem));
+}
+
+.hero .hero-header h1.hero-logo-heading .hero-logo-img {
   width: clamp(200px, 30vw, 440px);
   height: auto;
   display: inline-block;
   vertical-align: top;
-  /* Nudge the wordmark slightly toward the right edge */
-  transform: translateX(clamp(0.75rem, 2vw, 2rem));
   filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
 }
 
