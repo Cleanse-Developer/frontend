@@ -264,9 +264,9 @@ export const BentoSection = () => {
 
 export const ShopByCategory = () => {
   const categories = [
-    { id: 1, name: "SKIN CARE", image: "/images/c1.png", link: "/wardrobe?category=face-care" },
-    { id: 2, name: "HAIR CARE", image: "/images/c2.png", link: "/wardrobe?category=hair-care" },
-    { id: 3, name: "FACE CARE", image: "/images/c3.png", link: "/wardrobe?category=face-care" },
+    { id: 1, name: "skin care", image: "/images/c1.png", link: "/wardrobe?category=face-care" },
+    { id: 2, name: "hair care", image: "/images/c2.png", link: "/wardrobe?category=hair-care" },
+    { id: 3, name: "face care", image: "/images/c3.png", link: "/wardrobe?category=face-care" },
   ];
 
   return (
@@ -302,12 +302,26 @@ export const BuildYourRitual = () => {
     }).catch(() => {}).finally(refreshScrollTriggers);
   }, []);
 
+  const bundleRef = useRef(null);
+
   const toggleItem = (index) => {
     setSelected((prev) => {
       const next = [...prev];
       next[index] = !next[index];
       return next;
     });
+    // On mobile, reveal the bundle summary + "Add to Cart" button near the
+    // bottom of the viewport (with a little breathing room below).
+    if (typeof window !== "undefined" && window.innerWidth <= 480) {
+      requestAnimationFrame(() => {
+        const el = bundleRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const extra = 140; // scroll a bit further so the bar isn't at the very edge
+        const top = window.scrollY + rect.bottom - window.innerHeight + extra;
+        window.scrollTo({ top, behavior: "smooth" });
+      });
+    }
   };
 
   const products = bundleData ? (bundleData.products || []) : [];
@@ -382,7 +396,39 @@ export const BuildYourRitual = () => {
             );
           })}
         </div>
-        <div className="byr-bundle">
+        <div className="byr-bundle" ref={bundleRef}>
+          {/* Compact "zomato-style" bar — shown on mobile only */}
+          <div className="byr-bundle-compact">
+            <div className="byr-compact-left">
+              <div className="byr-compact-thumbs">
+                {products
+                  .filter((_, i) => selected[i])
+                  .slice(0, 3)
+                  .map((product, i) => {
+                    const imgSrc = (product.images?.find((img) => img.isPrimary) || product.images?.[0])?.url || `/images/${(i % 4) + 1}.png`;
+                    return (
+                      <div className="byr-compact-thumb" key={product._id || i}>
+                        <img src={imgSrc} alt={product.name} />
+                      </div>
+                    );
+                  })}
+              </div>
+              <div className="byr-compact-text">
+                <span className="byr-compact-count">{selectedCount} item{selectedCount === 1 ? "" : "s"} added</span>
+                <span className="byr-compact-sub">
+                  ₹{meetsMin ? discountedTotal : originalTotal}
+                  {meetsMin && savings > 0 ? ` · Save ₹${savings}` : ""}
+                </span>
+              </div>
+            </div>
+            {selectedCount > 0 && (
+              <button className="byr-compact-btn" onClick={handleAddToCart}>
+                Add <span aria-hidden="true">›</span>
+              </button>
+            )}
+          </div>
+
+          <div className="byr-bundle-full">
           <h3 className="byr-bundle-title">YOUR BUNDLE</h3>
           <p className="byr-bundle-desc">
             {meetsMin
@@ -437,6 +483,7 @@ export const BuildYourRitual = () => {
               ADD BUNDLE TO CART
             </button>
           )}
+          </div>
         </div>
       </div>
     </section>

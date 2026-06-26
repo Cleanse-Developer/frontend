@@ -114,6 +114,12 @@
     height: 100svh;
   }
 
+  /* Lift "Source: Himalayan" off the bottom edge so it reads like a normal
+     section's bottom padding (the blog below then matches the other sections). */
+  .peel-reveal .section-footer {
+    bottom: 1rem;
+  }
+
   .peel-reveal .peel-reveal-img-container {
     border-radius: 1rem;
   }

@@ -165,8 +165,8 @@ footer {
   transform: translateX(-1.25rem);
   --logo-r-color: #422D1C;
   --logo-r-size: clamp(0.42rem, 0.75vw, 0.7rem);
-  --logo-r-top: 2%;
-  --logo-r-right: -1.05em;
+  --logo-r-top: -2%;
+  --logo-r-right: -0.15em;
 }
 
 .footer-logo-mark::before {
@@ -292,6 +292,75 @@ footer {
 
 .footer-legal-links a:hover {
   opacity: 0.6;
+}
+
+/* Mobile/tablet (<=1000px): keep the 4-column layout, just a MODERATE bump in
+   text size (!important so it wins regardless of viewport width). */
+@media (max-width: 1000px) {
+  footer {
+    margin-top: 0;
+    border-top-left-radius: 32px;
+    border-top-right-radius: 32px;
+  }
+
+  .footer-container {
+    padding: 2rem var(--gutter) 1.25rem;
+    gap: 1.5rem;
+  }
+
+  .footer-top {
+    gap: 1.25rem 1rem !important;
+  }
+
+  .footer-pages-title {
+    font-size: 0.85rem !important;
+  }
+
+  .footer-pages-links a {
+    font-size: 0.78rem !important;
+  }
+
+  .footer-logo {
+    width: clamp(210px, 54vw, 310px);
+  }
+
+  .footer-contact-line {
+    font-size: 0.96rem !important;
+  }
+
+  /* All four socials on ONE horizontal line */
+  .footer-socials {
+    flex-wrap: nowrap !important;
+    gap: 0.9rem;
+    justify-content: center;
+  }
+
+  .footer-socials a {
+    font-size: 0.8rem !important;
+    white-space: nowrap;
+  }
+
+  .footer-legal {
+    flex-direction: column;
+    gap: 0.85rem;
+    padding-bottom: 0.85rem;
+    text-align: center;
+  }
+
+  .footer-legal-links {
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+
+  /* "...ALL RIGHTS RESERVED" stays on one line */
+  .footer-copyright {
+    font-size: 0.76rem !important;
+    white-space: nowrap;
+  }
+
+  .footer-legal-links a {
+    font-size: 0.88rem !important;
+  }
 }
 
 /* Tablet (iPad portrait + landscape): scaled-down paddings/fonts.

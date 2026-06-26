@@ -524,7 +524,8 @@
 
 .bundle-card {
   background-color: #fff;
-  border-radius: 17.87px;
+  /* Match the product cards' corner radius (16px) */
+  border-radius: 16px;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -539,8 +540,16 @@
   transition: box-shadow 0.3s ease;
 }
 
-.bundle-card-selected {
-  box-shadow: 0 0 0 3px #4F2C22;
+/* Overlay border on a pseudo-element so it paints ABOVE the (overflow-clipped,
+   scaled) product image and follows the card's rounded corners. */
+.bundle-card-selected::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 3px solid #4F2C22;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 3;
 }
 
 .bundle-card-image {
@@ -795,6 +804,110 @@
 
 .bundle-add-btn:active {
   transform: scale(0.98);
+}
+
+/* ===== Compact "zomato-style" bundle bar — hidden on desktop, shown on
+   mobile (see media queries), matching the home Build Your Ritual bar. ===== */
+.bundle-compact {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 50px;
+}
+
+.bundle-compact-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.bundle-compact-thumbs {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.bundle-compact-thumb {
+  --thumb-size: 46px;
+  --thumb-overlap: -16px;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #663532;
+  background: #fff;
+  flex-shrink: 0;
+  margin-left: var(--thumb-overlap);
+  animation: bundle-thumb-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.bundle-compact-thumb:first-child {
+  --thumb-overlap: 0px;
+}
+
+@keyframes bundle-thumb-in {
+  0%   { opacity: 0; width: 0; height: 0; margin-left: 0; }
+  100% { opacity: 1; width: var(--thumb-size); height: var(--thumb-size); margin-left: var(--thumb-overlap); }
+}
+
+.bundle-compact-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.2);
+}
+
+.bundle-compact-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.bundle-compact-count {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.bundle-compact-sub {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.bundle-compact-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.7rem 1.4rem;
+  background: #C8AD73;
+  color: #4F2C22;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.bundle-compact-btn span {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bundle-compact-thumb {
+    animation: none;
+  }
 }
 
 /* === Product Info Tabs === */
@@ -1062,7 +1175,7 @@
   font-weight: 500;
   color: var(--base-400);
   width: 14px;
-  text-align: right;
+  text-align: left;
 }
 
 .review-bar-track {
@@ -1125,38 +1238,57 @@
   gap: 1.5rem;
 }
 
+/* One page (4 reviews) at a time — height fits exactly those 4 cards. */
 .reviews-barrel {
   position: relative;
-  height: 420px;
+  height: auto;
   overflow: hidden;
   flex: 1;
-}
-
-.reviews-barrel::before,
-.reviews-barrel::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 80px;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.reviews-barrel::before {
-  top: 0;
-  background: linear-gradient(to bottom, #F0EDE8 0%, rgba(240,237,232,0.8) 50%, transparent 100%);
-}
-
-.reviews-barrel::after {
-  bottom: 0;
-  background: linear-gradient(to top, #F0EDE8 0%, rgba(240,237,232,0.8) 50%, transparent 100%);
 }
 
 .reviews-barrel-track {
   display: flex;
   flex-direction: column;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Re-keyed per page in the JSX, so the entry animation replays on each change.
+   Down arrow → the next page slides UP into view; up arrow → it slides DOWN. */
+.reviews-barrel-track.review-anim-down {
+  animation: review-slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reviews-barrel-track.review-anim-up {
+  animation: review-slide-down 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes review-slide-up {
+  from { opacity: 0; transform: translateY(60px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes review-slide-down {
+  from { opacity: 0; transform: translateY(-60px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reviews-barrel-track { animation: none; }
+}
+
+/* Uniform, compact card height so a page of 4 stays tidy (long reviews clamped) */
+.review-card {
+  height: 190px;
+  padding: 1.5rem 0;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.review-card .review-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Navigation Buttons */
@@ -1169,9 +1301,12 @@
 }
 
 .reviews-nav-btn {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  aspect-ratio: 1;       /* guarantees a perfect circle, not an oval */
+  flex: 0 0 auto;
+  padding: 0;            /* cancel any global button padding */
+  box-sizing: border-box;
   border-radius: 50%;
   border: 1px solid var(--base-200);
   background: #F0EDE8;
@@ -1186,8 +1321,8 @@
 /* Pin the arrow size — the global `svg{width:100%;height:100%;object-fit:cover}`
    was scaling/cropping the chevron until it disappeared inside the button. */
 .reviews-nav-btn svg {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   object-fit: contain;
 }
 
@@ -1420,7 +1555,7 @@
   }
 
   .reviews-barrel {
-    height: 360px;
+    height: auto;
   }
 
   .reviews-barrel::before,
@@ -1436,11 +1571,12 @@
   .reviews-nav-buttons {
     flex-direction: row;
     justify-content: center;
+    gap: 1rem;
   }
 
   .reviews-nav-btn {
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
   }
 
   .bundle-section {
@@ -1465,10 +1601,39 @@
     width: 100%;
   }
 
+  /* Full-width card: lay the bundle products out as a horizontal row of
+     compact chips (thumbnail + name/price stacked beneath) instead of a tall
+     vertical list, so the "YOUR BUNDLE" card stops eating vertical space. */
   .bundle-summary-slots {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .bundle-slot {
+    flex: 0 0 auto;
+    width: 80px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.4rem;
+  }
+
+  .bundle-slot-img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .bundle-slot-info {
+    align-items: center;
+    text-align: center;
+    gap: 0.15rem;
+    width: 100%;
+  }
+
+  .bundle-slot-line {
+    align-self: center;
   }
 
   .product-policies {
@@ -1503,10 +1668,39 @@
     padding: 1.5rem;
   }
 
+  /* Mobile portrait: lay the "YOUR BUNDLE" products out as a wrapping row of
+     compact chips (thumbnail + name/price beneath) so the card stays short. */
   .bundle-summary-slots {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+
+  .bundle-slot {
+    flex: 0 0 auto;
+    width: 76px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .bundle-slot-img {
+    width: 76px;
+    height: 76px;
+  }
+
+  .bundle-slot-info {
+    align-items: center;
+    text-align: center;
+    gap: 0.15rem;
+    width: 100%;
+  }
+
+  .bundle-slot-line {
+    align-self: center;
   }
 
   .product-cart-row {
@@ -1589,8 +1783,15 @@
     gap: 1rem;
   }
 
+  /* Bigger product name, smaller description */
   .product-title {
-    font-size: 1.35rem;
+    font-size: 1.7rem;
+    line-height: 1.2;
+  }
+
+  .product-description {
+    font-size: 0.9rem;
+    line-height: 1.55;
   }
 
   .product-sizes {
@@ -1611,22 +1812,30 @@
     justify-content: center;
   }
 
-  .add-to-cart-btn {
-    width: 100%;
-  }
-
+  /* Make both CTAs identical size (same padding/height) */
+  .add-to-cart-btn,
   .buy-now-btn {
     width: 100%;
+    padding: 0.85rem 1rem;
+    font-size: 0.8rem;
   }
 
+  /* One horizontal line: "7 Day Return Policy" left, "Ships Worldwide" right */
   .product-policies {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     gap: 0.5rem;
+    flex-wrap: nowrap;
   }
 
   .policy-divider {
     display: none;
+  }
+
+  .product-policies .policy-item span {
+    font-size: 0.72rem;
+    white-space: nowrap;
   }
 
   .bundle-section {
@@ -1635,20 +1844,21 @@
 
   .bundle-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 
   .bundle-card {
     border-radius: 12px;
   }
 
+  /* Taller image so the bundle cards aren't square — match the product cards */
   .bundle-card-image {
-    height: 130px;
-    padding: 0.75rem;
+    height: 200px;
+    padding: 0.5rem;
   }
 
   .bundle-card-info {
-    padding: 0 0.75rem 0.75rem;
+    padding: 0 0.6rem 0.75rem;
   }
 
   .bundle-header {
@@ -1703,25 +1913,69 @@
     padding: 0.75rem 1rem;
   }
 
+  /* Collapse the brown summary into a compact zomato-style pill (same as home) */
   .bundle-summary {
-    padding: 1.25rem;
-    border-radius: 12px;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.5rem 0.55rem;
+    border-radius: 8px;
   }
 
+  .bundle-summary-full {
+    display: none;
+  }
+
+  .bundle-compact {
+    display: flex;
+  }
+
+  .bundle-compact-thumb {
+    --thumb-size: 40px;
+    --thumb-overlap: -14px;
+  }
+
+  .bundle-compact-count {
+    font-size: 0.92rem;
+  }
+
+  .bundle-compact-btn {
+    padding: 0.6rem 1.1rem;
+    font-size: 0.82rem;
+  }
+
+  /* Narrow phones: same horizontal chip row, just smaller thumbnails. */
   .bundle-summary-slots {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.6rem;
   }
 
   .bundle-slot {
-    gap: 0.5rem;
+    flex: 0 0 auto;
+    width: 64px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.3rem;
+    min-width: 0;
   }
 
   .bundle-slot-img {
-    width: 40px;
-    height: 40px;
+    width: 64px;
+    height: 64px;
     border-radius: 8px;
+  }
+
+  .bundle-slot-info {
+    align-items: center;
+    text-align: center;
+    gap: 0.1rem;
+    width: 100%;
+  }
+
+  .bundle-slot-line {
+    align-self: center;
   }
 
   .bundle-slot-name {
@@ -1732,41 +1986,71 @@
     font-size: 0.65rem;
   }
 
+  /* Less dead space above the Recommended section */
   .recommended-section {
-    padding: 3rem var(--gutter);
+    padding: 0.5rem var(--gutter) 3rem;
   }
 
   .recommended-title {
     font-size: clamp(1.5rem, 6vw, 2rem);
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 
+  /* Tab headings were tiny; the paragraph + value icons/labels were oversized */
+  .info-tab {
+    font-size: 0.82rem;
+    padding: 0.6rem 0.9rem;
+    letter-spacing: 0.08em;
+  }
+
+  .info-tab-text {
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .info-tab-panel {
+    padding: 2rem 0;
+  }
+
+  /* Stretch children to full width so the values grid doesn't collapse left */
   .info-tab-panel-inner {
     gap: 1.5rem;
+    align-items: stretch;
   }
 
   .info-values-grid {
+    width: 100%;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+    justify-items: center;
+  }
+
+  /* Center every ingredient: icon + label centered in its cell */
+  .info-value-item {
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
   }
 
   .info-value-icon {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
   }
 
   .info-value-icon svg {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .info-value-label {
+    font-size: 0.72rem;
+    text-align: center;
+    width: 100%;
   }
 
   .reviews-barrel {
-    height: 300px;
-  }
-
-  .reviews-barrel::before,
-  .reviews-barrel::after {
-    height: 40px;
+    height: auto;
   }
 
   .reviews-title {
@@ -1791,12 +2075,20 @@
     padding: 0.75rem;
   }
 
+  /* Uniform compact cards so exactly 4 fit; clamp long reviews to 2 lines */
   .review-card {
-    padding: 1.25rem 0;
+    height: 120px;
+    padding: 0.75rem 0;
+    gap: 0.35rem;
   }
 
-  .review-text {
+  .review-card .review-text {
     font-size: 0.8rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .review-card-quote {
+    display: none;
   }
 
   .review-card-quote {
@@ -1804,8 +2096,8 @@
   }
 
   .reviews-nav-btn {
-    width: 30px;
-    height: 30px;
+    width: 44px;
+    height: 44px;
   }
 
   .reviews-section,
@@ -1835,6 +2127,7 @@
 
 .unit-page .add-to-cart-btn,
 .unit-page .buy-now-btn,
-.unit-page .bundle-add-btn {
+.unit-page .bundle-add-btn,
+.unit-page .product-card-buy-btn {
   text-transform: uppercase;
 }

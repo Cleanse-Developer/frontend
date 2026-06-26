@@ -1009,3 +1009,11 @@
 .blog-page * {
   font-family: 'Lexend', sans-serif;
 }
+
+/* Mobile: unify blog card radius with product/wardrobe cards (12px). */
+@media (max-width: 480px) {
+  .blog-featured-card,
+  .blog-grid-card {
+    border-radius: 12px;
+  }
+}

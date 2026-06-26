@@ -423,15 +423,18 @@
 
 @media (max-width: 480px) {
   .blog-section {
-    padding: var(--section-py) var(--gutter);
+    /* Standard top padding (the lifted PeelReveal "Source" caption acts as the
+       previous section's bottom, so STORIES now matches the other headings);
+       a little extra on the bottom for clear space after the cards. */
+    padding: var(--section-py) var(--gutter) calc(var(--section-py) * 1.5);
   }
 
   .blog-section-header {
     flex-direction: row;
     align-items: flex-end;
     gap: 0;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
+    margin-bottom: var(--section-title-gap, var(--section-py));
+    padding-bottom: 0;
   }
 
   .blog-section-title {
@@ -614,7 +617,7 @@
 /* Tablet PORTRAIT only — iPad landscape uses desktop layout */
 @media (max-width: 1199px) and (min-width: 481px) and (orientation: portrait) {
   .blog-section {
-    padding: var(--section-py) 1.5rem;
+    padding: var(--section-py) 1.5rem calc(var(--section-py) * 1.5);
   }
 
   .blog-section-header {
@@ -671,5 +674,20 @@
 
   .blog-card-title {
     font-size: 1.1rem;
+  }
+}
+
+/* Shared home-section rhythm for phone and portrait tablet. */
+@media (max-width: 1199px) and (orientation: portrait) {
+  .blog-section {
+    padding: var(--section-py) var(--gutter);
+  }
+
+  .blog-section-header {
+    margin-bottom: var(--section-title-gap, var(--section-py));
+  }
+
+  .blog-grid {
+    gap: var(--section-grid-gap, var(--gutter));
   }
 }

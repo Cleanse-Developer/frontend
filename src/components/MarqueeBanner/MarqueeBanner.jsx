@@ -1,6 +1,6 @@
 "use client";
 import "./MarqueeBanner.css";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useSettings } from "@/context/SettingsContext";
 
 import gsap from "gsap";
@@ -35,6 +35,122 @@ const MarqueeBanner = () => {
   const marquee2Ref = useRef(null);
   const marquee3Ref = useRef(null);
 
+  // --- Mobile: stacked deck that taps open into a momentum carousel ---------
+  const [isMobile, setIsMobile] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0); // centre card, for the dots
+  const N = reelsData.length;
+
+  const cardRefs = useRef([]);
+  const posRef = useRef(0);      // continuous scroll position, in card units
+  const velRef = useRef(0);      // velocity, card units per frame
+  const targetRef = useRef(null); // dot-tap easing target (or null)
+  const rafRef = useRef(null);
+  const draggingRef = useRef(false);
+  const pausedRef = useRef(false);
+  const startXRef = useRef(0);
+  const startPosRef = useRef(0);
+  const lastXRef = useRef(0);
+  const lastTRef = useRef(0);
+  const lastIdxRef = useRef(0);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 480px)");
+    const update = () => {
+      setIsMobile(mq.matches);
+      if (!mq.matches) { setExpanded(false); setActiveIndex(0); }
+    };
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // Position every card from the continuous scroll position. Imperative so the
+  // momentum stays buttery (no React re-render per frame). A card that loops
+  // past the half-way point wraps to the far edge — off-screen, so it's seamless.
+  const paintCards = () => {
+    for (let i = 0; i < N; i++) {
+      const el = cardRefs.current[i];
+      if (!el) continue;
+      let r = (((i - posRef.current) % N) + N) % N;
+      if (r > N / 2) r -= N;
+      const ar = Math.min(Math.abs(r), 1);
+      el.style.transform = `translate(calc(-50% + ${r * 70}%), -50%) scale(${1 - ar * 0.24})`;
+      el.style.zIndex = String(30 - Math.round(Math.abs(r) * 10));
+    }
+  };
+
+  // Animation loop while open: drag sets position directly; a flick decays with
+  // friction (carrying several cards); a dot-tap eases to a target; otherwise it
+  // drifts gently right-to-left. Hold pauses the drift.
+  useEffect(() => {
+    if (!isMobile || !expanded) return;
+    posRef.current = 0;
+    velRef.current = 0;
+    targetRef.current = null;
+    const FRICTION = 0.92, MINV = 0.004;
+    const loop = () => {
+      if (!draggingRef.current) {
+        if (Math.abs(velRef.current) > MINV) {
+          // flick momentum — glides smoothly across several cards
+          posRef.current += velRef.current;
+          velRef.current *= FRICTION;
+          if (Math.abs(velRef.current) <= MINV) targetRef.current = Math.round(posRef.current);
+        } else if (targetRef.current !== null) {
+          // ease to a card (settle after a flick, a dot tap, or an auto-step)
+          let diff = ((targetRef.current - posRef.current) % N + N) % N;
+          if (diff > N / 2) diff -= N;
+          if (Math.abs(diff) < 0.001) { posRef.current = targetRef.current; targetRef.current = null; }
+          else posRef.current += diff * 0.16;
+        }
+      }
+      posRef.current = ((posRef.current % N) + N) % N;
+      paintCards();
+      const idx = Math.round(posRef.current) % N;
+      if (idx !== lastIdxRef.current) { lastIdxRef.current = idx; setActiveIndex(idx); }
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    paintCards();
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [isMobile, expanded, N]);
+
+  const STEP_PX = 150; // finger px ~ one card
+
+  const onCardTouchStart = (e) => {
+    if (!expanded) return;
+    draggingRef.current = true;
+    pausedRef.current = true;
+    velRef.current = 0;
+    targetRef.current = null;
+    startXRef.current = lastXRef.current = e.touches[0].clientX;
+    startPosRef.current = posRef.current;
+    lastTRef.current = performance.now();
+  };
+  const onCardTouchMove = (e) => {
+    if (!expanded || !draggingRef.current) return;
+    const x = e.touches[0].clientX;
+    posRef.current = startPosRef.current - (x - startXRef.current) / STEP_PX;
+    const now = performance.now();
+    const dt = now - lastTRef.current;
+    if (dt > 0) velRef.current = (-(x - lastXRef.current) / STEP_PX / dt) * 16; // per-frame
+    lastXRef.current = x;
+    lastTRef.current = now;
+    paintCards();
+  };
+  const onCardTouchEnd = () => {
+    if (!expanded) return;
+    draggingRef.current = false;
+    pausedRef.current = false;
+    velRef.current = Math.max(-0.55, Math.min(0.55, velRef.current)); // cap the flick
+  };
+
+  // Stacked-deck transform (collapsed state, React-managed).
+  const getStackedStyle = (index) => ({
+    transform: `translate(-50%, -50%) translateX(${index * 6}%) translateY(${index * 10}px) rotate(${index * 4}deg) scale(${1 - index * 0.05})`,
+    zIndex: 30 - index * 10,
+  });
+
   useGSAP(
     () => {
       // Marquee scroll animation using timeline (GPU-optimized)
@@ -47,27 +163,33 @@ const MarqueeBanner = () => {
         },
       });
 
+      // On mobile keep the three lines nearly aligned (small, opposite drift);
+      // desktop keeps its bold staggered sweep.
+      const m = isMobile
+        ? [[6, -16], [-11, 11], [9, -14]]
+        : [[8, -60], [-42, 42], [25, -42]];
+
       tl.fromTo(marquee1Ref.current,
-        { xPercent: 5, force3D: true },
-        { xPercent: -35, duration: 1, ease: "none", force3D: true },
+        { xPercent: m[0][0], force3D: true },
+        { xPercent: m[0][1], duration: 1, ease: "none", force3D: true },
         0
       );
 
       tl.fromTo(marquee2Ref.current,
-        { xPercent: -25, force3D: true },
-        { xPercent: 25, duration: 1, ease: "none", force3D: true },
+        { xPercent: m[1][0], force3D: true },
+        { xPercent: m[1][1], duration: 1, ease: "none", force3D: true },
         0
       );
 
       if (marquee3Ref.current) {
         tl.fromTo(marquee3Ref.current,
-          { xPercent: 15, force3D: true },
-          { xPercent: -25, duration: 1, ease: "none", force3D: true },
+          { xPercent: m[2][0], force3D: true },
+          { xPercent: m[2][1], duration: 1, ease: "none", force3D: true },
           0
         );
       }
     },
-    { scope: marqueeBannerRef }
+    { scope: marqueeBannerRef, dependencies: [isMobile] }
   );
 
   return (
@@ -94,11 +216,19 @@ const MarqueeBanner = () => {
         <h2 className="reels-tagline">{cmsMarquee.sectionHeader || "VIEW TRENDING"}</h2>
       </div>
 
-      <div className="reels-container">
-        {reelsData.map((reel) => (
+      <div
+        className={`reels-container ${isMobile ? (expanded ? "is-carousel" : "is-stacked") : ""}`}
+        onClick={() => { if (isMobile && !expanded) setExpanded(true); }}
+      >
+        {reelsData.map((reel, i) => (
           <div
             key={reel.id}
+            ref={(el) => { cardRefs.current[i] = el; }}
             className={`reel-card reel-card-${reel.position}`}
+            style={isMobile && !expanded ? getStackedStyle(i) : undefined}
+            onTouchStart={onCardTouchStart}
+            onTouchMove={onCardTouchMove}
+            onTouchEnd={onCardTouchEnd}
           >
             <div className="reel-card-inner">
               <div className="reel-media">
@@ -129,6 +259,26 @@ const MarqueeBanner = () => {
           </div>
         ))}
       </div>
+
+      {isMobile && (
+        <div className="reel-mobile-controls">
+          {!expanded ? (
+            <span className="reel-stack-hint">Tap to view</span>
+          ) : (
+            <div className="reel-dots">
+              {reelsData.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={`reel-dot ${i === activeIndex ? "active" : ""}`}
+                  aria-label={`Go to reel ${i + 1}`}
+                  onClick={() => { targetRef.current = i; }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="reels-footer">
         <a

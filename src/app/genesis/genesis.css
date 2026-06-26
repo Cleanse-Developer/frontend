@@ -2,9 +2,9 @@
   position: relative;
   z-index: 4;
   background-color: #F0EDE8;
-  /* Match the home page's section rhythm (even 5rem top & bottom) so the
-     vertical spacing is consistent with shop-by-category / the bundle. */
-  --gen-pad-y: 5rem;
+  /* Match the home page's section rhythm exactly — uses --section-py, which is
+     5rem on desktop but tightens to ~2rem on mobile (same as the home page). */
+  --gen-pad-y: var(--section-py);
 }
 
 /* Single inner container: section owns the gutter, this owns max-width
@@ -672,6 +672,23 @@
     font-size: clamp(2.1rem, 10vw, 3.2rem);
   }
 
+  /* Consistent mobile type scale — one size for eyebrows, one for body copy,
+     one for sub-titles (section titles already share --fs-section-title). */
+  .gen-eyebrow {
+    font-size: 0.72rem;
+  }
+  .gen-hero-subtitle,
+  .gen-body,
+  .gen-value-desc,
+  .gen-journey-desc,
+  .gen-stat-label {
+    font-size: 0.95rem;
+  }
+  .gen-value-title,
+  .gen-journey-title {
+    font-size: 1.15rem;
+  }
+
   .gen-stats-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -693,3 +710,11 @@
 /* All content bands use .gen-inner (max-width-centered, no padding); the
    section supplies the gutter via padding-inline so every band's left/right
    edges line up with the rest of the site. */
+
+/* Mobile: unify genesis cards radius with product/wardrobe cards (12px). */
+@media (max-width: 480px) {
+  .gen-value-card,
+  .gen-lead-media {
+    border-radius: 12px;
+  }
+}

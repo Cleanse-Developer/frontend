@@ -1,7 +1,7 @@
 "use client";
 import "./unit.css";
 import "@/components/FeaturedSection/FeaturedSection.css";
-import { Suspense, use, useState, useEffect, useCallback } from "react";
+import { Suspense, use, useState, useEffect, useCallback, useRef } from "react";
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -169,7 +169,8 @@ function UnitContent({ params }) {
   const [activeBundleIndex, setActiveBundleIndex] = useState(0);
   const [bundleSelected, setBundleSelected] = useState([]);
   const [openTab, setOpenTab] = useState("ingredients");
-  const [reviewIndex, setReviewIndex] = useState(0);
+  const [reviewPage, setReviewPage] = useState(0);
+  const [reviewDir, setReviewDir] = useState("down");
   const [reviews, setReviews] = useState(fallbackReviews);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewForm, setReviewForm] = useState({ rating: 5, title: "", text: "" });
@@ -283,7 +284,7 @@ function UnitContent({ params }) {
         verified: r.isVerifiedPurchase === true,
       }));
       setReviews(apiReviews);
-      setReviewIndex(0); // Show newly submitted (or top) review
+      setReviewPage(0); // Show the first page (newest reviews)
     } catch (err) {
       const msg =
         err?.response?.data?.message ||
@@ -301,11 +302,25 @@ function UnitContent({ params }) {
   const activeBundle = bundles[activeBundleIndex] || null;
   const bundleProducts = activeBundle ? (activeBundle.products || []).map(normalizeProduct) : [];
 
+  const bundleSummaryRef = useRef(null);
+
   const toggleBundleItem = (index) => {
     const updated = [...bundleSelected];
     updated[index] = !updated[index];
     if (updated.filter(Boolean).length === 0) return;
     setBundleSelected(updated);
+    // On mobile, reveal the bundle summary + "Add to Cart" button near the
+    // bottom of the viewport (with a little breathing room below).
+    if (typeof window !== "undefined" && window.innerWidth <= 480) {
+      requestAnimationFrame(() => {
+        const el = bundleSummaryRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const extra = 140; // scroll a bit further so the bar isn't at the very edge
+        const top = window.scrollY + rect.bottom - window.innerHeight + extra;
+        window.scrollTo({ top, behavior: "smooth" });
+      });
+    }
   };
 
   const switchBundle = (index) => {
@@ -360,23 +375,22 @@ function UnitContent({ params }) {
   }, [pincode]);
 
   // Review scroll navigation
+  const REVIEW_PAGE = 4; // reviews shown (and advanced) per click
+
+  // The 4 reviews for the current page, wrapping around the list so a page is
+  // always full (no empty space) and it loops infinitely on click.
+  const visibleReviews = (() => {
+    const n = reviews.length;
+    if (n === 0) return [];
+    const start = (((reviewPage * REVIEW_PAGE) % n) + n) % n;
+    return Array.from({ length: Math.min(REVIEW_PAGE, n) }, (_, i) => reviews[(start + i) % n]);
+  })();
+
   const scrollToReview = useCallback((direction) => {
     if (!reviews || reviews.length === 0) return;
-    setReviewIndex((prev) => {
-      if (direction === 'up') {
-        return prev > 0 ? prev - 1 : reviews.length - 1;
-      } else {
-        return prev < reviews.length - 1 ? prev + 1 : 0;
-      }
-    });
+    setReviewDir(direction);
+    setReviewPage((p) => p + (direction === 'up' ? -1 : 1));
   }, [reviews.length]);
-
-  // Clamp reviewIndex if reviews list shrinks
-  useEffect(() => {
-    if (reviewIndex >= reviews.length) {
-      setReviewIndex(0);
-    }
-  }, [reviews.length, reviewIndex]);
 
   if (loading) {
     return (
@@ -604,7 +618,36 @@ function UnitContent({ params }) {
                 );
               })}
             </div>
-            <div className="bundle-summary">
+            <div className="bundle-summary" ref={bundleSummaryRef}>
+              {/* Compact "zomato-style" bar — shown on mobile only (same as home) */}
+              <div className="bundle-compact">
+                <div className="bundle-compact-left">
+                  <div className="bundle-compact-thumbs">
+                    {bundleProducts
+                      .filter((_, i) => bundleSelected[i])
+                      .slice(0, 3)
+                      .map((bp, i) => (
+                        <div className="bundle-compact-thumb" key={bp._id || i}>
+                          <img src={bp.primaryImage || `/images/${(i % 4) + 1}.png`} alt={bp.name} />
+                        </div>
+                      ))}
+                  </div>
+                  <div className="bundle-compact-text">
+                    <span className="bundle-compact-count">{selectedBundleCount} item{selectedBundleCount === 1 ? "" : "s"} added</span>
+                    <span className="bundle-compact-sub">
+                      &#8377;{bundleMeetsMin ? bundleDiscountedTotal : bundleOriginalTotal}
+                      {bundleMeetsMin && bundleOriginalTotal !== bundleDiscountedTotal ? ` · Save ₹${bundleOriginalTotal - bundleDiscountedTotal}` : ""}
+                    </span>
+                  </div>
+                </div>
+                {selectedBundleCount > 0 && (
+                  <button className="bundle-compact-btn" onClick={handleAddBundle}>
+                    Add <span aria-hidden="true">›</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="bundle-summary-full">
               <h4 className="bundle-summary-title">YOUR BUNDLE</h4>
               <p className="bundle-summary-desc">
                 {bundleMeetsMin
@@ -657,6 +700,7 @@ function UnitContent({ params }) {
               <button className="bundle-add-btn" onClick={handleAddBundle}>
                 Add Bundle to Cart
               </button>
+              </div>
             </div>
           </div>
         </section>
@@ -670,7 +714,11 @@ function UnitContent({ params }) {
               <button
                 key={tab.id}
                 className={`info-tab ${openTab === tab.id ? "active" : ""}`}
-                onClick={() => setOpenTab(tab.id)}
+                onClick={(e) => {
+                  setOpenTab(tab.id);
+                  // Scroll the tapped tab fully into view in the horizontal bar
+                  e.currentTarget.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+                }}
               >
                 {tab.label}
               </button>
@@ -812,12 +860,11 @@ function UnitContent({ params }) {
                 </div>
               ) : (
               <div className="reviews-barrel-wrapper">
+                {/* Shows exactly one page (4 reviews); the arrows page through
+                    them, wrapping around so a page is always full. */}
                 <div className="reviews-barrel">
-                  <div
-                    className="reviews-barrel-track"
-                    style={{ transform: `translateY(-${reviewIndex * 140}px)` }}
-                  >
-                    {reviews.map((review, index) => (
+                  <div className={`reviews-barrel-track review-anim-${reviewDir}`} key={reviewPage}>
+                    {visibleReviews.map((review, index) => (
                       <div key={index} className="review-card">
                         <div className="review-card-top">
                           <div className="review-stars">
@@ -844,10 +891,10 @@ function UnitContent({ params }) {
                   </div>
                 </div>
                 <div className="reviews-nav-buttons">
-                  <button className="reviews-nav-btn reviews-nav-up" aria-label="Previous review" onClick={() => scrollToReview('up')}>
+                  <button className="reviews-nav-btn reviews-nav-up" aria-label="Previous reviews" onClick={() => scrollToReview('up')}>
                     <FaChevronUp />
                   </button>
-                  <button className="reviews-nav-btn reviews-nav-down" aria-label="Next review" onClick={() => scrollToReview('down')}>
+                  <button className="reviews-nav-btn reviews-nav-down" aria-label="Next reviews" onClick={() => scrollToReview('down')}>
                     <FaChevronDown />
                   </button>
                 </div>

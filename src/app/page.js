@@ -210,12 +210,14 @@ export default function Index() {
           <div className="container">
             <div className="hero-header">
               <h1 className="hero-logo-heading">
-                <Logo
-                  src="/logo.png"
-                  alt={settings.cmsHero?.title || "Cleanse Ayurveda"}
-                  className="hero-logo-mark"
-                  imgClassName="hero-logo-img"
-                />
+                <span className="hero-logo-revealmask">
+                  <Logo
+                    src="/logo.png"
+                    alt={settings.cmsHero?.title || "Cleanse Ayurveda"}
+                    className="hero-logo-mark"
+                    imgClassName="hero-logo-img"
+                  />
+                </span>
               </h1>
               <Copy animateOnScroll={false} delay={isInitialLoad ? 5.7 : 0.85}>
                 <p className="hero-subtitle">{settings.cmsHero?.subtitle || "Natural Skin Care for Mindful Living"}</p>

@@ -506,16 +506,17 @@
     grid-column: 1;
     grid-row: 1 / 3;
     width: 100%;
-    height: 100%;
+    /* Stretch to exactly the two cards beside it (rows 1-2) and start flush
+       with them — no negative margin that pushes the banner up out of line. */
     align-self: stretch;
-    /* No min-height — let the grid sum card1 + gap + card2 and stretch
-       the banner to that exact height. Avoids dead space inside rows. */
+    height: auto;
+    min-height: 0;
+    margin-top: 0;
     border-radius: 31px !important;
     position: relative;
     overflow: hidden !important;
     z-index: 0;
     isolation: isolate;
-    margin-top: -0.5rem;
   }
 
   .side-banner .side-banner-img {
@@ -640,7 +641,12 @@
   }
 
   .side-banner {
-    height: 280px;
+    /* Stretch to the cards beside it instead of a fixed height that leaves
+       the banner and cards misaligned at the top/bottom. */
+    height: auto;
+    align-self: stretch;
+    min-height: 0;
+    margin-top: 0;
     border-radius: 20px;
   }
 
@@ -763,7 +769,11 @@
     grid-column: 1;
     grid-row: 1 / 3;
     border-radius: 31px;
-    min-height: 550px;
+    /* Stretch to the full height of the two cards it sits beside (rows 1-2)
+       instead of a fixed min-height that leaves it short of card 2's bottom. */
+    align-self: stretch;
+    height: auto;
+    min-height: 0;
     position: relative;
     z-index: 0;
     overflow: hidden;
@@ -806,8 +816,9 @@
     grid-row: 3;
   }
 
+  /* Match the home "Our Best Sellers" product card size on mobile (220px) */
   .wardrobe-page .product-card-image {
-    height: 180px;
+    height: 220px;
     border-radius: 12px;
   }
 
@@ -817,7 +828,7 @@
   }
 
   .wardrobe-page .product-card-cart-btn {
-    top: 140px;
+    top: 180px;
     right: 8px;
     height: 32px;
     width: 32px;
@@ -845,5 +856,30 @@
 
   .section-row-3 {
     margin-bottom: 2rem;
+  }
+}
+
+/* ============================================================
+   Mobile only: give the spotlight/side banners the SAME corner
+   radius as the product cards (~16px tablet-portrait, 12px phone)
+   instead of the big 31px banner radius. Desktop is left unchanged.
+   Appended last + scoped under .wardrobe-page so it overrides the
+   scattered `border-radius: 31px !important` rules above.
+   ============================================================ */
+@media (max-width: 1199px) and (orientation: portrait) {
+  .wardrobe-page .spotlight-banner,
+  .wardrobe-page .spotlight-banner-img,
+  .wardrobe-page .side-banner,
+  .wardrobe-page .side-banner .side-banner-img {
+    border-radius: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .wardrobe-page .spotlight-banner,
+  .wardrobe-page .spotlight-banner-img,
+  .wardrobe-page .side-banner,
+  .wardrobe-page .side-banner .side-banner-img {
+    border-radius: 12px !important;
   }
 }

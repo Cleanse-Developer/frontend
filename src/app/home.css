@@ -168,22 +168,51 @@
    keeps the gold logo legible over the rotating photo backgrounds. */
 .hero .hero-header h1.hero-logo-heading {
   line-height: 0;
+  transform: translateX(clamp(0.75rem, 2vw, 2rem));
+  /* Drop-shadow lives on the heading (outside the reveal mask) so it isn't
+     clipped at rest, while the inner mask still clips the slide-up. */
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+}
+
+/* Overflow mask for the slide-up reveal — mirrors .hero-btn-wrapper. The
+   padding gives the ® room to overhang without being clipped; the matching
+   negative margin cancels it so layout/position stay unchanged. */
+.hero .hero-header h1.hero-logo-heading .hero-logo-revealmask {
+  display: inline-block;
+  overflow: hidden;
+  line-height: 0;
+  vertical-align: top;
+  padding: 0.3em 0.4em 0 0;
+  margin: -0.3em -0.4em 0 0;
 }
 
 .hero .hero-header h1.hero-logo-heading .hero-logo-mark {
-  --logo-r-color: #E5AD07;
+  --logo-r-color: #FFFFFF;
   --logo-r-size: clamp(0.55rem, 1.2vw, 0.95rem);
-  --logo-r-top: 2%;
-  --logo-r-right: -1.05em;
-  transform: translateX(clamp(0.75rem, 2vw, 2rem));
+  --logo-r-top: -2%;
+  --logo-r-right: 0.6em;
+  /* Starts hidden below the mask; slides up on load in sync with the Shop Now
+     button + subtitle reveal (pure CSS, same pattern as .hero-btn) */
+  transform: translateY(110%);
+  animation: heroLogoReveal 0.8s ease-out 0.85s forwards;
+}
+
+@keyframes heroLogoReveal {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 .hero .hero-header h1.hero-logo-heading .hero-logo-img {
-  width: clamp(200px, 30vw, 440px);
+  width: clamp(200px, 22vw, 320px);
   height: auto;
   display: inline-block;
   vertical-align: top;
-  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+  /* Recolor the gold wordmark PNG to white (the drop-shadow is on the heading) */
+  filter: brightness(0) invert(1);
 }
 
 .hero .hero-subtitle {
@@ -191,7 +220,7 @@
   font-size: 1rem;
   font-weight: 500;
   color: #FFFFFF;
-  line-height: 1;
+  line-height: 1.25;
   letter-spacing: 0;
   text-align: center;
   /* Without this, flexbox sizes the line to max-content (one long line) which
@@ -223,7 +252,7 @@
   cursor: pointer;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateY(100%);
-  animation: btnReveal 0.8s ease-out 1.05s forwards;
+  animation: btnReveal 0.8s ease-out 0.85s forwards;
 }
 
 @keyframes btnReveal {
@@ -788,14 +817,14 @@
   }
 
   .formulas {
-    padding: 1rem 0 2rem;
+    padding: var(--gutter) 0 0;
   }
 
   .formulas-content {
     height: auto;
     min-height: auto;
-    margin-top: -2rem;
-    padding: 1.5rem 1rem;
+    margin-top: 0;
+    padding: var(--gutter);
     overflow: visible;
   }
 
@@ -805,7 +834,7 @@
     z-index: 1;
     display: flex;
     justify-content: center;
-    margin-bottom: 1.25rem;
+    margin-bottom: var(--gutter);
   }
 
   .formulas-leaf-layer {
@@ -825,7 +854,7 @@
     inset: auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.85rem;
+    gap: var(--gutter);
     z-index: 5;
   }
 
@@ -984,25 +1013,25 @@
   /* Formulas mobile — structure inherited from <=768 block,
      only size/spacing overrides here */
   .formulas {
-    padding: 1rem 0 2rem;
+    padding: var(--gutter) 0 0;
     min-height: auto;
     justify-content: flex-start;
   }
 
   .formulas-content {
-    padding: 1rem 0.75rem;
-    margin-top: -1.5rem;
+    padding: var(--gutter);
+    margin-top: 0;
   }
 
   .formulas-cards-layer {
-    gap: 0.65rem;
+    gap: var(--gutter);
   }
 
   .formula-box {
     width: 100%;
     height: auto;
     min-height: 10rem;
-    padding: 0.85rem 0.75rem;
+    padding: var(--gutter);
     border-radius: 0.625rem;
   }
 
@@ -1023,7 +1052,7 @@
   }
 
   .formulas-image-layer {
-    margin-bottom: 1rem;
+    margin-bottom: var(--gutter);
   }
 
   .formulas-leaf-layer {
@@ -1159,7 +1188,9 @@
 
 @media (max-width: 480px) {
   .cta-section {
-    padding: var(--section-py) var(--gutter);
+    /* No bottom padding so the CTA card sits flush above the contact-form
+       image (closes the gap the user saw between them). */
+    padding: var(--section-py) var(--gutter) 0;
   }
 
   .cta-card {
@@ -1545,5 +1576,29 @@
     max-width: 28rem !important;
     margin: 0 auto !important;
     white-space: normal !important;
+  }
+}
+
+/* Home section rhythm: match product/blog sections on mobile and portrait tablet. */
+@media (max-width: 1199px) and (orientation: portrait) {
+  .formulas {
+    padding: var(--section-py) 0;
+  }
+
+  .formulas-content {
+    padding: 0 var(--gutter);
+    margin-top: 0;
+  }
+
+  .formulas-image-layer {
+    margin-bottom: var(--section-grid-gap, var(--gutter));
+  }
+
+  .formulas-cards-layer {
+    gap: var(--section-grid-gap, var(--gutter));
+  }
+
+  .cta-section {
+    padding: var(--section-py) var(--gutter);
   }
 }

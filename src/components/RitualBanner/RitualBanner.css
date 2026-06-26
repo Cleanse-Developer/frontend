@@ -361,6 +361,19 @@
 }
 
 @media (max-width: 480px) {
+  .rhr-head {
+    margin-bottom: var(--section-title-gap, var(--section-py));
+  }
+
+  .rhr-cards {
+    margin-top: 0;
+  }
+
+  /* Match the product cards' corner radius on mobile (was 28px) */
+  .rhr-card {
+    border-radius: 12px;
+  }
+
   .rhr-card-top { padding: 1rem 1.1rem; }
   .rhr-card-content { padding: 1.35rem 1.2rem 1.5rem; }
   .rhr-steps { gap: 0.4rem; }
@@ -371,6 +384,7 @@
     padding: 1rem 1rem;
     font-size: 0.74rem;
     letter-spacing: 0.06em;
+    border-radius: 12px;   /* match the card radius (was a 100px pill) */
   }
 }
 
@@ -391,4 +405,24 @@
   .rhr-card:hover .rhr-card-img { transform: none; }
   /* Keep the description visible when motion is reduced */
   .rhr-card-desc { max-height: 6rem; opacity: 1; }
+}
+
+/* Shared home-section rhythm for phone and portrait tablet. */
+@media (max-width: 1199px) and (orientation: portrait) {
+  .rhr-section {
+    padding: var(--section-py) var(--gutter);
+  }
+
+  .rhr-head {
+    margin-bottom: var(--section-title-gap, var(--section-py));
+  }
+
+  .rhr-cards {
+    margin-top: 0;
+    gap: var(--section-grid-gap, var(--gutter));
+  }
+
+  .rhr-card--pm {
+    margin-top: 0;
+  }
 }
