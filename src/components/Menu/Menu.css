@@ -236,6 +236,8 @@
 .menu .menu-logo-mark {
   --logo-r-color: #E5AD07;
   --logo-r-size: 0.45rem;
+  --logo-r-top: -1%;
+  --logo-r-right: -0.45em;
 }
 
 .menu .menu-logo-img {
@@ -585,8 +587,15 @@
     font-size: clamp(1.25rem, 5vw, 1.5rem);
   }
 
+  .menu .menu-logo-mark {
+    --logo-r-size: 0.34rem;
+    --logo-r-top: -5%;
+    --logo-r-right: -0.35em;
+  }
+
   .menu .menu-logo-img {
-    height: clamp(2rem, 6vw, 2.5rem);
+    width: clamp(86px, 26vw, 100px);
+    height: auto;
   }
 
   .menu .menu-centered-logo .menu-logo {
@@ -594,7 +603,8 @@
   }
 
   .menu .menu-centered-logo .menu-logo-img {
-    height: clamp(2rem, 6vw, 2.5rem);
+    width: clamp(86px, 26vw, 100px);
+    height: auto;
   }
 
   .menu .menu-overlay {

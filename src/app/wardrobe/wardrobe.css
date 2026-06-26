@@ -189,28 +189,28 @@
 
 /* Section 1: 2 small cards LEFT + big card RIGHT */
 .section-row-1 {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.5rem;
   align-items: stretch;
 }
 
 .products-pair {
-  display: flex;
-  gap: 1.5rem;
-  align-items: stretch;
+  display: contents;
 }
 
 .products-pair .product-card {
-  width: 320px;
-  flex-shrink: 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .spotlight-banner {
-  flex: 1;
+  grid-column: span 2;
   border-radius: 16px;
   overflow: hidden;
   position: relative;
   align-self: stretch;
+  min-width: 0;
 }
 
 .spotlight-banner-img {
@@ -221,7 +221,8 @@
 
 /* Section 2: 4 Products in a Row */
 .section-row-2 {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.5rem;
   align-items: stretch;
 }
@@ -254,7 +255,8 @@
 }
 
 .section-row-2 .product-card {
-  flex: 1;
+  width: 100%;
+  min-width: 0;
 }
 
 /* Section 3: Banner LEFT (2 cols) + 4 cards RIGHT (2x2).
@@ -262,7 +264,7 @@
    line up exactly with the row above. Banner spans 2 columns × 2 rows. */
 .section-row-3 {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.5rem;
   align-items: stretch;
   margin-bottom: 4rem;
@@ -368,10 +370,12 @@
    (side-by-side banner + cards with rounded radius like desktop) */
 @media (max-width: 1200px) and (orientation: portrait) {
   .section-row-1 {
+    display: flex;
     flex-wrap: wrap;
   }
 
   .products-pair {
+    display: flex;
     width: 100%;
     flex: 1;
   }
@@ -387,10 +391,12 @@
   }
 
   .section-row-2 {
+    display: flex;
     flex-wrap: wrap;
   }
 
   .section-row-3 {
+    display: flex;
     flex-wrap: wrap;
   }
 
@@ -444,6 +450,7 @@
 
   /* Tablet layout: 2-cols throughout to keep things tidy */
   .section-row-1 {
+    display: flex;
     flex-direction: column;
     gap: 1.25rem;
   }
