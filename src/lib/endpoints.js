@@ -166,6 +166,8 @@ export const reviewApi = {
 export const shippingApi = {
   checkDelivery: (pincode) =>
     api.post("/shipping/check-delivery", { pincode }).then((r) => r.data.data),
+  getConfig: (params) =>
+    api.get("/shipping/config", { params }).then((r) => r.data.data),
 };
 
 // ── Newsletter ──
