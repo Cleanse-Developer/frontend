@@ -188,7 +188,7 @@
 
 @media (max-width: 768px) {
   .contact-form {
-    margin-bottom: -40px;
+    margin-bottom: -38px;
   }
 
   .contact-form .contact-parallax-image-wrapper {
@@ -196,8 +196,9 @@
   }
 
   .contact-form .contact-form-container {
-    /* Trimmed bottom space (the footer overlaps less now — see Footer.css) */
-    padding: 1.75rem 1.25rem 3rem;
+    /* Bottom padding ~24px deeper than the ~40px footer overlap → a modest dark
+       band shows below the "no spam" line before the gold footer. */
+    padding: 1rem 1.25rem 4rem;
     gap: 1rem;
     border-radius: 0;
   }

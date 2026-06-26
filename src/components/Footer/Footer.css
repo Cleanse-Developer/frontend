@@ -298,7 +298,10 @@ footer {
    text size (!important so it wins regardless of viewport width). */
 @media (max-width: 1000px) {
   footer {
-    margin-top: 0;
+    /* Ride up over the contact card AND sit in FRONT of it (card is z-index 11),
+       so the card's bottom tucks cleanly behind the golden footer. */
+    margin-top: -2.5rem;
+    z-index: 20;
     border-top-left-radius: 32px;
     border-top-right-radius: 32px;
   }
