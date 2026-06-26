@@ -4,4 +4,4 @@
 :HL["/_next/static/chunks/441f99cea19e8057.css","style"]
 :HL["/_next/static/chunks/eced9be73af6bbb8.css","style"]
 :HL["/_next/static/chunks/685f762a434b53ef.css","style"]
-0:{"buildId":"tcNAki9Mdr3moR4LNbrRC","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"touchpoint","paramType":null,"paramKey":"touchpoint","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"TlSQ3NhZrKTqSUlct05br","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"touchpoint","paramType":null,"paramKey":"touchpoint","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}

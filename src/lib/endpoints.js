@@ -51,6 +51,14 @@ export const authApi = {
   sendOtp: (identifier) => api.post("/auth/send-otp", { identifier }).then((r) => r.data),
   verifyOtp: (identifier, otp) =>
     api.post("/auth/verify-otp", { identifier, otp }).then((r) => r.data),
+  verifyWidgetToken: (accessToken, phone, referralCode) =>
+    api
+      .post("/auth/verify-widget-token", {
+        accessToken,
+        phone,
+        ...(referralCode ? { referralCode } : {}),
+      })
+      .then((r) => r.data),
   loginWithPassword: (email, password) =>
     api.post("/auth/login", { email, password }).then((r) => r.data),
   register: (data) => api.post("/auth/register", data).then((r) => r.data),

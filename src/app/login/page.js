@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { referralApi } from "@/lib/endpoints";
+import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, extractWidgetToken } from "@/lib/msg91";
 import Logo from "@/components/Logo/Logo";
 
 export default function Login() {
@@ -17,7 +18,7 @@ export default function Login() {
 }
 
 function LoginContent() {
-  const { loginWithPassword, sendOtp, login, register, isAuthenticated } = useAuth();
+  const { loginWithPassword, loginWithWidgetToken, register, isAuthenticated } = useAuth();
   const toast = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -118,7 +119,7 @@ function LoginContent() {
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
-    const phone = loginPhone.trim();
+    const phone = loginPhone.trim().replace(/\D/g, "");
     if (!phone) {
       setError("Please enter your mobile number");
       return;
@@ -126,12 +127,30 @@ function LoginContent() {
     setLoading(true);
     setError("");
     try {
-      await sendOtp(phone);
+      const ok = await loadMsg91();
+      if (!ok) {
+        setError("Couldn't load the OTP service. Please try again.");
+        return;
+      }
+      // MSG91 identifier = country code + number, no "+" (India-only app).
+      await sendOtpViaWidget(`91${phone}`);
       setOtpSent(true);
       toast.success("OTP sent to your mobile number");
     } catch (err) {
-      const data = err.response?.data;
-      setError(data?.errors?.[0]?.message || data?.message || "Couldn't send OTP. Please try again.");
+      setError((err && (err.message || err.type)) || "Couldn't send OTP. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      await retryOtpViaWidget("11"); // "11" = text SMS
+      toast.success("OTP resent to your mobile number");
+    } catch (err) {
+      setError((err && (err.message || err.type)) || "Couldn't resend OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -146,11 +165,24 @@ function LoginContent() {
     setLoading(true);
     setError("");
     try {
-      await login(loginPhone.trim(), otp.trim());
+      // Widget verifies the OTP on the client and returns an access-token (JWT).
+      const data = await verifyOtpViaWidget(otp.trim());
+      const widgetToken = extractWidgetToken(data);
+      if (!widgetToken) {
+        setError("OTP verification failed. Please try again.");
+        return;
+      }
+      // Backend exchanges the widget token for an app session.
+      await loginWithWidgetToken(widgetToken, loginPhone.trim().replace(/\D/g, ""));
       router.replace(redirectTo);
     } catch (err) {
-      const data = err.response?.data;
-      setError(data?.errors?.[0]?.message || data?.message || "Invalid or expired OTP");
+      const data = err?.response?.data;
+      setError(
+        data?.errors?.[0]?.message ||
+          data?.message ||
+          (err && (err.message || err.type)) ||
+          "Invalid or expired OTP"
+      );
     } finally {
       setLoading(false);
     }
@@ -261,7 +293,7 @@ function LoginContent() {
                 <button
                   type="button"
                   className={`login-method-btn ${loginMethod === "mobile" ? "active" : ""}`}
-                  onClick={() => { setLoginMethod("mobile"); setError(""); setOtpSent(false); setOtp(""); }}
+                  onClick={() => { setLoginMethod("mobile"); setError(""); setOtpSent(false); setOtp(""); loadMsg91(); }}
                 >
                   Mobile OTP
                 </button>
@@ -339,7 +371,7 @@ function LoginContent() {
                         type="button"
                         className="login-switch-btn"
                         style={{ alignSelf: "flex-start", marginTop: "0.4rem" }}
-                        onClick={handleSendOtp}
+                        onClick={handleResendOtp}
                         disabled={loading}
                       >
                         Resend OTP
