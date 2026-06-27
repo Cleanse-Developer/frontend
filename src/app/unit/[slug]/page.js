@@ -170,6 +170,7 @@ function UnitContent({ params }) {
   const [activeBundleIndex, setActiveBundleIndex] = useState(0);
   const [bundleSelected, setBundleSelected] = useState([]);
   const [openTab, setOpenTab] = useState("ingredients");
+  const [openAcc, setOpenAcc] = useState(null);
   const [reviewPage, setReviewPage] = useState(0);
   const [reviewDir, setReviewDir] = useState("down");
   const [reviews, setReviews] = useState(fallbackReviews);
@@ -551,6 +552,35 @@ function UnitContent({ params }) {
               <div className="policy-item">
                 <span>Ships Worldwide</span>
               </div>
+            </div>
+
+            {/* Info accordion (ingredients / values / how-to-use / shipping) */}
+            <div className="product-accordion">
+              {buildProductInfoTabs(product)
+                .filter((t) => t.id !== "policies")
+                .map((tab) => {
+                  const open = openAcc === tab.id;
+                  return (
+                    <div className={`product-acc-item${open ? " open" : ""}`} key={tab.id}>
+                      <button
+                        type="button"
+                        className="product-acc-header"
+                        onClick={() => setOpenAcc(open ? null : tab.id)}
+                        aria-expanded={open}
+                      >
+                        <span>{tab.label}</span>
+                        <svg className="product-acc-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M6 9l6 6 6-6" />
+                        </svg>
+                      </button>
+                      <div className="product-acc-panel">
+                        <div className="product-acc-body">
+                          <p>{tab.content}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
           </div>
         </div>

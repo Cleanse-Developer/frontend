@@ -434,7 +434,7 @@
   }
 
   .blog-section-title {
-    font-size: clamp(1.5rem, 6vw, 2rem);
+    font-size: 1.25rem;
   }
 
   .blog-view-all {
@@ -635,4 +635,13 @@
   .blog-grid {
     gap: var(--section-grid-gap, var(--gutter));
   }
+
+  /* Smaller section heading on mobile */
+  .blog-section-title { font-size: 1.3rem; }
+
+  /* Make the card meta (category/date) clearly visible on the dark cards */
+  .blog-card-green .blog-card-category,
+  .blog-card-featured .blog-card-category { color: #E7D0A6; }
+  .blog-card-green .blog-card-date,
+  .blog-card-featured .blog-card-date { color: rgba(255, 255, 255, 0.72); }
 }
