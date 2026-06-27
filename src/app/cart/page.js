@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import { productApi } from "@/lib/endpoints";
+import { productApi, shippingApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import Copy from "@/components/Copy/Copy";
 
@@ -23,6 +23,22 @@ export default function CartPage() {
 
   const [giftWrap, setGiftWrap] = useState(false);
   const [giftMessage, setGiftMessage] = useState("");
+
+  // Admin-configured shipping (rate + free-shipping threshold). Falls back to
+  // sensible defaults until the config loads / if the request fails.
+  const [shippingConfig, setShippingConfig] = useState({ standardRate: 99, freeAbove: 1200 });
+
+  useEffect(() => {
+    shippingApi.getConfig()
+      .then((cfg) => {
+        if (cfg && typeof cfg.standardRate === "number") setShippingConfig(cfg);
+      })
+      .catch(() => {});
+  }, []);
+
+  const { standardRate, freeAbove } = shippingConfig;
+  const qualifiesFreeShipping = subtotal >= freeAbove;
+  const shippingCost = qualifiesFreeShipping ? 0 : standardRate;
 
   const activeTier = [...discountTiers].reverse().find((t) => subtotal >= t.threshold && t.discount > 0);
   const nextTier = discountTiers.find((t) => subtotal < t.threshold);
@@ -199,11 +215,11 @@ export default function CartPage() {
               )}
               <div className="cart-summary-line cart-summary-shipping">
                 <span>Shipping</span>
-                <span>{subtotal >= 1200 ? "Free" : "&#8377;99"}</span>
+                <span>{qualifiesFreeShipping ? "Free" : `₹${shippingCost.toFixed(2)}`}</span>
               </div>
               <div className="cart-summary-line cart-summary-total">
                 <span>Total</span>
-                <span>&#8377;{(subtotal >= 1200 ? finalTotal + giftWrapCost : finalTotal + 99 + giftWrapCost).toFixed(2)}</span>
+                <span>&#8377;{(finalTotal + shippingCost + giftWrapCost).toFixed(2)}</span>
               </div>
             </div>
             <button

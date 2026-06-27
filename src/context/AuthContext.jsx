@@ -58,6 +58,17 @@ export function AuthProvider({ children }) {
     return userData;
   }, []);
 
+  // MSG91 widget login: exchange the widget's access-token for an app session.
+  // `accessTokenFromWidget` is the MSG91 JWT; the destructured `accessToken` is
+  // our own app JWT returned by the backend.
+  const loginWithWidgetToken = useCallback(async (accessTokenFromWidget, phone, referralCode) => {
+    const res = await authApi.verifyWidgetToken(accessTokenFromWidget, phone, referralCode);
+    const { accessToken, user: userData, referralApplied } = res.data;
+    localStorage.setItem("accessToken", accessToken);
+    setUser(userData);
+    return { user: userData, referralApplied: referralApplied || null };
+  }, []);
+
   const register = useCallback(async ({ fullName, email, phone, password, referralCode }) => {
     const res = await authApi.register({
       fullName,
@@ -100,6 +111,7 @@ export function AuthProvider({ children }) {
         isLoading,
         sendOtp,
         login,
+        loginWithWidgetToken,
         loginWithPassword,
         register,
         logout,
