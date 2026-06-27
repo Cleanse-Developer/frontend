@@ -14,7 +14,7 @@
 .ritual-eyebrow {
   display: inline-block;
   font-family: var(--font-body);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.35em;
   font-size: 0.72rem;
   font-weight: 500;
@@ -66,7 +66,7 @@
   font-family: var(--font-body);
   font-size: 0.78rem;
   letter-spacing: 0.05em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .ritual-breadcrumb a {
@@ -79,7 +79,7 @@
 
 .ritual-hero-title {
   font-family: var(--font-heading);
-  text-transform: uppercase;
+  text-transform: none;
   color: #fff;
   line-height: 0.9;
   letter-spacing: -0.02em;
@@ -107,7 +107,7 @@
 }
 .ritual-scroll-cue span:first-child {
   writing-mode: vertical-rl;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.3em;
   font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.75);
@@ -196,7 +196,7 @@
   padding: 0.85rem 2.4rem;
   border-radius: 100px;
   font-family: var(--font-body);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.12em;
   font-size: 0.8rem;
   font-weight: 500;
@@ -214,7 +214,7 @@
 }
 .ritual-flow-title {
   font-family: var(--font-heading);
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--base-700);
   line-height: 0.9;
   letter-spacing: -0.02em;
@@ -230,7 +230,7 @@
 }
 .ritual-flow-meta {
   font-family: var(--font-body);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.2em;
   font-size: 0.72rem;
   color: var(--base-300);
@@ -320,7 +320,7 @@
 }
 .ritual-step-phase {
   font-family: var(--font-heading);
-  text-transform: uppercase;
+  text-transform: none;
   font-size: clamp(1.5rem, 2.6vw, 2.2rem);
   letter-spacing: -0.01em;
   color: var(--base-400);
@@ -328,7 +328,7 @@
 }
 .ritual-step-time {
   font-family: var(--font-body);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.12em;
   font-size: 0.68rem;
   color: var(--base-100);
@@ -339,7 +339,7 @@
 }
 .ritual-step-product {
   font-family: var(--font-heading);
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--base-700);
   line-height: 1;
   letter-spacing: -0.01em;
@@ -366,7 +366,7 @@
 }
 .ritual-tag {
   font-family: var(--font-body);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.1em;
   font-size: 0.66rem;
   color: var(--base-500);
@@ -391,7 +391,7 @@
 }
 .ritual-pause-title {
   font-family: var(--font-heading);
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--base-100);
   line-height: 1;
   letter-spacing: -0.01em;
@@ -437,10 +437,10 @@
   position: relative;
   z-index: 2;
   font-family: var(--font-body);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.25em;
   font-size: 0.62rem;
-  color: var(--base-700);
+  color: #fff;
   font-weight: 600;
 }
 @keyframes ritual-breathe {
@@ -468,7 +468,7 @@
 }
 .ritual-shop-title {
   font-family: var(--font-heading);
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--base-700);
   line-height: 0.95;
   letter-spacing: -0.02em;
@@ -499,7 +499,7 @@
 .ritual-shop-card:hover { transform: translateY(-6px); }
 .ritual-shop-card-img {
   aspect-ratio: 1 / 1;
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -514,7 +514,7 @@
 }
 .ritual-shop-card-phase {
   font-family: var(--font-body);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.18em;
   font-size: 0.62rem;
   color: var(--base-300);
@@ -539,7 +539,7 @@
   background-color: var(--base-700);
   color: var(--base-100);
   font-family: var(--font-body);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.12em;
   font-size: 0.82rem;
   font-weight: 500;
@@ -553,7 +553,7 @@
 }
 .ritual-cta-link {
   font-family: var(--font-body);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.12em;
   font-size: 0.82rem;
   color: var(--base-500);
@@ -584,7 +584,7 @@
 }
 .ritual-quote-author {
   font-family: var(--font-body);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.2em;
   font-size: 0.72rem;
   color: var(--base-300);
@@ -603,11 +603,12 @@
   .ritual-hero { height: 80vh; min-height: 460px; }
   .ritual-hero-content { padding: 1.75rem; gap: 1rem; }
 
+  /* Match the home page's vertical section rhythm (--section-py) on mobile */
   .ritual-intro,
   .ritual-flow,
   .ritual-pause,
   .ritual-shop,
-  .ritual-quote { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .ritual-quote { padding: var(--section-py) 1.25rem; }
 
   .ritual-step {
     grid-template-columns: 1fr;
@@ -618,7 +619,10 @@
   .ritual-step.is-reversed .ritual-step-body { order: 2; }
 
   .ritual-step-rail { display: none; }
-  .ritual-step-tile { aspect-ratio: 3 / 4; max-width: 420px; width: 100%; margin: 0 auto; }
+  .ritual-step-tile { aspect-ratio: 3 / 4; max-width: 420px; width: 100%; margin: 0 auto; border-radius: 12px; }
+
+  /* Match the home product cards' 12px mobile corner radius */
+  .ritual-shop-card-img { border-radius: 12px; }
 
   .ritual-toggle-btn { padding: 0.75rem 1.8rem; }
 

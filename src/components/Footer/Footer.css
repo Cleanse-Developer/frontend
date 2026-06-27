@@ -54,6 +54,7 @@ footer {
   color: #1a1a1a;
   margin-bottom: 0;
   letter-spacing: 0.05em;
+  text-transform: none;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -165,8 +166,8 @@ footer {
   transform: translateX(-1.25rem);
   --logo-r-color: #422D1C;
   --logo-r-size: clamp(0.42rem, 0.75vw, 0.7rem);
-  --logo-r-top: 2%;
-  --logo-r-right: -1.05em;
+  --logo-r-top: -2%;
+  --logo-r-right: -0.15em;
 }
 
 .footer-logo-mark::before {
@@ -252,6 +253,21 @@ footer {
   opacity: 0.6;
 }
 
+/* Brand-logo socials — real glyphs in brown (svg uses currentColor). */
+.footer-social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #422D1C;
+}
+
+.footer-social-icon svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  object-fit: contain;
+}
+
 /* Divider */
 .footer-divider {
   width: 100%;
@@ -292,6 +308,169 @@ footer {
 
 .footer-legal-links a:hover {
   opacity: 0.6;
+}
+
+/* Mobile/tablet (<=1000px): keep the 4-column layout, just a MODERATE bump in
+   text size (!important so it wins regardless of viewport width). */
+@media (max-width: 1000px) {
+  footer {
+    /* Ride up over the contact card AND sit in FRONT of it (card is z-index 11),
+       so the card's bottom tucks cleanly behind the golden footer. */
+    margin-top: -2.5rem;
+    z-index: 20;
+    border-top-left-radius: 32px;
+    border-top-right-radius: 32px;
+  }
+
+  .footer-container {
+    padding: 2rem var(--gutter) 1.25rem;
+    gap: 1.5rem;
+  }
+
+  /* Mobile/tablet: all four headings on ONE horizontal line. Tapping a heading
+     opens its links as an absolute dropdown CARD (like the desktop hover panel)
+     so the footer layout never shifts — driven by .footer-pages-open. */
+  .footer-top {
+    display: flex !important;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0.5rem !important;
+    width: 100%;
+    max-width: 100% !important;
+    align-items: flex-start;
+    /* Tiny equal inset compensates for the caret's rotated tip (which extends
+       ~1-2px past its box), so the first/last headings line up with the divider. */
+    padding: 0 0.25rem;
+  }
+
+  /* Shrink-to-fit columns: space-between puts the first heading flush to the
+     line's left edge and the last flush to the right edge, with no cell can
+     overflow (which was pushing the caret past the divider). */
+  .footer-pages {
+    position: relative;
+    flex: 0 0 auto;
+    text-align: center;
+  }
+
+  .footer-pages-title {
+    font-size: clamp(0.68rem, 3.2vw, 0.9rem) !important;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+
+  /* Caret hint that flips open/closed */
+  .footer-pages-title::after {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-right: 1.5px solid #1a1a1a;
+    border-bottom: 1.5px solid #1a1a1a;
+    transform: rotate(45deg);
+    transform-origin: center;
+    opacity: 0.6;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    flex: 0 0 auto;
+  }
+
+  .footer-pages-open .footer-pages-title::after {
+    transform: rotate(-135deg);
+    opacity: 0.9;
+  }
+
+  /* Links open as an absolute card centered under the heading — no layout shift. */
+  .footer-pages-links {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    left: 50%;
+    z-index: 30;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem !important;
+    margin-top: 0;
+    min-width: 130px;
+    padding: 0.9rem 1rem;
+    background: #F0EDE8;
+    border-radius: 12px;
+    box-shadow: 0 16px 34px rgba(68, 40, 36, 0.22);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(-6px);
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+  }
+
+  .footer-pages-open .footer-pages-links {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Edge columns: anchor the card to the page edge so it can't overflow. */
+  .footer-pages:first-child .footer-pages-links {
+    left: 0;
+    transform: translateX(0) translateY(-6px);
+  }
+  .footer-pages:first-child.footer-pages-open .footer-pages-links {
+    transform: translateX(0) translateY(0);
+  }
+  .footer-pages:last-child .footer-pages-links {
+    left: auto;
+    right: 0;
+    transform: translateX(0) translateY(-6px);
+  }
+  .footer-pages:last-child.footer-pages-open .footer-pages-links {
+    transform: translateX(0) translateY(0);
+  }
+
+  .footer-pages-links a {
+    font-size: 0.82rem !important;
+    white-space: nowrap;
+  }
+
+  .footer-logo {
+    width: clamp(210px, 54vw, 310px);
+  }
+
+  .footer-contact-line {
+    font-size: 0.96rem !important;
+  }
+
+  /* All four socials on ONE horizontal line */
+  .footer-socials {
+    flex-wrap: nowrap !important;
+    gap: 0.9rem;
+    justify-content: center;
+  }
+
+  .footer-socials a {
+    font-size: 0.8rem !important;
+    white-space: nowrap;
+  }
+
+  .footer-legal {
+    flex-direction: column;
+    gap: 0.85rem;
+    padding-bottom: 0.85rem;
+    text-align: center;
+  }
+
+  .footer-legal-links {
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+
+  /* "...ALL RIGHTS RESERVED" stays on one line */
+  .footer-copyright {
+    font-size: 0.76rem !important;
+    white-space: nowrap;
+  }
+
+  .footer-legal-links a {
+    font-size: 0.88rem !important;
+  }
 }
 
 /* Tablet (iPad portrait + landscape): scaled-down paddings/fonts.
@@ -395,36 +574,25 @@ footer {
   .footer-divider { order: 4; }
   .footer-legal { order: 5; }
 
-  /* All 4 columns in one horizontal row, each centered within its cell. */
+  /* Columns are the stacked accordion defined in the ≤1000px block above;
+     here we just refine type sizes / spacing for phones. */
   .footer-top {
     padding-top: 0.25rem;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.85rem;
-  }
-
-  .footer-pages {
-    text-align: center;
   }
 
   .footer-pages-title {
-    font-size: 0.62rem;
+    font-size: clamp(0.68rem, 3.2vw, 0.9rem) !important;
     margin-bottom: 0;
     letter-spacing: 0.02em;
     justify-content: center;
-  }
-
-  .footer-pages-links {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.35rem;
-    margin-top: 0.45rem;
+    padding: 0;
   }
 
   .footer-pages-links a {
-    font-size: 0.55rem;
-    white-space: normal;
+    font-size: 0.82rem !important;
     line-height: 1.3;
     text-align: center;
+    white-space: nowrap;
   }
 
   /* Logo on top, centered. */
@@ -439,15 +607,39 @@ footer {
     width: clamp(120px, 35vw, 180px);
   }
 
-  /* Address sits below the columns, centered. */
+  /* Address sits below the columns, centered, forced onto ONE line — no wrap;
+     font auto-shrinks (vw clamp) so the full company + street fits the width. */
   .footer-contact {
     align-self: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
+    gap: 0.3rem;
     text-align: center;
+    width: 100%;
+    max-width: 100%;
   }
 
   .footer-contact-line {
-    font-size: 0.66rem;
+    font-size: clamp(0.4rem, 2vw, 0.58rem);
+    line-height: 1.3;
+    white-space: normal;
+    max-width: 100%;
+  }
+
+  /* The email • phone actions drop to their own centered line below. */
+  .footer-contact-actions {
+    flex-basis: 100%;
+    margin-top: 0.35rem;
+    font-size: clamp(0.5rem, 2.4vw, 0.66rem);
+  }
+
+  /* Thin separator between the company name and the street address. */
+  .footer-contact-line + .footer-contact-line:not(.footer-contact-actions)::before {
+    content: "·";
+    margin-right: 0.35rem;
+    opacity: 0.5;
   }
 
   .footer-contact-actions {
@@ -479,9 +671,11 @@ footer {
     justify-content: center;
   }
 
+  /* Terms / Privacy + ©2026 copyright: identical size. !important on both beats
+     the ≤1000px tablet rules (0.88rem / 0.76rem !important) that leak down. */
   .footer-legal-links a,
   .footer-copyright {
-    font-size: 0.6rem;
+    font-size: 0.72rem !important;
   }
 
   .footer-divider {

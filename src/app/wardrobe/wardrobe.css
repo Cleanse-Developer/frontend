@@ -189,28 +189,28 @@
 
 /* Section 1: 2 small cards LEFT + big card RIGHT */
 .section-row-1 {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.5rem;
   align-items: stretch;
 }
 
 .products-pair {
-  display: flex;
-  gap: 1.5rem;
-  align-items: stretch;
+  display: contents;
 }
 
 .products-pair .product-card {
-  width: 320px;
-  flex-shrink: 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .spotlight-banner {
-  flex: 1;
+  grid-column: span 2;
   border-radius: 16px;
   overflow: hidden;
   position: relative;
   align-self: stretch;
+  min-width: 0;
 }
 
 .spotlight-banner-img {
@@ -221,7 +221,8 @@
 
 /* Section 2: 4 Products in a Row */
 .section-row-2 {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.5rem;
   align-items: stretch;
 }
@@ -254,7 +255,8 @@
 }
 
 .section-row-2 .product-card {
-  flex: 1;
+  width: 100%;
+  min-width: 0;
 }
 
 /* Section 3: Banner LEFT (2 cols) + 4 cards RIGHT (2x2).
@@ -262,7 +264,7 @@
    line up exactly with the row above. Banner spans 2 columns × 2 rows. */
 .section-row-3 {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.5rem;
   align-items: stretch;
   margin-bottom: 4rem;
@@ -323,30 +325,10 @@
   text-transform: uppercase;
 }
 
-/* Wardrobe card fixes */
-.wardrobe-page .product-card-image {
-  height: 420px;
-}
-
-.wardrobe-page .product-card-image img {
-  max-width: 80%;
-  max-height: 80%;
-  object-fit: contain;
-  object-position: center;
-  /* Cancel the base FeaturedSection scale(1.25) zoom — with object-fit:contain
-     inside an overflow:hidden box it blows the image past the container and
-     clips tops/bottoms unevenly per product, which reads as misaligned cards. */
-  transform: none;
-}
-
-.wardrobe-page .product-card:hover .product-card-image img {
-  /* Gentle hover zoom that stays within the box (no clipping). */
-  transform: scale(1.05);
-}
-
-.wardrobe-page .product-card-cart-btn {
-  top: 370px;
-}
+/* Wardrobe cards use the global ProductCard styling as-is (image height, image
+   fit/zoom, and cart-button placement all inherit from the canonical rules) so
+   they're identical to the home/product-detail cards. Only layout-alignment
+   helpers remain below. */
 
 /* Align buttons across cards */
 .wardrobe-page .product-card {
@@ -368,10 +350,12 @@
    (side-by-side banner + cards with rounded radius like desktop) */
 @media (max-width: 1200px) and (orientation: portrait) {
   .section-row-1 {
+    display: flex;
     flex-wrap: wrap;
   }
 
   .products-pair {
+    display: flex;
     width: 100%;
     flex: 1;
   }
@@ -387,10 +371,12 @@
   }
 
   .section-row-2 {
+    display: flex;
     flex-wrap: wrap;
   }
 
   .section-row-3 {
+    display: flex;
     flex-wrap: wrap;
   }
 
@@ -403,13 +389,6 @@
     width: 100%;
   }
 
-  .wardrobe-page .product-card-image {
-    height: 320px;
-  }
-
-  .wardrobe-page .product-card-cart-btn {
-    top: calc(320px - 47px);
-  }
 }
 
 @media (max-width: 1199px) and (orientation: portrait) {
@@ -444,6 +423,7 @@
 
   /* Tablet layout: 2-cols throughout to keep things tidy */
   .section-row-1 {
+    display: flex;
     flex-direction: column;
     gap: 1.25rem;
   }
@@ -499,16 +479,17 @@
     grid-column: 1;
     grid-row: 1 / 3;
     width: 100%;
-    height: 100%;
+    /* Stretch to exactly the two cards beside it (rows 1-2) and start flush
+       with them — no negative margin that pushes the banner up out of line. */
     align-self: stretch;
-    /* No min-height — let the grid sum card1 + gap + card2 and stretch
-       the banner to that exact height. Avoids dead space inside rows. */
+    height: auto;
+    min-height: 0;
+    margin-top: 0;
     border-radius: 31px !important;
     position: relative;
     overflow: hidden !important;
     z-index: 0;
     isolation: isolate;
-    margin-top: -0.5rem;
   }
 
   .side-banner .side-banner-img {
@@ -551,13 +532,6 @@
     grid-row: 3;
   }
 
-  .wardrobe-page .product-card-image {
-    height: 280px;
-  }
-
-  .wardrobe-page .product-card-cart-btn {
-    top: calc(280px - 47px);
-  }
 }
 
 @media (max-width: 600px) {
@@ -633,7 +607,12 @@
   }
 
   .side-banner {
-    height: 280px;
+    /* Stretch to the cards beside it instead of a fixed height that leaves
+       the banner and cards misaligned at the top/bottom. */
+    height: auto;
+    align-self: stretch;
+    min-height: 0;
+    margin-top: 0;
     border-radius: 20px;
   }
 
@@ -648,13 +627,6 @@
     gap: 1rem;
   }
 
-  .wardrobe-page .product-card-image {
-    height: 230px;
-  }
-
-  .wardrobe-page .product-card-cart-btn {
-    top: calc(230px - 47px);
-  }
 }
 
 @media (max-width: 480px) {
@@ -756,7 +728,11 @@
     grid-column: 1;
     grid-row: 1 / 3;
     border-radius: 31px;
-    min-height: 550px;
+    /* Stretch to the full height of the two cards it sits beside (rows 1-2)
+       instead of a fixed min-height that leaves it short of card 2's bottom. */
+    align-self: stretch;
+    height: auto;
+    min-height: 0;
     position: relative;
     z-index: 0;
     overflow: hidden;
@@ -799,44 +775,34 @@
     grid-row: 3;
   }
 
-  .wardrobe-page .product-card-image {
-    height: 180px;
-    border-radius: 12px;
-  }
-
-  .wardrobe-page .product-card-image img {
-    max-width: 85%;
-    max-height: 85%;
-  }
-
-  .wardrobe-page .product-card-cart-btn {
-    top: 140px;
-    right: 8px;
-    height: 32px;
-    width: 32px;
-  }
-
-  .wardrobe-page .cart-btn-circle {
-    min-width: 32px;
-    height: 32px;
-  }
-
-  /* Card text sizes now come from the shared --fs-card-* tokens (globals.css)
-     so the wardrobe grid matches Best Sellers on mobile. Only layout tweaks
-     remain here. */
-  .wardrobe-page .product-card-desc {
-    margin-bottom: 0.5rem;
-  }
-
-  .wardrobe-page .product-card-buy-btn {
-    padding: 0.4rem 0.8rem;
-  }
-
-  .wardrobe-page .product-card-info {
-    padding: 0.5rem 0;
-  }
-
+  /* Card sizing, image fit and cart button all inherit from the global
+     ProductCard styles so the wardrobe grid is identical to Best Sellers. */
   .section-row-3 {
     margin-bottom: 2rem;
+  }
+}
+
+/* ============================================================
+   Mobile only: give the spotlight/side banners the SAME corner
+   radius as the product cards (~16px tablet-portrait, 12px phone)
+   instead of the big 31px banner radius. Desktop is left unchanged.
+   Appended last + scoped under .wardrobe-page so it overrides the
+   scattered `border-radius: 31px !important` rules above.
+   ============================================================ */
+@media (max-width: 1199px) and (orientation: portrait) {
+  .wardrobe-page .spotlight-banner,
+  .wardrobe-page .spotlight-banner-img,
+  .wardrobe-page .side-banner,
+  .wardrobe-page .side-banner .side-banner-img {
+    border-radius: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .wardrobe-page .spotlight-banner,
+  .wardrobe-page .spotlight-banner-img,
+  .wardrobe-page .side-banner,
+  .wardrobe-page .side-banner .side-banner-img {
+    border-radius: 12px !important;
   }
 }

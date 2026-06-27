@@ -55,7 +55,8 @@ const PeelReveal = () => {
           scrollTrigger: {
             trigger: section,
             start: "top top",
-            end: () => `+=${window.innerHeight * 4}`,
+            /* Shorter pin scroll on mobile (≤768px) so it isn't too long */
+            end: () => `+=${window.innerHeight * (window.innerWidth <= 768 ? 2 : 4)}`,
             pin: true,
             pinSpacing: true,
             scrub: 0.5,

@@ -69,6 +69,13 @@
   line-height: 1.5;
 }
 
+/* Wrapper around the email input + submit. On desktop it's transparent
+   (display:contents) so the two keep stacking; on mobile it becomes a row so
+   the input and the arrow button sit on one line. */
+.contact-form .cf-row {
+  display: contents;
+}
+
 .contact-form .cf-input {
   width: 100%;
 }
@@ -179,33 +186,75 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .contact-form {
-    margin-bottom: -40px;
+    margin-bottom: -38px;
   }
 
   .contact-form .contact-parallax-image-wrapper {
-    height: 300px;
+    height: 220px;
   }
 
   .contact-form .contact-form-container {
-    padding: 3rem 1.5rem 8rem;
-    gap: 1.5rem;
+    /* Symmetric dark band: top padding gives the heading the same breathing
+       room above it that the "no spam" line has below it. */
+    padding: 3rem 1.25rem 4rem;
+    gap: 1rem;
     border-radius: 0;
   }
 
-  .contact-form .cf-submit {
-    width: 4rem;
-    height: 4rem;
+  /* Email input + arrow button merged into ONE rounded field (single card with
+     the same radius as the site's cards). overflow:hidden clips the button's
+     corners to the shared radius so they read as one element. */
+  .contact-form .cf-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1.5px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
   }
 
+  .contact-form .cf-row .cf-input {
+    flex: 1;
+  }
+
+  /* Input loses its own border/background/radius — the row provides them now. */
+  .contact-form .cf-row .cf-input input {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    padding: 0.95rem 1rem;
+    height: 100%;
+  }
+
+  .contact-form .cf-submit {
+    width: auto;
+    height: auto;
+    aspect-ratio: 1;
+    align-self: stretch;   /* match the input's height */
+    flex-shrink: 0;
+    border-radius: 0;      /* merge flush into the field */
+  }
+
+  /* Bigger arrow (was scaled down to 0.35) */
+  .contact-form .cf-submit svg {
+    transform: scale(0.62);
+  }
+
+  /* "No spam, Just pure Ayurvedic wisdom..." on ONE line (scales to fit) */
   .contact-form .cf-footer .cf-footer-copy p {
-    width: 90%;
-    font-size: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    white-space: nowrap;
+    font-size: clamp(0.55rem, 2.3vw, 0.82rem);
   }
 
   .contact-form .cf-input input {
     padding: 0.85rem;
     font-size: 0.8rem;
+    height: 100%;
   }
 }

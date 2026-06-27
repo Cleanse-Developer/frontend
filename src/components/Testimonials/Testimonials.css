@@ -552,7 +552,7 @@
   .testimonials-header {
     align-items: center;
     text-align: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--section-title-gap, var(--section-py));
     gap: 0.75rem;
     padding: 0 0.25rem;
   }
@@ -631,7 +631,7 @@
   }
 
   .review-form-title {
-    font-size: 1.35rem;
+    font-size: 1.2rem;
   }
 
   /* 16px min prevents iOS auto-zoom when focusing the field */
@@ -732,6 +732,14 @@
   text-transform: none;
 }
 
+/* Mobile (any orientation): the base size reads too big — shrink it. */
+@media (max-width: 768px) {
+  .review-cta-text {
+    font-size: 0.85rem !important;
+    max-width: 34ch;
+  }
+}
+
 .review-cta-btn {
   display: inline-flex;
   align-items: center;
@@ -792,8 +800,9 @@
 
 .review-modal-close {
   position: absolute;
-  top: 0.85rem;
-  right: 1.1rem;
+  /* Equal top + right inset so the × sits cleanly in the corner */
+  top: 1rem;
+  right: 1rem;
   background: none;
   border: none;
   font-size: 1.75rem;
@@ -810,10 +819,14 @@
 
 .review-form-title {
   font-family: var(--font-heading);
-  font-size: 1.6rem;
+  font-size: 1.35rem;
   font-weight: 400;
   color: #442824;
   text-align: center;
+  /* Override the global h1–h5 uppercase — keep natural Title Case, not ALL CAPS */
+  text-transform: none;
+  /* Horizontal room so the centered title can't run under the top-right × */
+  padding: 0 2.5rem;
   margin-bottom: 1.5rem;
 }
 
@@ -928,4 +941,34 @@
   color: #4F2C22;
   opacity: 0.8;
   margin-bottom: 1.5rem;
+}
+
+/* Shared home-section rhythm for phone and portrait tablet. */
+@media (max-width: 1199px) and (orientation: portrait) {
+  .testimonials {
+    padding: var(--section-py) var(--gutter);
+  }
+
+  .testimonials-header {
+    margin-bottom: var(--section-title-gap, var(--section-py));
+  }
+
+  .testimonials-slider {
+    gap: var(--section-grid-gap, var(--gutter));
+  }
+
+  .testimonials-slider-wrapper {
+    margin-bottom: 0;
+  }
+
+  .testimonials-review-cta {
+    margin-top: var(--section-grid-gap, var(--gutter));
+  }
+}
+
+/* Mobile: unify testimonial card radius with product/wardrobe cards (12px). */
+@media (max-width: 480px) {
+  .testimonial-card {
+    border-radius: 12px;
+  }
 }

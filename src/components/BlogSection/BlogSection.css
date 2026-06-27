@@ -26,7 +26,7 @@
 
 .blog-section-label {
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: clamp(0.66rem, 0.6rem + 0.25vw, 0.72rem);
   font-weight: 500;
   letter-spacing: 0.25em;
   text-transform: uppercase;
@@ -54,7 +54,7 @@
   align-items: center;
   gap: 0.35rem;
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: clamp(0.66rem, 0.6rem + 0.25vw, 0.72rem);
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -184,7 +184,7 @@
 }
 
 .blog-card-featured .blog-card-title {
-  font-size: 1.75rem;
+  font-size: clamp(1.1rem, 0.9rem + 0.9vw, 1.4rem);
 }
 
 .blog-card-featured .blog-card-excerpt {
@@ -230,7 +230,7 @@
 .blog-card-number {
   display: inline-block;
   font-family: var(--font-body);
-  font-size: 0.65rem;
+  font-size: clamp(0.66rem, 0.6rem + 0.25vw, 0.72rem);
   font-weight: 500;
   letter-spacing: 0.1em;
   color: #fff;
@@ -257,7 +257,7 @@
 
 .blog-card-category {
   font-family: var(--font-body);
-  font-size: 0.65rem;
+  font-size: clamp(0.66rem, 0.6rem + 0.25vw, 0.72rem);
   font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -265,13 +265,13 @@
 }
 
 .blog-card-divider {
-  font-size: 0.75rem;
+  font-size: clamp(0.66rem, 0.6rem + 0.25vw, 0.72rem);
   color: #ccc;
 }
 
 .blog-card-date {
   font-family: var(--font-body);
-  font-size: 0.65rem;
+  font-size: clamp(0.66rem, 0.6rem + 0.25vw, 0.72rem);
   font-weight: 400;
   letter-spacing: 0.05em;
   color: #999;
@@ -280,8 +280,8 @@
 
 .blog-card-title {
   font-family: var(--font-body);
-  font-size: 1.15rem;
-  font-weight: 600;
+  font-size: clamp(1rem, 0.85rem + 0.5vw, 1.15rem);
+  font-weight: 500;
   color: var(--base-700);
   line-height: 1.35;
   margin-bottom: 0.5rem;
@@ -300,7 +300,7 @@
 .blog-card-excerpt {
   display: none;
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: clamp(0.82rem, 0.76rem + 0.3vw, 0.92rem);
   font-weight: 400;
   color: #666;
   line-height: 1.5;
@@ -315,7 +315,7 @@
   gap: 0.4rem;
   margin-top: auto;
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: clamp(0.66rem, 0.6rem + 0.25vw, 0.72rem);
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: none;
@@ -412,10 +412,6 @@
     min-height: 300px;
   }
 
-  .blog-card-featured .blog-card-title {
-    font-size: 1.5rem;
-  }
-
   .blog-card-image-wrapper {
     height: 200px;
   }
@@ -423,29 +419,27 @@
 
 @media (max-width: 480px) {
   .blog-section {
-    padding: var(--section-py) var(--gutter);
+    /* Standard top padding (the lifted PeelReveal "Source" caption acts as the
+       previous section's bottom, so STORIES now matches the other headings);
+       a little extra on the bottom for clear space after the cards. */
+    padding: var(--section-py) var(--gutter) calc(var(--section-py) * 1.5);
   }
 
   .blog-section-header {
     flex-direction: row;
     align-items: flex-end;
     gap: 0;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
+    margin-bottom: var(--section-title-gap, var(--section-py));
+    padding-bottom: 0;
   }
 
   .blog-section-title {
     font-size: clamp(1.5rem, 6vw, 2rem);
   }
 
-  .blog-section-label {
-    font-size: 0.55rem;
-  }
-
   .blog-view-all {
     width: auto;
     justify-content: center;
-    font-size: 0.5rem;
     padding: 0.3rem 0.6rem;
   }
 
@@ -479,10 +473,6 @@
     padding: 1rem;
   }
 
-  .blog-card-featured .blog-card-title {
-    font-size: 1rem;
-  }
-
   .blog-card-featured .blog-card-excerpt {
     display: none;
   }
@@ -496,7 +486,6 @@
   }
 
   .blog-card-title {
-    font-size: 0.7rem;
     margin-bottom: 0.25rem;
   }
 
@@ -505,25 +494,8 @@
     gap: 0.25rem;
   }
 
-  .blog-card-category {
-    font-size: 0.5rem;
-  }
-
-  .blog-card-divider {
-    font-size: 0.5rem;
-  }
-
-  .blog-card-date {
-    font-size: 0.5rem;
-  }
-
   .blog-card-number {
-    font-size: 0.5rem;
     padding: 0.25rem 0.5rem;
-  }
-
-  .blog-card-read-more {
-    font-size: 0.5rem;
   }
 
   .blog-card-read-more svg {
@@ -555,10 +527,6 @@
     max-width: 1700px;
   }
 
-  .blog-section-title {
-    font-size: 3rem;
-  }
-
   .blog-grid .blog-card-green {
     width: 350px;
   }
@@ -569,10 +537,6 @@
 
   .blog-card-image-wrapper {
     height: 280px;
-  }
-
-  .blog-card-title {
-    font-size: 1.35rem;
   }
 
   .blog-card-content {
@@ -590,10 +554,6 @@
     max-width: 2100px;
   }
 
-  .blog-section-title {
-    font-size: 3.5rem;
-  }
-
   .blog-grid .blog-card-green {
     width: 420px;
   }
@@ -605,16 +565,12 @@
   .blog-card-image-wrapper {
     height: 340px;
   }
-
-  .blog-card-title {
-    font-size: 1.5rem;
-  }
 }
 
 /* Tablet PORTRAIT only — iPad landscape uses desktop layout */
 @media (max-width: 1199px) and (min-width: 481px) and (orientation: portrait) {
   .blog-section {
-    padding: var(--section-py) 1.5rem;
+    padding: var(--section-py) 1.5rem calc(var(--section-py) * 1.5);
   }
 
   .blog-section-header {
@@ -657,10 +613,6 @@
     padding: 1.5rem;
   }
 
-  .blog-card-featured .blog-card-title {
-    font-size: 1.5rem;
-  }
-
   .blog-card-image-wrapper {
     height: 320px;
   }
@@ -668,8 +620,19 @@
   .blog-card-content {
     padding: 1.25rem;
   }
+}
 
-  .blog-card-title {
-    font-size: 1.1rem;
+/* Shared home-section rhythm for phone and portrait tablet. */
+@media (max-width: 1199px) and (orientation: portrait) {
+  .blog-section {
+    padding: var(--section-py) var(--gutter);
+  }
+
+  .blog-section-header {
+    margin-bottom: var(--section-title-gap, var(--section-py));
+  }
+
+  .blog-grid {
+    gap: var(--section-grid-gap, var(--gutter));
   }
 }

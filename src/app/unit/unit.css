@@ -511,7 +511,7 @@
 }
 
 .bundle-card-selected {
-  box-shadow: 0 0 0 3px #4F2C22;
+  box-shadow: inset 0 0 0 3px #4F2C22;
 }
 
 .bundle-card-image {
@@ -1692,24 +1692,35 @@
   }
 
   .bundle-summary {
-    padding: 1.25rem;
+    padding: 1rem;
     border-radius: 12px;
   }
 
   .bundle-summary-slots {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.45rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
   .bundle-slot {
-    gap: 0.5rem;
+    flex: 0 0 40px;
+    width: 40px;
+    justify-content: center;
+    gap: 0;
+    min-width: 0;
   }
 
   .bundle-slot-img {
     width: 40px;
     height: 40px;
     border-radius: 8px;
+  }
+
+  .bundle-slot-info {
+    display: none;
   }
 
   .bundle-slot-name {

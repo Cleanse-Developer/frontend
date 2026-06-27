@@ -1487,7 +1487,7 @@ export default function CheckoutPage() {
               <span className="checkout-summary-count">{cartCount} {cartCount === 1 ? "item" : "items"}</span>
             </h3>
 
-            <div className="checkout-summary-items">
+            <div className="checkout-summary-items" data-lenis-prevent>
               {cartItems.map((item, i) => {
                 const quantity = Number(item.quantity) || 1;
                 return (

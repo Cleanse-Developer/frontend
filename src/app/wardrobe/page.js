@@ -8,6 +8,7 @@ import { useCart } from "@/context/CartContext";
 import { gsap } from "gsap";
 import { productApi, categoryApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
+import ProductCard from "@/components/ProductCard/ProductCard";
 
 export default function Wardrobe() {
   return (
@@ -318,34 +319,15 @@ function WardrobeContent() {
           {/* Section 1: 2 Products + Spotlight Banner */}
           <section className="wardrobe-section section-row-1">
             <div className="products-pair">
-              {filteredProducts.slice(0, 2).map((product, index) => {
-                const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;
-                return (
-                  <div key={product.name + index} className="product-card" ref={(el) => (productRefs.current[index] = el)} style={{ opacity: 0 }}>
-                    <Link href={productUrl(product)} className="product-card-image">
-                      <img src={product.primaryImage || `/images/${imgIndex}.png`} alt={product.name} loading="lazy" />
-                    </Link>
-                    <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
-                      <span className="cart-btn-circle">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                          <line x1="3" y1="6" x2="21" y2="6" />
-                          <path d="M16 10a4 4 0 01-8 0" />
-                        </svg>
-                      </span>
-                      <span className="cart-btn-text">Add to Cart</span>
-                    </button>
-                    <div className="product-card-info">
-                      <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
-                      <p className="product-card-desc">{product.shortDescription || product.description}</p>
-                      <div className="product-card-footer">
-                        <span className="product-card-price">₹{product.price}</span>
-                        <button className="product-card-buy-btn" onClick={() => { addToCart(product); router.push("/cart"); }}>Buy Now</button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {filteredProducts.slice(0, 2).map((product, index) => (
+                <ProductCard
+                  key={product.name + index}
+                  product={product}
+                  index={allProducts.indexOf(product)}
+                  ref={(el) => (productRefs.current[index] = el)}
+                  style={{ opacity: 0 }}
+                />
+              ))}
             </div>
             <div className="spotlight-banner">
               <img src={activeCategory?.bannerTop || "/images/top.png"} alt="Featured Collection" className="spotlight-banner-img" />
@@ -354,34 +336,15 @@ function WardrobeContent() {
 
           {/* Section 2: 4 Products in a Row */}
           <section className="wardrobe-section section-row-2">
-            {filteredProducts.slice(2, 6).map((product, index) => {
-              const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;
-              return (
-                <div key={product.name + index} className="product-card" ref={(el) => (productRefs.current[index + 2] = el)} style={{ opacity: 0 }}>
-                  <Link href={productUrl(product)} className="product-card-image">
-                    <img src={product.primaryImage || `/images/${imgIndex}.png`} alt={product.name} loading="lazy" />
-                  </Link>
-                  <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
-                    <span className="cart-btn-circle">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                        <line x1="3" y1="6" x2="21" y2="6" />
-                        <path d="M16 10a4 4 0 01-8 0" />
-                      </svg>
-                    </span>
-                    <span className="cart-btn-text">Add to Cart</span>
-                  </button>
-                  <div className="product-card-info">
-                    <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
-                    <p className="product-card-desc">{product.shortDescription || product.description}</p>
-                    <div className="product-card-footer">
-                      <span className="product-card-price">₹{product.price}</span>
-                      <button className="product-card-buy-btn" onClick={() => { addToCart(product); router.push("/cart"); }}>Buy Now</button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {filteredProducts.slice(2, 6).map((product, index) => (
+              <ProductCard
+                key={product.name + index}
+                product={product}
+                index={allProducts.indexOf(product)}
+                ref={(el) => (productRefs.current[index + 2] = el)}
+                style={{ opacity: 0 }}
+              />
+            ))}
           </section>
 
           {/* Section 3: Side Banner + 4 Products */}
@@ -396,34 +359,15 @@ function WardrobeContent() {
               </div>
             )}
             <div className="products-beside-banner">
-              {filteredProducts.slice(6, 10).map((product, index) => {
-                const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;
-                return (
-                  <div key={product.name + index} className="product-card" ref={(el) => (productRefs.current[index + 6] = el)} style={{ opacity: 0 }}>
-                    <Link href={productUrl(product)} className="product-card-image">
-                      <img src={product.primaryImage || `/images/${imgIndex}.png`} alt={product.name} loading="lazy" />
-                    </Link>
-                    <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
-                      <span className="cart-btn-circle">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                          <line x1="3" y1="6" x2="21" y2="6" />
-                          <path d="M16 10a4 4 0 01-8 0" />
-                        </svg>
-                      </span>
-                      <span className="cart-btn-text">Add to Cart</span>
-                    </button>
-                    <div className="product-card-info">
-                      <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
-                      <p className="product-card-desc">{product.shortDescription || product.description}</p>
-                      <div className="product-card-footer">
-                        <span className="product-card-price">₹{product.price}</span>
-                        <button className="product-card-buy-btn" onClick={() => { addToCart(product); router.push("/cart"); }}>Buy Now</button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {filteredProducts.slice(6, 10).map((product, index) => (
+                <ProductCard
+                  key={product.name + index}
+                  product={product}
+                  index={allProducts.indexOf(product)}
+                  ref={(el) => (productRefs.current[index + 6] = el)}
+                  style={{ opacity: 0 }}
+                />
+              ))}
             </div>
           </section>
         </>
@@ -431,34 +375,15 @@ function WardrobeContent() {
 
       {!loading && (searchQuery ? filteredProducts.length > 0 : filteredProducts.length < 10) && (
         <section className="wardrobe-section wardrobe-category-grid">
-          {filteredProducts.map((product, index) => {
-            const imgIndex = ((allProducts.indexOf(product)) % 4) + 1;
-            return (
-              <div key={product.name + index} className="product-card" ref={(el) => (productRefs.current[index] = el)} style={{ opacity: 0 }}>
-                <Link href={productUrl(product)} className="product-card-image">
-                  <img src={product.primaryImage || `/images/${imgIndex}.png`} alt={product.name} loading="lazy" />
-                </Link>
-                <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
-                  <span className="cart-btn-circle">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                      <line x1="3" y1="6" x2="21" y2="6" />
-                      <path d="M16 10a4 4 0 01-8 0" />
-                    </svg>
-                  </span>
-                  <span className="cart-btn-text">Add to Cart</span>
-                </button>
-                <div className="product-card-info">
-                  <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
-                  <p className="product-card-desc">{product.shortDescription || product.description}</p>
-                  <div className="product-card-footer">
-                    <span className="product-card-price">₹{product.price}</span>
-                    <button className="product-card-buy-btn" onClick={() => { addToCart(product); router.push("/cart"); }}>Buy Now</button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {filteredProducts.map((product, index) => (
+            <ProductCard
+              key={product.name + index}
+              product={product}
+              index={allProducts.indexOf(product)}
+              ref={(el) => (productRefs.current[index] = el)}
+              style={{ opacity: 0 }}
+            />
+          ))}
         </section>
       )}
     </div>

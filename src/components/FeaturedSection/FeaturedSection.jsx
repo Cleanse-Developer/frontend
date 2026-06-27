@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { useSettings } from "@/context/SettingsContext";
 import { productApi, bundleApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
+import ProductCard from "@/components/ProductCard/ProductCard";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // These sections fetch async and sit ABOVE the pinned PeelReveal section on the
@@ -133,29 +134,7 @@ const FeaturedSection = () => {
         <h2 className="products-section-title">OUR BEST SELLERS</h2>
         <div className="products-grid">
           {featuredProducts.map((product, i) => (
-            <div key={product._id || i} className="product-card">
-              <Link href={productUrl(product)} className="product-card-image">
-                <img src={product.primaryImage || `/images/${(i % 4) + 1}.png`} alt={product.name} loading="lazy" />
-              </Link>
-              <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
-                <span className="cart-btn-circle">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <path d="M16 10a4 4 0 01-8 0" />
-                  </svg>
-                </span>
-                <span className="cart-btn-text">Add to cart</span>
-              </button>
-              <div className="product-card-info">
-                <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
-                <p className="product-card-desc">{product.shortDescription || product.description}</p>
-                <div className="product-card-footer">
-                  <span className="product-card-price">₹{product.price}</span>
-                  <button className="product-card-buy-btn" onClick={() => { addToCart(product); router.push("/cart"); }}>Buy Now</button>
-                </div>
-              </div>
-            </div>
+            <ProductCard key={product._id || i} product={product} index={i} />
           ))}
         </div>
       </section>
@@ -238,13 +217,17 @@ export const BentoSection = () => {
           </div>
 
           {featuredProducts.map((product) => (
-            <Link key={product.id} href={product.link || "/wardrobe"} className="featured-card featured-product-card">
-              <img src={product.image} alt={product.name} className="featured-product-bg" loading="lazy" />
-              <div className="featured-product-info">
-                <h4 className="featured-product-name" dangerouslySetInnerHTML={{ __html: product.name.replace(/\s+/g, "<br />") }} />
-                <span className="featured-product-price">₹{product.price}</span>
-              </div>
-              <button className="product-card-cart-btn featured-product-cart-btn" onClick={(e) => { e.preventDefault(); addToCart({ _id: product.id, name: product.name, price: product.price }); }}>
+            <div key={product.id} className="featured-card featured-product-card">
+              {/* Only image+info navigate; cart button sits OUTSIDE the link so a
+                  tap adds to cart + expands (never opens the product page). */}
+              <Link href={product.link || "/wardrobe"} className="featured-product-link">
+                <img src={product.image} alt={product.name} className="featured-product-bg" loading="lazy" />
+                <div className="featured-product-info">
+                  <h4 className="featured-product-name" dangerouslySetInnerHTML={{ __html: product.name.replace(/\s+/g, "<br />") }} />
+                  <span className="featured-product-price">₹{product.price}</span>
+                </div>
+              </Link>
+              <button className="product-card-cart-btn featured-product-cart-btn" onClick={() => addToCart({ _id: product.id, name: product.name, price: product.price })}>
                 <span className="cart-btn-circle">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
@@ -254,7 +237,7 @@ export const BentoSection = () => {
                 </span>
                 <span className="cart-btn-text">Add to cart</span>
               </button>
-            </Link>
+            </div>
           ))}
         </div>
       </div>
@@ -264,9 +247,9 @@ export const BentoSection = () => {
 
 export const ShopByCategory = () => {
   const categories = [
-    { id: 1, name: "SKIN CARE", image: "/images/c1.png", link: "/wardrobe?category=face-care" },
-    { id: 2, name: "HAIR CARE", image: "/images/c2.png", link: "/wardrobe?category=hair-care" },
-    { id: 3, name: "FACE CARE", image: "/images/c3.png", link: "/wardrobe?category=face-care" },
+    { id: 1, name: "skin care", image: "/images/c1.png", link: "/wardrobe?category=face-care" },
+    { id: 2, name: "hair care", image: "/images/c2.png", link: "/wardrobe?category=hair-care" },
+    { id: 3, name: "face care", image: "/images/c3.png", link: "/wardrobe?category=face-care" },
   ];
 
   return (
@@ -302,12 +285,26 @@ export const BuildYourRitual = () => {
     }).catch(() => {}).finally(refreshScrollTriggers);
   }, []);
 
+  const bundleRef = useRef(null);
+
   const toggleItem = (index) => {
     setSelected((prev) => {
       const next = [...prev];
       next[index] = !next[index];
       return next;
     });
+    // On mobile, reveal the bundle summary + "Add to Cart" button near the
+    // bottom of the viewport (with a little breathing room below).
+    if (typeof window !== "undefined" && window.innerWidth <= 480) {
+      requestAnimationFrame(() => {
+        const el = bundleRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const extra = 140; // scroll a bit further so the bar isn't at the very edge
+        const top = window.scrollY + rect.bottom - window.innerHeight + extra;
+        window.scrollTo({ top, behavior: "smooth" });
+      });
+    }
   };
 
   const products = bundleData ? (bundleData.products || []) : [];
@@ -382,7 +379,39 @@ export const BuildYourRitual = () => {
             );
           })}
         </div>
-        <div className="byr-bundle">
+        <div className="byr-bundle" ref={bundleRef}>
+          {/* Compact "zomato-style" bar — shown on mobile only */}
+          <div className="byr-bundle-compact">
+            <div className="byr-compact-left">
+              <div className="byr-compact-thumbs">
+                {products
+                  .filter((_, i) => selected[i])
+                  .slice(0, 3)
+                  .map((product, i) => {
+                    const imgSrc = (product.images?.find((img) => img.isPrimary) || product.images?.[0])?.url || `/images/${(i % 4) + 1}.png`;
+                    return (
+                      <div className="byr-compact-thumb" key={product._id || i}>
+                        <img src={imgSrc} alt={product.name} />
+                      </div>
+                    );
+                  })}
+              </div>
+              <div className="byr-compact-text">
+                <span className="byr-compact-count">{selectedCount} item{selectedCount === 1 ? "" : "s"} added</span>
+                <span className="byr-compact-sub">
+                  ₹{meetsMin ? discountedTotal : originalTotal}
+                  {meetsMin && savings > 0 ? ` · Save ₹${savings}` : ""}
+                </span>
+              </div>
+            </div>
+            {selectedCount > 0 && (
+              <button className="byr-compact-btn" onClick={handleAddToCart}>
+                Add <span aria-hidden="true">›</span>
+              </button>
+            )}
+          </div>
+
+          <div className="byr-bundle-full">
           <h3 className="byr-bundle-title">YOUR BUNDLE</h3>
           <p className="byr-bundle-desc">
             {meetsMin
@@ -437,6 +466,7 @@ export const BuildYourRitual = () => {
               ADD BUNDLE TO CART
             </button>
           )}
+          </div>
         </div>
       </div>
     </section>
@@ -459,29 +489,7 @@ export const LatestLaunches = () => {
       <h2 className="products-section-title">OUR LATEST LAUNCHES</h2>
       <div className="products-grid">
         {products.map((product, i) => (
-          <div key={product._id || i} className="product-card">
-            <Link href={productUrl(product)} className="product-card-image">
-              <img src={product.primaryImage || `/images/${(i % 4) + 1}.png`} alt={product.name} loading="lazy" />
-            </Link>
-            <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
-              <span className="cart-btn-circle">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <path d="M16 10a4 4 0 01-8 0" />
-                </svg>
-              </span>
-              <span className="cart-btn-text">Add to cart</span>
-            </button>
-            <div className="product-card-info">
-              <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
-              <p className="product-card-desc">{product.shortDescription || product.description}</p>
-              <div className="product-card-footer">
-                <span className="product-card-price">₹{product.price}</span>
-                <button className="product-card-buy-btn" onClick={() => { addToCart(product); router.push("/cart"); }}>Buy Now</button>
-              </div>
-            </div>
-          </div>
+          <ProductCard key={product._id || i} product={product} index={i} />
         ))}
       </div>
     </section>

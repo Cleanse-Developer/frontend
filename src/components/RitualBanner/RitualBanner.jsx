@@ -136,9 +136,9 @@ export default function RitualBanner() {
                 <p className="bodyCopy rhr-card-desc">{desc}</p>
 
                 <ol className="rhr-steps">
-                  {steps.map((s, i) => (
+                  {steps.map((s) => (
                     <li className="rhr-step" key={s}>
-                      <span className="rhr-step-n">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="rhr-step-dot" aria-hidden="true" />
                       <span className="rhr-step-label">{s}</span>
                     </li>
                   ))}

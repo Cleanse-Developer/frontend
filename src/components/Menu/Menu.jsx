@@ -102,6 +102,8 @@ const Menu = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMenuVisible, setIsMenuVisible] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  // Product detail pages keep a solid brown header; every other page uses the
+  // home behaviour (transparent over the hero, brown once scrolled past it).
   const [isScrolled, setIsScrolled] = useState(!isHomePage);
   const [isNavGreen, setIsNavGreen] = useState(!isHomePage);
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
@@ -504,6 +506,7 @@ const Menu = () => {
   // Sync scrolled + navGreen state on route change
   useEffect(() => {
     if (!isHomePage) {
+      // All non-home pages: always solid brown (no transparency / no scroll adapting)
       setIsScrolled(true);
       setIsNavGreen(true);
     } else {
@@ -515,6 +518,31 @@ const Menu = () => {
       }
     }
   }, [pathname, isHomePage]);
+
+  // Force the overlay fully CLOSED whenever the route changes. The close
+  // animation's GSAP onComplete (which sets isOpen=false) can be interrupted by
+  // the navigation/page transition, leaving the menu stuck open over the new
+  // page. Resetting here guarantees it's closed, and re-arms the GSAP state so
+  // the next open still animates from scratch.
+  useEffect(() => {
+    if (!menuOverlayRef.current) return;
+    setIsOpen(false);
+    setIsAnimating(false);
+
+    gsap.killTweensOf(menuOverlayRef.current);
+    gsap.set(menuOverlayRef.current, { scaleY: 0, transformOrigin: "top center" });
+
+    const subLinks = menuOverlayRef.current.querySelectorAll(".menu-sub-links a");
+    gsap.set(subLinks, { y: 50, opacity: 0 });
+    mainLinkSplitsRef.current.forEach((s) => gsap.set(s.words, { yPercent: 120 }));
+    splitTextsRef.current.forEach((s) => gsap.set(s.chars, { opacity: 0 }));
+
+    if (hamburgerRef.current) hamburgerRef.current.classList.remove("open");
+    if (menuTriggerRef.current) {
+      gsap.set(menuTriggerRef.current.querySelectorAll(".dot"), { x: 0, y: 0 });
+      gsap.set(menuTriggerRef.current, { rotation: 0 });
+    }
+  }, [pathname]);
 
   const upScrollCountRef = useRef(0);
   const scrollInitializedRef = useRef(false);
@@ -539,10 +567,19 @@ const Menu = () => {
       const isMenuHidden = menuRef.current?.classList.contains("hidden");
       const heroHeight = window.innerHeight - 100; // Hero section threshold
 
-      // Hero zone logic (home page only)
+      // Hero zone logic (transparent at top, brown on scroll). Product detail
+      // pages opt out — they stay solid brown.
       if (isHomePage) {
         const formulasSection = document.querySelector('.formulas');
-        const greenThreshold = formulasSection ? formulasSection.offsetTop : window.innerHeight;
+        // On mobile, turn the header brown right after the page's hero ends
+        // (heroes are often shorter than a full viewport), so it isn't stuck
+        // transparent over post-hero content.
+        const heroEl = document.querySelector('.hero, .product-hero, .wardrobe-hero, .blog-hero, .blogpost-hero, .cart-hero, .checkout-hero, .genesis-hero, .lookbook-hero, .legal-hero, .profile-hero, .ritual-hero, .touchpoint-hero');
+        const greenThreshold = formulasSection
+          ? formulasSection.offsetTop
+          : (isMobile && heroEl)
+            ? heroEl.offsetTop + heroEl.offsetHeight - 64
+            : window.innerHeight;
 
         // Desktop: Scrolling back into hero zone from below
         if (!isMobile && currentScrollY < heroHeight && isScrolled && !transitioningRef.current) {
@@ -580,8 +617,20 @@ const Menu = () => {
         }
       }
 
-      // On mobile, skip all hide/show logic - menu stays visible always
+      // On mobile: hide the header when scrolling down, reveal it on scroll up.
       if (isMobile) {
+        if (scrollDiff > 4 && currentScrollY > 80) {
+          if (isOpen) closeMenu();
+          if (menuRef.current && !menuRef.current.classList.contains("hidden")) {
+            menuRef.current.classList.add("hidden");
+            setIsMenuVisible(false);
+          }
+        } else if (scrollDiff < -4 || currentScrollY <= 80) {
+          if (menuRef.current && menuRef.current.classList.contains("hidden")) {
+            menuRef.current.classList.remove("hidden");
+            setIsMenuVisible(true);
+          }
+        }
         lastScrollY.current = currentScrollY;
         return;
       }
@@ -651,7 +700,7 @@ const Menu = () => {
   }, [isScrolled, isNavGreen]);
 
   return (
-    <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isNavGreen ? 'nav-green' : ''} ${isOpen ? 'menu-open' : ''} ${isPageTransitioning ? 'page-transitioning' : ''} ${isUnitPage ? 'menu-light' : ''}`} ref={menuRef}>
+    <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isNavGreen ? 'nav-green' : ''} ${isOpen ? 'menu-open' : ''} ${isPageTransitioning ? 'page-transitioning' : ''} ${isHomePage ? 'menu-has-banner' : ''}`} ref={menuRef}>
       <div className="menu-header">
         {/* Single hero header used in all states; gains a brown bg on scroll */}
         <div className="menu-header-full">
@@ -776,7 +825,8 @@ const Menu = () => {
                 </Link>
               </div>
             </div>
-            <div className="menu-overlay-sub-col">
+            {/* Discover column — desktop only (hidden on mobile via CSS). */}
+            <div className="menu-overlay-sub-col menu-discover-col">
               <div className="menu-items-header">
                 <p>Discover</p>
               </div>
@@ -797,22 +847,7 @@ const Menu = () => {
             </div>
           </div>
         </div>
-        <div className="menu-overlay-selectors">
-          <div className="menu-overlay-selector-group">
-            <div className="menu-overlay-selector-pills">
-              {["EN", "HI", "TA"].map(l => (
-                <button key={l} className={`menu-overlay-pill ${lang === l ? "active" : ""}`} onClick={() => handleLangChange(l)}>{l}</button>
-              ))}
-            </div>
-          </div>
-          <div className="menu-overlay-selector-group">
-            <div className="menu-overlay-selector-pills">
-              {["INR", "USD", "EUR", "GBP"].map(c => (
-                <button key={c} className={`menu-overlay-pill ${currency === c ? "active" : ""}`} onClick={() => handleCurrencyChange(c)}>{c}</button>
-              ))}
-            </div>
-          </div>
-        </div>
+        <p className="menu-overlay-footer-title">Socials</p>
         <div className="menu-overlay-footer">
           {Object.entries(headerSocialLinks).map(([platform, url]) => (
             <div key={platform} className="menu-social">

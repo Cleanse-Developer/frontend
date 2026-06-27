@@ -113,6 +113,13 @@
   }
 }
 
+@media (max-width: 768px) {
+  /* Drop the botanical accent image on mobile */
+  .text-block-aside-img {
+    display: none;
+  }
+}
+
 @media (max-width: 480px) {
   .text-block {
     min-height: auto;

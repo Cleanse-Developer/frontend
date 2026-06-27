@@ -64,30 +64,32 @@ const ContactForm = () => {
         </div>
         {!submitted ? (
           <>
-            <div className="cf-input">
-              <input
-                type="email"
-                required
-                placeholder="Enter Your Email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (error) setError("");
-                }}
-                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                aria-invalid={!!error}
-              />
+            <div className="cf-row">
+              <div className="cf-input">
+                <input
+                  type="email"
+                  required
+                  placeholder="Enter Your Email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (error) setError("");
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                  aria-invalid={!!error}
+                />
+              </div>
+              <button
+                type="button"
+                className="cf-submit"
+                onClick={handleSubmit}
+                disabled={submitting}
+                aria-label="Subscribe"
+                style={{ cursor: submitting ? "wait" : "pointer", border: "none" }}
+              >
+                {submitting ? "..." : <MdOutlineArrowOutward />}
+              </button>
             </div>
-            <button
-              type="button"
-              className="cf-submit"
-              onClick={handleSubmit}
-              disabled={submitting}
-              aria-label="Subscribe"
-              style={{ cursor: submitting ? "wait" : "pointer", border: "none" }}
-            >
-              {submitting ? "..." : <MdOutlineArrowOutward />}
-            </button>
             {error && (
               <div className="cf-input">
                 <p className="bodyCopy sm" style={{ color: "#c62828" }}>

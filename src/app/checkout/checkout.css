@@ -235,7 +235,9 @@
   padding: 2.5rem var(--gutter) 5rem;
   max-width: var(--page-max);
   margin: 0 auto;
-  align-items: flex-start;
+  /* Stretch both columns to equal height so the summary card's bottom lines up
+     with the left form's Continue button. */
+  align-items: stretch;
 }
 
 .checkout-forms {
@@ -910,15 +912,21 @@
 /* ===== Right Column - Order Summary ===== */
 .checkout-summary-wrapper {
   flex: 0 1 40%;
-  position: sticky;
-  top: 100px;
   min-width: 0;
+  /* Flex column so the card can stretch to the wrapper's (row-matched) height. */
+  display: flex;
+  flex-direction: column;
 }
 
 .checkout-summary-card {
   background: #fff;
   border-radius: 16px;
   padding: 2rem;
+  /* Fill the stretched height and lay children out vertically so the items list
+     grows to fill and the totals sit at the bottom. */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .checkout-summary-title {
@@ -953,9 +961,19 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
+  /* Space between the prices and the scrollbar so they don't touch; the
+     reserved gutter keeps the layout from shifting when the bar appears. */
+  padding-right: 0.9rem;
+  scrollbar-gutter: stable;
   border-bottom: 1px solid rgba(79, 44, 34, 0.08);
-  max-height: 320px;
+  /* Grow to fill the card's height (so the card matches the left column) and
+     scroll internally when the items overflow. */
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  /* Native scroll here (Lenis ignores it via data-lenis-prevent on the element),
+     and don't chain the scroll to the page at the list's top/bottom. */
+  overscroll-behavior: contain;
 }
 
 .checkout-summary-items::-webkit-scrollbar {
@@ -1110,6 +1128,18 @@
     flex: 1;
     width: 100%;
     position: static;
+  }
+
+  /* Stacked layout: don't stretch the card — natural height with the items
+     list scrolling at its capped height (the desktop fill is row-only). */
+  .checkout-summary-card {
+    display: block;
+    flex: none;
+  }
+
+  .checkout-summary-items {
+    flex: none;
+    max-height: 240px;
   }
 
   .checkout-hero-content {

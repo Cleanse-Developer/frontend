@@ -35,10 +35,21 @@
 }
 
 @media (max-width: 1199px) and (orientation: portrait) {
-  :root { --gutter: 1.5rem; --section-py: 3.5rem; }
+  :root {
+    --gutter: 1.5rem;
+    /* Vertical rhythm between sections on mobile (gap ≈ 2 × --section-py). */
+    --section-py: 2.5rem;
+    --section-title-gap: 2.25rem;
+    --section-grid-gap: var(--gutter);
+  }
 }
 @media (max-width: 480px) {
-  :root { --gutter: 1rem; --section-py: 3rem; }
+  :root {
+    --gutter: 1rem;
+    --section-py: 2rem;
+    --section-title-gap: 2rem;
+    --section-grid-gap: var(--gutter);
+  }
 }
 @media (min-width: 1440px) {
   :root { --gutter: 4rem; --page-max: 1400px; }

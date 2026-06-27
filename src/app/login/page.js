@@ -1,6 +1,6 @@
 "use client";
 import "./login.css";
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -8,6 +8,10 @@ import { useToast } from "@/context/ToastContext";
 import { referralApi } from "@/lib/endpoints";
 import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, extractWidgetToken } from "@/lib/msg91";
 import Logo from "@/components/Logo/Logo";
+import gsap from "gsap";
+import { SplitText } from "gsap/SplitText";
+
+gsap.registerPlugin(SplitText);
 
 export default function Login() {
   return (
@@ -35,9 +39,61 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Mobile: keep the focused input visible above the on-screen keyboard.
+  useEffect(() => {
+    const onFocusIn = (e) => {
+      if (e.target && e.target.tagName === "INPUT") {
+        setTimeout(() => e.target.scrollIntoView({ block: "center", behavior: "smooth" }), 280);
+      }
+    };
+    document.addEventListener("focusin", onFocusIn);
+    return () => document.removeEventListener("focusin", onFocusIn);
+  }, []);
 
   // Login form state
-  const [loginMethod, setLoginMethod] = useState("password"); // "password" | "mobile"
+  const [loginMethod, setLoginMethod] = useState("mobile"); // "password" | "mobile"
+
+  // Heading flicker on tab switch — the SplitText char effect from the testimonial review text.
+  const welcomeRef = useRef(null);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const el = welcomeRef.current;
+    if (!el) return;
+    const targets = el.querySelectorAll(".login-mobile-title, .login-mobile-sub");
+    if (!targets.length) return;
+    const split = SplitText.create(targets, { type: "chars" });
+    gsap.fromTo(
+      split.chars,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.05, delay: 0.05, stagger: { amount: 0.5, each: 0.1, from: "random" }, ease: "power2.inOut" }
+    );
+    return () => { try { split.revert(); } catch (e) {} };
+  }, [activeTab, loginMethod]);
+
+  // Smooth crossfade when switching login <-> register (mobile only; desktop stays instant).
+  const [switching, setSwitching] = useState(false);
+  const goTab = (tab) => {
+    if (tab === activeTab) return;
+    setSwitching(true);
+    setTimeout(() => {
+      setActiveTab(tab);
+      setError("");
+      requestAnimationFrame(() => setSwitching(false));
+    }, 200);
+  };
+
+  // Same smooth crossfade when switching login method (phone OTP <-> email).
+  const goMethod = (method) => {
+    if (method === loginMethod) return;
+    setSwitching(true);
+    setTimeout(() => {
+      setLoginMethod(method);
+      setError(""); setOtpSent(false); setOtp("");
+      requestAnimationFrame(() => setSwitching(false));
+    }, 200);
+  };
   const [loginEmail, setLoginEmail] = useState(paramEmail);
   const [loginPassword, setLoginPassword] = useState("");
   // Mobile OTP login state
@@ -250,7 +306,7 @@ function LoginContent() {
       </div>
 
       {/* Right Form Panel */}
-      <div className="login-form-container">
+      <div className={`login-form-container${activeTab === "register" ? " is-register" : ""}`}>
         <Link href="/" className="login-back-arrow" aria-label="Back to home">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5" />
@@ -258,7 +314,18 @@ function LoginContent() {
           </svg>
         </Link>
 
-        <div className="login-form-inner">
+        <div className={`login-form-inner${switching ? " is-switching" : ""}`}>
+          {/* Mobile-only brand header + welcome (desktop uses the left visual panel) */}
+          <div className="login-mobile-brand">
+            <Link href="/" className="login-mobile-logo" aria-label="Cleanse Ayurveda home">
+              <Logo src="/logo.png" alt="Cleanse Ayurveda" className="login-logo-mark" />
+            </Link>
+          </div>
+          <div className="login-mobile-welcome" ref={welcomeRef}>
+            <h1 className="login-mobile-title">{activeTab === "login" ? "Welcome Back!" : "Create Account"}</h1>
+            <p className="login-mobile-sub">{activeTab === "login" ? "Ready to glow? Log in now!" : "Sign up and improve your health today"}</p>
+          </div>
+
           {/* Error message */}
           {error && <p style={{ color: "#c44", fontSize: "0.9rem", marginBottom: "1rem", textAlign: "center" }}>{error}</p>}
 
@@ -266,13 +333,13 @@ function LoginContent() {
           <div className="login-tab-toggle">
             <button
               className={`login-tab ${activeTab === "login" ? "active" : ""}`}
-              onClick={() => { setActiveTab("login"); setError(""); }}
+              onClick={() => goTab("login")}
             >
               Login
             </button>
             <button
               className={`login-tab ${activeTab === "register" ? "active" : ""}`}
-              onClick={() => { setActiveTab("register"); setError(""); }}
+              onClick={() => goTab("register")}
             >
               Register
             </button>
@@ -337,6 +404,14 @@ function LoginContent() {
                       </button>
                     </div>
                   </div>
+                  <div className="login-options-row">
+                    <label className="login-checkbox-label">
+                      <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
+                      <span className="login-checkbox-custom"></span>
+                      <span className="login-checkbox-text">Remember me</span>
+                    </label>
+                    <Link href="/login" className="login-forgot">Forgot password</Link>
+                  </div>
                   <button type="submit" className="login-submit-btn" disabled={loading}>
                     {loading ? "Logging in..." : "Login"}
                   </button>
@@ -345,14 +420,17 @@ function LoginContent() {
                 <form className="login-form" onSubmit={otpSent ? handleVerifyOtp : handleSendOtp}>
                   <div className="login-input-group">
                     <label>Mobile Number</label>
-                    <input
-                      type="tel"
-                      inputMode="tel"
-                      placeholder="Enter your mobile number"
-                      value={loginPhone}
-                      onChange={(e) => setLoginPhone(e.target.value)}
-                      disabled={loading || otpSent}
-                    />
+                    <div className="login-phone-row">
+                      <span className="login-phone-cc">+91</span>
+                      <input
+                        type="tel"
+                        inputMode="tel"
+                        placeholder="Enter your mobile number"
+                        value={loginPhone}
+                        onChange={(e) => setLoginPhone(e.target.value)}
+                        disabled={loading || otpSent}
+                      />
+                    </div>
                   </div>
                   {otpSent && (
                     <div className="login-input-group">
@@ -402,6 +480,15 @@ function LoginContent() {
                 <span className="login-divider-line"></span>
               </div>
 
+              {/* Mobile: switch phone-OTP <-> email login (functioning like the Zomato flow) */}
+              <button
+                type="button"
+                className="login-alt-method"
+                onClick={() => goMethod(loginMethod === "mobile" ? "password" : "mobile")}
+              >
+                {loginMethod === "mobile" ? "Continue with Email" : "Continue with Phone"}
+              </button>
+
               <div className="login-social-buttons">
                 <button type="button" className="login-social-btn">
                   <svg width="20" height="20" viewBox="0 0 24 24">
@@ -418,6 +505,12 @@ function LoginContent() {
                   </svg>
                   <span>Apple</span>
                 </button>
+                <button type="button" className="login-social-btn">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2">
+                    <path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/>
+                  </svg>
+                  <span>Facebook</span>
+                </button>
               </div>
 
               <p className="login-switch-text">
@@ -425,7 +518,7 @@ function LoginContent() {
                 <button
                   type="button"
                   className="login-switch-btn"
-                  onClick={() => { setActiveTab("register"); setError(""); }}
+                  onClick={() => goTab("register")}
                 >
                   Register
                 </button>
@@ -444,11 +537,11 @@ function LoginContent() {
                 <label>Email</label>
                 <input type="email" placeholder="Enter your email address" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} disabled={loading} />
               </div>
-              <div className="login-input-group">
+              <div className="login-input-group login-reg-hide">
                 <label>Phone Number</label>
                 <input type="tel" placeholder="Enter your phone number" value={regPhone} onChange={(e) => setRegPhone(e.target.value)} disabled={loading} />
               </div>
-              <div className="login-input-group">
+              <div className="login-input-group login-reg-hide">
                 <label>Password</label>
                 <div className="login-password-wrapper">
                   <input
@@ -481,7 +574,7 @@ function LoginContent() {
                 </div>
               </div>
 
-              <div className="login-input-group">
+              <div className="login-input-group login-reg-hide">
                 <label>
                   Referral Code <span style={{ opacity: 0.6 }}>(optional)</span>
                 </label>
@@ -537,7 +630,7 @@ function LoginContent() {
                 <button
                   type="button"
                   className="login-switch-btn"
-                  onClick={() => { setActiveTab("login"); setError(""); }}
+                  onClick={() => goTab("login")}
                 >
                   Login
                 </button>
