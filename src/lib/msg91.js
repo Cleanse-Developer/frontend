@@ -33,6 +33,26 @@ function injectScript(urls, i = 0) {
   });
 }
 
+// Poll until predicate() is true or timeout elapses.
+function waitFor(predicate, timeoutMs = 8000, intervalMs = 50) {
+  return new Promise((resolve) => {
+    if (predicate()) {
+      resolve(true);
+      return;
+    }
+    const start = Date.now();
+    const id = setInterval(() => {
+      if (predicate()) {
+        clearInterval(id);
+        resolve(true);
+      } else if (Date.now() - start >= timeoutMs) {
+        clearInterval(id);
+        resolve(false);
+      }
+    }, intervalMs);
+  });
+}
+
 // Loads + initializes the widget at most once. Resolves false if the widget
 // can't be configured/loaded so callers can fall back gracefully.
 export function loadMsg91() {
@@ -45,7 +65,7 @@ export function loadMsg91() {
     return Promise.resolve(false);
   }
 
-  initPromise = injectScript(SCRIPT_URLS).then((loaded) => {
+  initPromise = injectScript(SCRIPT_URLS).then(async (loaded) => {
     if (!loaded || typeof window.initSendOTP !== "function") {
       initPromise = null; // allow a later retry
       return false;
@@ -57,6 +77,13 @@ export function loadMsg91() {
       success: () => {},
       failure: () => {},
     });
+    // exposeMethods attaches window.sendOtp/verifyOtp/retryOtp asynchronously
+    // after init — wait for them before reporting ready.
+    const ready = await waitFor(() => typeof window.sendOtp === "function");
+    if (!ready) {
+      initPromise = null; // allow a later retry
+      return false;
+    }
     widgetReady = true;
     return true;
   });

@@ -294,8 +294,8 @@ export default function Index() {
         <div className="cta-card">
           <img src={settings.cmsCta?.image?.url || "/images/cta.png"} alt="Ancient Secrets, Modern Radiance" className="cta-image" />
           <div className="cta-content">
-            <h2 className="cta-heading">Ancient Secrets, Modern Radiance</h2>
-            <p className="cta-desc">Crafted with turmeric, saffron and rose petals for naturally glowing skin.</p>
+            <h2 className="cta-heading">{settings.cmsCta?.heading || "Ancient Secrets, Modern Radiance"}</h2>
+            <p className="cta-desc">{settings.cmsCta?.description || "Crafted with turmeric, saffron and rose petals for naturally glowing skin."}</p>
             <Link href={settings.cmsCta?.ctaLink || "/wardrobe"} className="cta-shop-btn">{settings.cmsCta?.ctaText || "SHOP NOW"}</Link>
           </div>
         </div>
