@@ -664,9 +664,16 @@
     box-sizing: border-box;
   }
 
+  /* Mobile only: the Discover column (Featured, Why Cleanse, Rituals,
+     Testimonials) is hidden — those stay on desktop. */
+  .menu .menu-discover-col {
+    display: none;
+  }
+
   /* Socials: label above a single horizontal row of links at the bottom */
   .menu .menu-overlay-footer-title {
     display: block;
+    font-size: 0.72rem;
   }
 
   .menu .menu-overlay-footer {
@@ -702,12 +709,12 @@
 
   /* Sub-links (The Ritual, Lookbook, Contact, …) */
   .menu .menu-sub-links a {
-    padding: 1rem 0;
-    font-size: 1.05rem;
+    padding: 0.7rem 0;
+    font-size: 0.85rem;
   }
 
   .menu .menu-overlay-footer a {
-    font-size: 1rem;
+    font-size: 0.8rem;
   }
 
   /* Explore sub-links in 2 columns: Ritual/Lookbook on the left,

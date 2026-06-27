@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { useSettings } from "@/context/SettingsContext";
 import { productApi, bundleApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
+import ProductCard from "@/components/ProductCard/ProductCard";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // These sections fetch async and sit ABOVE the pinned PeelReveal section on the
@@ -133,29 +134,7 @@ const FeaturedSection = () => {
         <h2 className="products-section-title">OUR BEST SELLERS</h2>
         <div className="products-grid">
           {featuredProducts.map((product, i) => (
-            <div key={product._id || i} className="product-card">
-              <Link href={productUrl(product)} className="product-card-image">
-                <img src={product.primaryImage || `/images/${(i % 4) + 1}.png`} alt={product.name} loading="lazy" />
-              </Link>
-              <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
-                <span className="cart-btn-circle">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <path d="M16 10a4 4 0 01-8 0" />
-                  </svg>
-                </span>
-                <span className="cart-btn-text">Add to cart</span>
-              </button>
-              <div className="product-card-info">
-                <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
-                <p className="product-card-desc">{product.shortDescription || product.description}</p>
-                <div className="product-card-footer">
-                  <span className="product-card-price">₹{product.price}</span>
-                  <button className="product-card-buy-btn" onClick={() => { addToCart(product); router.push("/cart"); }}>Buy Now</button>
-                </div>
-              </div>
-            </div>
+            <ProductCard key={product._id || i} product={product} index={i} />
           ))}
         </div>
       </section>
@@ -238,13 +217,17 @@ export const BentoSection = () => {
           </div>
 
           {featuredProducts.map((product) => (
-            <Link key={product.id} href={product.link || "/wardrobe"} className="featured-card featured-product-card">
-              <img src={product.image} alt={product.name} className="featured-product-bg" loading="lazy" />
-              <div className="featured-product-info">
-                <h4 className="featured-product-name" dangerouslySetInnerHTML={{ __html: product.name.replace(/\s+/g, "<br />") }} />
-                <span className="featured-product-price">₹{product.price}</span>
-              </div>
-              <button className="product-card-cart-btn featured-product-cart-btn" onClick={(e) => { e.preventDefault(); addToCart({ _id: product.id, name: product.name, price: product.price }); }}>
+            <div key={product.id} className="featured-card featured-product-card">
+              {/* Only image+info navigate; cart button sits OUTSIDE the link so a
+                  tap adds to cart + expands (never opens the product page). */}
+              <Link href={product.link || "/wardrobe"} className="featured-product-link">
+                <img src={product.image} alt={product.name} className="featured-product-bg" loading="lazy" />
+                <div className="featured-product-info">
+                  <h4 className="featured-product-name" dangerouslySetInnerHTML={{ __html: product.name.replace(/\s+/g, "<br />") }} />
+                  <span className="featured-product-price">₹{product.price}</span>
+                </div>
+              </Link>
+              <button className="product-card-cart-btn featured-product-cart-btn" onClick={() => addToCart({ _id: product.id, name: product.name, price: product.price })}>
                 <span className="cart-btn-circle">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
@@ -254,7 +237,7 @@ export const BentoSection = () => {
                 </span>
                 <span className="cart-btn-text">Add to cart</span>
               </button>
-            </Link>
+            </div>
           ))}
         </div>
       </div>
@@ -506,29 +489,7 @@ export const LatestLaunches = () => {
       <h2 className="products-section-title">OUR LATEST LAUNCHES</h2>
       <div className="products-grid">
         {products.map((product, i) => (
-          <div key={product._id || i} className="product-card">
-            <Link href={productUrl(product)} className="product-card-image">
-              <img src={product.primaryImage || `/images/${(i % 4) + 1}.png`} alt={product.name} loading="lazy" />
-            </Link>
-            <button className="product-card-cart-btn" onClick={() => addToCart(product)}>
-              <span className="cart-btn-circle">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <path d="M16 10a4 4 0 01-8 0" />
-                </svg>
-              </span>
-              <span className="cart-btn-text">Add to cart</span>
-            </button>
-            <div className="product-card-info">
-              <Link href={productUrl(product)}><h3 className="product-card-name">{product.name}</h3></Link>
-              <p className="product-card-desc">{product.shortDescription || product.description}</p>
-              <div className="product-card-footer">
-                <span className="product-card-price">₹{product.price}</span>
-                <button className="product-card-buy-btn" onClick={() => { addToCart(product); router.push("/cart"); }}>Buy Now</button>
-              </div>
-            </div>
-          </div>
+          <ProductCard key={product._id || i} product={product} index={i} />
         ))}
       </div>
     </section>

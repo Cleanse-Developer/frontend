@@ -62,7 +62,7 @@
 
 .peel-reveal .peel-reveal-header h1 {
   font-family: var(--font-heading);
-  font-size: 10rem;
+  font-size: clamp(4rem, 11vw, 12rem);
   letter-spacing: 0.02em;
   text-align: center;
   width: 100%;
@@ -103,10 +103,6 @@
   .peel-reveal .peel-reveal-header {
     width: 90%;
   }
-
-  .peel-reveal .peel-reveal-header h1 {
-    font-size: 4rem;
-  }
 }
 
 @media (max-width: 480px) {
@@ -139,17 +135,7 @@
 }
 
 /* Large screens */
-@media (min-width: 1440px) {
-  .peel-reveal .peel-reveal-header h1 {
-    font-size: 12rem;
-  }
-}
-
 @media (min-width: 1920px) {
-  .peel-reveal .peel-reveal-header h1 {
-    font-size: 14rem;
-  }
-
   .peel-reveal .peel-reveal-img-container .pr-img {
     width: 85%;
     height: 85%;
@@ -157,10 +143,6 @@
 }
 
 @media (min-width: 2560px) {
-  .peel-reveal .peel-reveal-header h1 {
-    font-size: 16rem;
-  }
-
   .peel-reveal .peel-reveal-img-container .pr-img {
     width: 80%;
     height: 80%;

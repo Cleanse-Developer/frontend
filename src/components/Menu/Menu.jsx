@@ -104,8 +104,8 @@ const Menu = () => {
   const [isMobile, setIsMobile] = useState(false);
   // Product detail pages keep a solid brown header; every other page uses the
   // home behaviour (transparent over the hero, brown once scrolled past it).
-  const [isScrolled, setIsScrolled] = useState(isUnitPage);
-  const [isNavGreen, setIsNavGreen] = useState(isUnitPage);
+  const [isScrolled, setIsScrolled] = useState(!isHomePage);
+  const [isNavGreen, setIsNavGreen] = useState(!isHomePage);
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
   const [lang, setLang] = useState("EN");
@@ -505,8 +505,8 @@ const Menu = () => {
 
   // Sync scrolled + navGreen state on route change
   useEffect(() => {
-    if (isUnitPage) {
-      // Product detail pages: always solid brown
+    if (!isHomePage) {
+      // All non-home pages: always solid brown (no transparency / no scroll adapting)
       setIsScrolled(true);
       setIsNavGreen(true);
     } else {
@@ -518,6 +518,31 @@ const Menu = () => {
       }
     }
   }, [pathname, isHomePage]);
+
+  // Force the overlay fully CLOSED whenever the route changes. The close
+  // animation's GSAP onComplete (which sets isOpen=false) can be interrupted by
+  // the navigation/page transition, leaving the menu stuck open over the new
+  // page. Resetting here guarantees it's closed, and re-arms the GSAP state so
+  // the next open still animates from scratch.
+  useEffect(() => {
+    if (!menuOverlayRef.current) return;
+    setIsOpen(false);
+    setIsAnimating(false);
+
+    gsap.killTweensOf(menuOverlayRef.current);
+    gsap.set(menuOverlayRef.current, { scaleY: 0, transformOrigin: "top center" });
+
+    const subLinks = menuOverlayRef.current.querySelectorAll(".menu-sub-links a");
+    gsap.set(subLinks, { y: 50, opacity: 0 });
+    mainLinkSplitsRef.current.forEach((s) => gsap.set(s.words, { yPercent: 120 }));
+    splitTextsRef.current.forEach((s) => gsap.set(s.chars, { opacity: 0 }));
+
+    if (hamburgerRef.current) hamburgerRef.current.classList.remove("open");
+    if (menuTriggerRef.current) {
+      gsap.set(menuTriggerRef.current.querySelectorAll(".dot"), { x: 0, y: 0 });
+      gsap.set(menuTriggerRef.current, { rotation: 0 });
+    }
+  }, [pathname]);
 
   const upScrollCountRef = useRef(0);
   const scrollInitializedRef = useRef(false);
@@ -544,7 +569,7 @@ const Menu = () => {
 
       // Hero zone logic (transparent at top, brown on scroll). Product detail
       // pages opt out — they stay solid brown.
-      if (!isUnitPage) {
+      if (isHomePage) {
         const formulasSection = document.querySelector('.formulas');
         // On mobile, turn the header brown right after the page's hero ends
         // (heroes are often shorter than a full viewport), so it isn't stuck
@@ -800,7 +825,8 @@ const Menu = () => {
                 </Link>
               </div>
             </div>
-            <div className="menu-overlay-sub-col">
+            {/* Discover column — desktop only (hidden on mobile via CSS). */}
+            <div className="menu-overlay-sub-col menu-discover-col">
               <div className="menu-items-header">
                 <p>Discover</p>
               </div>

@@ -11,6 +11,7 @@ import { useToast } from "@/context/ToastContext";
 import { productApi, shippingApi, reviewApi, bundleApi } from "@/lib/endpoints";
 import { normalizeProduct } from "@/lib/normalizers";
 import { productUrl } from "@/lib/normalizers";
+import ProductCard from "@/components/ProductCard/ProductCard";
 // Realistic, name-matched icons from react-icons — botanicals from Game Icons,
 // everything else from Font Awesome 6 (solid) for one consistent, filled look.
 import { GiBerryBush, GiDaisy, GiThreeLeaves, GiHerbsBundle, GiVineLeaf, GiAgave, GiLotus, GiVineFlower } from "react-icons/gi";
@@ -910,29 +911,7 @@ function UnitContent({ params }) {
         <h2 className="recommended-title">RECOMMENDED FOR YOU</h2>
         <div className="products-grid">
           {relatedProducts.map((rp, i) => (
-            <div key={rp._id || rp.name} className="product-card">
-              <Link href={productUrl(rp)} className="product-card-image">
-                <img src={rp.primaryImage || `/images/${(i % 4) + 1}.png`} alt={rp.name} />
-              </Link>
-              <button className="product-card-cart-btn" onClick={() => addToCart(rp)}>
-                <span className="cart-btn-circle">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <path d="M16 10a4 4 0 01-8 0" />
-                  </svg>
-                </span>
-                <span className="cart-btn-text">Add to Cart</span>
-              </button>
-              <div className="product-card-info">
-                <Link href={productUrl(rp)}><h3 className="product-card-name">{rp.name}</h3></Link>
-                <p className="product-card-desc">{rp.shortDescription || rp.description}</p>
-                <div className="product-card-footer">
-                  <span className="product-card-price">&#8377;{rp.price}</span>
-                  <button className="product-card-buy-btn" onClick={() => { addToCart(rp); router.push("/cart"); }}>Buy Now</button>
-                </div>
-              </div>
-            </div>
+            <ProductCard key={rp._id || rp.name} product={rp} index={i} />
           ))}
         </div>
       </section>

@@ -459,7 +459,7 @@
   }
 
   .hero {
-    height: 100svh;
+    height: var(--app-height, 100svh);
     border-radius: 0;
   }
 
@@ -906,7 +906,9 @@
   }
 
   .hero {
-    height: 100svh;
+    /* Locked height (see --app-height in client-layout) so the hero doesn't
+       resize when the mobile browser bars slide in/out. */
+    height: var(--app-height, 100svh);
     border-radius: 0;
   }
 
@@ -1167,12 +1169,13 @@
   }
 
   .cta-heading {
-    font-size: 1.75rem;
-    max-width: 17.5rem;
+    font-size: var(--fs-section-title);
+    max-width: 22rem;
   }
 
   .cta-desc {
     font-size: 1rem;
+    text-align: left;
   }
 
   .cta-shop-btn {
@@ -1199,12 +1202,12 @@
   }
 
   .cta-heading {
-    font-size: 1.125rem;
-    max-width: 11.25rem;
+    font-size: var(--fs-section-title);
+    max-width: 18rem;
   }
 
   .cta-desc {
-    font-size: 0.75rem;
+    font-size: 1rem;
   }
 
   .cta-shop-btn {

@@ -507,13 +507,23 @@
   letter-spacing: 0;
 }
 
+/* Link adds no box (display:contents) so img+info keep their layout while the
+   cart button (sibling outside the link) no longer navigates. */
+.featured-product-link {
+  display: contents;
+}
+
 .featured-product-card .featured-product-cart-btn {
   position: absolute;
-  bottom: 1.25rem;
-  left: 1.25rem;
-  right: auto;
+  /* The pill box is max-content wide but CLIPPED to show only its right 40px
+     (the circle), so it must be RIGHT-anchored — 12px corner inset like the
+     "Our Best Sellers" ProductCard button (was left-anchored => circle drifted
+     to the card centre). */
+  bottom: 12px;
+  right: 12px;
+  left: auto;
   top: auto;
-  z-index: 2;
+  z-index: 5;
 }
 
 /* Our Featured Products Section */
@@ -617,7 +627,7 @@
 /* Cart button - circle with icon, expands to pill on hover */
 .product-card-cart-btn {
   position: absolute;
-  top: calc(377px - 47px);
+  top: calc(377px - 52px);
   right: 12px;
   height: 40px;
   width: 40px;
@@ -1143,7 +1153,7 @@
   }
 
   .product-card-cart-btn {
-    top: 175px;
+    top: calc(220px - 52px);
   }
 
   .product-card:hover .product-card-image img {
@@ -1974,7 +1984,7 @@
   }
 
   .product-card-cart-btn {
-    top: calc(420px - 47px);
+    top: calc(420px - 52px);
   }
 
   .featured-grid-right {
@@ -2085,7 +2095,7 @@
   }
 
   .product-card-cart-btn {
-    top: calc(480px - 47px);
+    top: calc(480px - 52px);
   }
 
   .product-card-name {
@@ -2505,7 +2515,7 @@
   }
 
   .product-card-cart-btn {
-    top: calc(320px - 47px);
+    top: calc(320px - 52px);
   }
 
   .product-card-info {
@@ -2749,5 +2759,125 @@
   .featured-card,
   .sbc-card-box {
     border-radius: 12px;
+  }
+}
+
+/* ============================================================================
+   Product-card cart button — opened with CLIP-PATH, not width.
+
+   The previous approach animated the button's WIDTH, which on iOS re-lays-out
+   the contents every frame and nudged the icon. Here the button is a FIXED
+   146px pill that never resizes — so the icon is physically anchored and cannot
+   move. When "closed" the pill is clipped to just its right 40px (a circle);
+   opening animates the clip leftwards to reveal "Add to cart". clip-path is
+   GPU-composited (smooth, no reflow) AND it gates pointer events, so the hidden
+   part of the pill isn't tappable — the closed target stays a 40px circle.
+   ========================================================================== */
+
+.product-card-cart-btn {
+  /* Equal corner inset over the IMAGE: right gap is 12px (right:12px from base),
+     and each breakpoint's `top` is set to imageHeight − 52px (40px button + 12px)
+     so the gap below the button = 12px too. (The button is a sibling of the
+     image, so it anchors to the card — `bottom` would land it on Buy Now.) */
+  right: 12px;
+  /* Width fits the content (icon + label) — snug, so text spacing is identical
+     on every device, and never wider than it needs to be (no overflow). Capped
+     to the card width so it can't spill out of the container on small screens.
+     The width is constant per card, so the icon still never moves. */
+  width: max-content !important;
+  max-width: calc(100% - 24px);
+  /* Left-anchor the label so its distance from the pill's LEFT edge is fixed on
+     every device (row-reverse pinned it to the icon side, so any width clamp ate
+     into the left gap). Now the text starts at a constant left padding; any
+     variance falls on the icon side instead, where the reserved strip + clip
+     hide it. */
+  flex-direction: row;
+  justify-content: flex-start;
+  /* Right strip reserved for the pinned circle so the text never overlaps it. */
+  padding: 0 40px 0 0;
+  transform: none;
+  /* Closed: reveal only the right 40px (the circle) — calc() so it works at any
+     content width. round → the revealed sliver is a circle. */
+  clip-path: inset(0 0 0 calc(100% - 40px) round 20px);
+  -webkit-clip-path: inset(0 0 0 calc(100% - 40px) round 20px);
+  transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    -webkit-clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card-cart-btn:active,
+.product-card-cart-btn:focus {
+  transform: none;
+}
+
+/* Icon circle: pinned to the right, full height, flex-centred icon. */
+.product-card-cart-btn .cart-btn-circle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: auto;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: none;
+  animation: none;
+}
+
+.product-card-cart-btn .cart-btn-circle svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  transition: none;
+  animation: none;
+}
+
+/* Text sits left of the circle; the clip hides it when closed, so no opacity
+   toggle is needed (and nothing about the text can affect the icon). */
+.product-card-cart-btn .cart-btn-text {
+  /* Hidden when closed so it can never peek next to the circle, even if a narrow
+     card clamps the pill and the text overflows. Fades in on open. */
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  /* Fixed font (not the fluid clamp) → the pill width is the same on every
+     device, so spacing can't drift with the viewport. */
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  /* Even spacing left/right of the text inside the pill. */
+  padding-left: 12px;
+  padding-right: 0;
+}
+
+.product-card-cart-btn.cart-open .cart-btn-text {
+  opacity: 1;
+}
+
+/* Open state — reveal the full pill (touch: JS .cart-open class; desktop: hover). */
+.product-card-cart-btn.cart-open {
+  clip-path: inset(0 0 0 0 round 20px);
+  -webkit-clip-path: inset(0 0 0 0 round 20px);
+}
+
+@media (hover: hover) {
+  .product-card-cart-btn:hover {
+    clip-path: inset(0 0 0 0 round 20px);
+    -webkit-clip-path: inset(0 0 0 0 round 20px);
+  }
+  .product-card-cart-btn:hover .cart-btn-text {
+    opacity: 1;
+  }
+}
+
+/* Touch: the flaky :hover must NOT reveal the label (only the JS .cart-open
+   class does), so an overflowing letter can never peek beside the circle. */
+@media (hover: none) {
+  .product-card-cart-btn:hover .cart-btn-text {
+    opacity: 0;
+  }
+  .product-card-cart-btn.cart-open .cart-btn-text {
+    opacity: 1;
   }
 }
