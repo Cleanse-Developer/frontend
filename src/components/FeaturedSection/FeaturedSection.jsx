@@ -152,12 +152,11 @@ export const BentoSection = () => {
   const leftCard = cmsBento.leftCard || {};
   const ingredientsCard = cmsBento.ingredientsCard || {};
 
-  /* The backend CMS still serves placeholder "lorem" copy here, so use real
-     copy unless the CMS value is genuine (non-lorem). */
+  /* Driven by the CMS Ingredients Card description; falls back to default copy
+     only when the field is empty. */
   const ingredientsDesc =
-    ingredientsCard.description && !/lorem/i.test(ingredientsCard.description)
-      ? ingredientsCard.description
-      : "Turmeric, Neem, Tulsi, Aloe Vera and Rose, time-honoured botanicals that calm, nourish and renew your skin.";
+    ingredientsCard.description ||
+    "Turmeric, Neem, Tulsi, Aloe Vera and Rose, time-honoured botanicals that calm, nourish and renew your skin.";
 
   const defaultProducts = [
     { id: 1, name: "Cleanse Perfume", price: 700, image: "/images/why2.png", link: "/wardrobe" },
