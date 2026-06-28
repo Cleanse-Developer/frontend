@@ -13,7 +13,7 @@
   line-height: 1.4;
   box-shadow: 0 10px 30px rgba(28, 16, 10, 0.28);
 }
-.ui-toast--success { background: #2f6b3a; }
+.ui-toast--success { background: #663532; border-left: 3px solid #C8AD73; }
 .ui-toast--error { background: #8c2b22; }
 .ui-toast--info { background: var(--base-700); }
 .ui-toast-msg { flex: 1; }

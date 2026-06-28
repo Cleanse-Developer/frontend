@@ -238,6 +238,7 @@
 
 .cart-page-item {
   display: flex;
+  align-items: center;
   gap: 2rem;
   padding: 2rem 0;
   border-bottom: 1px dashed rgba(79, 44, 34, 0.15);
@@ -289,13 +290,38 @@
   letter-spacing: 0.02em;
 }
 
+/* Product description fills the middle (was empty); clamped to 2 lines. */
+.cart-page-item-desc {
+  font-family: var(--font-body);
+  font-size: clamp(0.78rem, 0.85vw, 0.88rem);
+  color: rgba(79, 44, 34, 0.55);
+  line-height: 1.45;
+  text-transform: none;
+  letter-spacing: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 46ch;
+}
+
+/* Right column: price on top, quantity + remove below. */
+.cart-page-item-side {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.85rem;
+  text-align: right;
+}
+
 .cart-page-item-price {
   font-family: var(--font-body);
   font-size: clamp(1rem, 1.2vw, 1.15rem);
   font-weight: 600;
   color: var(--base-700);
   flex-shrink: 0;
-  margin-left: 1rem;
 }
 
 .cart-page-item-unit {
@@ -308,8 +334,8 @@
 .cart-page-item-controls {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  margin-top: 0.75rem;
+  gap: 1.25rem;
+  margin-top: 0;
 }
 
 .cart-quantity-selector {
@@ -376,11 +402,13 @@
   color: #663532;
 }
 
-/* Gift Options */
+/* Gift Options — its own card under the order summary (right column) */
 .gift-options {
   width: 100%;
-  border-top: 1px dashed rgba(79, 44, 34, 0.15);
-  padding: 2rem 0;
+  margin-top: 1.25rem;
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
 }
 
 .gift-options-title {
@@ -389,7 +417,7 @@
   font-weight: 600;
   color: var(--base-700);
   letter-spacing: 0.08em;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .gift-toggle {
@@ -745,13 +773,29 @@
   }
 
   .cart-page-item {
-    gap: 1.25rem;
+    gap: 1rem 1.25rem;
+    flex-wrap: wrap;
+    align-items: flex-start;
   }
 
   .cart-page-item-image {
-    width: 100px;
-    height: 100px;
-    padding: 0.75rem;
+    width: 90px;
+    height: 90px;
+    padding: 0.5rem;
+  }
+
+  .cart-page-item-details {
+    min-width: 0;
+  }
+
+  /* Price + quantity + remove drop to their own full-width row below the
+     image/details so nothing runs off the screen. */
+  .cart-page-item-side {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.25rem;
   }
 
   .cart-recommended {

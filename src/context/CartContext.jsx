@@ -107,6 +107,7 @@ export const CartProvider = ({ children }) => {
       selectedSize: item.selectedSize,
       quantity: item.quantity || 1,
       slug: item.product?.slug,
+      description: item.product?.shortDescription || item.product?.description || item.description || "",
     }));
   };
 
@@ -152,6 +153,7 @@ export const CartProvider = ({ children }) => {
     const price = Number(product.price);
     const image = product.primaryImage || product.image || product.images?.[0]?.url || "/images/1.png";
     const slug = product.slug;
+    const description = product.shortDescription || product.description || "";
     const sizeLabel = selectedSize?.label || selectedSize || product.sizes?.[0]?.label || product.sizes?.[0];
 
     if (isAuthenticated) {
@@ -172,7 +174,7 @@ export const CartProvider = ({ children }) => {
               : item
           );
         }
-        return [...prev, { productId, name, price, image, selectedSize: sizeLabel, quantity, slug }];
+        return [...prev, { productId, name, price, image, selectedSize: sizeLabel, quantity, slug, description }];
       });
     }
     setIsCartOpen(true);

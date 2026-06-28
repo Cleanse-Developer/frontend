@@ -66,7 +66,7 @@ const BlogSection = () => {
                   className="blog-card-image"
                   ref={el => imagesRef.current[index] = el}
                 >
-                  <img src={blog.image} alt={blog.title} loading="lazy" />
+                  <img src={blog.image} alt={blog.title} loading="lazy" decoding="async" />
                 </div>
               </div>
               <div className="blog-card-content">

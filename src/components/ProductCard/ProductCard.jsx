@@ -58,7 +58,7 @@ const ProductCard = forwardRef(function ProductCard(
       {...rest}
     >
       <Link href={href} className="product-card-image">
-        <img src={image} alt={product.name} loading="lazy" />
+        <img src={image} alt={product.name} loading="lazy" decoding="async" />
       </Link>
       <button
         className="product-card-cart-btn"

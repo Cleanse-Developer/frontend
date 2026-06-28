@@ -96,7 +96,7 @@ const Footer = () => {
 
   const contact = cmsFooter.contact || {};
   const addressLines = contact.addressLines || [
-    "Cleanse Ayurveda Pvt. Ltd.",
+    "HRBD Life Sciences Pvt. Ltd.",
     "42 Wellness Avenue, Bandra West, Mumbai 400050",
   ];
   const email = contact.email || "care@cleanseayurveda.com";

@@ -49,6 +49,33 @@ export default function CartPage() {
 
   const [recommended, setRecommended] = useState([]);
 
+  // Back-fill descriptions for cart items that don't carry one (older items, or
+  // items synced without a description) so the middle column isn't empty.
+  const [descMap, setDescMap] = useState({});
+  useEffect(() => {
+    const missing = cartItems.filter(
+      (it) => !it.description && it.slug && descMap[it.slug] === undefined
+    );
+    if (missing.length === 0) return;
+    let cancelled = false;
+    Promise.all(
+      missing.map((it) =>
+        productApi
+          .getBySlug(it.slug)
+          .then((p) => {
+            const np = normalizeProduct(p?.product || p);
+            return [it.slug, np?.shortDescription || np?.description || ""];
+          })
+          .catch(() => [it.slug, ""])
+      )
+    ).then((entries) => {
+      if (!cancelled) setDescMap((prev) => ({ ...prev, ...Object.fromEntries(entries) }));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [cartItems, descMap]);
+
   useEffect(() => {
     productApi.getAll({ limit: 8 }).then((data) => {
       const cartIds = cartItems.map((item) => item.productId || item.name);
@@ -126,17 +153,21 @@ export default function CartPage() {
           {cartItems.map((item, index) => {
             const itemId = item.cartItemId || `${item.productId || item.name}_${item.selectedSize}`;
             const quantity = Number(item.quantity) || 1;
+            const desc = item.description || descMap[item.slug] || "";
             return (
               <div key={itemId || index} className="cart-page-item">
                 <div className="cart-page-item-image">
                   <img src={item.image || `/images/${(index % 4) + 1}.png`} alt={item.name} />
                 </div>
                 <div className="cart-page-item-details">
-                  <div className="cart-page-item-top">
-                    <h3 className="cart-page-item-name">{item.name}</h3>
-                    <span className="cart-page-item-price">&#8377;{(Number(item.price) * quantity).toFixed(0)}</span>
-                  </div>
+                  <h3 className="cart-page-item-name">{item.name}</h3>
+                  {desc && (
+                    <p className="cart-page-item-desc">{desc}</p>
+                  )}
                   <p className="cart-page-item-unit">&#8377;{item.price} each{item.selectedSize ? ` · ${item.selectedSize}` : ""}</p>
+                </div>
+                <div className="cart-page-item-side">
+                  <span className="cart-page-item-price">&#8377;{(Number(item.price) * quantity).toFixed(0)}</span>
                   <div className="cart-page-item-controls">
                     <div className="cart-quantity-selector">
                       <button
@@ -164,35 +195,7 @@ export default function CartPage() {
           })}
         </div>
 
-        {/* Gift Options */}
-        <div className="gift-options">
-          <h3 className="gift-options-title">GIFT OPTIONS</h3>
-          <div className="gift-toggle">
-            <label className="gift-toggle-switch">
-              <input
-                type="checkbox"
-                checked={giftWrap}
-                onChange={(e) => setGiftWrap(e.target.checked)}
-              />
-              <span className="gift-toggle-slider"></span>
-            </label>
-            <span className="gift-toggle-label">Add Gift Wrapping <span className="gift-toggle-price">(+&#8377;99)</span></span>
-          </div>
-          {giftWrap && (
-            <div className="gift-message-wrapper">
-              <textarea
-                className="gift-message"
-                placeholder="Write a personal message..."
-                maxLength={200}
-                value={giftMessage}
-                onChange={(e) => setGiftMessage(e.target.value)}
-              />
-              <span className="gift-char-count">{giftMessage.length} / 200</span>
-            </div>
-          )}
-        </div>
-
-        {/* Order Summary */}
+        {/* Order Summary + Gift Options (right column) */}
         <div className="cart-summary-wrapper">
           <div className="cart-summary-card">
             <h3 className="cart-summary-title">Order Summary</h3>
@@ -229,6 +232,34 @@ export default function CartPage() {
               Proceed to Checkout
             </button>
             <Link href="/wardrobe" className="cart-continue-link">Continue Shopping</Link>
+          </div>
+
+          {/* Gift Options — below the order summary */}
+          <div className="gift-options">
+            <h3 className="gift-options-title">GIFT OPTIONS</h3>
+            <div className="gift-toggle">
+              <label className="gift-toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={giftWrap}
+                  onChange={(e) => setGiftWrap(e.target.checked)}
+                />
+                <span className="gift-toggle-slider"></span>
+              </label>
+              <span className="gift-toggle-label">Add Gift Wrapping <span className="gift-toggle-price">(+&#8377;99)</span></span>
+            </div>
+            {giftWrap && (
+              <div className="gift-message-wrapper">
+                <textarea
+                  className="gift-message"
+                  placeholder="Write a personal message..."
+                  maxLength={200}
+                  value={giftMessage}
+                  onChange={(e) => setGiftMessage(e.target.value)}
+                />
+                <span className="gift-char-count">{giftMessage.length} / 200</span>
+              </div>
+            )}
           </div>
         </div>
       </section>

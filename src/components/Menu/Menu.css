@@ -241,7 +241,7 @@
 }
 
 .menu .menu-logo-img {
-  width: 120px;
+  width: 150px;
   height: auto;
   display: block;
   transition: filter 0.3s ease;
@@ -640,7 +640,7 @@
   }
 
   .menu .menu-logo-img {
-    width: clamp(104px, 31vw, 120px);
+    width: clamp(120px, 35vw, 145px);
     height: auto;
   }
 

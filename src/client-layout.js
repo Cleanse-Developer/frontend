@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 
 import { ReactLenis } from "lenis/react";
 import { registerScrollTrigger, ScrollTrigger } from "@/ui/animations/scrollTrigger";
+import Preloader from "@/components/Preloader/Preloader";
 
 export default function ClientLayout({ children, footer, header }) {
   const pageRef = useRef();
@@ -127,6 +128,7 @@ export default function ClientLayout({ children, footer, header }) {
 
   return (
     <ReactLenis root options={scrollSettings} ref={lenisRef}>
+      <Preloader />
       <div className="page" ref={pageRef}>
         {pathname !== "/login" && header}
         {children}

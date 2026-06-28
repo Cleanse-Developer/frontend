@@ -2159,6 +2159,8 @@
 }
 .product-acc-arrow {
   flex-shrink: 0;
+  width: 14px;
+  height: 14px;
   color: #663532;
   transition: transform 0.3s ease;
 }

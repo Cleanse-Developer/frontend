@@ -235,9 +235,8 @@
   padding: 2.5rem var(--gutter) 5rem;
   max-width: var(--page-max);
   margin: 0 auto;
-  /* Stretch both columns to equal height so the summary card's bottom lines up
-     with the left form's Continue button. */
-  align-items: stretch;
+  /* Columns size to their own content; the summary card stays compact + sticky. */
+  align-items: flex-start;
 }
 
 .checkout-forms {
@@ -248,6 +247,26 @@
 /* ===== Form Section ===== */
 .checkout-form-section {
   width: 100%;
+  /* Each step's section mounts fresh when activeStep changes, so this mount
+     animation plays on every step transition (no more instant swap). */
+  animation: checkoutStepIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes checkoutStepIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkout-form-section {
+    animation: none;
+  }
 }
 
 .checkout-section-title {
@@ -427,6 +446,59 @@
 
 .checkout-continue-btn:active {
   transform: scale(0.97);
+}
+
+/* ===== Guest gate (step 1: phone + Login / Continue as Guest) ===== */
+.checkout-guest-gate {
+  max-width: 440px;
+}
+
+.checkout-guest-sub {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: rgba(46, 31, 20, 0.6);
+  margin: 0.25rem 0 1.5rem;
+  line-height: 1.4;
+}
+
+.checkout-guest-actions {
+  display: flex;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+}
+
+.checkout-guest-login-btn {
+  flex: 0 0 auto;
+  padding: 1.15rem 1.75rem;
+  background: transparent;
+  color: var(--base-700);
+  border: 1px solid var(--base-700);
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-size: clamp(0.78rem, 0.88vw, 0.85rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.checkout-guest-login-btn:hover {
+  background: var(--base-700);
+  color: var(--base-100);
+}
+
+/* "Continue as Guest" reuses .checkout-continue-btn but sits in the row — drop
+   its big top margin and let it fill the remaining width. */
+.checkout-guest-actions .checkout-guest-continue-btn {
+  margin-top: 0;
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .checkout-guest-actions {
+    flex-direction: column;
+  }
 }
 
 /* Step actions row (back + continue) */
@@ -913,20 +985,16 @@
 .checkout-summary-wrapper {
   flex: 0 1 40%;
   min-width: 0;
-  /* Flex column so the card can stretch to the wrapper's (row-matched) height. */
-  display: flex;
-  flex-direction: column;
+  /* Compact card that stays in view while the left column scrolls. */
+  position: sticky;
+  top: 100px;
+  align-self: flex-start;
 }
 
 .checkout-summary-card {
   background: #fff;
   border-radius: 16px;
-  padding: 2rem;
-  /* Fill the stretched height and lay children out vertically so the items list
-     grows to fill and the totals sit at the bottom. */
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  padding: 1.5rem;
 }
 
 .checkout-summary-title {
@@ -966,10 +1034,8 @@
   padding-right: 0.9rem;
   scrollbar-gutter: stable;
   border-bottom: 1px solid rgba(79, 44, 34, 0.08);
-  /* Grow to fill the card's height (so the card matches the left column) and
-     scroll internally when the items overflow. */
-  flex: 1 1 auto;
-  min-height: 0;
+  /* Compact list — scrolls internally past ~3 items so the card stays small. */
+  max-height: 232px;
   overflow-y: auto;
   /* Native scroll here (Lenis ignores it via data-lenis-prevent on the element),
      and don't chain the scroll to the page at the list's top/bottom. */
@@ -1001,18 +1067,21 @@
   flex-shrink: 0;
   border-radius: 8px;
   background: rgba(79, 44, 34, 0.04);
-  overflow: hidden;
+  /* visible so the qty badge sits OUTSIDE the thumbnail (was clipped) */
+  overflow: visible;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.4rem;
+  padding: 0;
   position: relative;
 }
 
 .checkout-summary-item-img img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  /* fill the thumbnail instead of a small contained image */
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .checkout-summary-item-qty {
@@ -1457,12 +1526,16 @@
 
 .checkout-address-list {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 0.6rem;
   margin-top: 0.75rem;
 }
 
 .checkout-address-card {
+  /* Two cards per row (wrap below); the card content stays stacked inside. */
+  flex: 1 1 calc(50% - 0.3rem);
+  min-width: 180px;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;

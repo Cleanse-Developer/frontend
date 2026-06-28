@@ -314,7 +314,7 @@ function WardrobeContent() {
         </section>
       )}
 
-      {!loading && !searchQuery && filteredProducts.length >= 10 && (
+      {!loading && !searchQuery && filteredProducts.length >= 7 && (
         <>
           {/* Section 1: 2 Products + Spotlight Banner */}
           <section className="wardrobe-section section-row-1">
@@ -349,15 +349,13 @@ function WardrobeContent() {
 
           {/* Section 3: Side Banner + 4 Products */}
           <section className="wardrobe-section section-row-3">
-            {activeCategory?.bannerBottom ? (
-              <div className="side-banner">
-                <img src={activeCategory.bannerBottom} alt={activeTag} className="side-banner-img" />
-              </div>
-            ) : (
-              <div className="side-banner side-banner-placeholder" aria-hidden="true">
-                <span className="side-banner-placeholder-label">BANNER</span>
-              </div>
-            )}
+            <div className="side-banner">
+              <img
+                src="/herobanner.png"
+                alt={activeTag || "Featured"}
+                className="side-banner-img"
+              />
+            </div>
             <div className="products-beside-banner">
               {filteredProducts.slice(6, 10).map((product, index) => (
                 <ProductCard
@@ -373,7 +371,7 @@ function WardrobeContent() {
         </>
       )}
 
-      {!loading && (searchQuery ? filteredProducts.length > 0 : filteredProducts.length < 10) && (
+      {!loading && (searchQuery ? filteredProducts.length > 0 : filteredProducts.length < 7) && (
         <section className="wardrobe-section wardrobe-category-grid">
           {filteredProducts.map((product, index) => (
             <ProductCard

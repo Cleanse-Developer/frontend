@@ -1,141 +1,189 @@
 "use client";
 import "./Preloader.css";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLenis } from "lenis/react";
 import gsap from "gsap";
-import { SplitText } from "gsap/SplitText";
-import { useGSAP } from "@gsap/react";
 
-gsap.registerPlugin(SplitText);
-
+// Module-level flag: the loader only runs on the very first page load, not on
+// client-side route changes.
 let isInitialLoad = true;
 
+// The Cleanse monogram (the leaf mark used in the favicon) — same paths as
+// /public/cleanse-monogram.svg, inlined so each petal can be drawn individually.
+const MONO_PATHS = [
+  "M125.83,174.96c-.36.06-.34-.44-.43-.7-.86-2.67-1.38-5.64-2.22-8.38-3.66-11.96-9.03-23.56-15.41-34.28-.95-1.59-3.4-4.54-3.41-6.2,0-3.36,2.15-10.06,3.23-13.43,3.16-9.82,8.63-22.37,14.75-30.66.45-.61,2.29-3.21,2.85-3.21.25,0,2.22,1.92,2.53,2.27,6.83,7.38,14.43,24.55,17.78,34.18.68,1.96,2.82,8,2.13,9.71-.42,1.04-3.15,4.04-4,5.33-8.92,13.36-15.38,29.48-17.81,45.38Z",
+  "M123.06,172.94c-1.45-1.82-2.56-3.89-3.94-5.77-3.17-4.33-7.26-8.61-11.2-12.26-.49-.46-3.18-2.4-3.28-2.59-.32-.6-.65-2.91-.76-3.72-.66-5.06-1.68-12.74-1.01-17.65.05-.39.29-2.15.63-2.14,8.97,13.4,15.49,28.51,19.55,44.14Z",
+  "M147.46,151.44c-7.72,5.75-14.08,13.58-18.14,22.35l-1.72,4.2c1.42-11.98,5.74-23.84,11.31-34.47,2.76-5.27,6.17-10.14,9.11-15.29l.77-.43c.43,7.89.13,15.86-1.33,23.64Z",
+  "M102.88,150.49l-8.25-5.5c-1.14-.69-7.65-3.89-7.91-4.26-.41-.58-1.01-3.67-1.17-4.57-1.45-7.99-1.49-16.28-.07-24.27,6.09,4.13,12.02,9.02,16.61,14.81-.78,7.94-.33,15.91.8,23.78Z",
+  "M148.63,150.4l8.25-5.5c1.14-.69,7.65-3.89,7.91-4.26.41-.58,1.01-3.67,1.17-4.57,1.45-7.99,1.49-16.28.07-24.27-6.09,4.13-12.02,9.02-16.61,14.81.78,7.94.33,15.91-.8,23.78Z",
+  "M119.53,191.61c-.28.24-1.88-1.07-2.18-1.35-11.19-10.36-24.26-29.61-29.65-43.88-.18-.49-.67-1.08-.08-1.43,5.6,2.85,11.08,6.03,15.89,10.09,2.89,13.12,7.68,25.94,16.03,36.56Z",
+  "M162.92,144.95c.64.68-6.57,15.33-7.52,17.07-4.93,9.03-11.39,18.13-19.47,24.55.96-2.02,2.35-3.83,3.41-5.8,4.53-8.38,7.27-17.57,9.19-26.88,4.46-3.46,9.19-6.71,14.39-8.94Z",
+  "M109.44,184.04c-6.88-3.21-13.96-6.55-21.6-7.53-4.52-.58-9.71-.69-13.63,1.95l-.33-.08c-12.26-11.26-20.71-26.03-24.48-42.26,12.37.12,24.8,2.98,36.06,7.95,3.88,10.5,9.16,20.38,15.7,29.45,2.61,3.62,5.55,6.99,8.28,10.51Z",
+  "M201.77,134.86c-3.02,13.64-9.35,26.97-18.79,37.33-.65.72-3.45,3.71-4.03,4.05-1.16.66-2.6,0-3.79-.02-9.76-.23-20.32.86-29.2,5.13-1.84.89-3.57,2.34-5.5,2.95,7.48-7.08,13.07-15.6,17.79-24.71,2.58-4.97,5.25-10.38,6.49-15.84,11.66-5.14,24.22-8.42,37.02-8.89Z",
+  "M125.08,194.64c-.56.58-3.84-2.9-4.28-3.41-2.33-2.72-4.72-6.78-6.45-9.95-4.27-7.83-7.72-16.51-9.71-25.23.19-.2,1.41.84,1.61,1.03,1.46,1.37,3.47,3.5,4.82,5.02,8.04,9.01,13.4,20.33,14,32.54Z",
+  "M146.52,155.29c-2.39,11.94-6.84,25.75-15.13,34.94-1.07,1.18-4.22,4.9-4.06,1.25.56-12.69,6.55-23.14,15.02-32.16l4.16-4.03Z",
+  "M70.59,135.61c-7.15-1.5-14.37-2.72-21.71-2.88-4.95-26.03,3.66-54.65,22.97-72.79l-2.98,3.96c-14,20.06-13.19,52.31,1.72,71.71Z",
+  "M180.37,133.95c7.15-1.5,14.37-2.72,21.71-2.88,4.95-26.03-3.66-54.65-22.97-72.79l2.98,3.96c14,20.06,13.19,52.31-1.72,71.71Z",
+  "M122.3,198.17c-16.54-.56-33.23-6.8-45.66-17.65,7.58-2.32,16.04-.42,23.27,2.33,8.28,3.14,16.67,8.56,22.39,15.32Z",
+  "M175.02,179.5c.1.42-.14.51-.38.75-.64.62-1.78,1.42-2.53,2.01-12.42,9.74-28.69,15.6-44.51,15.9,5.63-8.83,15.13-13.31,24.92-16.07,7.26-2.04,14.95-3.29,22.5-2.59Z",
+];
+
 const Preloader = () => {
-  const [showPreloader, setShowPreloader] = useState(isInitialLoad);
-  const [loaderAnimating, setLoaderAnimating] = useState(isInitialLoad);
+  const [show, setShow] = useState(isInitialLoad);
   const wrapperRef = useRef(null);
+  const innerRef = useRef(null);
+  const svgRef = useRef(null);
+  const brandRef = useRef(null);
+  const taglineRef = useRef(null);
+  const barFillRef = useRef(null);
+  const counterRef = useRef(null);
   const lenis = useLenis();
 
-  useEffect(() => {
-    return () => {
-      isInitialLoad = false;
-    };
-  }, []);
+  useEffect(() => () => { isInitialLoad = false; }, []);
 
+  // Lock scroll while the loader is on screen.
   useEffect(() => {
-    if (loaderAnimating) {
+    if (show) {
       if (lenis) lenis.stop();
       document.body.style.overflow = "hidden";
     } else {
       if (lenis) lenis.start();
       document.body.style.overflow = "";
     }
-  }, [lenis, loaderAnimating]);
+  }, [lenis, show]);
 
-  useGSAP(
-    () => {
-      if (!showPreloader) return;
+  useEffect(() => {
+    if (!show || !svgRef.current) return;
 
-      document.fonts.ready.then(() => {
-        const logoSplit = SplitText.create(".preloader-logo h1", {
-          type: "chars",
-          charsClass: "char",
-          mask: "chars",
-        });
+    const paths = Array.from(svgRef.current.querySelectorAll("path"));
+    // Prime each petal: hidden fill, stroke set up to be "drawn".
+    paths.forEach((p) => {
+      const len = p.getTotalLength();
+      p.style.strokeDasharray = `${len}`;
+      p.style.strokeDashoffset = `${len}`;
+      p.style.fillOpacity = "0";
+    });
 
-        gsap.set(logoSplit.chars, { x: "110%" });
-        gsap.set(".preloader-logo h1", { opacity: 1 });
+    // Track asset loading so we never hide the loader before the page is ready.
+    let assetsReady = document.readyState === "complete";
+    const markReady = () => { assetsReady = true; };
+    window.addEventListener("load", markReady);
 
-        function animateProgress(duration = 4.75) {
-          const tl = gsap.timeline();
-          const counterSteps = 5;
-          let currentProgress = 0;
+    // Slide the whole panel up to reveal the hero behind it (no fade).
+    const reveal = () => {
+      const out = gsap.timeline({ onComplete: () => setShow(false) });
+      out
+        // Lift the centre content slightly first so the reveal feels layered.
+        .to(innerRef.current, { yPercent: -22, opacity: 0, duration: 0.55, ease: "power2.in" })
+        // Then sweep the cream panel upward, uncovering the page.
+        .to(wrapperRef.current, { yPercent: -100, duration: 1.05, ease: "expo.inOut" }, "-=0.25");
+    };
 
-          for (let i = 0; i < counterSteps; i++) {
-            const finalStep = i === counterSteps - 1;
-            const targetProgress = finalStep
-              ? 1
-              : Math.min(currentProgress + Math.random() * 0.3 + 0.1, 0.9);
-            currentProgress = targetProgress;
+    const counter = { val: 0 };
 
-            tl.to(".preloader-progress-bar", {
-              scaleX: targetProgress,
-              duration: duration / counterSteps,
-              ease: "power2.out",
-            });
-          }
-
-          return tl;
-        }
-
-        const isMobile = window.innerWidth < 1000;
-        const maskScale = isMobile ? 25 : 15;
-
-        const tl = gsap.timeline({
-          delay: 0.5,
-          onComplete: () => {
-            setLoaderAnimating(false);
-            setTimeout(() => {
-              setShowPreloader(false);
-            }, 100);
+    const ctx = gsap.context(() => {
+    const tl = gsap.timeline();
+    tl.fromTo(
+      svgRef.current,
+      { scale: 0.65, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.55, ease: "power2.out" }
+    )
+      // Draw each petal outward (spreading from the centre).
+      .to(
+        paths,
+        {
+          strokeDashoffset: 0,
+          duration: 1.1,
+          ease: "power2.inOut",
+          stagger: { each: 0.05, from: "start" },
+        },
+        "<0.1"
+      )
+      // Fill the petals in once drawn.
+      .to(
+        paths,
+        { fillOpacity: 1, duration: 0.5, ease: "power1.out", stagger: 0.02 },
+        "-=0.45"
+      )
+      // Brand wordmark + tagline rise + fade into view after the monogram.
+      .fromTo(
+        [brandRef.current, taglineRef.current],
+        { opacity: 0, y: 26 },
+        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", stagger: 0.12 },
+        "-=0.6"
+      )
+      // Progress bar + percentage counter run across the whole sequence.
+      .fromTo(
+        barFillRef.current,
+        { scaleX: 0 },
+        { scaleX: 1, duration: 2.1, ease: "power1.inOut" },
+        0
+      )
+      .to(
+        counter,
+        {
+          val: 100,
+          duration: 2.1,
+          ease: "power1.inOut",
+          onUpdate: () => {
+            if (counterRef.current) counterRef.current.textContent = Math.round(counter.val);
           },
-        });
+        },
+        0
+      )
+      // Hold on the finished lockup a beat, then (once assets are ready) sweep away.
+      .add(() => {
+        if (assetsReady) reveal();
+        else window.addEventListener("load", reveal, { once: true });
+      }, "+=0.6");
+    });
 
-        tl.to(logoSplit.chars, {
-          x: "0%",
-          stagger: 0.05,
-          ease: "power4.out",
-          duration: 1,
-        })
-          .add(animateProgress(), "<")
-          .set(".preloader-progress", { backgroundColor: "#fff" })
-          .to(
-            logoSplit.chars,
-            {
-              x: "-110%",
-              stagger: 0.05,
-              duration: 1,
-              ease: "power4.out",
-            },
-            "-=0.5"
-          )
-          .to(
-            ".preloader-progress",
-            {
-              opacity: 0,
-              duration: 0.5,
-              ease: "power3.out",
-            },
-            "-=0.5"
-          )
-          .to(
-            ".preloader-mask",
-            {
-              scale: maskScale,
-              duration: 1.25,
-              ease: "power3.out",
-            },
-            "<"
-          );
-      });
-    },
-    { scope: wrapperRef, dependencies: [showPreloader] }
-  );
+    return () => {
+      window.removeEventListener("load", markReady);
+      window.removeEventListener("load", reveal);
+      ctx.revert();
+    };
+  }, [show]);
 
-  if (!showPreloader) return null;
+  if (!show) return null;
 
   return (
-    <div className="preloader-wrapper" ref={wrapperRef}>
-      <div className="preloader-progress">
-        <div className="preloader-progress-bar"></div>
-        <div className="preloader-logo">
-          <h1>Cleanse</h1>
+    <div className="preloader-wrapper" ref={wrapperRef} aria-hidden="true">
+      <div className="preloader-inner" ref={innerRef}>
+        <svg
+          ref={svgRef}
+          className="preloader-mono"
+          viewBox="41.93 56.28 167.10 143.89"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-label="Cleanse"
+        >
+          {MONO_PATHS.map((d, i) => (
+            <path key={i} d={d} />
+          ))}
+        </svg>
+
+        <div className="preloader-mask">
+          <span className="preloader-brand" ref={brandRef} role="img" aria-label="Cleanse" />
+        </div>
+        <div className="preloader-mask">
+          <p className="preloader-tagline" ref={taglineRef}>Ancient wisdom for modern beauty</p>
+        </div>
+
+        <div className="preloader-bar">
+          <span className="preloader-bar-fill" ref={barFillRef} />
         </div>
       </div>
-      <div className="preloader-mask"></div>
+
+      <div className="preloader-meta">
+        <span className="preloader-meta-label">Loading</span>
+        <span className="preloader-counter">
+          <span className="preloader-counter-num" ref={counterRef}>0</span><sup>%</sup>
+        </span>
+      </div>
     </div>
   );
 };
 
-export { isInitialLoad };
 export default Preloader;
+export { isInitialLoad };

@@ -11,9 +11,13 @@ const nextConfig = {
     },
   },
   images: {
+    // Broad patterns so next/image can optimize images from ANY of the S3 /
+    // CloudFront hosts the CMS uses (the API CDN, the media CDN, or direct S3),
+    // without it throwing "hostname not configured" and breaking image grids.
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
-      { protocol: "https", hostname: "d3dm84701hs6ur.cloudfront.net" },
+      { protocol: "https", hostname: "**.cloudfront.net" },
+      { protocol: "https", hostname: "**.amazonaws.com" },
       { protocol: "http", hostname: "localhost" },
     ],
   },

@@ -107,7 +107,18 @@ export default function CheckoutPage() {
 
   // Step management
   const [activeStep, setActiveStep] = useState(1);
+  // Guest gate: non-logged-in users first see only a phone + Login / Continue as
+  // Guest. Choosing "guest" reveals the full contact + address form.
+  const [guestMode, setGuestMode] = useState(false);
   const stepRef = useRef(1);
+  // Scroll target: selecting a saved address (or "New Address") scrolls down to
+  // the shipping form so the user sees it populate / can fill it in.
+  const shippingFormRef = useRef(null);
+  const scrollToShippingForm = () => {
+    setTimeout(() => {
+      shippingFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+  };
 
   // Sync browser back/forward with checkout steps
   useEffect(() => {
@@ -487,10 +498,12 @@ export default function CheckoutPage() {
     });
     setErrors({});
     if (addr.pincode) checkPincode(addr.pincode);
+    scrollToShippingForm();
   };
 
   const handleNewAddress = () => {
     setSelectedAddressId(null);
+    scrollToShippingForm();
     const code = user?.countryCode || "+91";
     const local = user?.phone || "";
     setShipping({
@@ -1128,6 +1141,55 @@ export default function CheckoutPage() {
           {activeStep === 1 && (
             <div className="checkout-form-section">
 
+              {!isAuthenticated && !guestMode ? (
+                <div className="checkout-guest-gate">
+                  <h3 className="checkout-section-title">Contact Information</h3>
+                  <p className="checkout-guest-sub">Log in for faster checkout, or continue as a guest.</p>
+                  <div className="checkout-input-group">
+                    <label>Phone Number</label>
+                    <div className={`checkout-phone-row ${errors.phone ? "has-error-row" : ""}`}>
+                      <select
+                        value={shipping.phoneCode}
+                        onChange={(e) => handleShippingChange("phoneCode", e.target.value)}
+                        className="checkout-phone-code"
+                      >
+                        {PHONE_CODES_LIST.map((c) => (
+                          <option key={c.code} value={c.code}>{c.label}</option>
+                        ))}
+                      </select>
+                      <input
+                        type="tel"
+                        placeholder="98765 43210"
+                        value={shipping.phone}
+                        onChange={(e) => handleShippingChange("phone", e.target.value)}
+                        className={errors.phone ? "has-error" : ""}
+                      />
+                    </div>
+                  </div>
+                  <div className="checkout-guest-actions">
+                    <button
+                      type="button"
+                      className="checkout-guest-login-btn"
+                      onClick={() => {
+                        const params = new URLSearchParams({ redirect: "/checkout" });
+                        if (fullPhone) params.set("phone", fullPhone);
+                        router.push(`/login?${params.toString()}`);
+                      }}
+                    >
+                      Login
+                    </button>
+                    <button
+                      type="button"
+                      className="checkout-continue-btn checkout-guest-continue-btn"
+                      onClick={() => setGuestMode(true)}
+                    >
+                      Continue as Guest
+                    </button>
+                  </div>
+                </div>
+              ) : (
+              <>
+
               {/* Saved address selector */}
               {isAuthenticated && savedAddresses.length > 0 && (
                 <div className="checkout-address-selector">
@@ -1186,7 +1248,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <h3 className="checkout-section-title checkout-section-title--spaced">Shipping Address</h3>
+              <h3 ref={shippingFormRef} className="checkout-section-title checkout-section-title--spaced">Shipping Address</h3>
               <div className="checkout-form-stack">
                 {renderInput("fullName", "Full Name", "Full name")}
                 {renderInput("address1", "Address Line 1", "Street address")}
@@ -1225,6 +1287,8 @@ export default function CheckoutPage() {
               <button className="checkout-continue-btn" onClick={() => goToStep(2)}>
                 Continue to Payment
               </button>
+              </>
+              )}
             </div>
           )}
 
@@ -1292,16 +1356,6 @@ export default function CheckoutPage() {
                   </div>
                 </label>
 
-                <label className="checkout-payment-option checkout-payment-disabled">
-                  <input type="radio" name="payment" value="upi" disabled />
-                  <span className="checkout-radio-custom"></span>
-                  <div className="checkout-payment-info">
-                    <span className="checkout-payment-name">UPI <span className="checkout-coming-soon">Coming Soon</span></span>
-                    <span className="checkout-payment-logo">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                    </span>
-                  </div>
-                </label>
               </div>
 
               {/* Coupon Code */}

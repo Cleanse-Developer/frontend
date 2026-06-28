@@ -3,8 +3,7 @@ import "./home.css";
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 
-// import Preloader, { isInitialLoad } from "@/components/Preloader/Preloader";
-const isInitialLoad = false;
+import Preloader, { isInitialLoad } from "@/components/Preloader/Preloader";
 import MarqueeBanner from "@/components/MarqueeBanner/MarqueeBanner";
 // import TextBlock from "@/components/TextBlock/TextBlock";
 import PeelReveal from "@/components/PeelReveal/PeelReveal";
@@ -185,7 +184,7 @@ export default function Index() {
 
   return (
     <>
-      {/* <Preloader onAnimationComplete={handlePreloaderComplete} /> */}
+      <Preloader />
 
       {settings.promoBanner?.enabled !== false && (
         <div className="promo-bar">
@@ -219,7 +218,7 @@ export default function Index() {
                   />
                 </span>
               </h1>
-              <Copy animateOnScroll={false} delay={isInitialLoad ? 5.7 : 0.85}>
+              <Copy animateOnScroll={false} delay={isInitialLoad ? 4.2 : 0.85}>
                 <p className="hero-subtitle">{settings.cmsHero?.subtitle || "Natural Skin Care for Mindful Living"}</p>
               </Copy>
               <div className="hero-btn-wrapper">

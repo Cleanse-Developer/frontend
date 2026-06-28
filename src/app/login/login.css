@@ -114,6 +114,25 @@
   overflow-y: auto;
 }
 
+/* Home link (replaces the old back arrow) */
+.login-home-link {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #4F2C22;
+  text-decoration: none;
+  z-index: 3;
+  transition: opacity 0.2s ease;
+}
+.login-home-link:hover { opacity: 0.65; }
+.login-home-link svg { width: 16px; height: 16px; }
+
 .login-back-arrow {
   position: absolute;
   top: 2rem;
@@ -395,6 +414,18 @@
   background: rgba(79, 44, 34, 0.1);
 }
 
+.login-divider-switch {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+.login-divider-switch:hover { text-decoration: underline; text-underline-offset: 3px; color: #663532; }
+
 .login-divider-text {
   font-family: var(--font-body);
   font-size: 0.7rem;
@@ -612,6 +643,7 @@
     top: 1rem; left: 1rem; width: 36px; height: 36px;
     background: rgba(255, 255, 255, 0.65); z-index: 3;
   }
+  .login-home-link { top: 1rem; left: 1rem; }
   .login-back-arrow svg { width: 18px; height: 18px; }
 
   .login-form-inner {
@@ -630,15 +662,35 @@
 
   /* Gradient brand header with centred Cleanse logo (full viewport width) */
   .login-mobile-brand {
-    display: flex; align-items: center; justify-content: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0.6rem;
     margin: 0;
-    padding: 1rem 0 1.25rem;
+    padding: 1.25rem 0 1rem;
     background: none;
+  }
+  .login-mobile-brand-title {
+    margin: 0.4rem 0 0;
+    font-family: var(--font-heading);
+    font-size: 1.55rem;
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-align: center;
+    color: #2a1a16;
+  }
+  .login-mobile-brand-sub {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: rgba(79, 44, 34, 0.55);
+    text-align: center;
+    text-transform: none;
   }
   .login-mobile-logo img { height: 60px; width: auto; object-fit: contain; }
 
   .login-mobile-welcome {
-    display: flex; flex-direction: column; align-items: center;
+    display: none; flex-direction: column; align-items: center;
     text-align: center; gap: 0.35rem; margin: 1.6rem 0;
   }
   .login-mobile-title {
@@ -695,14 +747,14 @@
   .login-divider-text { font-size: 0.85rem; }
 
   /* Circular, icon-only social buttons */
-  .login-social-buttons { justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .login-social-buttons { flex-direction: column; gap: 0.75rem; margin-top: 1.25rem; }
   .login-social-btn {
-    flex: 0 0 auto; width: 58px; height: 58px; padding: 0;
-    border-radius: 50%; background: #fff; border: 1.5px solid rgba(79, 44, 34, 0.14);
+    flex: 0 0 auto; width: 100%; height: 54px; padding: 0 1.25rem; gap: 0.7rem;
+    border-radius: 0.75rem; background: #fff; border: 1.5px solid rgba(79, 44, 34, 0.16);
   }
   .login-social-btn:hover { transform: none; }
-  .login-social-btn span { display: none; }
-  .login-social-btn svg { width: 24px; height: 24px; }
+  .login-social-btn span { display: inline-block; font-size: 0.92rem; }
+  .login-social-btn svg { width: 20px; height: 20px; }
 
   /* Switch link pinned to the bottom -> no empty gap below the content */
   .login-switch-text { margin-top: 1.75rem; padding: 0; font-size: 0.9rem; }
@@ -741,23 +793,25 @@
 
   /* Continue with Email / Phone (alternate method) */
   .login-alt-method {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 52px;
-    margin-bottom: 0.1rem;
-    border: 1.5px solid rgba(79, 44, 34, 0.16);
-    border-radius: 0.75rem;
-    background: #fff;
+    width: auto;
+    height: auto;
+    margin: 0.1rem auto 0.4rem;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: none;
     font-family: var(--font-body);
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #2a1a16;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #663532;
+    text-decoration: underline;
+    text-underline-offset: 3px;
     cursor: pointer;
   }
-  .login-alt-method { margin-bottom: 0.25rem; }
-  .login-alt-method:hover { background: rgba(79, 44, 34, 0.03); }
+  .login-alt-method:hover { color: #4F2C22; }
 
   /* Register: only Full Name + Email + agree (hide phone/password/referral).
      Same sizing as login so the heading + fields stay consistent. */
@@ -779,7 +833,7 @@
 
   .login-submit-btn { height: 54px; font-size: 0.95rem; }
 
-  .login-social-btn { width: 54px; height: 54px; }
+  .login-social-btn { width: 100%; height: 50px; }
   .login-social-btn svg { width: 22px; height: 22px; }
 
   .login-checkbox-text, .login-forgot { font-size: 0.85rem; }
@@ -801,8 +855,26 @@
     overflow-x: visible;
   }
   .login-back-arrow { top: 2rem; left: 2rem; }
-  .login-form-inner { min-height: auto; }
+  .login-form-inner {
+    min-height: auto;
+    background: #fff;
+    border-radius: 22px;
+    border: 1px solid rgba(79, 44, 34, 0.07);
+    box-shadow: 0 24px 70px rgba(79, 44, 34, 0.1);
+    padding: 3rem 2.75rem;
+    max-width: 440px;
+  }
   /* The logo lives in the left visual panel — hide the duplicate in the form */
   .login-mobile-brand { display: none; }
-  .login-mobile-welcome { display: none; }
+  .login-mobile-welcome { display: flex; margin: 0 0 1.75rem; }
+  /* Desktop: drop "Welcome Back!", keep the tagline in the heading font (bigger, not caps) */
+  .login-mobile-title { display: none; }
+  .login-mobile-sub {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 400;
+    line-height: 1.2;
+    text-transform: none;
+    color: #2a1a16;
+  }
 }
