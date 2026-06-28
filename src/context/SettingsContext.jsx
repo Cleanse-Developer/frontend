@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { settingsApi } from "@/lib/endpoints";
+import { cmsTermsDefault, cmsPrivacyDefault } from "@/data/legalDefaults";
 
 const SettingsContext = createContext(null);
 
@@ -117,10 +118,17 @@ const DEFAULTS = {
     },
     copyrightText: "2026 CLEANSE AYURVEDA . ALL RIGHTS RESERVED",
   },
+  cmsTerms: cmsTermsDefault,
+  cmsPrivacy: cmsPrivacyDefault,
 };
 
-export function SettingsProvider({ children }) {
-  const [settings, setSettings] = useState(DEFAULTS);
+export function SettingsProvider({ children, initial }) {
+  // `initial` is fetched server-side in the root layout so CMS data (incl. the hero
+  // carousel) is present on the very first paint — no empty-hero flash. We still
+  // revalidate on the client to pick up any changes.
+  const [settings, setSettings] = useState(
+    initial ? { ...DEFAULTS, ...initial } : DEFAULTS
+  );
 
   useEffect(() => {
     settingsApi

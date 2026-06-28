@@ -4,15 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 import { useCart } from "@/context/CartContext";
-
-const discountTiers = [
-  { threshold: 500, label: "5% Off", discount: 5 },
-  { threshold: 1200, label: "Free Shipping", discount: 0 },
-  { threshold: 2000, label: "10% Off", discount: 10 },
-  { threshold: 3500, label: "15% Off", discount: 15 },
-];
-
-const maxThreshold = discountTiers[discountTiers.length - 1].threshold;
+import DiscountProgress from "@/components/DiscountProgress/DiscountProgress";
+import { formatPrice } from "@/lib/formatters";
 
 // Loyalty points rate: 1 point per ₹10 spent
 const POINTS_PER_RUPEE = 0.1;
@@ -153,76 +146,6 @@ const CrossSellProducts = ({ cartItems }) => {
   );
 };
 
-const DiscountProgress = ({ subtotal }) => {
-  const progress = Math.min((subtotal / maxThreshold) * 100, 100);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const prevTierRef = useRef(null);
-
-  const currentTier = [...discountTiers].reverse().find((t) => subtotal >= t.threshold);
-  const nextTier = discountTiers.find((t) => subtotal < t.threshold);
-
-  // Check if a new tier was unlocked
-  useEffect(() => {
-    if (currentTier && currentTier !== prevTierRef.current) {
-      if (prevTierRef.current !== null || subtotal >= discountTiers[0].threshold) {
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 2000);
-      }
-    }
-    prevTierRef.current = currentTier;
-  }, [currentTier, subtotal]);
-
-  // Generate confetti particles
-  const confettiParticles = showConfetti ? Array.from({ length: 30 }, (_, i) => (
-    <div
-      key={i}
-      className="confetti-particle"
-      style={{
-        left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 0.5}s`,
-        backgroundColor: ['#FFD700', '#FF6B6B', '#4ECDC4', '#A855F7', '#FF9F43', '#54A0FF', '#5FD068', '#FF78C4', '#F9CA24', '#00D2D3'][Math.floor(Math.random() * 10)],
-      }}
-    />
-  )) : null;
-
-  return (
-    <div className={`discount-progress ${showConfetti ? 'celebrating' : ''}`}>
-      {showConfetti && <div className="confetti-container">{confettiParticles}</div>}
-      <div className="discount-progress-top">
-        {currentTier ? (
-          <p className="discount-progress-msg unlocked">
-            🎉 {currentTier.label} unlocked!
-          </p>
-        ) : nextTier ? (
-          <p className="discount-progress-msg">
-            &#8377;{(nextTier.threshold - subtotal).toFixed(0)} away from {nextTier.label}
-          </p>
-        ) : null}
-      </div>
-      <div className="discount-bar-track">
-        <div
-          className="discount-bar-fill"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-      <div className="discount-tiers">
-        {discountTiers.map((tier) => {
-          const unlocked = subtotal >= tier.threshold;
-          return (
-            <div
-              key={tier.threshold}
-              className={`discount-tier ${unlocked ? "unlocked" : ""}`}
-            >
-              <span className="tier-price">&#8377;{tier.threshold.toLocaleString()}</span>
-              <span className="tier-label">{tier.label}</span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
 const ShoppingCart = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { cartItems, removeFromCart, cartCount, subtotal, serverPricing } = useCart();
@@ -278,7 +201,12 @@ const ShoppingCart = () => {
             </button>
           </div>
           <CartTimer cartItems={cartItems} />
-          {cartItems.length > 0 && <DiscountProgress subtotal={subtotal} />}
+          {cartItems.length > 0 && (
+            <DiscountProgress
+              tierProgress={serverPricing?.tierProgress}
+              variant="drawer"
+            />
+          )}
           <div
             className="cart-items-scroll"
             onWheel={(e) => {
@@ -333,27 +261,27 @@ const ShoppingCart = () => {
                   <>
                     <div className="cart-summary-row">
                       <span>Subtotal</span>
-                      <span>&#8377;{serverPricing.subtotal.toFixed(2)}</span>
+                      <span>&#8377;{formatPrice(serverPricing.subtotal)}</span>
                     </div>
-                    {serverPricing.bundleDiscountTotal > 0 && serverPricing.bundleDiscounts.map((bd, i) => (
+                    {serverPricing.bundleDiscountTotal > 0 && (serverPricing.bundleDiscounts || []).map((bd, i) => (
                       <div key={i} className="cart-summary-row cart-discount-row">
                         <span>{bd.bundleName}</span>
-                        <span>-&#8377;{bd.discountAmount.toFixed(2)}</span>
+                        <span>-&#8377;{formatPrice(bd.discountAmount)}</span>
                       </div>
                     ))}
                     {serverPricing.tierDiscount > 0 && (
                       <div className="cart-summary-row cart-discount-row">
                         <span>{serverPricing.tierLabel || `${serverPricing.tierPercent}% Off`}</span>
-                        <span>-&#8377;{serverPricing.tierDiscount.toFixed(2)}</span>
+                        <span>-&#8377;{formatPrice(serverPricing.tierDiscount)}</span>
                       </div>
                     )}
-                    {(serverPricing.specialCouponDiscountTotal || 0) > 0 && serverPricing.specialCouponDiscounts?.map((sp, i) => (
+                    {(serverPricing.specialCouponDiscountTotal || 0) > 0 && (serverPricing.specialCouponDiscounts || []).map((sp, i) => (
                       <div key={`sp-${i}`} className="cart-summary-row cart-discount-row">
                         <span>{sp.title || "Special Discount"}</span>
-                        <span>-&#8377;{(sp.discountAmount || 0).toFixed(2)}</span>
+                        <span>-&#8377;{formatPrice(sp.discountAmount)}</span>
                       </div>
                     ))}
-                    {serverPricing.freeGifts?.length > 0 && serverPricing.freeGifts.map((gift, i) => (
+                    {(serverPricing.freeGifts || []).length > 0 && (serverPricing.freeGifts || []).map((gift, i) => (
                       <div key={`gift-${i}`} className="cart-summary-row cart-discount-row">
                         <span>Free Gift: {gift.productName || "Gift"}</span>
                         <span>FREE</span>
@@ -362,12 +290,12 @@ const ShoppingCart = () => {
                     {serverPricing.shippingCost > 0 && (
                       <div className="cart-summary-row">
                         <span>Shipping</span>
-                        <span>&#8377;{serverPricing.shippingCost.toFixed(2)}</span>
+                        <span>&#8377;{formatPrice(serverPricing.shippingCost)}</span>
                       </div>
                     )}
                     <div className="cart-summary-row cart-total-row">
                       <span>Total</span>
-                      <span>&#8377;{serverPricing.total.toFixed(2)}</span>
+                      <span>&#8377;{formatPrice(serverPricing.total)}</span>
                     </div>
                   </>
                 ) : (

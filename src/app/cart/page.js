@@ -7,18 +7,11 @@ import { useCart } from "@/context/CartContext";
 import { productApi, shippingApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import Copy from "@/components/Copy/Copy";
-
-const discountTiers = [
-  { threshold: 500, label: "5% Off", discount: 5 },
-  { threshold: 1200, label: "Free Shipping", discount: 0 },
-  { threshold: 2000, label: "10% Off", discount: 10 },
-  { threshold: 3500, label: "15% Off", discount: 15 },
-];
-
-const maxThreshold = discountTiers[discountTiers.length - 1].threshold;
+import DiscountProgress from "@/components/DiscountProgress/DiscountProgress";
+import { toNum, formatPrice } from "@/lib/formatters";
 
 export default function CartPage() {
-  const { cartItems, removeFromCart, updateQuantity, addToCart, cartCount, subtotal } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, addToCart, cartCount, subtotal, serverPricing } = useCart();
   const router = useRouter();
 
   const [giftWrap, setGiftWrap] = useState(false);
@@ -36,16 +29,24 @@ export default function CartPage() {
       .catch(() => {});
   }, []);
 
-  const { standardRate, freeAbove } = shippingConfig;
-  const qualifiesFreeShipping = subtotal >= freeAbove;
-  const shippingCost = qualifiesFreeShipping ? 0 : standardRate;
-
-  const activeTier = [...discountTiers].reverse().find((t) => subtotal >= t.threshold && t.discount > 0);
-  const nextTier = discountTiers.find((t) => subtotal < t.threshold);
-  const discountAmount = activeTier ? (subtotal * activeTier.discount) / 100 : 0;
   const giftWrapCost = giftWrap ? 99 : 0;
-  const finalTotal = subtotal - discountAmount;
-  const progress = Math.min((subtotal / maxThreshold) * 100, 100);
+
+  // Prefer backend pricing (respects the admin-managed dynamic tiers); fall back
+  // to a local estimate while it loads or if pricing is unavailable. Gift wrap is
+  // a cart-page-only toggle not sent to the auto-fetched pricing, so it's added on
+  // top here. Values are coerced so a missing field never renders NaN.
+  const summarySubtotal = toNum(serverPricing?.subtotal) ?? subtotal;
+  const tierDiscount = toNum(serverPricing?.tierDiscount) ?? 0;
+  const tierLabel = serverPricing?.tierLabel;
+  const spTotal = toNum(serverPricing?.total);
+  const shippingCost =
+    toNum(serverPricing?.shippingCost) ??
+    (subtotal >= shippingConfig.freeAbove ? 0 : shippingConfig.standardRate);
+  const qualifiesFreeShipping = shippingCost === 0;
+  const summaryTotal =
+    spTotal != null
+      ? spTotal + giftWrapCost
+      : subtotal + shippingCost + giftWrapCost;
 
   const [recommended, setRecommended] = useState([]);
 
@@ -123,29 +124,15 @@ export default function CartPage() {
         </div>
       </section>
 
-      {/* Discount Progress */}
-      <section className="cart-discount-section">
-        <div className="cart-discount-card">
-          <div className="cart-discount-msg">
-            {activeTier ? (
-              <span className="cart-discount-unlocked">{activeTier.label} unlocked</span>
-            ) : nextTier ? (
-              <span>&#8377;{(nextTier.threshold - subtotal).toFixed(0)} away from {nextTier.label}</span>
-            ) : null}
-          </div>
-          <div className="cart-discount-bar-track">
-            <div className="cart-discount-bar-fill" style={{ width: `${progress}%` }} />
-          </div>
-          <div className="cart-discount-tiers">
-            {discountTiers.map((tier) => (
-              <div key={tier.threshold} className={`cart-discount-tier ${subtotal >= tier.threshold ? "unlocked" : ""}`}>
-                <span className="cart-tier-price">&#8377;{tier.threshold.toLocaleString()}</span>
-                <span className="cart-tier-label">{tier.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Discount Progress (backend-computed; hidden when tiers disabled) */}
+      {serverPricing?.tierProgress && (
+        <section className="cart-discount-section">
+          <DiscountProgress
+            tierProgress={serverPricing.tierProgress}
+            variant="page"
+          />
+        </section>
+      )}
 
       {/* Cart Content */}
       <section className="cart-content">
@@ -202,12 +189,12 @@ export default function CartPage() {
             <div className="cart-summary-rows">
               <div className="cart-summary-line">
                 <span>Subtotal</span>
-                <span>&#8377;{subtotal.toFixed(2)}</span>
+                <span>&#8377;{formatPrice(summarySubtotal)}</span>
               </div>
-              {activeTier && (
+              {tierDiscount > 0 && (
                 <div className="cart-summary-line cart-summary-discount">
-                  <span>{activeTier.label}</span>
-                  <span>-&#8377;{discountAmount.toFixed(2)}</span>
+                  <span>{tierLabel || "Discount"}</span>
+                  <span>-&#8377;{formatPrice(tierDiscount)}</span>
                 </div>
               )}
               {giftWrap && (
@@ -218,11 +205,11 @@ export default function CartPage() {
               )}
               <div className="cart-summary-line cart-summary-shipping">
                 <span>Shipping</span>
-                <span>{qualifiesFreeShipping ? "Free" : `₹${shippingCost.toFixed(2)}`}</span>
+                <span>{qualifiesFreeShipping ? "Free" : `₹${formatPrice(shippingCost)}`}</span>
               </div>
               <div className="cart-summary-line cart-summary-total">
                 <span>Total</span>
-                <span>&#8377;{(finalTotal + shippingCost + giftWrapCost).toFixed(2)}</span>
+                <span>&#8377;{formatPrice(summaryTotal)}</span>
               </div>
             </div>
             <button

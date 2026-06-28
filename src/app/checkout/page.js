@@ -11,6 +11,7 @@ import { loadRazorpay } from "@/lib/razorpay";
 import { validateField, validateShippingForm, validateBillingForm } from "@/lib/validation";
 import { saveCheckoutData, loadCheckoutData, clearCheckoutData } from "@/lib/checkoutStorage";
 import CouponModal from "./CouponModal";
+import { formatPrice } from "@/lib/formatters";
 
 // Map a backend coupon-rejection reason to a friendly modal title.
 function couponErrorTitle(message) {
@@ -299,8 +300,13 @@ export default function CheckoutPage() {
   const couponAmount = pricingSource?.couponDiscount || 0;
   const total = pricingSource?.total ?? subtotal;
 
-  // Full phone with country code (for backend/redirect)
-  const fullPhone = shipping.phone ? `${shipping.phoneCode}${shipping.phone.replace(/\s/g, "")}` : "";
+  // Full phone with country code (for backend/redirect). Strip any country code
+  // already present in the local part (10-digit India) so we never double-prefix.
+  const localPhoneDigits = (() => {
+    const d = (shipping.phone || "").replace(/\D/g, "");
+    return d.length > 10 ? d.slice(-10) : d;
+  })();
+  const fullPhone = localPhoneDigits ? `${shipping.phoneCode}${localPhoneDigits}` : "";
 
   // Build shippingInfo for backend (merges phone code into phone field)
   const getShippingInfo = () => {
@@ -339,6 +345,11 @@ export default function CheckoutPage() {
     if (saved.activeStep) setActiveStep(saved.activeStep);
 
     clearCheckoutData();
+
+    // Returned from the login redirect with saved checkout — nudge to finish.
+    if (isAuthenticated && user) {
+      toast.info("You're logged in — review and place your order.");
+    }
   }, [authLoading, isAuthenticated, user]);
 
   // ── Pre-fill for logged-in users ──
@@ -372,13 +383,16 @@ export default function CheckoutPage() {
           if (defaultAddr) {
             setShipping((prev) => {
               if (prev.address1) return prev; // already has address data
-              const code = defaultAddr.countryCode || user.countryCode || "+91";
-              const local = defaultAddr.phone || user.phone || "";
+              // Contact fields come from the profile (not the address); the
+              // address only supplies address fields + a fallback name.
               return {
+                ...prev,
                 email: user.email || prev.email,
-                phone: local || prev.phone,
-                phoneCode: code,
-                fullName: defaultAddr.fullName || prev.fullName,
+                phone: user.phone || prev.phone,
+                phoneCode: user.countryCode || prev.phoneCode || "+91",
+                fullName: (user.fullName && user.fullName !== "User")
+                  ? user.fullName
+                  : (prev.fullName || defaultAddr.fullName || ""),
                 address1: defaultAddr.address1 || "",
                 address2: defaultAddr.address2 || "",
                 city: defaultAddr.city || "",
@@ -691,9 +705,11 @@ export default function CheckoutPage() {
       try {
         const result = await authApi.checkAccount(shipping.email, fullPhone);
 
-        // Save form data before redirecting
+        // Save form data before redirecting. Strip contact PII (email/phone) —
+        // it's repopulated from the user profile after auth, so no need to keep
+        // it in localStorage.
         saveCheckoutData({
-          shipping,
+          shipping: { ...shipping, email: "", phone: "" },
           billing,
           billingSameAsShipping,
           paymentMethod,
@@ -709,13 +725,18 @@ export default function CheckoutPage() {
         }
 
         if (result.emailExists || result.phoneExists) {
-          // Existing account, redirect to login
-          const params = new URLSearchParams({ redirect: "/checkout" });
+          // Existing account → login. Preselect the method that matches the
+          // account: phone accounts use OTP, email-only accounts use password.
+          const params = new URLSearchParams({
+            redirect: "/checkout",
+            method: result.phoneExists ? "mobile" : "password",
+          });
           if (shipping.email) params.set("email", shipping.email);
+          if (fullPhone) params.set("phone", fullPhone);
           router.push(`/login?${params.toString()}`);
         } else {
-          // No account, redirect to register
-          const params = new URLSearchParams({ redirect: "/checkout", tab: "register" });
+          // No account → sign up via Mobile OTP (no register form anymore).
+          const params = new URLSearchParams({ redirect: "/checkout", method: "mobile" });
           if (shipping.email) params.set("email", shipping.email);
           if (fullPhone) params.set("phone", fullPhone);
           if (shipping.fullName) params.set("name", shipping.fullName);
@@ -1406,13 +1427,13 @@ export default function CheckoutPage() {
                     Balance: <strong>{loyaltyBalance}</strong> points · Min{" "}
                     {loyaltyConfig.minRedemptionPoints} · Max redeemable on this
                     order: <strong>{loyaltyMaxRedeemable}</strong> points (1 point ={" "}
-                    &#8377;{loyaltyConfig.redeemRatePerPoint})
+                    &#8377;{loyaltyConfig?.redeemRatePerPoint ?? 1})
                   </p>
                   {loyaltyApplied > 0 ? (
                     <div className="checkout-coupon-row">
                       <p className="checkout-coupon-msg checkout-coupon-valid" style={{ flex: 1 }}>
                         {loyaltyApplied} points applied (-&#8377;
-                        {(loyaltyApplied * loyaltyConfig.redeemRatePerPoint).toFixed(0)})
+                        {((loyaltyApplied || 0) * (loyaltyConfig?.redeemRatePerPoint ?? 1)).toFixed(0)})
                       </p>
                       <button
                         className="checkout-coupon-btn"
@@ -1564,27 +1585,27 @@ export default function CheckoutPage() {
             <div className="checkout-summary-rows">
               <div className="checkout-summary-line">
                 <span>Subtotal</span>
-                <span>&#8377;{(pricingSource?.subtotal || subtotal).toFixed(2)}</span>
+                <span>&#8377;{formatPrice(pricingSource?.subtotal ?? subtotal)}</span>
               </div>
               {bundleDiscounts.length > 0 && bundleDiscounts.map((bd, i) => (
                 <div key={i} className="checkout-summary-line checkout-summary-discount">
                   <span>{bd.bundleName}</span>
-                  <span>-&#8377;{bd.discountAmount.toFixed(2)}</span>
+                  <span>-&#8377;{formatPrice(bd.discountAmount)}</span>
                 </div>
               ))}
               {tierDiscount > 0 && (
                 <div className="checkout-summary-line checkout-summary-discount">
                   <span>Discount ({pricingSource?.tierPercent || 0}% off)</span>
-                  <span>-&#8377;{tierDiscount.toFixed(2)}</span>
+                  <span>-&#8377;{formatPrice(tierDiscount)}</span>
                 </div>
               )}
-              {(pricingSource?.specialCouponDiscountTotal || 0) > 0 && pricingSource?.specialCouponDiscounts?.map((sp, i) => (
+              {(pricingSource?.specialCouponDiscountTotal || 0) > 0 && (pricingSource?.specialCouponDiscounts || []).map((sp, i) => (
                 <div key={`sp-${i}`} className="checkout-summary-line checkout-summary-discount">
                   <span>{sp.title || "Special Discount"}</span>
-                  <span>-&#8377;{(sp.discountAmount || 0).toFixed(2)}</span>
+                  <span>-&#8377;{formatPrice(sp.discountAmount)}</span>
                 </div>
               ))}
-              {pricingSource?.freeGifts?.length > 0 && pricingSource.freeGifts.map((gift, i) => (
+              {(pricingSource?.freeGifts || []).length > 0 && (pricingSource?.freeGifts || []).map((gift, i) => (
                 <div key={`gift-${i}`} className="checkout-summary-line checkout-summary-discount">
                   <span>Free Gift: {gift.productName || "Gift"}</span>
                   <span>FREE</span>
@@ -1593,7 +1614,7 @@ export default function CheckoutPage() {
               {couponAmount > 0 && (
                 <div className="checkout-summary-line checkout-summary-discount">
                   <span>Coupon ({pricingSource?.couponCode || couponCode})</span>
-                  <span>-&#8377;{couponAmount.toFixed(2)}</span>
+                  <span>-&#8377;{formatPrice(couponAmount)}</span>
                 </div>
               )}
               {(pricingSource?.loyaltyDiscount || 0) > 0 && (
@@ -1601,16 +1622,16 @@ export default function CheckoutPage() {
                   <span>
                     Loyalty Points ({pricingSource?.loyaltyPointsRedeemed || 0} pts)
                   </span>
-                  <span>-&#8377;{(pricingSource?.loyaltyDiscount || 0).toFixed(2)}</span>
+                  <span>-&#8377;{formatPrice(pricingSource?.loyaltyDiscount)}</span>
                 </div>
               )}
               <div className="checkout-summary-line">
                 <span>Shipping</span>
-                <span>{shippingCost === 0 ? "Free" : `\u20B9${shippingCost}`}</span>
+                <span>{shippingCost === 0 ? "Free" : `\u20B9${formatPrice(shippingCost)}`}</span>
               </div>
               <div className="checkout-summary-line checkout-summary-total">
                 <span>Total</span>
-                <span>&#8377;{total.toFixed(2)}</span>
+                <span>&#8377;{formatPrice(total)}</span>
               </div>
             </div>
 

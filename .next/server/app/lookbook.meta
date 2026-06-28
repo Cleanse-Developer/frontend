@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/lookbook/layout,_N_T_/lookbook/page,_N_T_/lookbook"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/lookbook/__PAGE__",
+    "/lookbook",
+    "/_index",
+    "/_head"
+  ]
+}

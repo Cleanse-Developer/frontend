@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { authApi, userApi } from "@/lib/endpoints";
+import { clearCheckoutData } from "@/lib/checkoutStorage";
 
 const AuthContext = createContext(null);
 
@@ -63,10 +64,10 @@ export function AuthProvider({ children }) {
   // our own app JWT returned by the backend.
   const loginWithWidgetToken = useCallback(async (accessTokenFromWidget, phone, referralCode) => {
     const res = await authApi.verifyWidgetToken(accessTokenFromWidget, phone, referralCode);
-    const { accessToken, user: userData, referralApplied } = res.data;
+    const { accessToken, user: userData, referralApplied, isNewUser } = res.data;
     localStorage.setItem("accessToken", accessToken);
     setUser(userData);
-    return { user: userData, referralApplied: referralApplied || null };
+    return { user: userData, referralApplied: referralApplied || null, isNewUser: !!isNewUser };
   }, []);
 
   const register = useCallback(async ({ fullName, email, phone, password, referralCode }) => {
@@ -91,6 +92,7 @@ export function AuthProvider({ children }) {
       // Logout even if API call fails
     }
     localStorage.removeItem("accessToken");
+    clearCheckoutData();
     setUser(null);
   }, []);
 

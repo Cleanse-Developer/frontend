@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { cartApi, cartPricingApi, guestPricingApi } from "@/lib/endpoints";
+import { isUsablePricing } from "@/lib/formatters";
 
 const CartContext = createContext(null);
 
@@ -90,7 +91,7 @@ export const CartProvider = ({ children }) => {
     }
 
     guestPricingApi.calculate(items).then((pricing) => {
-      setServerPricing(pricing);
+      setServerPricing(isUsablePricing(pricing) ? pricing : null);
     }).catch(() => {
       setServerPricing(null);
     });
@@ -111,14 +112,16 @@ export const CartProvider = ({ children }) => {
     }));
   };
 
-  // Handle API response that may be { cart, pricing } or just cart
+  // Handle API response that may be { cart, pricing } or just cart.
+  // A partial/malformed pricing object is treated as "no pricing" so the UI
+  // falls back to the client-side estimate instead of rendering broken totals.
   const handleCartResponse = (data) => {
     if (data?.cart && data?.pricing) {
       setCartItems(normalizeApiCart(data.cart));
-      setServerPricing(data.pricing);
+      setServerPricing(isUsablePricing(data.pricing) ? data.pricing : null);
     } else {
       setCartItems(normalizeApiCart(data.cart || data));
-      setServerPricing(data.pricing || null);
+      setServerPricing(isUsablePricing(data?.pricing) ? data.pricing : null);
     }
   };
 
@@ -140,8 +143,9 @@ export const CartProvider = ({ children }) => {
         // Guest cannot redeem loyalty points
         pricing = await guestPricingApi.calculate(items, couponCode, giftWrap, specialCouponCode);
       }
-      setServerPricing(pricing);
-      return pricing;
+      const safePricing = isUsablePricing(pricing) ? pricing : null;
+      setServerPricing(safePricing);
+      return safePricing;
     } catch {
       return null;
     }
