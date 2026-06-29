@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { settingsApi } from "@/lib/endpoints";
-import { cmsTermsDefault, cmsPrivacyDefault } from "@/data/legalDefaults";
 
 const SettingsContext = createContext(null);
 
@@ -118,8 +117,6 @@ const DEFAULTS = {
     },
     copyrightText: "2026 CLEANSE AYURVEDA . ALL RIGHTS RESERVED",
   },
-  cmsTerms: cmsTermsDefault,
-  cmsPrivacy: cmsPrivacyDefault,
 };
 
 export function SettingsProvider({ children, initial }) {

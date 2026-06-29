@@ -41,15 +41,21 @@ const Preloader = () => {
 
   useEffect(() => () => { isInitialLoad = false; }, []);
 
-  // Lock scroll while the loader is on screen.
+  // Lock scroll + hide the scrollbar while the loader is on screen.
   useEffect(() => {
     if (show) {
       if (lenis) lenis.stop();
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
       if (lenis) lenis.start();
+      document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
     }
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [lenis, show]);
 
   useEffect(() => {

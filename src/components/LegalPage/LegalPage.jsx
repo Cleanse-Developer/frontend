@@ -4,13 +4,15 @@ import Link from "next/link";
 import { useSettings } from "@/context/SettingsContext";
 
 // Shared renderer for the legal pages (Terms of Service, Privacy Policy).
-// Markup + class names mirror the original hardcoded pages exactly so the
-// existing CSS (legal-* classes in terms.css / privacy.css) styles it unchanged.
-// Content comes from the CMS via public settings; `fallback` keeps it rendering
-// before settings resolve or if the key is missing.
-export default function LegalPage({ settingsKey, fallback }) {
+// Markup + class names mirror the original pages exactly so the existing CSS
+// (legal-* classes in terms.css / privacy.css) styles it unchanged.
+// Content comes ENTIRELY from the CMS via public settings — there are no
+// hardcoded fallbacks. If the section has no content, the page renders empty.
+export default function LegalPage({ settingsKey }) {
   const settings = useSettings();
-  const data = settings?.[settingsKey] || fallback || {};
+  const data = settings?.[settingsKey];
+
+  if (!data) return null;
 
   const titleLines = (data.heroTitle || "").split("\n");
   const sections = data.sections || [];
@@ -45,7 +47,9 @@ export default function LegalPage({ settingsKey, fallback }) {
       {/* Body */}
       <section className="legal-body">
         <div className="legal-body-inner">
-          <p className="legal-updated">Last Updated: {data.lastUpdated}</p>
+          {data.lastUpdated && (
+            <p className="legal-updated">Last Updated: {data.lastUpdated}</p>
+          )}
 
           {sections.map((section, i) => {
             const paragraphs = (section.body || "")
