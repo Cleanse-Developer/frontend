@@ -214,28 +214,17 @@
   min-width: 0;
 }
 
-.spotlight-banner-pic {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
+/* Fill the banner cell absolutely so the IMAGE never imposes its own (tall,
+   portrait) height — the cell's height is driven by the product cards beside
+   it, keeping the whole row the same size and the card content aligned. */
+.spotlight-banner-pic,
 .spotlight-banner-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-/* Desktop: the top banner is a square, cropped to show the BOTTOM of the
-   (portrait) image — otherwise the tall image stretches the whole row. */
-@media (min-width: 1025px) {
-  .spotlight-banner {
-    aspect-ratio: 1 / 1;
-    align-self: start;
-  }
-  .spotlight-banner .spotlight-banner-img {
-    object-position: bottom;
-  }
+  object-position: bottom; /* show the bottom of the image */
 }
 
 /* Section 2: 4 Products in a Row */
@@ -312,6 +301,21 @@
   object-fit: cover;
   object-position: center;
   margin-top: 0;
+}
+
+/* Desktop: fill the banner's 2-row grid area absolutely so the (square) image
+   doesn't impose its own height — the banner then matches the 2×2 cards beside
+   it exactly, top and bottom. */
+@media (min-width: 1025px) {
+  .side-banner-pic,
+  .side-banner-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
 }
 
 /* Let the 4 cards participate directly in the section grid so they occupy

@@ -74,11 +74,25 @@
   :root { --gutter: 4rem; --page-max: 1400px; }
 }
 @media (min-width: 1920px) {
-  :root { --gutter: 5rem; --page-max: 1700px; --section-py: 6rem; }
+  :root { --gutter: 5rem; --page-max: 1820px; --section-py: 6rem; }
 }
 @media (min-width: 2560px) {
-  :root { --gutter: 6rem; --page-max: 2100px; --section-py: 7rem; }
+  :root { --gutter: 6rem; --page-max: 2360px; --section-py: 7rem; }
 }
+@media (min-width: 3440px) {
+  :root { --gutter: 7rem; --page-max: 3040px; --section-py: 8rem; }
+}
+
+/* ── Large external monitors (23"+ / 1920px and up) ─────────────────────────
+   The whole layout is rem-based, so scaling the ROOT font-size proportionally
+   enlarges everything together — body type, padding, gaps and the card text
+   that's otherwise capped by rem clamps — instead of leaving the desktop layout
+   looking tiny in a sea of margin on a big screen. Headings use vw-dominated
+   clamps, so they stay controlled and don't overshoot. Paired with the wider
+   --page-max above so the bigger content has room to breathe. */
+@media (min-width: 1920px) { html { font-size: 18px; } }
+@media (min-width: 2560px) { html { font-size: 20px; } }
+@media (min-width: 3440px) { html { font-size: 23px; } }
 
 * {
   margin: 0;

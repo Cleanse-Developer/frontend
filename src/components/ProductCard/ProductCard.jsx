@@ -1,6 +1,7 @@
 "use client";
 import { forwardRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { productUrl } from "@/lib/normalizers";
@@ -59,7 +60,15 @@ const ProductCard = forwardRef(function ProductCard(
       {...rest}
     >
       <Link href={href} className="product-card-image">
-        <img src={image} alt={product.name} loading="lazy" decoding="async" />
+        {/* next/image serves a resized version (~card width) instead of the
+            full-res CMS upload, so scrolling grids of products stays smooth. */}
+        <Image
+          src={image}
+          alt={product.name}
+          fill
+          sizes="(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          loading="lazy"
+        />
       </Link>
       <button
         className="product-card-cart-btn"
