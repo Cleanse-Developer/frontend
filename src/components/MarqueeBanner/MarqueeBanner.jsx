@@ -14,9 +14,9 @@ gsap.registerPlugin(ScrollTrigger);
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const DEFAULT_REELS = [
-  { id: 1, title: "Morning Ritual", subtitle: "Golden Hour Glow", video: "/videos/reel1.mp4", poster: "/images/REEL 1.png", position: "left-top" },
-  { id: 2, title: "Sacred Rituals", subtitle: "Embrace Your Natural Glow", video: "/videos/reel2.mp4", poster: "/images/REEL 2.png", position: "center" },
-  { id: 3, title: "Evening Care", subtitle: "Restore & Rejuvenate", video: "/videos/reel3.mp4", poster: "/images/REEL 3.png", position: "right-bottom" },
+  { id: 1, title: "Morning Ritual", subtitle: "Golden Hour Glow", video: "/videos/reel1.mp4", poster: "/images/REEL 1.png", position: "left-top", reelUrl: "https://www.instagram.com/reel/C_BRnIQyDWs/" },
+  { id: 2, title: "Sacred Rituals", subtitle: "Embrace Your Natural Glow", video: "/videos/reel2.mp4", poster: "/images/REEL 2.png", position: "center", reelUrl: "https://www.instagram.com/reel/C3hdGOWphsG/" },
+  { id: 3, title: "Evening Care", subtitle: "Restore & Rejuvenate", video: "/videos/reel3.mp4", poster: "/images/REEL 3.png", position: "right-bottom", reelUrl: "https://www.instagram.com/reel/C5msAMFMHx-/" },
 ];
 
 const DEFAULT_POSTERS = { "left-top": "/images/REEL 1.png", center: "/images/REEL 2.png", "right-bottom": "/images/REEL 3.png" };
@@ -32,6 +32,7 @@ const MarqueeBanner = () => {
     video: r.video?.url || DEFAULT_REELS[i]?.video,
     poster: DEFAULT_REELS[i]?.poster || r.posterImage?.url || DEFAULT_POSTERS[r.position],
     position: r.position,
+    reelUrl: r.reelUrl || DEFAULT_REELS[i]?.reelUrl,
   })) : DEFAULT_REELS;
 
   const marqueeBannerRef = useRef(null);
@@ -167,6 +168,20 @@ const MarqueeBanner = () => {
     velRef.current = Math.max(-0.55, Math.min(0.55, velRef.current)); // cap the flick
   };
 
+  // Open the reel on Instagram in a new tab. On mobile, the first tap expands
+  // the stacked deck (matches the "Tap to view" hint); a tap on an expanded
+  // card opens the reel. We deliberately link out rather than embedding so no
+  // Instagram chrome/iframe renders over our UI and nothing autoplays.
+  const openReel = (reel) => {
+    if (isMobile && !expanded) {
+      setExpanded(true);
+      return;
+    }
+    if (reel.reelUrl) {
+      window.open(reel.reelUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
   // Stacked-deck transform (collapsed state, React-managed).
   const getStackedStyle = (index) => ({
     transform: `translate(-50%, -50%) translateX(${index * 6}%) translateY(${index * 10}px) rotate(${index * 4}deg) scale(${1 - index * 0.05})`,
@@ -247,7 +262,11 @@ const MarqueeBanner = () => {
             key={reel.id}
             ref={(el) => { cardRefs.current[i] = el; }}
             className={`reel-card reel-card-${reel.position}`}
-            style={isMobile && !expanded ? getStackedStyle(i) : undefined}
+            style={{
+              ...(isMobile && !expanded ? getStackedStyle(i) : {}),
+              cursor: reel.reelUrl ? "pointer" : "default",
+            }}
+            onClick={() => openReel(reel)}
             onTouchStart={onCardTouchStart}
             onTouchMove={onCardTouchMove}
             onTouchEnd={onCardTouchEnd}
