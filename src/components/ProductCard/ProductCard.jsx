@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { productUrl } from "@/lib/normalizers";
+import { cardPrice } from "@/lib/formatters";
 // Canonical product-card styles live in this shared, global stylesheet.
 import "@/components/FeaturedSection/FeaturedSection.css";
 
@@ -75,7 +76,7 @@ const ProductCard = forwardRef(function ProductCard(
         </Link>
         {desc ? <p className="product-card-desc">{desc}</p> : null}
         <div className="product-card-footer">
-          <span className="product-card-price">₹{product.price}</span>
+          <span className="product-card-price">₹{cardPrice(product)}</span>
           <button
             className="product-card-buy-btn"
             onClick={() => {

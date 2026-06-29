@@ -27,3 +27,15 @@ export const isUsablePricing = (p) =>
   typeof p === "object" &&
   toNum(p.subtotal) !== null &&
   toNum(p.total) !== null;
+
+/**
+ * Price to display on a catalog card when no variant is selected yet: the
+ * lowest variant price, falling back to the base product price for products
+ * with no variants. Used by product cards / featured grid / cross-sell.
+ */
+export const cardPrice = (p) => {
+  const prices = (p?.sizes || [])
+    .map((s) => Number(s.price))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  return prices.length ? Math.min(...prices) : Number(p?.price) || 0;
+};

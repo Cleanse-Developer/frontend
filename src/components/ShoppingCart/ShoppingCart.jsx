@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 
 import { useCart } from "@/context/CartContext";
 import DiscountProgress from "@/components/DiscountProgress/DiscountProgress";
-import { formatPrice } from "@/lib/formatters";
+import { formatPrice, cardPrice } from "@/lib/formatters";
 
 // Loyalty points rate: 1 point per ₹10 spent
 const POINTS_PER_RUPEE = 0.1;
@@ -131,7 +131,7 @@ const CrossSellProducts = ({ cartItems }) => {
             </div>
             <div className="cross-sell-details">
               <p className="cross-sell-name">{product.name}</p>
-              <p className="cross-sell-price">&#8377;{product.price}</p>
+              <p className="cross-sell-price">&#8377;{cardPrice(product)}</p>
             </div>
             <button
               className="cross-sell-add"

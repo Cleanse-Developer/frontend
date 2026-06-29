@@ -154,11 +154,17 @@ export const CartProvider = ({ children }) => {
   const addToCart = useCallback(async (product, selectedSize, quantity = 1) => {
     const productId = product._id || product.productId;
     const name = product.name;
-    const price = Number(product.price);
     const image = product.primaryImage || product.image || product.images?.[0]?.url || "/images/1.png";
     const slug = product.slug;
     const description = product.shortDescription || product.description || "";
     const sizeLabel = selectedSize?.label || selectedSize || product.sizes?.[0]?.label || product.sizes?.[0];
+    // Snapshot the SELECTED variant's price into the guest cart (localStorage).
+    // selectedSize may be a full variant object OR just a label; resolve either way.
+    const variant =
+      selectedSize && typeof selectedSize === "object" && "price" in selectedSize
+        ? selectedSize
+        : product.sizes?.find((s) => (s.label || s) === sizeLabel);
+    const price = Number(variant?.price ?? product.price);
 
     if (isAuthenticated) {
       try {

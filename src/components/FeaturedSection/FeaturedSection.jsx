@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { useSettings } from "@/context/SettingsContext";
 import { productApi, bundleApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
+import { cardPrice } from "@/lib/formatters";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -166,7 +167,7 @@ export const BentoSection = () => {
   const featuredProducts = cmsBento.featuredProducts?.length > 0
     ? cmsBento.featuredProducts.map((p) => {
         const np = normalizeProduct(p);
-        return { id: np._id, name: np.name, price: np.price, image: np.primaryImage || "/images/why2.png", link: productUrl(np) };
+        return { id: np._id, name: np.name, price: cardPrice(np), image: np.primaryImage || "/images/why2.png", link: productUrl(np) };
       })
     : defaultProducts;
 
