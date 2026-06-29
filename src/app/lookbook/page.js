@@ -6,6 +6,7 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { productApi } from "@/lib/endpoints";
 import { productUrl } from "@/lib/normalizers";
+import { cardPrice } from "@/lib/formatters";
 
 const BG_COLORS = ["#D9C9A8", "#C4B48C", "#E7D0A6", "#C8AD73", "#D1BFA5", "#B8A47C"];
 
@@ -43,7 +44,7 @@ function buildPins(products) {
         type: "product",
         name: p.name,
         slug: p.slug,
-        price: p.price,
+        price: cardPrice(p),
         sizes: p.sizes || [],
         img,
         bg: BG_COLORS[pIdx % BG_COLORS.length],

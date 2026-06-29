@@ -8,6 +8,7 @@ import { useCart } from "@/context/CartContext";
 import { gsap } from "gsap";
 import { productApi, categoryApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
+import { cardPrice } from "@/lib/formatters";
 import ProductCard from "@/components/ProductCard/ProductCard";
 
 export default function Wardrobe() {
@@ -132,9 +133,9 @@ function WardrobeContent() {
     const sorted = [...productsToSort];
     switch (sortOption) {
       case "price-low":
-        return sorted.sort((a, b) => a.price - b.price);
+        return sorted.sort((a, b) => cardPrice(a) - cardPrice(b));
       case "price-high":
-        return sorted.sort((a, b) => b.price - a.price);
+        return sorted.sort((a, b) => cardPrice(b) - cardPrice(a));
       case "name-az":
         return sorted.sort((a, b) => a.name.localeCompare(b.name));
       case "name-za":
@@ -147,11 +148,11 @@ function WardrobeContent() {
   const filterByPrice = (productsToFilter, range) => {
     switch (range) {
       case "under-500":
-        return productsToFilter.filter((p) => p.price < 500);
+        return productsToFilter.filter((p) => cardPrice(p) < 500);
       case "500-1000":
-        return productsToFilter.filter((p) => p.price >= 500 && p.price <= 1000);
+        return productsToFilter.filter((p) => cardPrice(p) >= 500 && cardPrice(p) <= 1000);
       case "above-1000":
-        return productsToFilter.filter((p) => p.price > 1000);
+        return productsToFilter.filter((p) => cardPrice(p) > 1000);
       default:
         return productsToFilter;
     }
