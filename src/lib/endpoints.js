@@ -63,6 +63,10 @@ export const authApi = {
     api
       .post("/auth/google", { code, ...(referralCode ? { referralCode } : {}) })
       .then((r) => r.data),
+  linkPhone: (accessToken, phone) =>
+    api.post("/auth/link-phone", { accessToken, phone }).then((r) => r.data),
+  linkEmail: (email) =>
+    api.post("/auth/link-email", { email }).then((r) => r.data),
   loginWithPassword: (email, password) =>
     api.post("/auth/login", { email, password }).then((r) => r.data),
   register: (data) => api.post("/auth/register", data).then((r) => r.data),

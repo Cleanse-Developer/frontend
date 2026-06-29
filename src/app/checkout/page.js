@@ -95,7 +95,7 @@ function splitPhone(phone) {
 export default function CheckoutPage() {
   const { cartItems, cartCount, subtotal, clearCart, serverPricing, fetchPricingPreview } = useCart();
   const router = useRouter();
-  const { user, isAuthenticated, isLoading: authLoading, loginWithWidgetToken } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading, loginWithWidgetToken, linkPhone, linkEmail } = useAuth();
   const toast = useToast();
 
   // Razorpay checkout session state
@@ -316,6 +316,15 @@ export default function CheckoutPage() {
     return d.length > 10 ? d.slice(-10) : d;
   })();
   const fullPhone = localPhoneDigits ? `${shipping.phoneCode}${localPhoneDigits}` : "";
+
+  // Phone verification state. A phone is "verified" when it matches the logged-in
+  // account's stored phone (e.g. phone-OTP users) OR the user just verified it via
+  // the widget this session. Google/email-only users are authed but have no phone,
+  // so they still need to verify — hence the button shows for them too.
+  const accountPhone = (user?.phone || "").replace(/\D/g, "");
+  const phoneMatchesAccount = isAuthenticated && !!accountPhone && localPhoneDigits === accountPhone;
+  const phoneIsVerified = phoneVerified || phoneMatchesAccount;
+  const needsPhoneVerify = !phoneIsVerified;
 
   // Build shippingInfo for backend (merges phone code into phone field).
   // Name + email are optional for guests: default name to "User" (backend
@@ -617,24 +626,34 @@ export default function CheckoutPage() {
         setOtpError("OTP verification failed. Please try again.");
         return;
       }
-      // Verifying the phone IS the login: exchange the widget token for an app
-      // session so the guest is authenticated and can place the order directly
-      // (no second OTP at checkout). Contact stays optional via `guestMode`.
-      await loginWithWidgetToken(token, localPhoneDigits);
+      if (isAuthenticated) {
+        // Already logged in (e.g. via Google): attach this phone to the current
+        // account. Backend rejects if the number belongs to a different account.
+        await linkPhone(token, localPhoneDigits);
+      } else {
+        // Guest: verifying the phone IS the login — exchange the widget token for
+        // an app session so they can place the order directly (no second OTP).
+        await loginWithWidgetToken(token, localPhoneDigits);
+      }
       setPhoneVerified(true);
       setOtpModalOpen(false);
       // Clear any prior phone error now that it's verified.
       setErrors((prev) => { const next = { ...prev }; delete next.phone; return next; });
-      toast.success("Phone verified — you're logged in");
+      toast.success(isAuthenticated ? "Phone number verified" : "Phone verified — you're logged in");
     } catch (err) {
-      setOtpError((err && (err.message || err.type)) || "Invalid or expired OTP");
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.errors?.[0]?.message ||
+        (err && (err.message || err.type)) ||
+        "Invalid or expired OTP";
+      setOtpError(msg);
     } finally {
       setOtpVerifying(false);
     }
   };
 
   // ── Step navigation with validation ──
-  const goToStep = (step) => {
+  const goToStep = async (step) => {
     if (step === 2 && activeStep === 1) {
       // Validate shipping (guests: name + email optional). Keyed on guestMode so
       // it stays relaxed even after the phone-verify login flips isAuthenticated.
@@ -645,10 +664,29 @@ export default function CheckoutPage() {
         setErrors(shippingErrors);
         return;
       }
-      // Guests must verify their phone via OTP before continuing.
-      if (!isAuthenticated && !phoneVerified) {
+      // Phone must be verified before continuing — covers guests AND logged-in
+      // users without a phone on file (e.g. Google sign-ins).
+      if (needsPhoneVerify) {
         setErrors((prev) => ({ ...prev, phone: "Please verify your phone number" }));
         return;
+      }
+      // If logged in and an email was provided that differs from the account's,
+      // attach it now — collision-checked: rejects if it belongs to another account.
+      if (isAuthenticated && shipping.email && shipping.email.trim()) {
+        const emailLc = shipping.email.trim().toLowerCase();
+        if (!user?.email || user.email.toLowerCase() !== emailLc) {
+          try {
+            await linkEmail(emailLc);
+          } catch (err) {
+            setErrors((prev) => ({
+              ...prev,
+              email:
+                err?.response?.data?.message ||
+                "This email is already linked to another account.",
+            }));
+            return;
+          }
+        }
       }
       if (pincodeStatus === "unavailable") {
         setErrors({ pincode: "Delivery is not available to this pincode" });
@@ -1368,9 +1406,9 @@ export default function CheckoutPage() {
                       onChange={(e) => handleShippingChange("phone", e.target.value)}
                       onBlur={() => handleBlur("phone", shipping.phone)}
                       className={errors.phone ? "has-error" : ""}
-                      disabled={!isAuthenticated && phoneVerified}
+                      disabled={phoneIsVerified}
                     />
-                    {!isAuthenticated && (phoneVerified ? (
+                    {phoneIsVerified ? (
                       <span className="checkout-phone-verified">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                         Verified
@@ -1384,7 +1422,7 @@ export default function CheckoutPage() {
                       >
                         {otpSending ? "Sending..." : "Verify"}
                       </button>
-                    ))}
+                    )}
                   </div>
                   {errors.phone && <span className="checkout-field-error">{errors.phone}</span>}
                 </div>

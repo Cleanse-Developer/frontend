@@ -79,6 +79,20 @@ export function AuthProvider({ children }) {
     return { user: userData, referralApplied: referralApplied || null, isNewUser: !!isNewUser };
   }, []);
 
+  // Attach a verified phone to the current account (collision-checked server-side).
+  const linkPhone = useCallback(async (accessToken, phone) => {
+    const res = await authApi.linkPhone(accessToken, phone);
+    setUser(res.data.user);
+    return res.data.user;
+  }, []);
+
+  // Attach an email to the current account (collision-checked server-side).
+  const linkEmail = useCallback(async (email) => {
+    const res = await authApi.linkEmail(email);
+    setUser(res.data.user);
+    return res.data.user;
+  }, []);
+
   const register = useCallback(async ({ fullName, email, phone, password, referralCode }) => {
     const res = await authApi.register({
       fullName,
@@ -124,6 +138,8 @@ export function AuthProvider({ children }) {
         login,
         loginWithWidgetToken,
         loginWithGoogle,
+        linkPhone,
+        linkEmail,
         loginWithPassword,
         register,
         logout,

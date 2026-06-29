@@ -147,7 +147,9 @@ const Footer = () => {
           <div className="footer-legal">
             <p className="footer-copyright">&copy;{copyrightText}</p>
             <div className="footer-socials">
-              {Object.entries(socialLinks).map(([platform, url]) => (
+              {Object.entries(socialLinks)
+                .filter(([, url]) => url && url.trim())
+                .map(([platform, url]) => (
                 <a
                   key={platform}
                   href={url}
