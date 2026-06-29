@@ -1329,18 +1329,16 @@ export default function CheckoutPage() {
                         className={errors.phone ? "has-error" : ""}
                       />
                     </div>
+                    {errors.phone && <span className="checkout-field-error">{errors.phone}</span>}
                   </div>
                   <div className="checkout-guest-actions">
                     <button
                       type="button"
                       className="checkout-guest-login-btn"
-                      onClick={() => {
-                        const params = new URLSearchParams({ redirect: "/checkout" });
-                        if (fullPhone) params.set("phone", fullPhone);
-                        router.push(`/login?${params.toString()}`);
-                      }}
+                      onClick={handleVerifyPhone}
+                      disabled={otpSending}
                     >
-                      Login
+                      {otpSending ? "Sending..." : "Login"}
                     </button>
                     <button
                       type="button"

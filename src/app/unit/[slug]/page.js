@@ -414,9 +414,12 @@ function UnitContent({ params }) {
     );
   }
 
-  const originalPrice = product.compareAtPrice || Math.round(Number(product.price) / 0.78);
-  const discount = originalPrice > product.price ? Math.round((1 - product.price / originalPrice) * 100) : 0;
-  const formattedPrice = `\u20B9${Number(product.price).toLocaleString("en-IN")}`;
+  // Variant-aware pricing: prefer the selected size's price/compare-at, fall back to base product.
+  const activePrice = Number(selectedSize?.price ?? product.price);
+  const activeCompare = selectedSize?.compareAtPrice ?? product.compareAtPrice;
+  const originalPrice = activeCompare || Math.round(activePrice / 0.78);
+  const discount = originalPrice > activePrice ? Math.round((1 - activePrice / originalPrice) * 100) : 0;
+  const formattedPrice = `\u20B9${activePrice.toLocaleString("en-IN")}`;
   const formattedOriginal = `\u20B9${originalPrice.toLocaleString("en-IN")}`;
 
   return (
