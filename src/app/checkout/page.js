@@ -108,9 +108,6 @@ export default function CheckoutPage() {
 
   // Step management
   const [activeStep, setActiveStep] = useState(1);
-  // Guest gate: non-logged-in users first see only a phone + Login / Continue as
-  // Guest. Choosing "guest" reveals the full contact + address form.
-  const [guestMode, setGuestMode] = useState(false);
   const stepRef = useRef(1);
   // Scroll target: selecting a saved address (or "New Address") scrolls down to
   // the shipping form so the user sees it populate / can fill it in.
@@ -1162,53 +1159,6 @@ export default function CheckoutPage() {
           {activeStep === 1 && (
             <div className="checkout-form-section">
 
-              {!isAuthenticated && !guestMode ? (
-                <div className="checkout-guest-gate">
-                  <h3 className="checkout-section-title">Contact Information</h3>
-                  <p className="checkout-guest-sub">Log in for faster checkout, or continue as a guest.</p>
-                  <div className="checkout-input-group">
-                    <label>Phone Number</label>
-                    <div className={`checkout-phone-row ${errors.phone ? "has-error-row" : ""}`}>
-                      <select
-                        value={shipping.phoneCode}
-                        onChange={(e) => handleShippingChange("phoneCode", e.target.value)}
-                        className="checkout-phone-code"
-                      >
-                        {PHONE_CODES_LIST.map((c) => (
-                          <option key={c.code} value={c.code}>{c.label}</option>
-                        ))}
-                      </select>
-                      <input
-                        type="tel"
-                        placeholder="98765 43210"
-                        value={shipping.phone}
-                        onChange={(e) => handleShippingChange("phone", e.target.value)}
-                        className={errors.phone ? "has-error" : ""}
-                      />
-                    </div>
-                  </div>
-                  <div className="checkout-guest-actions">
-                    <button
-                      type="button"
-                      className="checkout-guest-login-btn"
-                      onClick={() => {
-                        const params = new URLSearchParams({ redirect: "/checkout" });
-                        if (fullPhone) params.set("phone", fullPhone);
-                        router.push(`/login?${params.toString()}`);
-                      }}
-                    >
-                      Login
-                    </button>
-                    <button
-                      type="button"
-                      className="checkout-continue-btn checkout-guest-continue-btn"
-                      onClick={() => setGuestMode(true)}
-                    >
-                      Continue as Guest
-                    </button>
-                  </div>
-                </div>
-              ) : (
               <>
 
               {/* Saved address selector */}
@@ -1309,7 +1259,6 @@ export default function CheckoutPage() {
                 Continue to Payment
               </button>
               </>
-              )}
             </div>
           )}
 
