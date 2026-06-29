@@ -4,8 +4,8 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[6-9]\d{9}$/;
 const PINCODE_REGEX = /^\d{6}$/;
 
-export function validateEmail(value) {
-  if (!value || !value.trim()) return "Email address is required";
+export function validateEmail(value, { optional = false } = {}) {
+  if (!value || !value.trim()) return optional ? null : "Email address is required";
   if (!EMAIL_REGEX.test(value.trim())) return "Please enter a valid email address";
   return null;
 }
@@ -17,8 +17,8 @@ export function validatePhone(value) {
   return null;
 }
 
-export function validateFullName(value) {
-  if (!value || !value.trim()) return "Full name is required";
+export function validateFullName(value, { optional = false } = {}) {
+  if (!value || !value.trim()) return optional ? null : "Full name is required";
   if (value.trim().length < 2) return "Name must be at least 2 characters";
   return null;
 }
@@ -51,8 +51,9 @@ export function validateUpiId(value) {
   return null;
 }
 
-// Validate a single field by name
-export function validateField(fieldName, value) {
+// Validate a single field by name. `opts` (e.g. { optional }) is forwarded to the
+// contact validators (email/fullName) so they can be relaxed for guest checkout.
+export function validateField(fieldName, value, opts = {}) {
   const validators = {
     email: validateEmail,
     phone: validatePhone,
@@ -64,16 +65,21 @@ export function validateField(fieldName, value) {
     upiId: validateUpiId,
   };
   const fn = validators[fieldName];
-  return fn ? fn(value) : null;
+  if (!fn) return null;
+  if (fieldName === "email" || fieldName === "fullName") return fn(value, opts);
+  return fn(value);
 }
 
-// Validate the entire shipping form
-export function validateShippingForm(shipping) {
+// Validate the entire shipping form. When requireContact is false (guest
+// checkout), email + full name become optional (but are still format-checked
+// when provided); phone stays required.
+export function validateShippingForm(shipping, { requireContact = true } = {}) {
   const errors = {};
   const fields = ["email", "phone", "fullName", "address1", "city", "state", "pincode"];
 
   for (const field of fields) {
-    const error = validateField(field, shipping[field]);
+    const optional = !requireContact && (field === "email" || field === "fullName");
+    const error = validateField(field, shipping[field], { optional });
     if (error) errors[field] = error;
   }
 

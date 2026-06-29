@@ -8,8 +8,9 @@ import { useAuth } from "@/context/AuthContext";
 import { authApi, couponApi, specialCouponApi, orderApi, paymentApi, checkoutApi, addressApi, shippingApi, loyaltyApi } from "@/lib/endpoints";
 import { useToast } from "@/context/ToastContext";
 import { loadRazorpay } from "@/lib/razorpay";
-import { validateField, validateShippingForm, validateBillingForm } from "@/lib/validation";
+import { validateField, validateShippingForm, validateBillingForm, validatePhone } from "@/lib/validation";
 import { saveCheckoutData, loadCheckoutData, clearCheckoutData } from "@/lib/checkoutStorage";
+import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, extractWidgetToken } from "@/lib/msg91";
 import CouponModal from "./CouponModal";
 import { formatPrice } from "@/lib/formatters";
 
@@ -94,7 +95,7 @@ function splitPhone(phone) {
 export default function CheckoutPage() {
   const { cartItems, cartCount, subtotal, clearCart, serverPricing, fetchPricingPreview } = useCart();
   const router = useRouter();
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading, loginWithWidgetToken } = useAuth();
   const toast = useToast();
 
   // Razorpay checkout session state
@@ -193,6 +194,14 @@ export default function CheckoutPage() {
 
   // Validation state
   const [errors, setErrors] = useState({});
+
+  // Guest phone verification (MSG91 widget OTP)
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpError, setOtpError] = useState("");
 
   // Pincode check state
   const [pincodeStatus, setPincodeStatus] = useState(null); // null | "checking" | "available" | "unavailable"
@@ -308,10 +317,18 @@ export default function CheckoutPage() {
   })();
   const fullPhone = localPhoneDigits ? `${shipping.phoneCode}${localPhoneDigits}` : "";
 
-  // Build shippingInfo for backend (merges phone code into phone field)
+  // Build shippingInfo for backend (merges phone code into phone field).
+  // Name + email are optional for guests: default name to "User" (backend
+  // requires fullName) and omit email entirely when blank (backend's
+  // optional().isEmail() would reject an empty string).
   const getShippingInfo = () => {
     const { phoneCode, ...rest } = shipping;
-    return { ...rest, phone: fullPhone };
+    const info = { ...rest, phone: fullPhone };
+    info.fullName = (info.fullName || "").trim() || "User";
+    if (!info.email || !info.email.trim()) {
+      delete info.email;
+    }
+    return info;
   };
 
   // ── Restore checkout data from localStorage ──
@@ -473,6 +490,10 @@ export default function CheckoutPage() {
     if (selectedAddressId && ["address1", "address2", "city", "state", "pincode"].includes(field)) {
       setSelectedAddressId(null);
     }
+    // Editing the phone invalidates a prior guest verification.
+    if (field === "phone" || field === "phoneCode") {
+      setPhoneVerified(false);
+    }
   };
 
   const handleBillingChange = (field, value) => {
@@ -484,7 +505,9 @@ export default function CheckoutPage() {
   };
 
   const handleBlur = (field, value, isBilling = false) => {
-    const error = validateField(field, value);
+    // Guests: email + full name are optional (format-checked only when filled).
+    const optional = guestMode && (field === "email" || field === "fullName");
+    const error = validateField(field, value, { optional });
     const key = isBilling ? `billing_${field}` : field;
     setErrors((prev) => {
       if (error) return { ...prev, [key]: error };
@@ -536,13 +559,95 @@ export default function CheckoutPage() {
     setPincodeMessage("");
   };
 
+  // ── Guest phone verification (MSG91 widget) ──
+  const closeOtpModal = () => {
+    setOtpModalOpen(false);
+    setOtpError("");
+  };
+
+  const handleVerifyPhone = async () => {
+    const phoneErr = validatePhone(shipping.phone);
+    if (phoneErr) {
+      setErrors((prev) => ({ ...prev, phone: phoneErr }));
+      return;
+    }
+    setOtpSending(true);
+    setOtpError("");
+    try {
+      const ok = await loadMsg91();
+      if (!ok) {
+        toast.error("Couldn't load the OTP service. Please try again.");
+        return;
+      }
+      await sendOtpViaWidget(`91${localPhoneDigits}`);
+      setOtpValue("");
+      setOtpModalOpen(true);
+      toast.success("OTP sent to your mobile number");
+    } catch (err) {
+      toast.error((err && (err.message || err.type)) || "Couldn't send OTP. Please try again.");
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const handleResendGuestOtp = async () => {
+    setOtpSending(true);
+    setOtpError("");
+    try {
+      await retryOtpViaWidget("11"); // "11" = text SMS
+      toast.success("OTP resent to your mobile number");
+    } catch (err) {
+      setOtpError((err && (err.message || err.type)) || "Couldn't resend OTP. Please try again.");
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const handleConfirmGuestOtp = async () => {
+    if (!otpValue.trim()) {
+      setOtpError("Please enter the OTP");
+      return;
+    }
+    setOtpVerifying(true);
+    setOtpError("");
+    try {
+      const data = await verifyOtpViaWidget(otpValue.trim());
+      const token = extractWidgetToken(data);
+      if (!token) {
+        setOtpError("OTP verification failed. Please try again.");
+        return;
+      }
+      // Verifying the phone IS the login: exchange the widget token for an app
+      // session so the guest is authenticated and can place the order directly
+      // (no second OTP at checkout). Contact stays optional via `guestMode`.
+      await loginWithWidgetToken(token, localPhoneDigits);
+      setPhoneVerified(true);
+      setOtpModalOpen(false);
+      // Clear any prior phone error now that it's verified.
+      setErrors((prev) => { const next = { ...prev }; delete next.phone; return next; });
+      toast.success("Phone verified — you're logged in");
+    } catch (err) {
+      setOtpError((err && (err.message || err.type)) || "Invalid or expired OTP");
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
   // ── Step navigation with validation ──
   const goToStep = (step) => {
     if (step === 2 && activeStep === 1) {
-      // Validate shipping
-      const { isValid, errors: shippingErrors } = validateShippingForm(shipping);
+      // Validate shipping (guests: name + email optional). Keyed on guestMode so
+      // it stays relaxed even after the phone-verify login flips isAuthenticated.
+      const { isValid, errors: shippingErrors } = validateShippingForm(shipping, {
+        requireContact: !guestMode,
+      });
       if (!isValid) {
         setErrors(shippingErrors);
+        return;
+      }
+      // Guests must verify their phone via OTP before continuing.
+      if (!isAuthenticated && !phoneVerified) {
+        setErrors((prev) => ({ ...prev, phone: "Please verify your phone number" }));
         return;
       }
       if (pincodeStatus === "unavailable") {
@@ -1243,7 +1348,7 @@ export default function CheckoutPage() {
 
               <h3 className="checkout-section-title">Contact Information</h3>
               <div className="checkout-form-grid">
-                {renderInput("email", "Email Address", "your@email.com", "email")}
+                {renderInput("email", guestMode ? "Email Address (optional)" : "Email Address", "your@email.com", "email")}
                 <div className="checkout-input-group">
                   <label>Phone Number</label>
                   <div className={`checkout-phone-row ${errors.phone ? "has-error-row" : ""}`}>
@@ -1263,7 +1368,23 @@ export default function CheckoutPage() {
                       onChange={(e) => handleShippingChange("phone", e.target.value)}
                       onBlur={() => handleBlur("phone", shipping.phone)}
                       className={errors.phone ? "has-error" : ""}
+                      disabled={!isAuthenticated && phoneVerified}
                     />
+                    {!isAuthenticated && (phoneVerified ? (
+                      <span className="checkout-phone-verified">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                        Verified
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="checkout-phone-verify-btn"
+                        onClick={handleVerifyPhone}
+                        disabled={otpSending}
+                      >
+                        {otpSending ? "Sending..." : "Verify"}
+                      </button>
+                    ))}
                   </div>
                   {errors.phone && <span className="checkout-field-error">{errors.phone}</span>}
                 </div>
@@ -1271,7 +1392,7 @@ export default function CheckoutPage() {
 
               <h3 ref={shippingFormRef} className="checkout-section-title checkout-section-title--spaced">Shipping Address</h3>
               <div className="checkout-form-stack">
-                {renderInput("fullName", "Full Name", "Full name")}
+                {renderInput("fullName", guestMode ? "Full Name (optional)" : "Full Name", "Full name")}
                 {renderInput("address1", "Address Line 1", "Street address")}
                 {renderInput("address2", "Address Line 2", "Apartment, suite, etc. (optional)")}
                 <div className="checkout-form-grid">
@@ -1639,6 +1760,55 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {otpModalOpen && (
+        <div className="checkout-otp-overlay" onClick={closeOtpModal}>
+          <div
+            className="checkout-otp-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Verify phone number"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button className="checkout-otp-close" onClick={closeOtpModal} aria-label="Close">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+            <h3 className="checkout-otp-title">Verify your number</h3>
+            <p className="checkout-otp-sub">
+              Enter the OTP sent to {shipping.phoneCode} {localPhoneDigits}
+            </p>
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              className="checkout-otp-input"
+              placeholder="Enter OTP"
+              value={otpValue}
+              onChange={(e) => { setOtpValue(e.target.value.replace(/\D/g, "")); setOtpError(""); }}
+              autoFocus
+            />
+            {otpError && <p className="checkout-otp-error">{otpError}</p>}
+            <button
+              className="checkout-otp-verify-btn"
+              onClick={handleConfirmGuestOtp}
+              disabled={otpVerifying}
+            >
+              {otpVerifying ? "Verifying..." : "Verify"}
+            </button>
+            <button
+              className="checkout-otp-resend"
+              onClick={handleResendGuestOtp}
+              disabled={otpSending}
+              type="button"
+            >
+              Resend OTP
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
