@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, extractWidgetToken } from "@/lib/msg91";
+import { signInWithGoogle } from "@/lib/google";
 import Logo from "@/components/Logo/Logo";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
@@ -21,7 +22,7 @@ export default function Login() {
 }
 
 function LoginContent() {
-  const { loginWithPassword, loginWithWidgetToken, isAuthenticated } = useAuth();
+  const { loginWithPassword, loginWithWidgetToken, loginWithGoogle, isAuthenticated } = useAuth();
   const toast = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -196,6 +197,27 @@ function LoginContent() {
     }
   };
 
+  const handleGoogle = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const code = await signInWithGoogle();
+      const { isNewUser } = await loginWithGoogle(code);
+      toast.success(isNewUser ? "Account created — welcome!" : "Logged in successfully");
+      router.replace(redirectTo);
+    } catch (err) {
+      const data = err?.response?.data;
+      setError(
+        data?.errors?.[0]?.message ||
+          data?.message ||
+          (err && err.message) ||
+          "Google sign-in failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="login-page">
       {/* Left Visual Panel */}
@@ -218,7 +240,7 @@ function LoginContent() {
       {/* Right Form Panel */}
       <div className="login-form-container">
         <Link href="/" className="login-home-link" aria-label="Home">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />
           </svg>
           <span>Home</span>
@@ -381,7 +403,7 @@ function LoginContent() {
               </div>
 
               <div className="login-social-buttons">
-                <button type="button" className="login-social-btn" onClick={() => toast.info("Social login coming soon")}>
+                <button type="button" className="login-social-btn" onClick={handleGoogle} disabled={loading}>
                   <svg width="20" height="20" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>

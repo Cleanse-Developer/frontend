@@ -12,4 +12,4 @@
 :HL["/_next/static/chunks/55c630ce2a85743f.css","style"]
 :HL["/_next/static/chunks/8f6d8125cd2e630f.css","style"]
 :HL["https://d3dm84701hs6ur.cloudfront.net/migrated/7a77c737-f51d-471e-8540-cffb0c481bde.webp","image",{"fetchPriority":"high"}]
-0:{"buildId":"B8hUGkH2pvxXc-mJDZZ-V","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"5-JUHx28BnIiQHPcXXagX","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":true},"staleTime":300}

@@ -59,6 +59,10 @@ export const authApi = {
         ...(referralCode ? { referralCode } : {}),
       })
       .then((r) => r.data),
+  googleAuth: (code, referralCode) =>
+    api
+      .post("/auth/google", { code, ...(referralCode ? { referralCode } : {}) })
+      .then((r) => r.data),
   loginWithPassword: (email, password) =>
     api.post("/auth/login", { email, password }).then((r) => r.data),
   register: (data) => api.post("/auth/register", data).then((r) => r.data),

@@ -70,6 +70,15 @@ export function AuthProvider({ children }) {
     return { user: userData, referralApplied: referralApplied || null, isNewUser: !!isNewUser };
   }, []);
 
+  // Google Sign-In: exchange the one-time auth code for an app session.
+  const loginWithGoogle = useCallback(async (code, referralCode) => {
+    const res = await authApi.googleAuth(code, referralCode);
+    const { accessToken, user: userData, referralApplied, isNewUser } = res.data;
+    localStorage.setItem("accessToken", accessToken);
+    setUser(userData);
+    return { user: userData, referralApplied: referralApplied || null, isNewUser: !!isNewUser };
+  }, []);
+
   const register = useCallback(async ({ fullName, email, phone, password, referralCode }) => {
     const res = await authApi.register({
       fullName,
@@ -114,6 +123,7 @@ export function AuthProvider({ children }) {
         sendOtp,
         login,
         loginWithWidgetToken,
+        loginWithGoogle,
         loginWithPassword,
         register,
         logout,
