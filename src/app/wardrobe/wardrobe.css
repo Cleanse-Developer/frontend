@@ -226,6 +226,18 @@
   object-fit: cover;
 }
 
+/* Desktop: the top banner is a square, cropped to show the BOTTOM of the
+   (portrait) image — otherwise the tall image stretches the whole row. */
+@media (min-width: 1025px) {
+  .spotlight-banner {
+    aspect-ratio: 1 / 1;
+    align-self: start;
+  }
+  .spotlight-banner .spotlight-banner-img {
+    object-position: bottom;
+  }
+}
+
 /* Section 2: 4 Products in a Row */
 .section-row-2 {
   display: grid;
