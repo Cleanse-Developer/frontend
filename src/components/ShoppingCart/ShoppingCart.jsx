@@ -4,9 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
 import DiscountProgress from "@/components/DiscountProgress/DiscountProgress";
-import CheckoutAuthSheet from "@/components/CheckoutAuthSheet/CheckoutAuthSheet";
 import { formatPrice } from "@/lib/formatters";
 
 // Loyalty points rate: 1 point per ₹10 spent
@@ -150,22 +148,9 @@ const CrossSellProducts = ({ cartItems }) => {
 
 const ShoppingCart = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showAuthSheet, setShowAuthSheet] = useState(false);
   const { cartItems, removeFromCart, cartCount, subtotal, serverPricing } = useCart();
-  const { isAuthenticated } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-
-  // Checkout entry: logged-in users go straight to checkout; guests get the
-  // login / continue-as-guest bottom sheet first.
-  const startCheckout = () => {
-    setIsOpen(false);
-    if (isAuthenticated) {
-      router.push("/checkout");
-    } else {
-      setShowAuthSheet(true);
-    }
-  };
 
   const toggleCart = () => {
     setIsOpen(!isOpen);
@@ -326,7 +311,13 @@ const ShoppingCart = () => {
                   </>
                 )}
                 <LoyaltyPoints subtotal={subtotal} />
-                <button className="cart-checkout" onClick={startCheckout}>
+                <button
+                  className="cart-checkout"
+                  onClick={() => {
+                    setIsOpen(false);
+                    router.push("/checkout");
+                  }}
+                >
                   Checkout
                 </button>
               </div>
@@ -334,19 +325,6 @@ const ShoppingCart = () => {
           )}
         </div>
       </div>
-
-      <CheckoutAuthSheet
-        open={showAuthSheet}
-        onClose={() => setShowAuthSheet(false)}
-        onLogin={() => {
-          setShowAuthSheet(false);
-          router.push("/login?redirect=/checkout");
-        }}
-        onGuest={() => {
-          setShowAuthSheet(false);
-          router.push("/checkout");
-        }}
-      />
     </div>
   );
 };

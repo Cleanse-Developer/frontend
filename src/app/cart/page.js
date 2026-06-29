@@ -4,30 +4,15 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
 import { productApi, shippingApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import Copy from "@/components/Copy/Copy";
 import DiscountProgress from "@/components/DiscountProgress/DiscountProgress";
-import CheckoutAuthSheet from "@/components/CheckoutAuthSheet/CheckoutAuthSheet";
 import { toNum, formatPrice } from "@/lib/formatters";
 
 export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity, addToCart, cartCount, subtotal, serverPricing } = useCart();
-  const { isAuthenticated } = useAuth();
   const router = useRouter();
-
-  const [showAuthSheet, setShowAuthSheet] = useState(false);
-
-  // Checkout entry: logged-in users go straight to checkout; guests get the
-  // login / continue-as-guest bottom sheet first.
-  const startCheckout = () => {
-    if (isAuthenticated) {
-      router.push("/checkout");
-    } else {
-      setShowAuthSheet(true);
-    }
-  };
 
   const [giftWrap, setGiftWrap] = useState(false);
   const [giftMessage, setGiftMessage] = useState("");
@@ -229,7 +214,7 @@ export default function CartPage() {
             </div>
             <button
               className="cart-checkout-btn"
-              onClick={startCheckout}
+              onClick={() => router.push("/checkout")}
             >
               Proceed to Checkout
             </button>
@@ -297,19 +282,6 @@ export default function CartPage() {
           </div>
         </section>
       )}
-
-      <CheckoutAuthSheet
-        open={showAuthSheet}
-        onClose={() => setShowAuthSheet(false)}
-        onLogin={() => {
-          setShowAuthSheet(false);
-          router.push("/login?redirect=/checkout");
-        }}
-        onGuest={() => {
-          setShowAuthSheet(false);
-          router.push("/checkout");
-        }}
-      />
     </div>
   );
 }
