@@ -1,8 +1,14 @@
 "use client";
 import "./ChatSupport.css";
 import { useState, useRef, useEffect } from "react";
+import { useSettings } from "@/context/SettingsContext";
 
 const ChatSupport = () => {
+  // Use the SAME contact number as the footer so they always match.
+  const settings = useSettings();
+  const supportPhone = settings.cmsFooter?.contact?.phone || "+91 80000 00000";
+  const whatsappNumber = supportPhone.replace(/[^\d]/g, "");
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { type: "bot", text: "Hello! Welcome to Cleanse. How can I help you today?" }
@@ -60,7 +66,7 @@ const ChatSupport = () => {
 
   const handleQuickReply = (reply) => {
     if (reply === "Chat on WhatsApp") {
-      window.open("https://wa.me/919876543210", "_blank", "noopener,noreferrer");
+      window.open(`https://wa.me/${whatsappNumber}`, "_blank", "noopener,noreferrer");
       return;
     }
 
@@ -79,7 +85,7 @@ const ChatSupport = () => {
           response = "We offer a 30-day return policy for unused products in original packaging. Would you like to initiate a return?";
           break;
         case "Talk to support":
-          response = "Our support team is available Mon-Sat, 9 AM - 6 PM IST. You can also email support@cleanse.com or call +91 98765 43210.";
+          response = `Our support team is available Mon-Sat, 9 AM - 6 PM IST. You can also email support@cleanse.com or call ${supportPhone}.`;
           break;
         default:
           response = "How can I assist you further?";

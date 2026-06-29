@@ -300,7 +300,7 @@
 .blog-card-excerpt {
   display: none;
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 0.76rem + 0.3vw, 0.92rem);
+  font-size: clamp(0.78rem, 0.72rem + 0.28vw, 0.86rem);
   font-weight: 400;
   color: #666;
   line-height: 1.5;
@@ -434,7 +434,7 @@
   }
 
   .blog-section-title {
-    font-size: 1.25rem;
+    font-size: var(--fs-section-title);
   }
 
   .blog-view-all {
@@ -637,7 +637,7 @@
   }
 
   /* Smaller section heading on mobile */
-  .blog-section-title { font-size: 1.3rem; }
+  .blog-section-title { font-size: var(--fs-section-title); }
 
   /* Make the card meta (category/date) clearly visible on the dark cards */
   .blog-card-green .blog-card-category,

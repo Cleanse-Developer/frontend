@@ -3,7 +3,7 @@ import "./home.css";
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 
-import Preloader, { isInitialLoad } from "@/components/Preloader/Preloader";
+import { shouldPlayLoader } from "@/components/Preloader/Preloader";
 import MarqueeBanner from "@/components/MarqueeBanner/MarqueeBanner";
 // import TextBlock from "@/components/TextBlock/TextBlock";
 import PeelReveal from "@/components/PeelReveal/PeelReveal";
@@ -69,18 +69,24 @@ export default function Index() {
   /* No hardcoded fallback — only render slides once CMS images are loaded,
      otherwise an unrelated 4th image briefly flashes on reload */
   const cmsImages = settings.cmsHero?.carouselImages;
-  const heroImages = cmsImages?.length > 0
-    ? cmsImages.map((img) => img.url)
+  // Each carousel image carries a desktop `url` and an admin-uploaded mobile
+  // variant at `sources.mobile.url`. We pass BOTH to each slide as CSS vars so
+  // the mobile hero shows the uploaded mobile image (falls back to desktop).
+  const heroSlides = cmsImages?.length > 0
+    ? cmsImages.map((img) => ({
+        desktop: img.url,
+        mobile: img.sources?.mobile?.url || img.url,
+      }))
     : [];
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
   useEffect(() => {
-    if (heroImages.length <= 1) return;
+    if (heroSlides.length <= 1) return;
     const interval = setInterval(() => {
-      setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
+      setCurrentHeroIndex((prev) => (prev + 1) % heroSlides.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [heroImages.length]);
+  }, [heroSlides.length]);
 
   // Marketing popups state
   const [showFOMO, setShowFOMO] = useState(false);
@@ -184,7 +190,7 @@ export default function Index() {
 
   return (
     <>
-      <Preloader />
+      {/* Preloader is rendered once globally in client-layout (avoids a duplicate). */}
 
       {settings.promoBanner?.enabled !== false && (
         <div className="promo-bar">
@@ -199,11 +205,14 @@ export default function Index() {
           className="hero"
           ref={heroSectionRef}
         >
-          {heroImages.map((src, i) => (
+          {heroSlides.map((slide, i) => (
             <div
-              key={src}
+              key={slide.desktop}
               className={`hero-slide ${i === currentHeroIndex ? "active" : ""}`}
-              style={{ backgroundImage: `url(${src})` }}
+              style={{
+                "--hero-bg": `url(${slide.desktop})`,
+                "--hero-bg-mobile": `url(${slide.mobile})`,
+              }}
             />
           ))}
           <div className="container">
@@ -218,7 +227,7 @@ export default function Index() {
                   />
                 </span>
               </h1>
-              <Copy animateOnScroll={false} delay={isInitialLoad ? 4.2 : 0.85}>
+              <Copy animateOnScroll={false} delay={shouldPlayLoader() ? 4.2 : 0.85}>
                 <p className="hero-subtitle">{settings.cmsHero?.subtitle || "Natural Skin Care for Mindful Living"}</p>
               </Copy>
               <div className="hero-btn-wrapper">

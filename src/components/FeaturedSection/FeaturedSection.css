@@ -1249,7 +1249,8 @@
 
 .byr-card-image {
   width: 100%;
-  height: 250px;
+  /* Match the "Our Best Sellers" product cards' fixed height exactly. */
+  height: 377px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1288,6 +1289,11 @@
 .byr-card:hover .byr-card-image img {
   transform: scale(1.12);
 }
+
+/* Match the featured product cards' larger fixed heights on wide screens. */
+@media (min-width: 1440px) { .byr-card-image { height: 420px; } }
+@media (min-width: 1920px) { .byr-card-image { height: 480px; } }
+@media (min-width: 2560px) { .byr-card-image { height: 560px; } }
 
 .byr-card-info {
   padding: 0.75rem 0;
@@ -2862,10 +2868,16 @@
 }
 
 @media (hover: hover) {
+  /* Open the cart pill when hovering anywhere on the product card (not just the
+     button itself). Covers the standard card + the bento featured card. */
+  .product-card:hover .product-card-cart-btn,
+  .featured-product-card:hover .product-card-cart-btn,
   .product-card-cart-btn:hover {
     clip-path: inset(0 0 0 0 round 20px);
     -webkit-clip-path: inset(0 0 0 0 round 20px);
   }
+  .product-card:hover .product-card-cart-btn .cart-btn-text,
+  .featured-product-card:hover .product-card-cart-btn .cart-btn-text,
   .product-card-cart-btn:hover .cart-btn-text {
     opacity: 1;
   }

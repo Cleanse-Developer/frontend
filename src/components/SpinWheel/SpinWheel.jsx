@@ -266,6 +266,7 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
 
         <div className="spin-wheel-content">
           <div className="spin-wheel-left">
+            <img className="spin-wheel-promo-img" src="/popups/range-wide.webp" alt="Cleanse Ayurveda range" />
             <span className="spin-wheel-tag">EXCLUSIVE OFFER</span>
             <h2>Spin & Win</h2>
             <p>Try your luck and win exclusive discounts on our Ayurvedic collection</p>

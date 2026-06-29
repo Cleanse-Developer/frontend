@@ -15,7 +15,8 @@
   width: 100%;
   height: 50vh;
   min-height: 400px;
-  background-image: url('/images/hero.png');
+  /* Desktop hero image (mobile gets a portrait one below). */
+  background-image: url('/top-banner-mobile.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -213,6 +214,12 @@
   min-width: 0;
 }
 
+.spotlight-banner-pic {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .spotlight-banner-img {
   width: 100%;
   height: 100%;
@@ -281,12 +288,18 @@
   position: relative;
 }
 
+.side-banner-pic {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .side-banner-img {
   width: 100%;
-  height: 150%;
+  height: 100%;
   object-fit: cover;
-  object-position: center center;
-  margin-top: -25%;
+  object-position: center;
+  margin-top: 0;
 }
 
 /* Let the 4 cards participate directly in the section grid so they occupy
@@ -395,6 +408,8 @@
   .wardrobe-hero {
     height: 40vh;
     min-height: 300px;
+    /* Portrait phone hero image. */
+    background-image: url('/hero-bsnner.webp');
   }
 
   .wardrobe-hero-content {
@@ -497,7 +512,7 @@
     height: 100%;
     margin-top: 0;
     object-fit: cover;
-    object-position: center top;
+    object-position: center;
     border-radius: 31px !important;
     display: block;
   }
@@ -619,7 +634,7 @@
   .side-banner .side-banner-img {
     height: 100%;
     margin-top: 0;
-    object-position: center 30%;
+    object-position: center;
   }
 
   .products-beside-banner {
@@ -740,10 +755,10 @@
 
   .side-banner .side-banner-img {
     width: 100%;
-    height: 160%;
+    height: 100%;
     object-fit: cover;
-    object-position: center 40%;
-    margin-top: -30%;
+    object-position: center;
+    margin-top: 0;
   }
 
   .products-beside-banner {

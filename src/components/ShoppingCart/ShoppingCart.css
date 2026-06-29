@@ -10,9 +10,10 @@
 }
 
 .shopping-cart-container .cart-button {
-  position: absolute;
+  position: fixed;
   bottom: 2rem;
   right: 2rem;
+  z-index: 9971;
   background: #2E1F14;
   border: none;
   color: #fff;

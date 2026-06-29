@@ -243,7 +243,10 @@ function UnitContent({ params }) {
           });
       }
     }).catch(() => setLoading(false));
-  }, [slug, variantParam]);
+    // Only refetch when the product (slug) changes. Variant changes are handled
+    // locally (selectedSize) so switching size never refetches/flashes the page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
 
   const handleSubmitReview = async () => {
     if (!product?._id || !reviewForm.text.trim() || reviewSubmitting) return;
@@ -300,6 +303,25 @@ function UnitContent({ params }) {
   const galleryImages = product
     ? (product.images?.length > 0 ? [...product.images].sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0)).map(img => img.url) : [product.primaryImage, ...productImages])
     : [];
+
+  // Mobile: swipe the main image left/right to move through the gallery. Only
+  // horizontal swipes act (vertical gestures fall through to normal page scroll),
+  // and the thumbnail controls keep working unchanged.
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const onGalleryTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+  const onGalleryTouchEnd = (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      setActiveImage((i) =>
+        dx < 0 ? Math.min(i + 1, galleryImages.length - 1) : Math.max(i - 1, 0)
+      );
+    }
+  };
 
   const activeBundle = bundles[activeBundleIndex] || null;
   const bundleProducts = activeBundle ? (activeBundle.products || []).map(normalizeProduct) : [];
@@ -423,7 +445,11 @@ function UnitContent({ params }) {
     <div className="unit-page">
       <section className="product-hero">
         <div className="product-hero-col product-hero-left">
-          <div className="product-hero-image">
+          <div
+            className="product-hero-image"
+            onTouchStart={onGalleryTouchStart}
+            onTouchEnd={onGalleryTouchEnd}
+          >
             <img src={galleryImages[activeImage]} alt={product.name} />
           </div>
           <div className="product-thumbnails">
@@ -630,20 +656,20 @@ function UnitContent({ params }) {
                   >
                     <div className="bundle-card-image">
                       <img src={imgPath} alt={bp.name} />
+                      <div className="bundle-card-check">
+                        <div className={`bundle-check-circle ${bundleSelected[index] ? "checked" : ""}`}>
+                          {bundleSelected[index] && (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
                     </div>
                     <div className="bundle-card-info">
                       <p className="bundle-card-name">{bp.name}</p>
                       <p className="bundle-card-desc">{bp.shortDescription || bp.description}</p>
                       <p className="bundle-card-price">&#8377;{bp.price}</p>
-                    </div>
-                    <div className="bundle-card-check">
-                      <div className={`bundle-check-circle ${bundleSelected[index] ? "checked" : ""}`}>
-                        {bundleSelected[index] && (
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        )}
-                      </div>
                     </div>
                   </button>
                 );

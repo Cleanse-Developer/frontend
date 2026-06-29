@@ -34,7 +34,7 @@ export default function ProductCard({
   return (
     <article className={`ui-product-card ${className}`.trim()}>
       <ImageTag className="ui-product-card-media" {...imageProps}>
-        {image ? <img src={image} alt={name || "Product"} loading="lazy" /> : null}
+        {image ? <img src={image} alt={name || "Product"} /> : null}
         {discountPercent ? (
           <DiscountBadge percent={discountPercent} className="ui-product-card-badge" />
         ) : null}

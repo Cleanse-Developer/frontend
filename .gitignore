@@ -30,6 +30,9 @@ yarn-error.log*
 
 # macOS
 .DS_Store
+# AppleDouble metadata files (this volume isn't APFS; the OS keeps creating them)
+._*
+.AppleDouble
 
 # IDE
 .vscode/

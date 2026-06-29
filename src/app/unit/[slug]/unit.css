@@ -63,12 +63,13 @@
   position: relative;
   overflow: hidden;
   width: 100%;
-  max-width: 540px;
+  max-width: 620px;
   /* Keep it square but never taller than the viewport (leaves room for
      the column padding + the thumbnail row). */
-  max-height: calc(100svh - 340px);
+  max-height: calc(100svh - 300px);
   aspect-ratio: 1 / 1;
   border-radius: 1rem;
+  touch-action: pan-y;
 }
 
 .product-hero-image img {
@@ -86,7 +87,7 @@
   justify-content: center;
   gap: 0.6rem;
   width: 100%;
-  max-width: 540px;
+  max-width: 620px;
   scrollbar-width: none;
 }
 
@@ -513,7 +514,8 @@
   gap: 24px;
   max-width: var(--page-max);
   margin: 0 auto;
-  align-items: stretch;
+  /* Don't let the right-side summary stretch the cards — keep them fixed-height. */
+  align-items: start;
 }
 
 .bundle-grid {
@@ -522,16 +524,17 @@
   gap: 20px;
 }
 
+/* Match the home "Build Your Ritual" cards (.byr-card): the card itself is
+   transparent — the IMAGE is the rounded visual card and the name/price sit
+   BELOW it (not inside a solid card). */
 .bundle-card {
-  background-color: #fff;
-  /* Match the product cards' corner radius (16px) */
-  border-radius: 16px;
+  background-color: transparent;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: flex-start;
   cursor: pointer;
   border: none;
   padding: 0;
@@ -540,9 +543,21 @@
   transition: box-shadow 0.3s ease;
 }
 
-/* Overlay border on a pseudo-element so it paints ABOVE the (overflow-clipped,
-   scaled) product image and follows the card's rounded corners. */
-.bundle-card-selected::after {
+.bundle-card-image {
+  width: 100%;
+  /* Fixed height to match the home "Our Best Sellers" product cards exactly,
+     so bundle cards never resize with the right-side summary. */
+  height: 377px;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  border-radius: 16px;
+  background-color: #fff;
+}
+
+/* Selected border overlays the IMAGE (the visual card) and follows its corners. */
+.bundle-card-selected .bundle-card-image::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -552,32 +567,28 @@
   z-index: 3;
 }
 
-.bundle-card-image {
-  width: 100%;
-  /* Portrait like the home product cards (was a 220px square) */
-  aspect-ratio: 3 / 4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-}
-
 .bundle-card-image img {
-  min-width: 100%;
-  min-height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.25);
-  transition: transform 0.5s ease;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .bundle-card:hover .bundle-card-image img {
-  transform: scale(1.32);
+  transform: scale(1.04);
 }
 
+/* Match the featured product cards' larger fixed heights on wide screens. */
+@media (min-width: 1440px) { .bundle-card-image { height: 420px; } }
+@media (min-width: 1920px) { .bundle-card-image { height: 480px; } }
+@media (min-width: 2560px) { .bundle-card-image { height: 560px; } }
+
 .bundle-card-info {
-  padding: 0 1.25rem 1.25rem;
+  /* Sits BELOW the image, transparent (like the home byr cards). */
+  padding: 0.75rem 0 0;
   width: 100%;
+  background-color: transparent;
   text-align: left;
 }
 
@@ -613,8 +624,8 @@
 
 .bundle-card-check {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  bottom: 10px;
+  right: 10px;
   z-index: 2;
 }
 
@@ -1001,8 +1012,9 @@
 .info-tab-text {
   flex: 1;
   font-family: var(--font-body);
-  font-size: 1.25rem;
-  line-height: 1.8;
+  /* Match the product description on the right (was 1.25rem/1.8) */
+  font-size: 1.1rem;
+  line-height: 1.7;
   color: var(--base-500);
   max-width: 560px;
 }
@@ -1594,6 +1606,7 @@
   }
 
   .bundle-card-image {
+    height: auto;
     aspect-ratio: 3 / 4;
     padding: 1rem;
   }
@@ -1662,6 +1675,7 @@
   }
 
   .bundle-card-image {
+    height: auto;
     aspect-ratio: 3 / 4;
   }
 
@@ -1848,18 +1862,16 @@
     gap: 0.75rem;
   }
 
-  .bundle-card {
+  /* Taller image so the bundle cards aren't square — match the product cards */
+  .bundle-card-image {
+    height: auto;
+    aspect-ratio: 3 / 4;
+    padding: 0;
     border-radius: 12px;
   }
 
-  /* Taller image so the bundle cards aren't square — match the product cards */
-  .bundle-card-image {
-    aspect-ratio: 3 / 4;
-    padding: 0.5rem;
-  }
-
   .bundle-card-info {
-    padding: 0 0.6rem 0.75rem;
+    padding: 0.5rem 0 0;
   }
 
   .bundle-header {
@@ -2181,4 +2193,18 @@
   line-height: 1.65;
   color: rgba(68, 40, 36, 0.78);
   text-transform: none;
+}
+
+
+/* ===== Accordion (mobile/tablet) vs detailed tabs section (desktop) =====
+   Mobile/tablet: the hero accordion IS the content; the big tabs section is hidden.
+   Desktop: the accordion is hidden; the detailed tabs section is shown. */
+@media (min-width: 1025px) {
+  .product-accordion { display: none; }
+  /* Trim the excess whitespace below Ingredients / How To Use / Our Values */
+  .product-info-section { padding-top: 3.5rem; padding-bottom: 2.5rem; }
+  .info-tab-panel { padding: 2.25rem 0 0.75rem; }
+}
+@media (max-width: 1024px) {
+  .product-info-section { display: none; }
 }

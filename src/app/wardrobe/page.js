@@ -330,7 +330,15 @@ function WardrobeContent() {
               ))}
             </div>
             <div className="spotlight-banner">
-              <img src={activeCategory?.bannerTop || "/images/top.png"} alt="Featured Collection" className="spotlight-banner-img" />
+              {activeCategory?.bannerTop ? (
+                <img src={activeCategory.bannerTop} alt="Featured Collection" className="spotlight-banner-img" />
+              ) : (
+                /* Desktop shows the portrait top banner; mobile shows the landscape one. */
+                <picture className="spotlight-banner-pic">
+                  <source media="(max-width: 1024px)" srcSet="/top-banner-mobile.png" />
+                  <img src="/top-banner-desktop.png" alt="Featured Collection" className="spotlight-banner-img" />
+                </picture>
+              )}
             </div>
           </section>
 
@@ -350,11 +358,15 @@ function WardrobeContent() {
           {/* Section 3: Side Banner + 4 Products */}
           <section className="wardrobe-section section-row-3">
             <div className="side-banner">
-              <img
-                src="/herobanner.png"
-                alt={activeTag || "Featured"}
-                className="side-banner-img"
-              />
+              {/* Desktop shows the square banner; mobile shows the long one. */}
+              <picture className="side-banner-pic">
+                <source media="(max-width: 1024px)" srcSet="/banner-bottom.webp" />
+                <img
+                  src="/banner-bottom-desktop.png"
+                  alt={activeTag || "Ayurvedic Care, Real Results"}
+                  className="side-banner-img"
+                />
+              </picture>
             </div>
             <div className="products-beside-banner">
               {filteredProducts.slice(6, 10).map((product, index) => (

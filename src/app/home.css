@@ -76,6 +76,7 @@
 .hero-slide {
   position: absolute;
   inset: 0;
+  background-image: var(--hero-bg);
   background-size: cover;
   background-position: center 30%;
   background-repeat: no-repeat;
@@ -475,18 +476,11 @@
     max-width: 36ch;
   }
 
+  /* Use the CMS mobile hero image (each carousel image's uploaded mobile
+     source) instead of a hardcoded file; falls back to the desktop image. */
   .hero-slide {
-    display: none;
-  }
-
-  .hero::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url('/images/mobilehero.png');
+    background-image: var(--hero-bg-mobile, var(--hero-bg));
     background-position: center center;
-    background-size: cover;
-    z-index: 0;
   }
 
   .hero .hero-header {
@@ -926,18 +920,11 @@
     max-width: 32ch;
   }
 
+  /* Use the CMS mobile hero image (each carousel image's uploaded mobile
+     source) instead of a hardcoded file; falls back to the desktop image. */
   .hero-slide {
-    display: none;
-  }
-
-  .hero::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url('/images/mobilehero.png');
+    background-image: var(--hero-bg-mobile, var(--hero-bg));
     background-position: center center;
-    background-size: cover;
-    z-index: 0;
   }
 
   .hero .hero-header {

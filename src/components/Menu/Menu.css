@@ -16,6 +16,12 @@
   transform: translateY(0);
 }
 
+/* Product detail has no promo banner (home does), so the header doesn't need the
+   top offset that clears the banner — sit flush at the top. */
+.menu.menu-unit:not(.hidden):not(.page-transitioning) {
+  transform: translateY(0);
+}
+
 .menu.hidden {
   transform: translateY(calc(-100% - 50px));
   transition: transform 0.3s ease-in;
@@ -316,6 +322,35 @@
 
 .menu.nav-green .menu-hamburger-icon.open .menu-item {
   background: var(--base-100);
+}
+
+/* Adaptive header — product detail page. Its hero is LIGHT, so while the header
+   is transparent (not scrolled / not green) the nav content flips from white to
+   brown so it stays legible. On scroll it becomes the brown bar + light content
+   (.scrolled/.nav-green) like every other page. */
+.menu.menu-unit:not(.scrolled):not(.nav-green) .menu-nav-link,
+.menu.menu-unit:not(.scrolled):not(.nav-green) .menu-action-btn {
+  color: #663532;
+}
+
+.menu.menu-unit:not(.scrolled):not(.nav-green) .menu-trigger-icon .dot {
+  background: #663532;
+}
+
+.menu.menu-unit:not(.scrolled):not(.nav-green) .menu-item {
+  background: #663532;
+}
+
+/* EN · ₹ locale pill — brown on the transparent (light-hero) unit header too. */
+.menu.menu-unit:not(.scrolled):not(.nav-green) .menu-locale-pill {
+  color: #663532;
+  background: rgba(79, 44, 34, 0.06);
+  border-color: rgba(79, 44, 34, 0.35);
+}
+
+.menu.menu-unit:not(.scrolled):not(.nav-green) .menu-locale-current,
+.menu.menu-unit:not(.scrolled):not(.nav-green) .menu-locale-divider {
+  color: #663532;
 }
 
 .menu .menu-hamburger-icon.open .menu-item:first-child {

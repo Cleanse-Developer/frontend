@@ -304,7 +304,10 @@ button.secondary {
   height: 100vh;
   height: 100dvh;
   pointer-events: none;
-  z-index: 100;
+  /* Above the header (z 1000) so the wipe covers it during a page transition —
+     otherwise the brown header peeks over the transition. It's pointer-events:none
+     and invisible (blocks scaleX 0) when idle, so this is safe. */
+  z-index: 1100;
   overflow: hidden;
 }
 

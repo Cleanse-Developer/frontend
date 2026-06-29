@@ -151,9 +151,10 @@
   font-size: clamp(1.6rem, 3.4vw, 3rem);
   max-width: 920px;
 }
-.ritual-intro-body {
+.bodyCopy.ritual-intro-body {
   color: var(--base-500);
   max-width: 640px;
+  font-size: clamp(1rem, 0.7vw, 1.1rem);
 }
 
 /* ===================== Flow head / toggle ===================== */
@@ -225,7 +226,7 @@
   text-transform: none;
   color: var(--base-500);
   line-height: 1.5;
-  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  font-size: clamp(0.92rem, 1.2vw, 1.05rem);
   max-width: 560px;
 }
 .ritual-flow-meta {
@@ -350,13 +351,14 @@
   text-transform: none;
   color: var(--base-500);
   line-height: 1.55;
-  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  font-size: clamp(0.88rem, 1.05vw, 1rem);
   max-width: 460px;
 }
-.ritual-step-desc {
+.bodyCopy.ritual-step-desc {
   color: var(--base-400);
   font-style: italic;
   max-width: 460px;
+  font-size: clamp(0.95rem, 0.7vw, 1.05rem);
 }
 .ritual-step-tags {
   display: flex;

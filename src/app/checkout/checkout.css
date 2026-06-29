@@ -1088,14 +1088,17 @@
   position: absolute;
   top: -5px;
   right: -5px;
-  width: 20px;
+  min-width: 20px;
+  width: auto;
   height: 20px;
+  padding: 0 5px;
+  box-sizing: border-box;
   background: var(--base-700);
   color: var(--base-100);
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-weight: 600;
-  border-radius: 50%;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1208,7 +1211,9 @@
 
   .checkout-summary-items {
     flex: none;
-    max-height: 240px;
+    max-height: none;
+    overflow-y: visible;
+    overscroll-behavior: auto;
   }
 
   .checkout-hero-content {
@@ -1437,7 +1442,9 @@
   }
 
   .checkout-summary-items {
-    max-height: 240px;
+    max-height: none;
+    overflow-y: visible;
+    overscroll-behavior: auto;
   }
 }
 

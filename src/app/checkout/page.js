@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
+import { useLenis } from "lenis/react";
 import { useAuth } from "@/context/AuthContext";
 import { authApi, couponApi, specialCouponApi, orderApi, paymentApi, checkoutApi, addressApi, shippingApi, loyaltyApi } from "@/lib/endpoints";
 import { useToast } from "@/context/ToastContext";
@@ -113,6 +114,13 @@ export default function CheckoutPage() {
   // Guest. Choosing "guest" reveals the full contact + address form.
   const [guestMode, setGuestMode] = useState(false);
   const stepRef = useRef(1);
+  const lenis = useLenis();
+  // Land at the top of every checkout step. On mobile the next step was opening at
+  // the footer because the page kept the previous step's scroll position.
+  useEffect(() => {
+    if (lenis) lenis.scrollTo(0, { immediate: true, force: true });
+    else if (typeof window !== "undefined") window.scrollTo(0, 0);
+  }, [activeStep, lenis]);
   // Scroll target: selecting a saved address (or "New Address") scrolls down to
   // the shipping form so the user sees it populate / can fill it in.
   const shippingFormRef = useRef(null);
@@ -183,6 +191,15 @@ export default function CheckoutPage() {
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderError, setOrderError] = useState("");
   const [placedOrder, setPlacedOrder] = useState(null);
+
+  // On order confirmation, jump to the top so the "Order Confirmed" hero is in
+  // view — the page was scrolled down at the Place Order button, so otherwise the
+  // confirmation renders with the footer showing instead of the hero.
+  useEffect(() => {
+    if (!placedOrder) return;
+    if (lenis) lenis.scrollTo(0, { immediate: true, force: true });
+    else window.scrollTo(0, 0);
+  }, [placedOrder, lenis]);
 
   // Loyalty redemption state (only for authenticated users)
   const [loyaltyBalance, setLoyaltyBalance] = useState(0);

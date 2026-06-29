@@ -505,8 +505,16 @@ const Menu = () => {
 
   // Sync scrolled + navGreen state on route change
   useEffect(() => {
-    if (!isHomePage) {
-      // All non-home pages: always solid brown (no transparency / no scroll adapting)
+    if (isUnitPage) {
+      // Product detail: behave like home — transparent over the (light) hero,
+      // solid brown once scrolled past it. Scrolled + green move together so the
+      // brown bar always carries light content.
+      const heroHeight = window.innerHeight - 100;
+      const scrolled = window.scrollY >= heroHeight;
+      setIsScrolled(scrolled);
+      setIsNavGreen(scrolled);
+    } else if (!isHomePage) {
+      // Other non-home pages: always solid brown.
       setIsScrolled(true);
       setIsNavGreen(true);
     } else {
@@ -517,7 +525,7 @@ const Menu = () => {
         setIsNavGreen(false);
       }
     }
-  }, [pathname, isHomePage]);
+  }, [pathname, isHomePage, isUnitPage]);
 
   // Force the overlay fully CLOSED whenever the route changes. The close
   // animation's GSAP onComplete (which sets isOpen=false) can be interrupted by
@@ -617,6 +625,20 @@ const Menu = () => {
         }
       }
 
+      // Product detail: transparent over the light hero, brown (scrolled + green)
+      // past it. Scrolled and green toggle together so the brown bar always has
+      // light content; on the hero the transparent header uses dark content.
+      if (isUnitPage) {
+        const threshold = isMobile ? 36 : heroHeight;
+        if (currentScrollY >= threshold && !isScrolled) {
+          setIsScrolled(true);
+          setIsNavGreen(true);
+        } else if (currentScrollY < threshold && isScrolled) {
+          setIsScrolled(false);
+          setIsNavGreen(false);
+        }
+      }
+
       // On mobile: hide the header when scrolling down, reveal it on scroll up.
       if (isMobile) {
         if (scrollDiff > 4 && currentScrollY > 80) {
@@ -688,7 +710,7 @@ const Menu = () => {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [isOpen, isMobile, isScrolled, isNavGreen, isHomePage]);
+  }, [isOpen, isMobile, isScrolled, isNavGreen, isHomePage, isUnitPage]);
 
   // Re-apply hidden class after React re-renders during nav style transition
   // (scrolled green → transparent). Without this, React's re-render overwrites
@@ -700,7 +722,7 @@ const Menu = () => {
   }, [isScrolled, isNavGreen]);
 
   return (
-    <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isNavGreen ? 'nav-green' : ''} ${isOpen ? 'menu-open' : ''} ${isPageTransitioning ? 'page-transitioning' : ''} ${isHomePage ? 'menu-has-banner' : ''}`} ref={menuRef}>
+    <nav className={`menu ${isScrolled ? 'scrolled' : ''} ${isNavGreen ? 'nav-green' : ''} ${isOpen ? 'menu-open' : ''} ${isPageTransitioning ? 'page-transitioning' : ''} ${isHomePage ? 'menu-has-banner' : ''} ${isUnitPage ? 'menu-unit' : ''}`} ref={menuRef}>
       <div className="menu-header">
         {/* Single hero header used in all states; gains a brown bg on scroll */}
         <div className="menu-header-full">

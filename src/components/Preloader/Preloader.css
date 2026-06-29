@@ -64,8 +64,19 @@
   text-transform: uppercase;
   color: #C9A86A;
   line-height: 1;
+  white-space: nowrap;
+  max-width: 100%;
   opacity: 0;
   will-change: transform, opacity;
+}
+
+/* Keep the statement on a single line on small phones (tighten tracking + size
+   so it never wraps or overflows at 320–414px). */
+@media (max-width: 480px) {
+  .preloader-tagline { letter-spacing: 0.16em; font-size: 0.62rem; }
+}
+@media (max-width: 360px) {
+  .preloader-tagline { letter-spacing: 0.1em; font-size: 0.56rem; }
 }
 
 /* Thin progress bar under the brand. */

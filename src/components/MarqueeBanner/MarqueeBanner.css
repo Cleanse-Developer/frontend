@@ -864,6 +864,12 @@
     transition: none !important;
   }
 
+  /* While opening, ease the cards from the stacked deck into the carousel; the
+     class is removed after the morph so dragging stays instant. */
+  .marquee-banner .reels-container.is-carousel.is-entering .reel-card {
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  }
+
   /* Tap hint + carousel dots */
   .marquee-banner .reel-mobile-controls {
     width: 100%;

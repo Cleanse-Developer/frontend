@@ -1,6 +1,6 @@
 "use client";
 import "./MarqueeBanner.css";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { useSettings } from "@/context/SettingsContext";
 
 import gsap from "gsap";
@@ -8,6 +8,10 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// useLayoutEffect on the client (paint the carousel before the browser shows a
+// frame), useEffect on the server to avoid the SSR warning.
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const DEFAULT_REELS = [
   { id: 1, title: "Morning Ritual", subtitle: "Golden Hour Glow", video: "/videos/reel1.mp4", poster: "/images/REEL 1.png", position: "left-top" },
@@ -38,6 +42,7 @@ const MarqueeBanner = () => {
   // --- Mobile: stacked deck that taps open into a momentum carousel ---------
   const [isMobile, setIsMobile] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [entering, setEntering] = useState(false); // brief eased window for the open morph
   const [activeIndex, setActiveIndex] = useState(0); // centre card, for the dots
   const N = reelsData.length;
 
@@ -114,6 +119,23 @@ const MarqueeBanner = () => {
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
   }, [isMobile, expanded, N]);
+
+  // Paint the spread layout synchronously on expand — before the browser shows the
+  // centred fallback frame — which kills the one-frame "snap to centre" jerk.
+  useIsoLayoutEffect(() => {
+    if (!isMobile || !expanded) return;
+    posRef.current = 0;
+    paintCards();
+  }, [isMobile, expanded]);
+
+  // Enable a one-shot eased transition for the open morph, then remove it so the
+  // drag stays 1:1 responsive.
+  useEffect(() => {
+    if (!expanded) { setEntering(false); return; }
+    setEntering(true);
+    const t = setTimeout(() => setEntering(false), 600);
+    return () => clearTimeout(t);
+  }, [expanded]);
 
   const STEP_PX = 150; // finger px ~ one card
 
@@ -217,7 +239,7 @@ const MarqueeBanner = () => {
       </div>
 
       <div
-        className={`reels-container ${isMobile ? (expanded ? "is-carousel" : "is-stacked") : ""}`}
+        className={`reels-container ${isMobile ? (expanded ? `is-carousel${entering ? " is-entering" : ""}` : "is-stacked") : ""}`}
         onClick={() => { if (isMobile && !expanded) setExpanded(true); }}
       >
         {reelsData.map((reel, i) => (
