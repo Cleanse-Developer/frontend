@@ -1,0 +1,3 @@
+# Build output: store verbatim, no line-ending normalization, treat as binary.
+# Keeps prebuilt .next identical across local (Windows) and EC2 (Linux).
+.next/** -text -diff
