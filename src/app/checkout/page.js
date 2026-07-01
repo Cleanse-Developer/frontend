@@ -1828,7 +1828,7 @@ export default function CheckoutPage() {
               <div className="checkout-summary-line">
                 <span className="checkout-summary-shipping-label">
                   Shipping
-                  <ShippingChargesInfo breakdown={shippingBreakdown} position="right" />
+                  <ShippingChargesInfo breakdown={shippingBreakdown} position="top" />
                 </span>
                 <span>{shippingCost === 0 ? "Free" : `\u20B9${formatPrice(shippingCost)}`}</span>
               </div>

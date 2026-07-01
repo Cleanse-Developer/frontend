@@ -20,9 +20,13 @@
   color: var(--base-600, #555);
 }
 
-/* The tooltip bubble comes from ui/overlays/Tooltip.css with white-space:nowrap;
-   our rows are block elements so they stack — override alignment + spacing. */
+/* The tooltip bubble comes from ui/overlays/Tooltip.css with white-space:nowrap.
+   Our content is a small stacked table — override to a compact, wrapping box so
+   it never spans a wide dark slab across the summary. */
 .shipping-info-tip .ui-tooltip-bubble {
+  white-space: normal;
+  width: max-content;
+  max-width: 220px;
   text-align: left;
   line-height: 1.45;
 }
