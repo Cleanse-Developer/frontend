@@ -14,50 +14,37 @@
   color: var(--base-400);
   cursor: help;
   vertical-align: middle;
+  outline: none;
   transition: color 0.15s ease;
 }
-.shipping-info-icon:hover {
+.shipping-info-icon:hover,
+.shipping-info-icon:focus-visible {
   color: var(--base-700);
 }
 
-/* Tooltip bubble (base style from ui/overlays/Tooltip.css: dark brown bg). Our
-   content is a compact breakdown table — override for a high-contrast card that
-   matches the storefront's warm palette. */
-.shipping-info-tip .ui-tooltip-bubble {
-  white-space: normal;
+/* Portaled bubble on <body> (fixed positioning) — isolated from host container
+   styles so it renders identically on the cart page, checkout and mini-cart.
+   Every colour is set explicitly here; nothing is inherited. */
+.shipping-info-bubble {
+  position: fixed;
+  z-index: 9999;
+  box-sizing: border-box;
   width: max-content;
   min-width: 168px;
-  max-width: 240px;
+  max-width: min(240px, calc(100vw - 16px));
   padding: 0.6rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
   text-align: left;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.72rem;
+  line-height: 1.35;
   background: var(--base-700);
   color: var(--base-100);
   border-radius: 0.5rem;
   box-shadow: 0 10px 26px rgba(46, 31, 20, 0.32);
-}
-
-/* Anchor the bubble below-and-left-aligned to the icon so it always stays inside
-   the narrow summary card (the default top-centered placement hangs off the left
-   edge). Specificity here beats ui-tooltip--{position} from the base Tooltip.css. */
-.ui-tooltip.shipping-info-tip .ui-tooltip-bubble {
-  top: 100%;
-  bottom: auto;
-  left: 0;
-  right: auto;
-  margin: 0.45rem 0 0 0;
-  transform: translateY(4px);
-}
-.ui-tooltip.shipping-info-tip:hover .ui-tooltip-bubble,
-.ui-tooltip.shipping-info-tip:focus-visible .ui-tooltip-bubble {
-  transform: translateY(0);
-}
-
-.shipping-info-tip-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  font-size: 0.72rem;
-  line-height: 1.35;
+  pointer-events: none;
 }
 
 .shipping-info-title {
@@ -72,7 +59,7 @@
 }
 
 /* method (left) + rate (right); an optional per-method "Free above" note wraps
-   full-width beneath (only used when methods have different thresholds). */
+   full-width beneath (only when methods have different thresholds). */
 .shipping-info-row {
   display: grid;
   grid-template-columns: 1fr auto;
