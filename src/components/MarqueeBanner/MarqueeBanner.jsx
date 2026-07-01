@@ -13,10 +13,12 @@ gsap.registerPlugin(ScrollTrigger);
 // frame), useEffect on the server to avoid the SSR warning.
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
+// video: null — placeholders had local /videos paths that don't exist; a reel is
+// only treated as playable when the CMS provides a re-hosted video URL.
 const DEFAULT_REELS = [
-  { id: 1, title: "Morning Ritual", subtitle: "Golden Hour Glow", video: "/videos/reel1.mp4", poster: "/images/REEL 1.png", position: "left-top", reelUrl: "https://www.instagram.com/reel/C_BRnIQyDWs/" },
-  { id: 2, title: "Sacred Rituals", subtitle: "Embrace Your Natural Glow", video: "/videos/reel2.mp4", poster: "/images/REEL 2.png", position: "center", reelUrl: "https://www.instagram.com/reel/C3hdGOWphsG/" },
-  { id: 3, title: "Evening Care", subtitle: "Restore & Rejuvenate", video: "/videos/reel3.mp4", poster: "/images/REEL 3.png", position: "right-bottom", reelUrl: "https://www.instagram.com/reel/C5msAMFMHx-/" },
+  { id: 1, title: "Morning Ritual", subtitle: "Golden Hour Glow", video: null, poster: "/images/REEL 1.png", position: "left-top", reelUrl: "https://www.instagram.com/reel/C_BRnIQyDWs/" },
+  { id: 2, title: "Sacred Rituals", subtitle: "Embrace Your Natural Glow", video: null, poster: "/images/REEL 2.png", position: "center", reelUrl: "https://www.instagram.com/reel/C3hdGOWphsG/" },
+  { id: 3, title: "Evening Care", subtitle: "Restore & Rejuvenate", video: null, poster: "/images/REEL 3.png", position: "right-bottom", reelUrl: "https://www.instagram.com/reel/C5msAMFMHx-/" },
 ];
 
 const DEFAULT_POSTERS = { "left-top": "/images/REEL 1.png", center: "/images/REEL 2.png", "right-bottom": "/images/REEL 3.png" };
@@ -29,8 +31,8 @@ const MarqueeBanner = () => {
     id: i + 1,
     title: r.title,
     subtitle: r.subtitle,
-    video: r.video?.url || DEFAULT_REELS[i]?.video,
-    poster: DEFAULT_REELS[i]?.poster || r.posterImage?.url || DEFAULT_POSTERS[r.position],
+    video: r.video?.url || null,
+    poster: r.posterImage?.url || DEFAULT_POSTERS[r.position] || DEFAULT_REELS[i]?.poster,
     position: r.position,
     reelUrl: r.reelUrl || DEFAULT_REELS[i]?.reelUrl,
   })) : DEFAULT_REELS;
@@ -168,16 +170,18 @@ const MarqueeBanner = () => {
     velRef.current = Math.max(-0.55, Math.min(0.55, velRef.current)); // cap the flick
   };
 
-  // Open the reel on Instagram in a new tab. On mobile, the first tap expands
-  // the stacked deck (matches the "Tap to view" hint); a tap on an expanded
-  // card opens the reel. We deliberately link out rather than embedding so no
-  // Instagram chrome/iframe renders over our UI and nothing autoplays.
-  const openReel = (reel) => {
+  // Card click behaviour. On mobile, the first tap expands the stacked deck
+  // (matches the "Tap to view" hint). For reels WITHOUT a hosted video, a click
+  // opens the Instagram reel in a new tab. For reels WITH a hosted video, the
+  // click does nothing here — the inline <video> controls handle play, and the
+  // "Reel ↗" badge handles the Instagram redirect. We never embed Instagram, so
+  // no IG chrome renders over our UI and nothing autoplays.
+  const handleCardClick = (reel) => {
     if (isMobile && !expanded) {
       setExpanded(true);
       return;
     }
-    if (reel.reelUrl) {
+    if (!reel.video && reel.reelUrl) {
       window.open(reel.reelUrl, "_blank", "noopener,noreferrer");
     }
   };
@@ -266,33 +270,69 @@ const MarqueeBanner = () => {
               ...(isMobile && !expanded ? getStackedStyle(i) : {}),
               cursor: reel.reelUrl ? "pointer" : "default",
             }}
-            onClick={() => openReel(reel)}
+            onClick={() => handleCardClick(reel)}
             onTouchStart={onCardTouchStart}
             onTouchMove={onCardTouchMove}
             onTouchEnd={onCardTouchEnd}
           >
             <div className="reel-card-inner">
               <div className="reel-media">
-                <img
-                  src={reel.poster}
-                  alt={reel.title}
-                  className="reel-poster"
-                  loading="lazy"
-                />
+                {reel.video ? (
+                  // Self-hosted playback (no autoplay, no Instagram chrome).
+                  // stopPropagation so using the controls doesn't trigger the
+                  // card click. preload="none" → only the poster shows until play.
+                  <video
+                    src={reel.video}
+                    poster={reel.poster}
+                    className="reel-poster"
+                    controls
+                    playsInline
+                    preload="none"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <img
+                    src={reel.poster}
+                    alt={reel.title}
+                    className="reel-poster"
+                    loading="lazy"
+                  />
+                )}
                 <div className="reel-overlay"></div>
               </div>
 
-              <div className="reel-content">
-                <span className="reel-badge">Reel</span>
+              {/* When a video is present, the overlay is visual-only (so the
+                  video controls remain clickable); the badge stays clickable to
+                  open the reel on Instagram. */}
+              <div
+                className="reel-content"
+                style={reel.video ? { pointerEvents: "none" } : undefined}
+              >
+                {reel.reelUrl ? (
+                  <a
+                    className="reel-badge"
+                    href={reel.reelUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ pointerEvents: "auto" }}
+                  >
+                    Reel ↗
+                  </a>
+                ) : (
+                  <span className="reel-badge">Reel</span>
+                )}
                 <div className="reel-info">
                   <p className="reel-subtitle">{reel.subtitle}</p>
                   <h4 className="reel-title">{reel.title}</h4>
                 </div>
-                <div className="reel-play">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M8 5.14v14.72a1 1 0 001.5.86l11-7.36a1 1 0 000-1.72l-11-7.36a1 1 0 00-1.5.86z" fill="currentColor"/>
-                  </svg>
-                </div>
+                {!reel.video && (
+                  <div className="reel-play">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M8 5.14v14.72a1 1 0 001.5.86l11-7.36a1 1 0 000-1.72l-11-7.36a1 1 0 00-1.5.86z" fill="currentColor"/>
+                    </svg>
+                  </div>
+                )}
               </div>
 
               <div className="reel-shine"></div>

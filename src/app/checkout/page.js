@@ -13,6 +13,7 @@ import { validateField, validateShippingForm, validateBillingForm, validatePhone
 import { saveCheckoutData, loadCheckoutData, clearCheckoutData } from "@/lib/checkoutStorage";
 import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, extractWidgetToken } from "@/lib/msg91";
 import CouponModal from "./CouponModal";
+import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
 import { formatPrice } from "@/lib/formatters";
 
 // Map a backend coupon-rejection reason to a friendly modal title.
@@ -236,6 +237,19 @@ export default function CheckoutPage() {
   // ── Server pricing state ──
   const [checkoutPricing, setCheckoutPricing] = useState(null);
 
+  // Per-method delivery-charge breakdown (prepaid vs COD) for the info tooltip.
+  // Zone-aware once a valid pincode/state is entered.
+  const [shippingBreakdown, setShippingBreakdown] = useState(null);
+  useEffect(() => {
+    const params = {};
+    if (/^\d{6}$/.test(shipping.pincode)) params.pincode = shipping.pincode;
+    if (shipping.state) params.state = shipping.state;
+    shippingApi
+      .getConfig(params)
+      .then((cfg) => setShippingBreakdown(cfg))
+      .catch(() => {});
+  }, [shipping.pincode, shipping.state]);
+
   // Fetch server pricing on mount and when cart/coupon/loyalty changes
   useEffect(() => {
     if (cartItems.length === 0) {
@@ -243,12 +257,16 @@ export default function CheckoutPage() {
       return;
     }
     const appliedCoupon = couponStatus === "valid" && !appliedSpecialCode ? couponCode.trim() : "";
-    fetchPricingPreview(appliedCoupon, false, appliedSpecialCode || null, loyaltyApplied)
+    fetchPricingPreview(appliedCoupon, false, appliedSpecialCode || null, loyaltyApplied, {
+      paymentMethod,
+      pincode: shipping.pincode,
+      state: shipping.state,
+    })
       .then((pricing) => {
         setCheckoutPricing(pricing);
       })
       .catch(() => {});
-  }, [cartItems, couponStatus, couponCode, appliedSpecialCode, loyaltyApplied, fetchPricingPreview]);
+  }, [cartItems, couponStatus, couponCode, appliedSpecialCode, loyaltyApplied, paymentMethod, shipping.pincode, shipping.state, fetchPricingPreview]);
 
   // Fetch loyalty balance + config when authenticated
   useEffect(() => {
@@ -760,7 +778,11 @@ export default function CheckoutPage() {
         setCouponStatus("valid");
         setCouponDiscount(data.discount || 0);
         setCouponDiscountType(data.discountType || "percentage");
-        fetchPricingPreview(code, false, null, loyaltyApplied)
+        fetchPricingPreview(code, false, null, loyaltyApplied, {
+          paymentMethod,
+          pincode: shipping.pincode,
+          state: shipping.state,
+        })
           .then((pricing) => setCheckoutPricing(pricing))
           .catch(() => {});
         setCouponLoading(false);
@@ -787,7 +809,11 @@ export default function CheckoutPage() {
         setCouponDiscount(0);
         setCouponDiscountType("special");
         setAppliedSpecialCode(code);
-        fetchPricingPreview(null, false, code, loyaltyApplied)
+        fetchPricingPreview(null, false, code, loyaltyApplied, {
+          paymentMethod,
+          pincode: shipping.pincode,
+          state: shipping.state,
+        })
           .then((pricing) => setCheckoutPricing(pricing))
           .catch(() => {});
       } else {
@@ -1800,7 +1826,10 @@ export default function CheckoutPage() {
                 </div>
               )}
               <div className="checkout-summary-line">
-                <span>Shipping</span>
+                <span className="checkout-summary-shipping-label">
+                  Shipping
+                  <ShippingChargesInfo breakdown={shippingBreakdown} position="right" />
+                </span>
                 <span>{shippingCost === 0 ? "Free" : `\u20B9${formatPrice(shippingCost)}`}</span>
               </div>
               <div className="checkout-summary-line checkout-summary-total">

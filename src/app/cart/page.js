@@ -8,6 +8,7 @@ import { productApi, shippingApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import Copy from "@/components/Copy/Copy";
 import DiscountProgress from "@/components/DiscountProgress/DiscountProgress";
+import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
 import { toNum, formatPrice } from "@/lib/formatters";
 
 export default function CartPage() {
@@ -204,7 +205,10 @@ export default function CartPage() {
                 </div>
               )}
               <div className="cart-summary-line cart-summary-shipping">
-                <span>Shipping</span>
+                <span className="cart-summary-shipping-label">
+                  Shipping
+                  <ShippingChargesInfo breakdown={shippingConfig} />
+                </span>
                 <span>{qualifiesFreeShipping ? "Free" : `₹${formatPrice(shippingCost)}`}</span>
               </div>
               <div className="cart-summary-line cart-summary-total">

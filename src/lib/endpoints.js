@@ -22,22 +22,37 @@ export const bundleApi = {
 };
 
 // ── Cart (pricing preview) ──
+// opts carries { paymentMethod, pincode, state } so the preview reflects the
+// per-method (COD vs prepaid) delivery charge and the delivery zone.
 export const cartPricingApi = {
-  preview: (couponCode, giftWrap, specialCouponCode, loyaltyPointsToRedeem = 0) =>
+  preview: (couponCode, giftWrap, specialCouponCode, loyaltyPointsToRedeem = 0, opts = {}) =>
     api
       .post("/cart/preview-pricing", {
         couponCode,
         giftWrap,
         specialCouponCode,
         loyaltyPointsToRedeem,
+        paymentMethod: opts.paymentMethod,
+        pincode: opts.pincode,
+        state: opts.state,
       })
       .then((r) => r.data.data.pricing),
 };
 
 // ── Guest pricing (public, no auth) ──
 export const guestPricingApi = {
-  calculate: (items, couponCode, giftWrap, specialCouponCode) =>
-    api.post("/pricing/guest", { items, couponCode, giftWrap, specialCouponCode }).then((r) => r.data.data.pricing),
+  calculate: (items, couponCode, giftWrap, specialCouponCode, opts = {}) =>
+    api
+      .post("/pricing/guest", {
+        items,
+        couponCode,
+        giftWrap,
+        specialCouponCode,
+        paymentMethod: opts.paymentMethod,
+        pincode: opts.pincode,
+        state: opts.state,
+      })
+      .then((r) => r.data.data.pricing),
 };
 
 // ── Blogs ──

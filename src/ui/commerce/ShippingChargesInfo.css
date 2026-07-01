@@ -1,0 +1,53 @@
+/* Shipping-line label wrapping the text + info icon (cart + checkout summaries). */
+.cart-summary-shipping-label,
+.checkout-summary-shipping-label {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Info "i" icon shown next to the Shipping line, revealing COD vs prepaid rates. */
+.shipping-info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.3rem;
+  color: var(--base-400, #9a9a9a);
+  cursor: help;
+  vertical-align: middle;
+  transition: color 0.15s ease;
+}
+.shipping-info-icon:hover {
+  color: var(--base-600, #555);
+}
+
+/* The tooltip bubble comes from ui/overlays/Tooltip.css with white-space:nowrap;
+   our rows are block elements so they stack — override alignment + spacing. */
+.shipping-info-tip .ui-tooltip-bubble {
+  text-align: left;
+  line-height: 1.45;
+}
+.shipping-info-tip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.shipping-info-title {
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+.shipping-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.shipping-info-method {
+  opacity: 0.8;
+}
+.shipping-info-value em {
+  font-style: normal;
+  opacity: 0.7;
+}
+.shipping-info-zone {
+  margin-top: 0.2rem;
+  opacity: 0.7;
+}

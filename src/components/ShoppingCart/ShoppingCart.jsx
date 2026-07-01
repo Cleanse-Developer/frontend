@@ -5,6 +5,8 @@ import { useRouter, usePathname } from "next/navigation";
 
 import { useCart } from "@/context/CartContext";
 import DiscountProgress from "@/components/DiscountProgress/DiscountProgress";
+import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
+import { shippingApi } from "@/lib/endpoints";
 import { formatPrice, cardPrice } from "@/lib/formatters";
 
 // Loyalty points rate: 1 point per ₹10 spent
@@ -152,6 +154,17 @@ const ShoppingCart = () => {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Per-method delivery charges (prepaid vs COD) for the Shipping info tooltip.
+  // Fetched lazily the first time the bag is opened.
+  const [shippingBreakdown, setShippingBreakdown] = useState(null);
+  useEffect(() => {
+    if (!isOpen || shippingBreakdown) return;
+    shippingApi
+      .getConfig()
+      .then((cfg) => setShippingBreakdown(cfg))
+      .catch(() => {});
+  }, [isOpen, shippingBreakdown]);
+
   const toggleCart = () => {
     setIsOpen(!isOpen);
   };
@@ -289,7 +302,10 @@ const ShoppingCart = () => {
                     ))}
                     {serverPricing.shippingCost > 0 && (
                       <div className="cart-summary-row">
-                        <span>Shipping</span>
+                        <span className="cart-summary-shipping-label">
+                          Shipping
+                          <ShippingChargesInfo breakdown={shippingBreakdown} />
+                        </span>
                         <span>&#8377;{formatPrice(serverPricing.shippingCost)}</span>
                       </div>
                     )}
