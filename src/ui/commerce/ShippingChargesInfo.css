@@ -10,48 +10,100 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: 0.3rem;
-  color: var(--base-400, #9a9a9a);
+  margin-left: 0.35rem;
+  color: var(--base-400);
   cursor: help;
   vertical-align: middle;
   transition: color 0.15s ease;
 }
 .shipping-info-icon:hover {
-  color: var(--base-600, #555);
+  color: var(--base-700);
 }
 
-/* The tooltip bubble comes from ui/overlays/Tooltip.css with white-space:nowrap.
-   Our content is a small stacked table — override to a compact, wrapping box so
-   it never spans a wide dark slab across the summary. */
+/* Tooltip bubble (base style from ui/overlays/Tooltip.css: dark brown bg). Our
+   content is a compact breakdown table — override for a high-contrast card that
+   matches the storefront's warm palette. */
 .shipping-info-tip .ui-tooltip-bubble {
   white-space: normal;
   width: max-content;
-  max-width: 220px;
+  min-width: 168px;
+  max-width: 240px;
+  padding: 0.6rem 0.7rem;
   text-align: left;
-  line-height: 1.45;
+  background: var(--base-700);
+  color: var(--base-100);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 26px rgba(46, 31, 20, 0.32);
 }
+
+/* Anchor the bubble below-and-left-aligned to the icon so it always stays inside
+   the narrow summary card (the default top-centered placement hangs off the left
+   edge). Specificity here beats ui-tooltip--{position} from the base Tooltip.css. */
+.ui-tooltip.shipping-info-tip .ui-tooltip-bubble {
+  top: 100%;
+  bottom: auto;
+  left: 0;
+  right: auto;
+  margin: 0.45rem 0 0 0;
+  transform: translateY(4px);
+}
+.ui-tooltip.shipping-info-tip:hover .ui-tooltip-bubble,
+.ui-tooltip.shipping-info-tip:focus-visible .ui-tooltip-bubble {
+  transform: translateY(0);
+}
+
 .shipping-info-tip-content {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
 }
+
 .shipping-info-title {
-  font-weight: 600;
-  margin-bottom: 0.15rem;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.05rem;
+  border-bottom: 1px solid rgba(231, 208, 166, 0.28);
 }
+
+/* method (left) + rate (right); an optional per-method "Free above" note wraps
+   full-width beneath (only used when methods have different thresholds). */
 .shipping-info-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: 1.5rem;
 }
 .shipping-info-method {
-  opacity: 0.8;
+  color: #c8ad73; /* brand gold — clear on the dark brown bubble */
+  font-weight: 600;
 }
-.shipping-info-value em {
-  font-style: normal;
-  opacity: 0.7;
+.shipping-info-rate {
+  color: #fff;
+  font-weight: 700;
+  text-align: right;
+}
+.shipping-info-free {
+  grid-column: 1 / -1;
+  color: var(--base-100);
+  opacity: 0.85;
+  font-size: 0.66rem;
+}
+
+.shipping-info-note {
+  margin-top: 0.15rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(231, 208, 166, 0.22);
+  color: var(--base-100);
+  font-size: 0.68rem;
 }
 .shipping-info-zone {
-  margin-top: 0.2rem;
-  opacity: 0.7;
+  color: var(--base-100);
+  opacity: 0.8;
+  font-size: 0.66rem;
 }

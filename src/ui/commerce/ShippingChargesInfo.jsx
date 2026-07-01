@@ -1,43 +1,56 @@
 "use client";
 import "./ShippingChargesInfo.css";
 import { Tooltip } from "@/ui/overlays";
-import { toNum, formatPrice } from "@/lib/formatters";
+import { toNum } from "@/lib/formatters";
 
 /**
  * Small "i" icon that reveals the per-payment-method delivery charges
  * (prepaid vs COD) on hover/focus. Feeds off the /shipping/config breakdown
  * response: { prepaid: {standardRate, freeAbove}, cod: {…}, zone }.
  *
- * Renders nothing until a breakdown with at least one method is available.
+ * Renders nothing until a breakdown with at least one method rate is available.
  */
-function methodLine(label, cfg) {
-  const rate = toNum(cfg?.standardRate);
-  if (rate == null) return null;
-  const free = toNum(cfg?.freeAbove);
-  const rateText = rate === 0 ? "Free" : `₹${formatPrice(rate)}`;
-  return (
-    <span className="shipping-info-row">
-      <span className="shipping-info-method">{label}</span>
-      <span className="shipping-info-value">
-        {rateText}
-        {free ? <em> · free above &#8377;{formatPrice(free)}</em> : null}
-      </span>
-    </span>
-  );
-}
+// ₹ with Indian grouping; drops the ".00" on whole-rupee amounts.
+const rupee = (n) => {
+  const v = toNum(n);
+  if (v == null) return null;
+  const s = Number.isInteger(v) ? v.toLocaleString("en-IN") : v.toFixed(2);
+  return `₹${s}`;
+};
 
 export default function ShippingChargesInfo({ breakdown, position = "top" }) {
   const prepaid = breakdown?.prepaid;
   const cod = breakdown?.cod;
-  const prepaidLine = methodLine("Prepaid", prepaid);
-  const codLine = methodLine("COD", cod);
-  if (!prepaidLine && !codLine) return null;
+
+  const pRate = rupee(prepaid?.standardRate);
+  const cRate = rupee(cod?.standardRate);
+  if (!pRate && !cRate) return null;
+
+  const pFree = toNum(prepaid?.freeAbove) || 0;
+  const cFree = toNum(cod?.freeAbove) || 0;
+  // When both methods share the same free-shipping threshold, show it once as a
+  // footer note instead of repeating it per row.
+  const sharedFree = pRate && cRate && pFree > 0 && pFree === cFree;
+
+  const rows = [];
+  if (pRate) rows.push({ label: "Prepaid", rate: pRate, free: sharedFree ? 0 : pFree });
+  if (cRate) rows.push({ label: "COD", rate: cRate, free: sharedFree ? 0 : cFree });
 
   const label = (
     <span className="shipping-info-tip-content">
       <span className="shipping-info-title">Delivery charges</span>
-      {prepaidLine}
-      {codLine}
+      {rows.map((r) => (
+        <span key={r.label} className="shipping-info-row">
+          <span className="shipping-info-method">{r.label}</span>
+          <span className="shipping-info-rate">{r.rate}</span>
+          {r.free ? (
+            <span className="shipping-info-free">Free above {rupee(r.free)}</span>
+          ) : null}
+        </span>
+      ))}
+      {sharedFree ? (
+        <span className="shipping-info-note">Free delivery above {rupee(pFree)}</span>
+      ) : null}
       {breakdown?.zone ? (
         <span className="shipping-info-zone">Zone: {breakdown.zone}</span>
       ) : null}
