@@ -171,8 +171,6 @@ export default function BlogPage() {
               <div className="blog-featured-meta">
                 <span className="blog-featured-cat">{featuredBlog.category}</span>
                 <span className="blog-featured-divider" />
-                <span className="blog-featured-date">{featuredBlog.date}</span>
-                <span className="blog-featured-divider" />
                 <span className="blog-featured-read">{featuredBlog.readTime}</span>
               </div>
               <h2 className="blog-featured-title">{featuredBlog.title}</h2>
@@ -229,7 +227,6 @@ export default function BlogPage() {
                 <h3 className="blog-grid-card-title">{blog.title}</h3>
                 <p className="blog-grid-card-excerpt">{blog.excerpt}</p>
                 <div className="blog-grid-card-footer">
-                  <span className="blog-grid-card-date">{blog.date}</span>
                   <span className="blog-grid-card-readmore">
                     Read More
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

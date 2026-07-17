@@ -3,7 +3,7 @@ import "./home.css";
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 
-import { shouldPlayLoader } from "@/components/Preloader/Preloader";
+import { shouldPlayLoader, LOADER_TOTAL_S } from "@/components/Preloader/Preloader";
 import MarqueeBanner from "@/components/MarqueeBanner/MarqueeBanner";
 // import TextBlock from "@/components/TextBlock/TextBlock";
 import PeelReveal from "@/components/PeelReveal/PeelReveal";
@@ -207,7 +207,7 @@ export default function Index() {
   // them on the same timeline. They're not wrapped in <Copy> because it splits
   // text into lines, which would tear apart the icon + label flex rows.
   useGSAP(() => {
-    const base = shouldPlayLoader() ? 4.2 : 0.85;
+    const base = shouldPlayLoader() ? LOADER_TOTAL_S : 0.85;
     const rise = { opacity: 0, y: 14 };
     const settle = { opacity: 1, y: 0, ease: "power2.out" };
 
@@ -307,12 +307,12 @@ export default function Index() {
                   reworked panel/heading/pillars are desktop-only. Both sets are
                   always rendered and CSS picks one, so there's no viewport check
                   during render to desync on hydration. */}
-              <Copy animateOnScroll={false} delay={shouldPlayLoader() ? 4.2 : 0.85}>
+              <Copy animateOnScroll={false} delay={shouldPlayLoader() ? LOADER_TOTAL_S : 0.85}>
                 <p className="hero-subtitle">
                   {settings.cmsHero?.subtitle || "Natural Skin Care for Mindful Living"}
                 </p>
               </Copy>
-              <Copy animateOnScroll={false} delay={shouldPlayLoader() ? 4.2 : 0.85}>
+              <Copy animateOnScroll={false} delay={shouldPlayLoader() ? LOADER_TOTAL_S : 0.85}>
                 <h2 className="hero-display-heading">
                   {settings.cmsHero?.heading || "Calm. Nourished. Radiant."}
                 </h2>
@@ -326,7 +326,7 @@ export default function Index() {
                 </svg>
                 <span className="hero-flourish-rule" />
               </div>
-              <Copy animateOnScroll={false} delay={shouldPlayLoader() ? 4.35 : 1}>
+              <Copy animateOnScroll={false} delay={shouldPlayLoader() ? LOADER_TOTAL_S + 0.15 : 1}>
                 <p className="hero-description">
                   {settings.cmsHero?.description ||
                     "The Ayurvedic way to your most balanced, beautiful skin."}

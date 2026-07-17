@@ -9,6 +9,9 @@ const POPUP_ID = "spin-wheel";
 const EXCLUDED_PATHS = ["/checkout", "/login", "/register"];
 const DISMISS_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
 const POPUP_DELAY_MS = 5000; // 5 seconds
+// Gap to leave after another popup closes before this one opens — symmetrical
+// with NewsletterPopupWrapper, so the two can never appear back to back.
+const AFTER_OTHER_POPUP_DELAY_MS = 60 * 1000;
 
 function safeGetItem(storage, key) {
   try {
@@ -73,22 +76,27 @@ export default function SpinWheelWrapper() {
       return false;
     };
 
+    let retryTimer = null;
+    let unsubscribe = null;
+
     const timer = setTimeout(() => {
       if (!tryOpen()) {
-        // Another popup is showing, wait for it to close
-        const unsubscribe = onRelease(() => {
-          // Small delay after other popup closes
-          const retryTimer = setTimeout(() => {
+        // Another popup is showing. Wait for it to close, then leave a full
+        // minute rather than reopening straight away.
+        unsubscribe = onRelease(() => {
+          retryTimer = setTimeout(() => {
             tryOpen();
-            unsubscribe();
-          }, 1000);
-          // Store for cleanup — not critical since it's a short timer
-          return () => clearTimeout(retryTimer);
+            if (unsubscribe) unsubscribe();
+          }, AFTER_OTHER_POPUP_DELAY_MS);
         });
       }
     }, POPUP_DELAY_MS);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (retryTimer) clearTimeout(retryTimer);
+      if (unsubscribe) unsubscribe();
+    };
   }, [settings.spinWheelEnabled, pathname, requestOpen, onRelease]);
 
   const handleClose = useCallback(() => {

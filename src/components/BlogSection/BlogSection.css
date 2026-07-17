@@ -136,10 +136,6 @@
   color: var(--base-200);
 }
 
-.blog-card-green .blog-card-divider,
-.blog-card-green .blog-card-date {
-  color: rgba(255, 255, 255, 0.5);
-}
 
 .blog-card-green .blog-card-read-more {
   color: #fff;
@@ -178,10 +174,6 @@
   color: var(--base-100);
 }
 
-.blog-card-featured .blog-card-divider,
-.blog-card-featured .blog-card-date {
-  color: rgba(255, 255, 255, 0.6);
-}
 
 .blog-card-featured .blog-card-title {
   font-size: clamp(1.1rem, 0.9rem + 0.9vw, 1.4rem);
@@ -264,19 +256,6 @@
   color: var(--base-300);
 }
 
-.blog-card-divider {
-  font-size: clamp(0.66rem, 0.6rem + 0.25vw, 0.72rem);
-  color: #ccc;
-}
-
-.blog-card-date {
-  font-family: var(--font-body);
-  font-size: clamp(0.66rem, 0.6rem + 0.25vw, 0.72rem);
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  color: #999;
-  text-transform: uppercase;
-}
 
 .blog-card-title {
   font-family: var(--font-body);
@@ -639,9 +618,7 @@
   /* Smaller section heading on mobile */
   .blog-section-title { font-size: var(--fs-section-title); }
 
-  /* Make the card meta (category/date) clearly visible on the dark cards */
+  /* Make the card category clearly visible on the dark cards */
   .blog-card-green .blog-card-category,
   .blog-card-featured .blog-card-category { color: #E7D0A6; }
-  .blog-card-green .blog-card-date,
-  .blog-card-featured .blog-card-date { color: rgba(255, 255, 255, 0.72); }
 }

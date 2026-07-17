@@ -12,6 +12,16 @@ const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : use
 // client-side route changes.
 let isInitialLoad = true;
 
+// Seconds from first paint to the hero being uncovered. The home hero keys its own
+// intro off this, so the two must move together — import it rather than repeating
+// the number. Kept deliberately short: this is a gate in front of the whole site,
+// and every extra beat here is bounce risk.
+export const LOADER_TOTAL_S = 1.95;
+
+// The loader waits for assets before sweeping away, but never longer than this.
+// Without a cap, one slow image holds the entire page hostage behind the panel.
+const MAX_ASSET_WAIT_MS = 1500;
+
 // Whether the intro loader is playing for this load. The once-per-session, home-only
 // rule is decided by the blocking script in the root layout (before first paint) and
 // published as data-loader on <html> — read it rather than re-deriving it, or we'd
@@ -96,6 +106,7 @@ const Preloader = () => {
     });
 
     // Track asset loading so we never hide the loader before the page is ready.
+    let capTimer = null;
     let assetsReady = document.readyState === "complete";
     const markReady = () => { assetsReady = true; };
     window.addEventListener("load", markReady);
@@ -105,9 +116,9 @@ const Preloader = () => {
       const out = gsap.timeline({ onComplete: () => setShow(false) });
       out
         // Lift the centre content slightly first so the reveal feels layered.
-        .to(innerRef.current, { yPercent: -22, opacity: 0, duration: 0.55, ease: "power2.in" })
+        .to(innerRef.current, { yPercent: -22, opacity: 0, duration: 0.3, ease: "power2.in" })
         // Then sweep the cream panel upward, uncovering the page.
-        .to(wrapperRef.current, { yPercent: -100, duration: 1.05, ease: "expo.inOut" }, "-=0.25");
+        .to(wrapperRef.current, { yPercent: -100, duration: 0.62, ease: "expo.inOut" }, "-=0.14");
     };
 
     const counter = { val: 0 };
@@ -117,44 +128,44 @@ const Preloader = () => {
     tl.fromTo(
       svgRef.current,
       { scale: 0.65, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 0.55, ease: "power2.out" }
+      { scale: 1, opacity: 1, duration: 0.32, ease: "power2.out" }
     )
       // Draw each petal outward (spreading from the centre).
       .to(
         paths,
         {
           strokeDashoffset: 0,
-          duration: 1.1,
+          duration: 0.5,
           ease: "power2.inOut",
-          stagger: { each: 0.05, from: "start" },
+          stagger: { each: 0.018, from: "start" },
         },
-        "<0.1"
+        "<0.06"
       )
       // Fill the petals in once drawn.
       .to(
         paths,
-        { fillOpacity: 1, duration: 0.5, ease: "power1.out", stagger: 0.02 },
-        "-=0.45"
+        { fillOpacity: 1, duration: 0.28, ease: "power1.out", stagger: 0.008 },
+        "-=0.28"
       )
       // Brand wordmark + tagline rise + fade into view after the monogram.
       .fromTo(
         [brandRef.current, taglineRef.current],
         { opacity: 0, y: 26 },
-        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", stagger: 0.12 },
-        "-=0.6"
+        { opacity: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.07 },
+        "-=0.34"
       )
       // Progress bar + percentage counter run across the whole sequence.
       .fromTo(
         barFillRef.current,
         { scaleX: 0 },
-        { scaleX: 1, duration: 2.1, ease: "power1.inOut" },
+        { scaleX: 1, duration: 0.95, ease: "power1.inOut" },
         0
       )
       .to(
         counter,
         {
           val: 100,
-          duration: 2.1,
+          duration: 0.95,
           ease: "power1.inOut",
           onUpdate: () => {
             if (counterRef.current) counterRef.current.textContent = Math.round(counter.val);
@@ -162,16 +173,27 @@ const Preloader = () => {
         },
         0
       )
-      // Hold on the finished lockup a beat, then (once assets are ready) sweep away.
+      // Sweep away as soon as the assets are in — or after MAX_ASSET_WAIT_MS,
+      // whichever comes first, so a slow image can't strand the visitor here.
       .add(() => {
-        if (assetsReady) reveal();
-        else window.addEventListener("load", reveal, { once: true });
-      }, "+=0.6");
+        if (assetsReady) {
+          reveal();
+          return;
+        }
+        const go = () => {
+          clearTimeout(capTimer);
+          window.removeEventListener("load", go);
+          reveal();
+        };
+        window.addEventListener("load", go, { once: true });
+        capTimer = setTimeout(go, MAX_ASSET_WAIT_MS);
+      }, "+=0.1");
     });
 
     return () => {
       window.removeEventListener("load", markReady);
       window.removeEventListener("load", reveal);
+      if (capTimer) clearTimeout(capTimer);
       ctx.revert();
     };
   }, [show]);

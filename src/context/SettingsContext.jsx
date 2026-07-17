@@ -82,11 +82,11 @@ const DEFAULTS = {
     ctaLink: "/wardrobe",
   },
   cmsPeelReveal: {
-    headerTexts: ["Ritual: Sacred", "Formula: Pure"],
-    footerText: "Source: Himalayan",
     image: null,
     heading: "Ancient Secrets, Modern Radiance",
     introTexts: ["Shop", "Now"],
+    ctaText: "SHOP NOW",
+    ctaLink: "/wardrobe",
   },
   cmsHeader: {
     logoImage: null,

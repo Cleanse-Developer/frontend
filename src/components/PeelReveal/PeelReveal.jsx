@@ -1,9 +1,8 @@
 "use client";
 import "./PeelReveal.css";
 import { useRef, useEffect } from "react";
+import Link from "next/link";
 import { useSettings } from "@/context/SettingsContext";
-
-import Copy from "../Copy/Copy";
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -14,16 +13,15 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 const PeelReveal = () => {
   const settings = useSettings();
   const cmsPeel = settings.cmsPeelReveal || {};
-  /* The backend CMS still serves the old "Formula: Ayurveda_001" placeholder,
-     so force the meaningful labels here (ignore that one stale CMS value). */
-  const headerTexts = ["Ritual: Sacred", "Formula: Pure"];
-  const footerText = cmsPeel.footerText || "Source: Himalayan";
   const peelImage = cmsPeel.image?.url || "/category-hair.png";
   const peelHeading = cmsPeel.heading || "Ancient Secrets, Modern Radiance";
   const introTexts = cmsPeel.introTexts || ["Shop", "Now"];
+  const ctaText = cmsPeel.ctaText || "SHOP NOW";
+  const ctaLink = cmsPeel.ctaLink || "/wardrobe";
 
   const peelRevealContainerRef = useRef(null);
   const headerRef = useRef(null);
+  const ctaRef = useRef(null);
 
   useEffect(() => {
     const container = peelRevealContainerRef.current;
@@ -48,6 +46,7 @@ const PeelReveal = () => {
         const words = splitText.words;
         gsap.set(words, { opacity: 0 });
         gsap.set(imageContainer, { scale: 0, borderRadius: "3rem", force3D: true });
+        if (ctaRef.current) gsap.set(ctaRef.current, { autoAlpha: 0, y: 24 });
 
         const moveDistance = window.innerWidth * 0.55;
 
@@ -55,8 +54,8 @@ const PeelReveal = () => {
           scrollTrigger: {
             trigger: section,
             start: "top top",
-            /* Shorter pin scroll on mobile (≤768px) so it isn't too long */
-            end: () => `+=${window.innerHeight * (window.innerWidth <= 768 ? 2 : 4)}`,
+            /* Mobile (≤768px): 1vh of pin + the section's own height = 2 total scrolls */
+            end: () => `+=${window.innerHeight * (window.innerWidth <= 768 ? 1 : 4)}`,
             pin: true,
             pinSpacing: true,
             scrub: 0.5,
@@ -90,6 +89,13 @@ const PeelReveal = () => {
             opacity: 1, duration: wordDur, ease: "none",
           }, wordStart);
         });
+
+        // CTA rises in once the headline has finished (90% to 100%)
+        if (ctaRef.current) {
+          tl.to(ctaRef.current, {
+            autoAlpha: 1, y: 0, duration: 0.1, ease: "none",
+          }, 0.9);
+        }
       }, 500);
     }, container);
 
@@ -104,18 +110,6 @@ const PeelReveal = () => {
   return (
     <div className="peel-reveal-container" ref={peelRevealContainerRef}>
       <section className="peel-reveal">
-        <div className="section-header">
-          {headerTexts.map((text, i) => (
-            <Copy key={i} type="flicker">
-              <p>{text}</p>
-            </Copy>
-          ))}
-        </div>
-        <div className="section-footer">
-          <Copy type="flicker">
-            <p>{footerText}</p>
-          </Copy>
-        </div>
         <div className="peel-reveal-img-container">
           <div className="pr-img">
             <img src={peelImage} alt="Product" loading="lazy" />
@@ -128,6 +122,9 @@ const PeelReveal = () => {
                 return acc;
               }, [])}
             </h1>
+          </div>
+          <div className="peel-reveal-cta btn" ref={ctaRef}>
+            <Link href={ctaLink}>{ctaText}</Link>
           </div>
         </div>
         <div className="peel-reveal-intro-text-container">

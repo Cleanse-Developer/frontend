@@ -579,7 +579,8 @@
   display: contents;
 }
 
-.featured-product-card .featured-product-cart-btn {
+.featured-product-card .featured-product-cart-btn,
+.featured-product-card .cart-qty-stepper.featured-product-cart-btn {
   position: absolute;
   /* The pill box is max-content wide but CLIPPED to show only its right 40px
      (the circle), so it must be RIGHT-anchored — 12px corner inset like the
@@ -693,7 +694,8 @@
 }
 
 /* Cart button - circle with icon, expands to pill on hover */
-.product-card-cart-btn {
+.product-card-cart-btn,
+.cart-qty-stepper {
   position: absolute;
   top: calc(377px - 52px);
   right: 12px;
@@ -711,6 +713,124 @@
   white-space: nowrap;
   z-index: 5;
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Stepper state. It inherits position, height and colour from the button rules
+   above (including each breakpoint's `top`, so the two always sit in the same
+   slot), and overrides only what a stepper must differ on. The doubled class is
+   deliberate — see the note above about specificity. */
+.cart-qty-stepper.cart-qty-stepper {
+  width: 88px;
+  padding: 0;
+  flex-direction: row;
+  justify-content: space-between;
+  cursor: default;
+  transition: none;
+  clip-path: none;
+  -webkit-clip-path: none;
+  /* Swapping in was a hard cut — the circle became a pill with no motion. This
+     mirrors the button's own open animation (clip in from the right 40px), so
+     the stepper unrolls from exactly where the circle was standing. */
+  animation: cart-qty-unroll 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes cart-qty-unroll {
+  from {
+    clip-path: inset(0 0 0 calc(100% - 40px) round 20px);
+    -webkit-clip-path: inset(0 0 0 calc(100% - 40px) round 20px);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 20px);
+    -webkit-clip-path: inset(0 0 0 0 round 20px);
+  }
+}
+
+/* Contents arrive just behind the unroll rather than sliding along with it.
+   `backwards` holds them hidden through the delay. */
+.cart-qty-stepper .cart-qty-btn,
+.cart-qty-stepper .cart-qty-value {
+  animation: cart-qty-fade 0.26s ease 0.14s backwards;
+}
+
+@keyframes cart-qty-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Closing: the exact reverse — the pill rolls back down into the circle before
+   the line is dropped. CartQtyButton holds the stepper mounted for CLOSE_MS to
+   give this time to play; keep the two durations in step. */
+.cart-qty-stepper.is-closing {
+  animation: cart-qty-rollup 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes cart-qty-rollup {
+  from {
+    clip-path: inset(0 0 0 0 round 20px);
+    -webkit-clip-path: inset(0 0 0 0 round 20px);
+  }
+  to {
+    clip-path: inset(0 0 0 calc(100% - 40px) round 20px);
+    -webkit-clip-path: inset(0 0 0 calc(100% - 40px) round 20px);
+  }
+}
+
+/* Contents leave first, so they don't get sliced by the closing edge. */
+.cart-qty-stepper.is-closing .cart-qty-btn,
+.cart-qty-stepper.is-closing .cart-qty-value {
+  animation: cart-qty-fade-out 0.14s ease forwards;
+}
+
+@keyframes cart-qty-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-qty-stepper.cart-qty-stepper,
+  .cart-qty-stepper.is-closing,
+  .cart-qty-stepper .cart-qty-btn,
+  .cart-qty-stepper .cart-qty-value,
+  .cart-qty-stepper.is-closing .cart-qty-btn,
+  .cart-qty-stepper.is-closing .cart-qty-value {
+    animation: none;
+  }
+}
+
+.cart-qty-btn {
+  width: 28px;
+  height: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  /* Small, quiet glyphs — the quantity is the thing to read here, not the
+     controls. Slightly dimmed so the number stays the brightest element. */
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.cart-qty-btn:hover {
+  color: #fff;
+}
+
+.cart-qty-value {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1;
+  min-width: 1.25rem;
+  text-align: center;
+  /* Tabular figures: without them the pill jitters as the count crosses widths. */
+  font-variant-numeric: tabular-nums;
 }
 
 .cart-btn-circle {
@@ -1220,7 +1340,8 @@
     border-radius: 0.75rem;
   }
 
-  .product-card-cart-btn {
+  .product-card-cart-btn,
+  .cart-qty-stepper {
     top: calc(220px - 52px);
   }
 
@@ -1435,12 +1556,19 @@
 
 /* `+` chips between the picks, centred in the grid's 20px gap: the row then
    reads as an equation adding up to the summary — the connection that made this
-   hard to recognise as a bundle. */
+   hard to recognise as a bundle.
+
+   Only ever placed BETWEEN two cards on the same row. The chip hangs off its
+   card's left edge, so the first card of every wrapped row must not have one —
+   it would float in the section padding, outside the grid. The column count
+   changes per breakpoint, so each breakpoint below hides the chip on whichever
+   nth-child starts a row there. */
 .byr-grid .byr-card + .byr-card::before {
   content: "+";
   position: absolute;
-  /* Half the 36px gap, so the chip is centred between the two images. */
-  left: -18px;
+  /* Half the column gap, so the chip is centred between the two images at every
+     breakpoint (phones derive their gap from --gutter, so it isn't a fixed number). */
+  left: calc(var(--byr-col-gap) / -2);
   /* Centred on the IMAGE, not the card — the card also contains the name/price
      below it, so any % of the card's height sits too low. */
   top: calc(var(--byr-img-h) / 2);
@@ -1449,13 +1577,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--byr-chip-size);
+  height: var(--byr-chip-size);
   border-radius: 50%;
   background: #F4EFE6;
   border: 1px solid rgba(102, 53, 50, 0.28);
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  /* 0.6 of the chip reproduces the original 1.05rem glyph in the 28px desktop
+     chip, and keeps the `+` in proportion when the chip shrinks on phones. */
+  font-size: calc(var(--byr-chip-size) * 0.6);
   font-weight: 400;
   line-height: 1;
   color: #663532;
@@ -1473,8 +1603,15 @@
      row of dead space under the cards. Rows are now created only as needed. */
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   /* 36px column gap so the 28px `+` chip sits fully inside it — at the old 20px
-     it overlapped each neighbouring image and got painted over. */
-  gap: 20px 36px;
+     it overlapped each neighbouring image and got painted over. The chip centres
+     itself off --byr-col-gap, so every breakpoint that changes the column gap must
+     change this variable rather than `gap` directly — otherwise the chip keeps the
+     old offset and drifts out of the gap (it used to hardcode half of 36px, which
+     pushed it 10px into the previous card on phones). */
+  --byr-col-gap: 36px;
+  /* Must stay smaller than --byr-col-gap or the chip spills onto both images. */
+  --byr-chip-size: 28px;
+  gap: 20px var(--byr-col-gap);
   align-content: start;
 }
 
@@ -1917,6 +2054,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  flex: 1;
   line-height: 1.2;
 }
 
@@ -1925,12 +2063,18 @@
   font-size: 1rem;
   font-weight: 700;
   color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .byr-compact-sub {
   font-family: var(--font-body, sans-serif);
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @keyframes byr-btn-in {
@@ -1981,9 +2125,17 @@
     grid-template-columns: 1fr 300px;
   }
 
+  /* One row, exactly as many columns as there are cards (--byr-cols, capped at 4
+     by the component). auto-fit can't be used here: below ~1300px the container
+     is too narrow to fit four 180px tracks, so it would drop to 3 and orphan the
+     4th card. */
   .byr-grid {
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: auto auto;
+    grid-template-columns: repeat(var(--byr-cols, 4), 1fr);
+  }
+
+  /* Up to 4 cards in a single row, so only the first one starts a row. */
+  .byr-grid .byr-card:nth-child(4n + 1)::before {
+    display: none;
   }
 
   .byr-card {
@@ -2002,7 +2154,7 @@
   }
 
   .byr-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(var(--byr-cols, 4), 1fr);
   }
 
   .byr-bundle {
@@ -2027,7 +2179,14 @@
 @media (max-width: 640px) {
   .byr-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    --byr-col-gap: 12px;
+    gap: var(--byr-col-gap);
+  }
+
+  /* 2 across (a 4-product bundle reads as a 2x2), so every odd card starts a
+     row. Also covers the ≤480 block below, which keeps the same 2 columns. */
+  .byr-grid .byr-card:nth-child(2n + 1)::before {
+    display: none;
   }
 
   /* The card image was 250px tall — far too dominant in a 2-up phone grid */
@@ -2113,7 +2272,8 @@
   /* Match the "Our Best Sellers" product card size/shape on mobile */
   .byr-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    --byr-col-gap: 0.75rem;
+    gap: var(--byr-col-gap);
   }
 
   .byr-card {
@@ -2153,8 +2313,11 @@
     display: flex;
   }
 
+  /* The pill only has ~296px here: 40px thumbs left the labels exactly their
+     natural width with nothing spare, so a longer total would ellipsis. 36px
+     buys the text ~12px of headroom and still reads as a stack of products. */
   .byr-compact-thumb {
-    --thumb-size: 40px;
+    --thumb-size: 36px;
     --thumb-overlap: -14px;
   }
 
@@ -2275,7 +2438,8 @@
     height: 420px;
   }
 
-  .product-card-cart-btn {
+  .product-card-cart-btn,
+  .cart-qty-stepper {
     top: calc(420px - 52px);
   }
 
@@ -2386,7 +2550,8 @@
     height: 480px;
   }
 
-  .product-card-cart-btn {
+  .product-card-cart-btn,
+  .cart-qty-stepper {
     top: calc(480px - 52px);
   }
 
@@ -2547,7 +2712,8 @@
     height: 560px;
   }
 
-  .product-card-cart-btn {
+  .product-card-cart-btn,
+  .cart-qty-stepper {
     top: calc(560px - 52px);
     height: 46px;
     width: 46px;
@@ -2800,7 +2966,8 @@
     border-radius: 0.875rem;
   }
 
-  .product-card-cart-btn {
+  .product-card-cart-btn,
+  .cart-qty-stepper {
     top: calc(320px - 52px);
   }
 
@@ -2843,7 +3010,14 @@
 
   .byr-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    --byr-col-gap: 1rem;
+    gap: var(--byr-col-gap);
+  }
+
+  /* Portrait tablets keep 2 columns, but sit above the ≤640px block — restate
+     which cards start a row or they'd inherit the 4-across rule. */
+  .byr-grid .byr-card:nth-child(2n + 1)::before {
+    display: none;
   }
 
   .byr-card {
@@ -3025,7 +3199,8 @@
   .products-grid,
   .byr-layout,
   .byr-grid {
-    gap: var(--section-grid-gap, var(--gutter));
+    --byr-col-gap: var(--section-grid-gap, var(--gutter));
+    gap: var(--byr-col-gap);
   }
 }
 
@@ -3171,5 +3346,22 @@
   }
   .product-card-cart-btn.cart-open .cart-btn-text {
     opacity: 1;
+  }
+}
+
+/* ============================================================
+   Build Your Ritual: keep the `+` chip inside the column gap.
+   The narrow breakpoints above unify .byr-grid's gap with the shared page
+   gutter (16px on a 390px phone), which is narrower than the chip — so the
+   chip, correctly centred, still spilled onto both neighbouring images.
+   Widen the bundle grid's COLUMN gap only (row rhythm is left alone) and take
+   the chip down to 24px, leaving 2px of clearance each side. Appended last so
+   it wins over every gap declaration above, whatever their order.
+   ============================================================ */
+@media (max-width: 1199px) {
+  .byr-grid {
+    --byr-chip-size: 24px;
+    --byr-col-gap: 28px;
+    column-gap: var(--byr-col-gap);
   }
 }

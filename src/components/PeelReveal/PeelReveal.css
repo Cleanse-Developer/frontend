@@ -68,6 +68,30 @@
   width: 100%;
 }
 
+.peel-reveal .peel-reveal-cta {
+  position: absolute;
+  bottom: 8%;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  /* Above .pr-img (z-index 5) so the button stays visible and clickable */
+  z-index: 6;
+  /* Wrapper spans the section; only the button itself takes the pointer */
+  pointer-events: none;
+}
+
+.peel-reveal .peel-reveal-cta a {
+  background: var(--base-700);
+  color: var(--base-100);
+  white-space: nowrap;
+  pointer-events: auto;
+}
+
+.peel-reveal .peel-reveal-cta a:hover {
+  background: var(--base-400);
+}
+
 .peel-reveal .peel-reveal-intro-text-container {
   position: absolute;
   top: 50%;
@@ -108,12 +132,6 @@
 @media (max-width: 480px) {
   .peel-reveal {
     height: 100svh;
-  }
-
-  /* Lift "Source: Himalayan" off the bottom edge so it reads like a normal
-     section's bottom padding (the blog below then matches the other sections). */
-  .peel-reveal .section-footer {
-    bottom: 1rem;
   }
 
   .peel-reveal .peel-reveal-img-container {

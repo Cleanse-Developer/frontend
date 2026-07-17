@@ -9,6 +9,8 @@ const POPUP_ID = "newsletter";
 const EXCLUDED_PATHS = ["/checkout", "/login", "/register"];
 const DISMISS_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
 const DEFAULT_DELAY_S = 8;
+// Gap to leave after another popup closes before this one opens.
+const AFTER_OTHER_POPUP_DELAY_MS = 60 * 1000;
 
 function safeGetItem(storage, key) {
   try {
@@ -59,20 +61,28 @@ export default function NewsletterPopupWrapper() {
       return false;
     };
 
+    let retryTimer = null;
+    let unsubscribe = null;
+
     const timer = setTimeout(() => {
       if (!tryOpen()) {
-        // Another popup is showing, wait for it to close
-        const unsubscribe = onRelease(() => {
-          const retryTimer = setTimeout(() => {
+        // Another popup (the spin wheel) is showing. Wait for it to close, then
+        // leave a full minute before asking again — reopening a second later
+        // reads as two popups stacked back to back.
+        unsubscribe = onRelease(() => {
+          retryTimer = setTimeout(() => {
             tryOpen();
-            unsubscribe();
-          }, 1000);
-          return () => clearTimeout(retryTimer);
+            if (unsubscribe) unsubscribe();
+          }, AFTER_OTHER_POPUP_DELAY_MS);
         });
       }
     }, delayMs);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (retryTimer) clearTimeout(retryTimer);
+      if (unsubscribe) unsubscribe();
+    };
   }, [settings.newsletterPopupEnabled, settings.newsletterPopupConfig, pathname, requestOpen, onRelease]);
 
   const handleClose = useCallback(() => {

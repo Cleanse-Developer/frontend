@@ -45,7 +45,7 @@
   position: relative;
   z-index: 2;
   /* Extra bottom padding lifts the meta row above the zone the article card
-     overlaps into, so the card no longer covers the date/author. */
+     overlaps into, so the card no longer covers the author. */
   padding: 3.5rem var(--gutter) 5rem;
   max-width: 850px;
 }
@@ -128,7 +128,6 @@
   flex-wrap: wrap;
 }
 
-.blogpost-hero-date,
 .blogpost-hero-readtime,
 .blogpost-hero-author {
   font-family: var(--font-body);
@@ -436,19 +435,12 @@
 .blogpost-related-card-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-top: auto;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.blogpost-related-card-date {
-  font-family: var(--font-body);
-  font-size: 0.68rem;
-  color: rgba(240, 237, 232, 0.3);
-  letter-spacing: 0.05em;
-  text-transform: none;
-}
 
 .blogpost-related-card-arrow {
   width: 36px;
@@ -617,7 +609,6 @@
     gap: 0.6rem;
   }
 
-  .blogpost-hero-date,
   .blogpost-hero-readtime,
   .blogpost-hero-author {
     font-size: 0.68rem;
@@ -712,9 +703,6 @@
     font-size: 1rem;
   }
 
-  .blogpost-related-card-date {
-    font-size: 0.62rem;
-  }
 
   .blogpost-related-card-arrow {
     width: 32px;
@@ -768,7 +756,6 @@
     gap: 0.5rem;
   }
 
-  .blogpost-hero-date,
   .blogpost-hero-readtime,
   .blogpost-hero-author {
     font-size: 0.62rem;
@@ -881,9 +868,6 @@
     padding-top: 0.65rem;
   }
 
-  .blogpost-related-card-date {
-    font-size: 0.58rem;
-  }
 
   .blogpost-related-card-arrow {
     width: 28px;

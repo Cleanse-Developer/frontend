@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import CartQtyButton from "@/components/CartQtyButton/CartQtyButton";
 import { productUrl } from "@/lib/normalizers";
 import { cardPrice } from "@/lib/formatters";
 // Canonical product-card styles live in this shared, global stylesheet.
@@ -70,15 +71,7 @@ const ProductCard = forwardRef(function ProductCard(
           loading="lazy"
         />
       </Link>
-      <button
-        className="product-card-cart-btn"
-        onClick={() => addToCart(product)}
-      >
-        <span className="cart-btn-circle">
-          <CartIcon />
-        </span>
-        <span className="cart-btn-text">Add to Cart</span>
-      </button>
+      <CartQtyButton product={product} icon={<CartIcon />} />
       <div className="product-card-info">
         <Link href={href}>
           <h3 className="product-card-name">{product.name}</h3>

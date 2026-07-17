@@ -9,10 +9,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// useLayoutEffect on the client (paint the carousel before the browser shows a
-// frame), useEffect on the server to avoid the SSR warning.
-const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
 // video: null — placeholders had local /videos paths that don't exist; a reel is
 // only treated as playable when the CMS provides a re-hosted video URL.
 const DEFAULT_REELS = [
@@ -42,16 +38,26 @@ const MarqueeBanner = () => {
   const marquee2Ref = useRef(null);
   const marquee3Ref = useRef(null);
 
-  // --- Mobile: a plain swipeable row ----------------------------------------
-  // Native scroll-snap rather than a JS-driven deck: the browser already does
-  // momentum, rubber-banding and accessibility better than we can, and there is
-  // nothing to tap open first.
+  // --- Mobile: a swipeable stacked deck --------------------------------------
+  // The cards stay fanned as a deck; swiping throws the front card away and
+  // brings the next forward. No tap-to-expand step — the deck is the carousel.
   const [isMobile, setIsMobile] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0); // for the dots
+  const [activeIndex, setActiveIndex] = useState(0); // front card, for the dots
   const N = reelsData.length;
 
   const cardRefs = useRef([]);
-  const trackRef = useRef(null);
+  const posRef = useRef(0);       // continuous deck position, in card units
+  const velRef = useRef(0);       // velocity, card units per frame
+  const targetRef = useRef(null); // dot-tap easing target (or null)
+  const rafRef = useRef(null);
+  const draggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const startPosRef = useRef(0);
+  const lastXRef = useRef(0);
+  const lastTRef = useRef(0);
+  const lastIdxRef = useRef(0);
+  const movedRef = useRef(false); // distinguishes a swipe from a tap
+  const dirRef = useRef(-1);      // which side the transitioning card sits on
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 480px)");
@@ -64,52 +70,146 @@ const MarqueeBanner = () => {
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // Light the right dot as the row scrolls. Read-only — scrolling is the
-  // browser's job; this only reflects where it ended up.
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!isMobile || !el) return;
-    let raf = null;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = null;
-        const mid = el.scrollLeft + el.clientWidth / 2;
-        let best = 0;
-        let bestDist = Infinity;
-        cardRefs.current.forEach((card, i) => {
-          if (!card) return;
-          const c = card.offsetLeft + card.offsetWidth / 2;
-          const d = Math.abs(c - mid);
-          if (d < bestDist) { bestDist = d; best = i; }
-        });
-        setActiveIndex(best);
-      });
-    };
-    onScroll();
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      el.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, [isMobile, N]);
+  // Where a card sits at a given depth: 0 is the front card, N-1 the back one.
+  // Depth is fractional during a swipe, so the whole deck shuffles continuously.
+  const stackAt = (d) => ({
+    x: d * 6,          // %  of card width
+    y: d * 10,         // px
+    rot: d * 4,        // deg
+    scale: 1 - d * 0.05,
+  });
 
-  const scrollToCard = (i) => {
-    const card = cardRefs.current[i];
-    const el = trackRef.current;
-    if (!card || !el) return;
-    el.scrollTo({
-      left: card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2,
-      behavior: "smooth",
-    });
+  // Paint the deck from the continuous position. Imperative so the drag stays
+  // 1:1 with the finger (no React re-render per frame).
+  //
+  // The swiped card doesn't fly away — it swings out to the side the finger is
+  // going, dips down, and tucks back in at the BOTTOM of the stack, one below
+  // the others. That's a single continuous path: it rides the normal stack
+  // positions from depth 0 to depth N-1 while an arc adds the sideways swing and
+  // the dip on top. Because the arc is a sine, it is exactly 0 at both ends, so
+  // the card enters and leaves the transition seamlessly — no snap.
+  const paintCards = () => {
+    const pos = posRef.current;
+    for (let i = 0; i < N; i++) {
+      const el = cardRefs.current[i];
+      if (!el) continue;
+      const u = (((i - pos) % N) + N) % N;
+      if (u > N - 1) {
+        // The card going under: t runs 0 (still the front card) → 1 (settled at
+        // the back of the stack).
+        const t = N - u;
+        const dir = dirRef.current;
+        const arc = Math.sin(t * Math.PI); // 0 → 1 → 0
+        const s = stackAt(t * (N - 1));
+        el.style.transform =
+          `translate(calc(-50% + ${s.x + dir * arc * 60}%), calc(-50% + ${s.y + arc * 34}px)) ` +
+          `rotate(${s.rot + dir * arc * 10}deg) scale(${s.scale - arc * 0.04})`;
+        el.style.opacity = "1";
+        // Drop behind the others as soon as it starts moving — it's heading for
+        // the bottom of the stack, so it must pass under, not over.
+        el.style.zIndex = t > 0.12 ? "5" : "40";
+      } else {
+        const s = stackAt(u);
+        el.style.transform =
+          `translate(calc(-50% + ${s.x}%), calc(-50% + ${s.y}px)) rotate(${s.rot}deg) scale(${s.scale})`;
+        el.style.opacity = "1";
+        el.style.zIndex = String(30 - Math.round(u * 10));
+      }
+    }
   };
 
+  // Wrap a position into [0, N).
+  const norm = (v) => ((v % N) + N) % N;
+
+  // The deck only ever eases toward a target card — there is no free momentum.
+  // A flick used to be allowed to coast across several cards, which on a 3-card
+  // deck meant one swipe routinely landed 2 cards along; since +2 and -1 are the
+  // same place with 3 cards, that read as the deck moving the wrong way.
+  useEffect(() => {
+    if (!isMobile) return;
+    posRef.current = 0;
+    velRef.current = 0;
+    targetRef.current = null;
+    const loop = () => {
+      if (!draggingRef.current && targetRef.current !== null) {
+        // Take the short way round, so 2 → 0 goes forwards rather than back
+        // through 1.
+        let diff = norm(targetRef.current - posRef.current);
+        if (diff > N / 2) diff -= N;
+        if (Math.abs(diff) < 0.002) {
+          posRef.current = targetRef.current;
+          targetRef.current = null;
+        } else {
+          posRef.current += diff * 0.16;
+        }
+      }
+      posRef.current = norm(posRef.current);
+      paintCards();
+      const idx = Math.round(posRef.current) % N;
+      if (idx !== lastIdxRef.current) { lastIdxRef.current = idx; setActiveIndex(idx); }
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    paintCards();
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [isMobile, N]);
+
+  const STEP_PX = 150; // finger px ~ one card
+
+  const onCardTouchStart = (e) => {
+    if (!isMobile) return;
+    draggingRef.current = true;
+    movedRef.current = false;
+    velRef.current = 0;
+    targetRef.current = null;
+    startXRef.current = lastXRef.current = e.touches[0].clientX;
+    startPosRef.current = posRef.current;
+    lastTRef.current = performance.now();
+  };
+  const onCardTouchMove = (e) => {
+    if (!isMobile || !draggingRef.current) return;
+    const x = e.touches[0].clientX;
+    const dx = x - startXRef.current;
+    if (Math.abs(dx) > 6) {
+      movedRef.current = true;
+      // Throw the card the way the finger is going.
+      dirRef.current = dx < 0 ? -1 : 1;
+    }
+    // Clamped to ±1 card: dragging further must not queue up extra cards, or the
+    // release lands somewhere the gesture never pointed at.
+    const raw = startPosRef.current - dx / STEP_PX;
+    const lo = startPosRef.current - 1;
+    const hi = startPosRef.current + 1;
+    posRef.current = Math.min(hi, Math.max(lo, raw));
+    const now = performance.now();
+    const dt = now - lastTRef.current;
+    // Speed only decides whether a short flick still counts as a swipe — it
+    // never drives the deck.
+    if (dt > 0) velRef.current = Math.abs(x - lastXRef.current) / dt;
+    lastXRef.current = x;
+    lastTRef.current = now;
+    paintCards();
+  };
+
+  const onCardTouchEnd = () => {
+    if (!isMobile) return;
+    draggingRef.current = false;
+    const dx = lastXRef.current - startXRef.current;
+    // Either a decisive distance or a quick flick commits to the next card;
+    // anything less springs back to the one you started on.
+    const committed = Math.abs(dx) > 45 || velRef.current > 0.45;
+    // Swipe left → next card. Swipe right → previous.
+    const step = committed ? (dx < 0 ? 1 : -1) : 0;
+    targetRef.current = norm(startPosRef.current + step);
+    velRef.current = 0;
+  };
 
   // For reels WITHOUT a hosted video, a click opens the Instagram reel in a new
   // tab. For reels WITH a hosted video, the click does nothing here — the inline
   // <video> controls handle play, and the "Reel ↗" badge handles the redirect.
   // We never embed Instagram, so no IG chrome renders over our UI.
   const handleCardClick = (reel) => {
+    if (movedRef.current) return; // that was a swipe, not a tap
     if (!reel.video && reel.reelUrl) {
       window.open(reel.reelUrl, "_blank", "noopener,noreferrer");
     }
@@ -180,10 +280,7 @@ const MarqueeBanner = () => {
         <h2 className="reels-tagline">{cmsMarquee.sectionHeader || "VIEW TRENDING"}</h2>
       </div>
 
-      <div
-        className={`reels-container ${isMobile ? "is-swipe" : ""}`}
-        ref={trackRef}
-      >
+      <div className={`reels-container ${isMobile ? "is-deck" : ""}`}>
         {reelsData.map((reel, i) => (
           <div
             key={reel.id}
@@ -191,6 +288,9 @@ const MarqueeBanner = () => {
             className={`reel-card reel-card-${reel.position}`}
             style={{ cursor: reel.reelUrl ? "pointer" : "default" }}
             onClick={() => handleCardClick(reel)}
+            onTouchStart={onCardTouchStart}
+            onTouchMove={onCardTouchMove}
+            onTouchEnd={onCardTouchEnd}
           >
             <div className="reel-card-inner">
               <div className="reel-media">
@@ -267,7 +367,7 @@ const MarqueeBanner = () => {
                 type="button"
                 className={`reel-dot ${i === activeIndex ? "active" : ""}`}
                 aria-label={`Go to reel ${i + 1}`}
-                onClick={() => scrollToCard(i)}
+                onClick={() => { targetRef.current = i; }}
               />
             ))}
           </div>

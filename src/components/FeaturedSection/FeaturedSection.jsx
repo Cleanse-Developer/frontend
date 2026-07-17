@@ -9,6 +9,7 @@ import { productApi, bundleApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import { cardPrice } from "@/lib/formatters";
 import ProductCard from "@/components/ProductCard/ProductCard";
+import CartQtyButton from "@/components/CartQtyButton/CartQtyButton";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -229,16 +230,18 @@ export const BentoSection = () => {
                   <span className="featured-product-price">₹{product.price}</span>
                 </div>
               </Link>
-              <button className="product-card-cart-btn featured-product-cart-btn" onClick={() => addToCart({ _id: product.id, name: product.name, price: product.price })}>
-                <span className="cart-btn-circle">
+              <CartQtyButton
+                product={{ _id: product.id, name: product.name, price: product.price, image: product.image }}
+                className="featured-product-cart-btn"
+                label="Add to cart"
+                icon={
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
                     <line x1="3" y1="6" x2="21" y2="6" />
                     <path d="M16 10a4 4 0 01-8 0" />
                   </svg>
-                </span>
-                <span className="cart-btn-text">Add to cart</span>
-              </button>
+                }
+              />
             </div>
           ))}
         </div>
@@ -374,7 +377,11 @@ export const BuildYourRitual = () => {
 
       <div className="byr-layout">
         <span className="byr-ribbon" aria-hidden="true">Save {discountLabel}</span>
-        <div className="byr-grid">
+        {/* --byr-cols drives the desktop/tablet column count so the row is always
+            exactly full: a 4-product bundle sits 4-up, a 3-product one 3-up, with
+            no empty track either way. Capped at 4 — beyond that the cards wrap.
+            Phones ignore this and stay 2-up (a 2x2 for a 4-product bundle). */}
+        <div className="byr-grid" style={{ "--byr-cols": Math.min(products.length || 3, 4) }}>
           {products.map((product, i) => {
             const isSelected = selected[i];
             const imgSrc = (product.images?.find((img) => img.isPrimary) || product.images?.[0])?.url || `/images/${(i % 4) + 1}.png`;
