@@ -730,9 +730,19 @@ const Menu = () => {
             <Logo src={logoSrc} className="menu-logo-mark" imgClassName="menu-logo-img" />
           </Link>
           <div className="menu-nav-links">
-            {navLinks.map((link, i) => (
-              <Link key={i} href={link.href} className="menu-nav-link">{link.label}</Link>
-            ))}
+            {navLinks.map((link, i) => {
+              const isActive = link.href === "/" ? pathname === "/" : pathname?.startsWith(link.href);
+              return (
+                <Link
+                  key={i}
+                  href={link.href}
+                  className={`menu-nav-link${isActive ? " is-active" : ""}`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
           <div className="menu-header-actions">
             <LocaleCapsule open={showLangMenu} toggle={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }} close={() => setShowLangMenu(false)} />

@@ -618,6 +618,7 @@ function UnitContent({ params }) {
       {activeBundle && bundleProducts.length > 0 && (
         <section className="bundle-section">
           <div className="bundle-header">
+            <span className="bundle-badge">Bundle · Save {bundleDiscountLabel}</span>
             <h3 className="bundle-title">{activeBundle.name || "BUILD YOUR BUNDLE"}</h3>
             <p className="bundle-subtitle">
               {activeBundle.subtitle || `Select ${activeBundle.minProducts}+ products and save ${bundleDiscountLabel}`}

@@ -1,3 +1,7 @@
+/* The panel is server-rendered on every route so it can be part of the FIRST paint
+   (waiting for hydration to mount it is what left the page bare for a beat). It stays
+   hidden unless the blocking script in the root layout stamps data-loader="play" —
+   so a reload, a non-home route, or a JS failure simply never paints it. */
 .preloader-wrapper {
   position: fixed;
   inset: 0;
@@ -6,11 +10,21 @@
   z-index: 100000;
   /* Deep brown panel that sweeps up to reveal the page behind it */
   background-color: #2E1F14;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   will-change: transform;
+}
+
+html[data-loader="play"] .preloader-wrapper {
+  display: flex;
+}
+
+/* Lock scroll from the first paint, before Lenis or React exist to do it. */
+html[data-loader="play"],
+html[data-loader="play"] body {
+  overflow: hidden;
 }
 
 /* Centre stack: monogram + brand + tagline + progress bar */
@@ -28,6 +42,10 @@
   height: auto;
   overflow: visible;
   transform-origin: center center;
+  /* Primed for the GSAP intro. The panel now paints before JS runs, so without this
+     the finished mark would flash for a frame and then reset itself to draw. */
+  opacity: 0;
+  will-change: transform, opacity;
 }
 
 /* Each petal is drawn (stroke) then filled in — the gold favicon mark. */
@@ -37,6 +55,7 @@
   stroke-width: 0.9;
   stroke-linejoin: round;
   stroke-linecap: round;
+  fill-opacity: 0;
 }
 
 .preloader-mask {

@@ -182,11 +182,57 @@
   text-transform: uppercase;
   letter-spacing: 0;
   line-height: 1;
+  position: relative;
   transition: opacity 0.3s ease, color 0.3s ease;
 }
 
 .menu .menu-nav-link:hover {
   opacity: 0.7;
+}
+
+/* Tabs are marked with a small gold dot, never a box: the browser's default
+   focus ring drew a hard rectangle around the nav item, and an outline-based
+   replacement is the same shape. The dot is the whole vocabulary here — active,
+   hover and keyboard focus are all just different states of it. */
+.menu .menu-nav-link:focus {
+  outline: none;
+}
+
+.menu .menu-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background-color: #C8AD73;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.menu .menu-nav-link:hover::after {
+  opacity: 0.4;
+  transform: translateY(0);
+}
+
+.menu .menu-nav-link.is-active::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Keyboard focus still needs to be unmistakable, so it goes further than hover:
+   the dot goes solid and the label itself turns gold. */
+.menu .menu-nav-link:focus-visible {
+  color: #C8AD73;
+}
+
+.menu .menu-nav-link:focus-visible::after {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .menu.nav-green .menu-nav-link {
@@ -1152,6 +1198,10 @@
   }
 
   .menu .menu-logo-img {
+    /* width must go back to auto with the taller height: the base rule pins it
+       to 150px, and globals.css `img { object-fit: cover }` then crops the
+       wordmark to that box instead of scaling it. */
+    width: auto;
     height: clamp(3rem, 4vw, 4rem);
   }
 

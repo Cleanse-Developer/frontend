@@ -125,7 +125,6 @@
   /* Same scale as the section headings */
   font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 400;
-  font-style: italic;
   color: var(--base-700);
   line-height: 1.35;
   letter-spacing: 0.01em;
@@ -140,20 +139,181 @@
   z-index: 1;
 }
 
+/* ── Frosted hero panel ──────────────────────────────────────────────────────
+   Sits above the slides + the ::before gradient (both z-index ≤ 2) and below
+   .hero-header (z-index 3). Decorative only. */
+.hero-panel {
+  position: absolute;
+  /* Vertical: the box is taller than it is wide. Nothing bleeds off the RIGHT,
+     but it deliberately runs off the BOTTOM. Starts below the overlaid nav.
+     Width has to clear the blob's pinched waist (~66% of the box) or the copy
+     spills outside the shape. */
+  top: 12%;
+  right: 4%;
+  width: 44%;
+  height: 122%;
+  /* Below .hero::before (z-index 2) so the hero's brown top gradient washes OVER
+     the blob; .hero-header (z-index 3) still sits above both. */
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-panel-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.hero-panel-glass {
+  position: absolute;
+  inset: 0;
+  clip-path: url(#heroPanelClip);
+  /* Solid at the top, fading downward. */
+  background: linear-gradient(
+    180deg,
+    rgba(249, 244, 236, 0.92) 0%,
+    rgba(249, 244, 236, 0.85) 45%,
+    rgba(249, 244, 236, 0.6) 80%,
+    rgba(249, 244, 236, 0.24) 100%
+  );
+  backdrop-filter: blur(12px) saturate(112%);
+  -webkit-backdrop-filter: blur(12px) saturate(112%);
+  /* Fades the blur too, so the shape dissolves instead of ending on a hard cut.
+     The panel is 122% tall from top:12%, so the hero clips it at ~72% of its own
+     height — the fade MUST finish by then or it completes off-screen and the
+     blob still looks solid at the hero's bottom edge. */
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 34%, rgba(0, 0, 0, 0.45) 56%, transparent 72%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 34%, rgba(0, 0, 0, 0.45) 56%, transparent 72%);
+}
+
+/* Hairline border tracing the blob, fading out with the fill. A CSS border
+   cannot follow a clip-path, so the same shape is stroked as an overlay. */
+.hero-panel-outline {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 92%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 92%);
+}
+
+.hero-panel-outline path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.85);
+  /* Keeps the border an even width even though the unit viewBox is stretched. */
+  vector-effect: non-scaling-stroke;
+  stroke-width: 1.5;
+}
+
 .hero .hero-header {
   position: absolute;
-  top: 50%;
+  /* Centred on the blob's VISIBLE area (12% → the hero's lower edge), not on the
+     hero — the blob's own box runs off the bottom. */
+  top: 54%;
   transform: translateY(-50%);
-  right: 6.5%;
-  width: 49%;
-  text-align: right;
+  /* Centred within .hero-panel (right:4%, width:42%) and narrow enough to sit
+     inside the blob's waist. */
+  right: 11%;
+  width: 28%;
+  text-align: center;
   will-change: transform;
-  color: #FFFFFF;
+  color: var(--base-700);
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 1.8rem;
+  align-items: center;
+  /* The stack has to fit inside .hero-panel (76% of a 70svh hero), so the
+     rhythm here is deliberately tight. */
+  gap: 0.85rem;
   z-index: 3;
+}
+
+/* Rule–mark–rule divider under the heading. */
+.hero .hero-flourish {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 15rem;
+  color: var(--base-300);
+}
+
+.hero .hero-flourish-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(132, 89, 44, 0.5), transparent);
+}
+
+.hero .hero-flourish-mark {
+  width: 1.4rem;
+  height: 1.4rem;
+  flex-shrink: 0;
+}
+
+/* Three proof pillars, divided by hairlines (as in the reference). */
+.hero .hero-features {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+}
+
+.hero .hero-feature {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.4rem;
+}
+
+.hero .hero-feature + .hero-feature::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10%;
+  width: 1px;
+  height: 80%;
+  background-color: rgba(46, 31, 20, 0.18);
+}
+
+.hero .hero-feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: 1px solid rgba(132, 89, 44, 0.45);
+  color: var(--base-500);
+}
+
+/* Beat globals.css `svg { width:100%; height:100%; object-fit:cover }`. */
+.hero .hero-feature-icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  object-fit: contain;
+}
+
+/* globals.css styles bare `span`, and a direct rule beats inheritance. */
+.hero .hero-feature-label {
+  font-family: var(--font-body);
+  font-size: clamp(0.7rem, 0.72vw, 0.8rem);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--base-700);
+}
+
+.hero .hero-feature-line {
+  display: block;
+  font: inherit;
+  color: inherit;
 }
 
 .hero .hero-header h1 {
@@ -169,10 +329,9 @@
    keeps the gold logo legible over the rotating photo backgrounds. */
 .hero .hero-header h1.hero-logo-heading {
   line-height: 0;
-  transform: translateX(clamp(0.75rem, 2vw, 2rem));
   /* Drop-shadow lives on the heading (outside the reveal mask) so it isn't
      clipped at rest, while the inner mask still clips the slide-up. */
-  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 2px 10px rgba(46, 31, 20, 0.25));
 }
 
 /* Overflow mask for the slide-up reveal — mirrors .hero-btn-wrapper. The
@@ -188,7 +347,7 @@
 }
 
 .hero .hero-header h1.hero-logo-heading .hero-logo-mark {
-  --logo-r-color: #FFFFFF;
+  --logo-r-color: var(--base-700);
   --logo-r-size: clamp(0.55rem, 1.2vw, 0.95rem);
   --logo-r-top: -2%;
   --logo-r-right: 0.6em;
@@ -208,15 +367,20 @@
 }
 
 .hero .hero-header h1.hero-logo-heading .hero-logo-img {
-  width: clamp(200px, 22vw, 320px);
+  width: clamp(150px, 14vw, 230px);
   height: auto;
   display: inline-block;
   vertical-align: top;
-  /* Recolor the gold wordmark PNG to white (the drop-shadow is on the heading) */
-  filter: brightness(0) invert(1);
+  /* Recolor the gold wordmark PNG to the brand brown (--base-700 #2E1F14).
+     brightness(0) flattens it to black first, so the chain below starts from a
+     known colour; the drop-shadow lives on the heading. */
+  filter: brightness(0) saturate(100%) invert(9%) sepia(24%) saturate(1093%) hue-rotate(343deg) brightness(97%) contrast(93%);
 }
 
+/* Restored for the portrait hero only — desktop uses .hero-display-heading and
+   .hero-description instead. Rendered always, shown here. */
 .hero .hero-subtitle {
+  display: none;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 1rem;
   font-weight: 500;
@@ -224,27 +388,112 @@
   line-height: 1.25;
   letter-spacing: 0;
   text-align: center;
-  /* Without this, flexbox sizes the line to max-content (one long line) which
-     overflows the right-aligned header and gets clipped by the hero. */
   max-width: 100%;
+}
+
+/* The hero's focal line. Overrides the global h2 (8rem, uppercase, lh 0.9) —
+   this treatment is title-case display type, not a section heading. */
+.hero .hero-header h2.hero-display-heading {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: clamp(1.3rem, 2.1vw, 2.3rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--base-700);
+  text-align: center;
+  /* One line: like .hero-proof, it sizes to its text and overhangs the copy
+     column — the blob is wider than the column at this height. */
+  white-space: nowrap;
+  width: max-content;
+  max-width: none;
+}
+
+/* Supporting line under the flourish. */
+.hero .hero-description {
+  font-family: var(--font-body);
+  font-size: clamp(0.9rem, 1vw, 1.05rem);
+  font-weight: 400;
+  color: var(--base-600);
+  line-height: 1.6;
+  text-align: center;
+  max-width: 26ch;
+  text-wrap: balance;
 }
 
 .hero .hero-btn-wrapper {
   overflow: hidden;
   width: fit-content;
-  margin-top: 0.5rem;
+  /* No margin: .hero-header's flex `gap` alone spaces this, so the button sits
+     with equal space above and below. */
+}
+
+/* Proof points below the CTA. Wraps to one-per-line on narrow screens, where
+   the separators would otherwise dangle at a line end. */
+.hero .hero-proof {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  /* Always one line. The row is allowed to size past .hero-header's width and
+     overhang it evenly — the blob is wider than the copy column at this height. */
+  flex-wrap: nowrap;
+  width: max-content;
+  max-width: none;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.hero .hero-proof-item {
+  position: relative;
+  font-family: var(--font-body);
+  font-size: clamp(0.68rem, 0.72vw, 0.8rem);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--base-600);
+  white-space: nowrap;
+}
+
+.hero .hero-proof-item + .hero-proof-item::before {
+  content: "";
+  position: absolute;
+  left: -0.5rem;
+  top: 50%;
+  width: 1px;
+  height: 0.75em;
+  transform: translateY(-50%);
+  background-color: rgba(46, 31, 20, 0.35);
+}
+
+/* The header is centred in the hero with translateY(-50%), so a taller stack
+   grows upward too and can slide under the fixed nav on short laptop screens.
+   Tighten the stack instead of dropping the content. */
+@media (max-height: 780px) {
+  .hero .hero-header {
+    gap: 1rem;
+  }
+
+  .hero .hero-header h2.hero-display-heading {
+    font-size: clamp(2rem, 3vw, 3rem);
+  }
+
+  .hero .hero-proof-item {
+    font-size: 0.65rem;
+  }
 }
 
 .hero .hero-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14.3125rem;
-  height: 4.0625rem;
+  width: 10.5rem;
+  height: 2.9rem;
   background-color: #C8AD73;
   color: #fff;
   font-family: var(--font-body);
-  font-size: 1.25rem;
+  font-size: 0.95rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0;
@@ -434,11 +683,30 @@
 }
 
 @media (max-width: 1199px) and (orientation: portrait) {
+  /* Portrait reverts to the original hero: logo, subtitle, CTA. The frosted
+     panel, display heading, flourish, description, pillars and proof line are
+     the desktop rework and are hidden here rather than restyled. */
+  .hero-panel,
+  .hero .hero-header h2.hero-display-heading,
+  .hero .hero-flourish,
+  .hero .hero-description,
+  .hero .hero-features,
+  .hero .hero-proof {
+    display: none;
+  }
+
+  .hero .hero-subtitle {
+    display: block;
+  }
+
   .hero .hero-header {
     width: calc(100% - 3rem);
     right: 1.5rem;
     align-items: flex-end;
     text-align: right;
+    /* The desktop rework turned the copy brown to sit on the frosted panel. With
+       no panel here the copy is back over the photo, so it goes white again. */
+    color: #FFFFFF;
   }
 
   .about .about-copy {
@@ -507,6 +775,7 @@
     letter-spacing: 0;
     width: auto;
   }
+
 
   .hero .hero-btn-wrapper {
     align-self: flex-end;
@@ -1263,15 +1532,9 @@
     font-size: clamp(3rem, 4vw, 5rem);
   }
 
-  .hero .hero-subtitle {
-    font-size: 1.2rem;
-  }
 
-  .hero .hero-btn {
-    width: 13.75rem;
-    height: 3.75rem;
-    font-size: 1.125rem;
-  }
+  /* No .hero-btn override: the base rem sizing already scales with the root
+     font-size on big screens. */
 
   .about {
     padding: 12rem 0;
@@ -1396,15 +1659,9 @@
     font-size: clamp(4rem, 4.5vw, 6rem);
   }
 
-  .hero .hero-subtitle {
-    font-size: 1.4rem;
-  }
 
-  .hero .hero-btn {
-    width: 16.25rem;
-    height: 4.375rem;
-    font-size: 1.25rem;
-  }
+  /* No .hero-btn override: the base rem sizing already scales with the root
+     font-size on big screens. */
 
   .about {
     padding: 14rem 0;

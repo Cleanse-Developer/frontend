@@ -51,12 +51,20 @@
     --section-grid-gap: var(--gutter);
   }
 }
+/* Must stay identical to globals.css — this file is imported AFTER it, so any
+   divergence here silently overrides the canonical values (it previously did:
+   --page-max was 1700/2100 vs 1820/2360, and the 3440 step was missing entirely,
+   so ultrawides fell through to the 2560 rule and stranded the content in the
+   middle of the screen). */
 @media (min-width: 1440px) {
   :root { --gutter: 4rem; --page-max: 1400px; }
 }
 @media (min-width: 1920px) {
-  :root { --gutter: 5rem; --page-max: 1700px; --section-py: 6rem; }
+  :root { --page-max: 1800px; --section-py: 6rem; }
 }
 @media (min-width: 2560px) {
-  :root { --gutter: 6rem; --page-max: 2100px; --section-py: 7rem; }
+  :root { --page-max: 2400px; --section-py: 7rem; }
+}
+@media (min-width: 3440px) {
+  :root { --page-max: 3260px; --section-py: 8rem; }
 }

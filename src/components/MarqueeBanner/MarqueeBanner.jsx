@@ -1,6 +1,6 @@
 "use client";
 import "./MarqueeBanner.css";
-import { useRef, useState, useEffect, useLayoutEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useSettings } from "@/context/SettingsContext";
 
 import gsap from "gsap";
@@ -42,155 +42,78 @@ const MarqueeBanner = () => {
   const marquee2Ref = useRef(null);
   const marquee3Ref = useRef(null);
 
-  // --- Mobile: stacked deck that taps open into a momentum carousel ---------
+  // --- Mobile: a plain swipeable row ----------------------------------------
+  // Native scroll-snap rather than a JS-driven deck: the browser already does
+  // momentum, rubber-banding and accessibility better than we can, and there is
+  // nothing to tap open first.
   const [isMobile, setIsMobile] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const [entering, setEntering] = useState(false); // brief eased window for the open morph
-  const [activeIndex, setActiveIndex] = useState(0); // centre card, for the dots
+  const [activeIndex, setActiveIndex] = useState(0); // for the dots
   const N = reelsData.length;
 
   const cardRefs = useRef([]);
-  const posRef = useRef(0);      // continuous scroll position, in card units
-  const velRef = useRef(0);      // velocity, card units per frame
-  const targetRef = useRef(null); // dot-tap easing target (or null)
-  const rafRef = useRef(null);
-  const draggingRef = useRef(false);
-  const pausedRef = useRef(false);
-  const startXRef = useRef(0);
-  const startPosRef = useRef(0);
-  const lastXRef = useRef(0);
-  const lastTRef = useRef(0);
-  const lastIdxRef = useRef(0);
+  const trackRef = useRef(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 480px)");
     const update = () => {
       setIsMobile(mq.matches);
-      if (!mq.matches) { setExpanded(false); setActiveIndex(0); }
+      if (!mq.matches) setActiveIndex(0);
     };
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // Position every card from the continuous scroll position. Imperative so the
-  // momentum stays buttery (no React re-render per frame). A card that loops
-  // past the half-way point wraps to the far edge — off-screen, so it's seamless.
-  const paintCards = () => {
-    for (let i = 0; i < N; i++) {
-      const el = cardRefs.current[i];
-      if (!el) continue;
-      let r = (((i - posRef.current) % N) + N) % N;
-      if (r > N / 2) r -= N;
-      const ar = Math.min(Math.abs(r), 1);
-      el.style.transform = `translate(calc(-50% + ${r * 70}%), -50%) scale(${1 - ar * 0.24})`;
-      el.style.zIndex = String(30 - Math.round(Math.abs(r) * 10));
-    }
-  };
-
-  // Animation loop while open: drag sets position directly; a flick decays with
-  // friction (carrying several cards); a dot-tap eases to a target; otherwise it
-  // drifts gently right-to-left. Hold pauses the drift.
+  // Light the right dot as the row scrolls. Read-only — scrolling is the
+  // browser's job; this only reflects where it ended up.
   useEffect(() => {
-    if (!isMobile || !expanded) return;
-    posRef.current = 0;
-    velRef.current = 0;
-    targetRef.current = null;
-    const FRICTION = 0.92, MINV = 0.004;
-    const loop = () => {
-      if (!draggingRef.current) {
-        if (Math.abs(velRef.current) > MINV) {
-          // flick momentum — glides smoothly across several cards
-          posRef.current += velRef.current;
-          velRef.current *= FRICTION;
-          if (Math.abs(velRef.current) <= MINV) targetRef.current = Math.round(posRef.current);
-        } else if (targetRef.current !== null) {
-          // ease to a card (settle after a flick, a dot tap, or an auto-step)
-          let diff = ((targetRef.current - posRef.current) % N + N) % N;
-          if (diff > N / 2) diff -= N;
-          if (Math.abs(diff) < 0.001) { posRef.current = targetRef.current; targetRef.current = null; }
-          else posRef.current += diff * 0.16;
-        }
-      }
-      posRef.current = ((posRef.current % N) + N) % N;
-      paintCards();
-      const idx = Math.round(posRef.current) % N;
-      if (idx !== lastIdxRef.current) { lastIdxRef.current = idx; setActiveIndex(idx); }
-      rafRef.current = requestAnimationFrame(loop);
+    const el = trackRef.current;
+    if (!isMobile || !el) return;
+    let raf = null;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        const mid = el.scrollLeft + el.clientWidth / 2;
+        let best = 0;
+        let bestDist = Infinity;
+        cardRefs.current.forEach((card, i) => {
+          if (!card) return;
+          const c = card.offsetLeft + card.offsetWidth / 2;
+          const d = Math.abs(c - mid);
+          if (d < bestDist) { bestDist = d; best = i; }
+        });
+        setActiveIndex(best);
+      });
     };
-    paintCards();
-    rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [isMobile, expanded, N]);
+    onScroll();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [isMobile, N]);
 
-  // Paint the spread layout synchronously on expand — before the browser shows the
-  // centred fallback frame — which kills the one-frame "snap to centre" jerk.
-  useIsoLayoutEffect(() => {
-    if (!isMobile || !expanded) return;
-    posRef.current = 0;
-    paintCards();
-  }, [isMobile, expanded]);
-
-  // Enable a one-shot eased transition for the open morph, then remove it so the
-  // drag stays 1:1 responsive.
-  useEffect(() => {
-    if (!expanded) { setEntering(false); return; }
-    setEntering(true);
-    const t = setTimeout(() => setEntering(false), 600);
-    return () => clearTimeout(t);
-  }, [expanded]);
-
-  const STEP_PX = 150; // finger px ~ one card
-
-  const onCardTouchStart = (e) => {
-    if (!expanded) return;
-    draggingRef.current = true;
-    pausedRef.current = true;
-    velRef.current = 0;
-    targetRef.current = null;
-    startXRef.current = lastXRef.current = e.touches[0].clientX;
-    startPosRef.current = posRef.current;
-    lastTRef.current = performance.now();
-  };
-  const onCardTouchMove = (e) => {
-    if (!expanded || !draggingRef.current) return;
-    const x = e.touches[0].clientX;
-    posRef.current = startPosRef.current - (x - startXRef.current) / STEP_PX;
-    const now = performance.now();
-    const dt = now - lastTRef.current;
-    if (dt > 0) velRef.current = (-(x - lastXRef.current) / STEP_PX / dt) * 16; // per-frame
-    lastXRef.current = x;
-    lastTRef.current = now;
-    paintCards();
-  };
-  const onCardTouchEnd = () => {
-    if (!expanded) return;
-    draggingRef.current = false;
-    pausedRef.current = false;
-    velRef.current = Math.max(-0.55, Math.min(0.55, velRef.current)); // cap the flick
+  const scrollToCard = (i) => {
+    const card = cardRefs.current[i];
+    const el = trackRef.current;
+    if (!card || !el) return;
+    el.scrollTo({
+      left: card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2,
+      behavior: "smooth",
+    });
   };
 
-  // Card click behaviour. On mobile, the first tap expands the stacked deck
-  // (matches the "Tap to view" hint). For reels WITHOUT a hosted video, a click
-  // opens the Instagram reel in a new tab. For reels WITH a hosted video, the
-  // click does nothing here — the inline <video> controls handle play, and the
-  // "Reel ↗" badge handles the Instagram redirect. We never embed Instagram, so
-  // no IG chrome renders over our UI and nothing autoplays.
+
+  // For reels WITHOUT a hosted video, a click opens the Instagram reel in a new
+  // tab. For reels WITH a hosted video, the click does nothing here — the inline
+  // <video> controls handle play, and the "Reel ↗" badge handles the redirect.
+  // We never embed Instagram, so no IG chrome renders over our UI.
   const handleCardClick = (reel) => {
-    if (isMobile && !expanded) {
-      setExpanded(true);
-      return;
-    }
     if (!reel.video && reel.reelUrl) {
       window.open(reel.reelUrl, "_blank", "noopener,noreferrer");
     }
   };
-
-  // Stacked-deck transform (collapsed state, React-managed).
-  const getStackedStyle = (index) => ({
-    transform: `translate(-50%, -50%) translateX(${index * 6}%) translateY(${index * 10}px) rotate(${index * 4}deg) scale(${1 - index * 0.05})`,
-    zIndex: 30 - index * 10,
-  });
 
   useGSAP(
     () => {
@@ -258,22 +181,16 @@ const MarqueeBanner = () => {
       </div>
 
       <div
-        className={`reels-container ${isMobile ? (expanded ? `is-carousel${entering ? " is-entering" : ""}` : "is-stacked") : ""}`}
-        onClick={() => { if (isMobile && !expanded) setExpanded(true); }}
+        className={`reels-container ${isMobile ? "is-swipe" : ""}`}
+        ref={trackRef}
       >
         {reelsData.map((reel, i) => (
           <div
             key={reel.id}
             ref={(el) => { cardRefs.current[i] = el; }}
             className={`reel-card reel-card-${reel.position}`}
-            style={{
-              ...(isMobile && !expanded ? getStackedStyle(i) : {}),
-              cursor: reel.reelUrl ? "pointer" : "default",
-            }}
+            style={{ cursor: reel.reelUrl ? "pointer" : "default" }}
             onClick={() => handleCardClick(reel)}
-            onTouchStart={onCardTouchStart}
-            onTouchMove={onCardTouchMove}
-            onTouchEnd={onCardTouchEnd}
           >
             <div className="reel-card-inner">
               <div className="reel-media">
@@ -343,21 +260,17 @@ const MarqueeBanner = () => {
 
       {isMobile && (
         <div className="reel-mobile-controls">
-          {!expanded ? (
-            <span className="reel-stack-hint">Tap to view</span>
-          ) : (
-            <div className="reel-dots">
-              {reelsData.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  className={`reel-dot ${i === activeIndex ? "active" : ""}`}
-                  aria-label={`Go to reel ${i + 1}`}
-                  onClick={() => { targetRef.current = i; }}
-                />
-              ))}
-            </div>
-          )}
+          <div className="reel-dots">
+            {reelsData.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                className={`reel-dot ${i === activeIndex ? "active" : ""}`}
+                aria-label={`Go to reel ${i + 1}`}
+                onClick={() => scrollToCard(i)}
+              />
+            ))}
+          </div>
         </div>
       )}
 

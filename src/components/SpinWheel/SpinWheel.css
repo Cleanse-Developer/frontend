@@ -163,17 +163,42 @@
 
 .wheel-container {
   position: relative;
-  width: 280px;
-  height: 280px;
+  width: 320px;
+  height: 320px;
+}
+
+/* Soft glow pooled under the wheel, so it sits on the panel instead of floating. */
+.wheel-container::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  width: 62%;
+  height: 22px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(79, 44, 34, 0.28), transparent 70%);
+  pointer-events: none;
 }
 
 .wheel-pointer {
   position: absolute;
-  top: -16px;
+  top: -18px;
   left: 50%;
   transform: translateX(-50%);
+  transform-origin: 50% 30%;
   z-index: 10;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 3px 5px rgba(46, 31, 20, 0.45));
+}
+
+/* The pointer flicks as pegs pass under it. Approximated rather than synced to
+   the segments: at spin speed the eye reads the motion, not the cadence. */
+.wheel-pointer.is-ticking {
+  animation: pointer-tick 0.14s ease-in-out infinite;
+}
+
+@keyframes pointer-tick {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  50% { transform: translateX(-50%) rotate(-7deg); }
 }
 
 .wheel {
@@ -181,9 +206,8 @@
   height: 100%;
   border-radius: 50%;
   position: relative;
-  box-shadow: 0 0 30px rgba(79, 44, 34, 0.15), inset 0 0 20px rgba(0, 0, 0, 0.1);
-  border: 4px solid #663532;
-  overflow: hidden;
+  /* No CSS border — the rim is drawn in the SVG so it can carry a gradient. */
+  filter: drop-shadow(0 12px 28px rgba(79, 44, 34, 0.3));
 }
 
 .wheel-svg {
@@ -209,6 +233,15 @@
   width: 30px;
   height: 30px;
   object-fit: contain;
+}
+
+.seg-win {
+  animation: seg-win-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes seg-win-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
 }
 
 /* Result State */
@@ -297,8 +330,8 @@
   }
 
   .wheel-container {
-    width: 200px;
-    height: 200px;
+    width: 240px;
+    height: 240px;
   }
 
   .wheel-center-logo {

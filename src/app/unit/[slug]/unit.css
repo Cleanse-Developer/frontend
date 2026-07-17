@@ -16,6 +16,9 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: start;
+  /* The two halves pull their content toward the centre line, so this is the
+     real gallery↔details gap — tune it here rather than via the columns. */
+  column-gap: clamp(2rem, 4vw, 4rem);
 }
 
 .product-hero-col {
@@ -28,15 +31,16 @@
 
 .product-meta-container {
   width: 100%;
-  /* Mirror the image block (max-width 540, centered in its half) so the space
-     to the LEFT of the image equals the space to the RIGHT of the details at
-     every width — and the details sit inset from the right edge. */
-  max-width: 540px;
-  margin: 0 auto;
+  /* 540px of content + the right gutter (border-box), so the details keep their
+     designed measure instead of the padding eating into it. */
+  max-width: calc(540px + var(--gutter));
+  /* Sits against the centre line (not centred in its half) so the details stay
+     close to the gallery; --gutter keeps it off the right edge on wide screens. */
+  margin: 0 auto 0 0;
   /* Fills the viewport for short copy, but grows (no inner scroll / clipping)
      when the description is long. */
   min-height: 100svh;
-  padding: 6rem 0 3rem;
+  padding: 6rem var(--gutter) 3rem 0;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -53,9 +57,11 @@
   align-self: start;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  /* Hug the centre line to match .product-meta-container, keeping the
+     gallery↔details gap driven solely by .product-hero's column-gap. */
+  align-items: flex-end;
   gap: 1rem;
-  padding: 6rem var(--gutter) 2rem;
+  padding: 6rem 0 2rem var(--gutter);
 }
 
 /* Big image is a square; thumbnails sit in a row beneath it */
@@ -188,13 +194,16 @@
 }
 
 /* Product Title */
+/* Marketplace-style product name: a long descriptive title set in body type,
+   not a display heading — it has to stay readable at two or three lines. */
 .product-title {
-  font-family: var(--font-heading);
-  font-weight: 400;
-  font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(1.25rem, 1.6vw, 1.5rem);
   color: var(--base-700);
-  line-height: 1.25;
-  letter-spacing: -0.01em;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
   margin-bottom: 0.5rem;
 }
 
@@ -478,15 +487,46 @@
 
 /* === Bundle Section === */
 
+/* The section reads as ONE offer, not three loose product cards: a tinted band
+   separates it from the page, an enclosing frame groups the picks with the
+   summary, and `+` separators (below) make the row read as an equation. */
 .bundle-section {
   width: 100%;
-  background: #F0EDE8;
-  padding: 5rem var(--gutter);
+  background: #E7DFD1;
+  /* Less bottom padding than top: the summary column already runs ~70px past the
+     card grid, so an equal 5rem here read as a hole under the cards. */
+  padding: 5rem var(--gutter) 3rem;
 }
 
 .bundle-header {
   max-width: var(--page-max);
   margin: 0 auto 2.5rem;
+}
+
+/* "BUNDLE · SAVE 15%" pill above the title. */
+.bundle-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: #663532;
+  color: #E7D0A6;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.bundle-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #C8AD73;
 }
 
 .bundle-title {
@@ -516,12 +556,48 @@
   margin: 0 auto;
   /* Don't let the right-side summary stretch the cards — keep them fixed-height. */
   align-items: start;
+  /* Frames the picks and the summary as one offer. */
+  background: #F4EFE6;
+  border: 1px solid rgba(102, 53, 50, 0.16);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+/* `+` chips between the picks: the row then reads as an equation adding up to
+   the summary, which is what "understanding this as a bundle" was missing.
+   Sits centred in the grid's 20px gap. */
+.bundle-grid .bundle-card + .bundle-card::before {
+  content: "+";
+  position: absolute;
+  /* Half the 36px gap, so the chip is centred between the two images. */
+  left: -18px;
+  top: 42%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #F4EFE6;
+  border: 1px solid rgba(102, 53, 50, 0.28);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1;
+  color: #663532;
+  pointer-events: none;
 }
 
 .bundle-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  /* auto-fit, not repeat(3): a bundle with fewer than 3 products would otherwise
+     reserve empty columns and leave a hole in the row. */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  /* 36px column gap so the 28px `+` chip sits fully inside it. */
+  gap: 20px 36px;
+  align-content: start;
 }
 
 /* Match the home "Build Your Ritual" cards (.byr-card): the card itself is
@@ -706,11 +782,10 @@
 }
 
 .bundle-slot-img img {
-  min-width: 100%;
-  min-height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.25);
 }
 
 .bundle-slot-empty {
@@ -1500,6 +1575,8 @@
     position: static;
     min-height: 0;
     height: auto;
+    /* Single column here: re-centre the gallery (desktop hugs the centre line). */
+    align-items: center;
     padding: 5rem var(--gutter) 2rem;
   }
 
@@ -1662,7 +1739,7 @@
   }
 
   .product-title {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
 
   .bundle-section {
@@ -1800,8 +1877,8 @@
 
   /* Bigger product name, smaller description */
   .product-title {
-    font-size: 1.7rem;
-    line-height: 1.2;
+    font-size: 1.3rem;
+    line-height: 1.35;
   }
 
   .product-description {

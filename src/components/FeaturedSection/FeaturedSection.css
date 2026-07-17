@@ -45,23 +45,89 @@
   background-color: #C8AD73;
   display: flex;
   align-items: center;
-  padding-left: 2rem;
+  /* Larger than the image's `right` inset on purpose: the category PNGs carry
+     transparent padding, so the bottle LOOKS further from its edge than 2rem.
+     This matches the label's optical inset to the product's. */
+  padding-left: 6rem;
 }
 
 .sbc-card-img {
   position: absolute;
   bottom: -20px;
-  right: 0.5rem;
-  height: 260px;
+  /* Matches .sbc-card-box's padding-left so the product is inset from its edge
+     by exactly as much as the label is from the opposite one. */
+  right: 2rem;
+  height: 320px;
   width: auto;
   object-fit: contain;
-  z-index: 1;
+  z-index: 2;
   transition: transform 0.5s ease;
   pointer-events: none;
 }
 
 .sbc-card:hover .sbc-card-img {
   transform: translateY(-8px);
+}
+
+/* ── Hover botanicals ────────────────────────────────────────────────────────
+   Sit behind the product (z-index 1 vs its 2) and grow outward on hover, so the
+   foliage reads as wrapping around the bottle rather than sitting on top of it.
+   `overflow: visible` on the card lets them break past the tan block. */
+.sbc-card-flora {
+  position: absolute;
+  /* Matches .sbc-card-box exactly and clips to it: the foliage is taller than the
+     card, so without this it spills out over the section background. */
+  inset: 0;
+  overflow: hidden;
+  border-radius: 17.87px;
+  z-index: 1;
+  pointer-events: none;
+  color: #6E7A4F;
+}
+
+.sbc-flora-roots {
+  position: absolute;
+  /* Anchored bottom-right and mirrored, so the branch's thick base (drawn on its
+     left) sits in the right corner and reaches across toward the label. The
+     artwork is 1508×631, so this height renders it ~330px wide. */
+  right: 0;
+  bottom: 0;
+  height: 138px;
+  width: auto;
+  object-fit: contain;
+  transform: scaleX(-1);
+}
+
+/* Growth is a soft-edged mask sweeping along the branch from base to tip. The
+   mask runs in the element's OWN axes and `transform: scaleX(-1)` is applied
+   after masking, so this local left→right sweep reads right→left on screen —
+   matching the mirrored branch. A mask (not opacity) is what makes it read as
+   growth; the soft gradient edge feathers the tip instead of wiping a hard line. */
+.sbc-flora-roots {
+  -webkit-mask-image: linear-gradient(to right, #000 42%, transparent 62%);
+  mask-image: linear-gradient(to right, #000 42%, transparent 62%);
+  -webkit-mask-size: 260% 100%;
+  mask-size: 260% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  /* Opaque end sits at the mask's LEFT, so position 100% leaves the element
+     covered by the transparent right half = nothing visible at rest. */
+  -webkit-mask-position: 100% 0;
+  mask-position: 100% 0;
+  transition: -webkit-mask-position 1.2s cubic-bezier(0.3, 0.8, 0.35, 1),
+    mask-position 1.2s cubic-bezier(0.3, 0.8, 0.35, 1);
+}
+
+.sbc-card:hover .sbc-flora-roots {
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .sbc-flora-roots {
+    transition-duration: 0.01s;
+  }
 }
 
 .sbc-card-name {
@@ -586,17 +652,19 @@
   position: relative;
 }
 
+/* Fill the card box exactly so object-fit does the cropping: with only
+   min-width/min-height the img keeps its intrinsic size, and every photo lands
+   at its own scale — which is what made the bottles sit at different heights. */
 .product-card-image img {
-  min-width: 100%;
-  min-height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.25);
   transition: transform 0.5s ease-out;
 }
 
 .product-card:hover .product-card-image img {
-  transform: scale(1.32);
+  transform: scale(1.05);
 }
 
 /* Press animation: on click/tap a border frames the card and the image inside
@@ -1181,20 +1249,123 @@
 }
 
 /* Build Your Ritual Section */
+/* ── Marquee bands ───────────────────────────────────────────────────────────
+   Two straight bands, one under the heading and one under the bundle, running
+   opposite ways. They sit in the flow rather than behind the bundle: the cards
+   and the summary panel are opaque and fill the centre, so a band back there is
+   never actually visible. Decorative only — aria-hidden, pointer-events off. */
+.byr-cross-band {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  /* Feather the ends so the text slides in and out instead of being chopped off
+     at the section edge. */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+}
+
+.byr-cross-band-a {
+  margin-bottom: 2.5rem;
+}
+
+.byr-cross-band-b {
+  margin-top: 2.5rem;
+}
+
+.byr-cross-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+/* Half the track scrolls past, then it resets — and because the second <span>
+   is identical to the first, the seam lands mid-word and is invisible. */
+.byr-cross-band-a .byr-cross-track {
+  animation: byrCrossLeft 40s linear infinite;
+}
+
+/* Starting at -50% lets this one run the other way over the same distance. */
+.byr-cross-band-b .byr-cross-track {
+  animation: byrCrossRight 46s linear infinite;
+}
+
+.byr-cross-track span {
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 3.4vw, 3rem);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(102, 53, 50, 0.28);
+}
+
+@keyframes byrCrossLeft {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes byrCrossRight {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .byr-cross-track {
+    animation: none;
+  }
+}
+
+/* Reads as ONE offer, not a row of unrelated products: a tinted band separates
+   the section from the page, a frame groups the picks with the summary, and the
+   `+` chips below make the row read as an equation. */
 .byr-section {
+  position: relative;
   width: 100%;
   padding: var(--section-py) var(--gutter);
-  background-color: #F0EDE8;
+  background-color: #E7DFD1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* Contains the rotated marquee bands. */
+  overflow: hidden;
 }
 
 .byr-header {
+  position: relative;
+  z-index: 1;
   max-width: var(--page-max);
   width: 100%;
-  margin: 0 auto 2.5rem;
+  margin: 0 auto 2rem;
   text-align: center;
+}
+
+/* "Bundle · Save 15%" pill above the title. */
+.byr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.9rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: #663532;
+  color: #E7D0A6;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.byr-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #C8AD73;
 }
 
 .byr-title {
@@ -1227,13 +1398,84 @@
   width: 100%;
   margin: 0 auto;
   align-items: start;
+  /* Frames the picks and the summary as one offer. */
+  position: relative;
+  z-index: 1;
+  background: #F4EFE6;
+  border: 1px solid rgba(102, 53, 50, 0.16);
+  border-radius: 20px;
+  padding: 24px;
+  /* Clips the ribbon's tails to the frame's rounded corner. */
+  overflow: hidden;
+}
+
+/* Corner ribbon — puts the discount on the offer itself, not just in the panel's
+   fine print. Sits over the first card's top-left, the one area of a product
+   card that is always empty (the check sits bottom-right). */
+.byr-ribbon {
+  position: absolute;
+  top: 20px;
+  left: -46px;
+  z-index: 4;
+  width: 168px;
+  padding: 0.38rem 0;
+  transform: rotate(-45deg);
+  background: #663532;
+  color: #E7D0A6;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(46, 31, 20, 0.28);
+}
+
+/* `+` chips between the picks, centred in the grid's 20px gap: the row then
+   reads as an equation adding up to the summary — the connection that made this
+   hard to recognise as a bundle. */
+.byr-grid .byr-card + .byr-card::before {
+  content: "+";
+  position: absolute;
+  /* Half the 36px gap, so the chip is centred between the two images. */
+  left: -18px;
+  /* Centred on the IMAGE, not the card — the card also contains the name/price
+     below it, so any % of the card's height sits too low. */
+  top: calc(var(--byr-img-h) / 2);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #F4EFE6;
+  border: 1px solid rgba(102, 53, 50, 0.28);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1;
+  color: #663532;
+  pointer-events: none;
 }
 
 .byr-grid {
+  /* Single source of truth for the card image's height: .byr-card-image reads it,
+     and the `+` chip centres on it via calc(). Overridden per breakpoint below. */
+  --byr-img-h: 377px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 20px;
+  /* auto-fit + implicit rows. This used to be `repeat(3, 1fr)` with
+     `grid-template-rows: repeat(2, 1fr)`, which reserved a SECOND ROW whether or
+     not there were products to fill it — a 3-product bundle left an entire empty
+     row of dead space under the cards. Rows are now created only as needed. */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  /* 36px column gap so the 28px `+` chip sits fully inside it — at the old 20px
+     it overlapped each neighbouring image and got painted over. */
+  gap: 20px 36px;
+  align-content: start;
 }
 
 /* Same structure as the Best Sellers product cards: a rounded IMAGE box with
@@ -1249,8 +1491,10 @@
 
 .byr-card-image {
   width: 100%;
-  /* Match the "Our Best Sellers" product cards' fixed height exactly. */
-  height: 377px;
+  /* Match the "Our Best Sellers" product cards' fixed height exactly.
+     Driven by --byr-img-h (declared on .byr-grid) so the `+` chip can centre on
+     the image at every breakpoint from the same number. */
+  height: var(--byr-img-h);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1291,9 +1535,9 @@
 }
 
 /* Match the featured product cards' larger fixed heights on wide screens. */
-@media (min-width: 1440px) { .byr-card-image { height: 420px; } }
-@media (min-width: 1920px) { .byr-card-image { height: 480px; } }
-@media (min-width: 2560px) { .byr-card-image { height: 560px; } }
+@media (min-width: 1440px) { .byr-grid { --byr-img-h: 420px; } }
+@media (min-width: 1920px) { .byr-grid { --byr-img-h: 480px; } }
+@media (min-width: 2560px) { .byr-grid { --byr-img-h: 560px; } }
 
 .byr-card-info {
   padding: 0.75rem 0;
@@ -1382,17 +1626,6 @@
   margin-bottom: 0.75rem;
 }
 
-.byr-bundle-desc {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 18px;
-  font-weight: 400;
-  color: #fff;
-  opacity: 0.7;
-  line-height: 100%;
-  letter-spacing: 0;
-  /* Natural case instead of the global p uppercase */
-  text-transform: none;
-}
 
 .byr-bundle-divider {
   width: 100%;
@@ -1431,11 +1664,10 @@
 }
 
 .byr-slot-img img {
-  min-width: 100%;
-  min-height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.25);
 }
 
 .byr-slot-empty {
@@ -1519,12 +1751,63 @@
   color: #fff;
 }
 
-.byr-savings {
+/* ── Unlock progress ─────────────────────────────────────────────────────── */
+.byr-progress {
+  margin-top: 0.5rem;
+}
+
+.byr-progress-track {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+
+.byr-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #C8AD73;
+  transition: width 0.45s cubic-bezier(0.3, 0.8, 0.35, 1), background-color 0.3s ease;
+}
+
+.byr-progress-unlocked .byr-progress-fill {
+  background: #E7D0A6;
+}
+
+.byr-progress-label {
+  margin-top: 0.5rem;
   font-family: var(--font-body, sans-serif);
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.65);
-  margin-top: 0.25rem;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.7);
+  /* Two lines' worth reserved: the locked and unlocked strings are different
+     lengths, and letting the box resize would shift the whole section again. */
+  min-height: 2.1em;
+}
+
+.byr-progress-unlocked .byr-progress-label {
+  color: #E7D0A6;
+  font-weight: 500;
+}
+
+/* The saving is the most persuasive fact here, so it reads as a figure rather
+   than fine print. */
+.byr-savings {
+  font-family: var(--font-body, sans-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #C8AD73;
+  margin-top: 0.4rem;
+  letter-spacing: 0.04em;
+  transition: opacity 0.25s ease;
+}
+
+/* Hidden, not unmounted — it still occupies its line, so the panel's height
+   (and therefore the whole section) doesn't jump when the discount unlocks. */
+.byr-savings-placeholder {
+  visibility: hidden;
+  opacity: 0;
 }
 
 .byr-add-btn {
@@ -1544,8 +1827,15 @@
   transition: opacity 0.2s ease;
 }
 
-.byr-add-btn:hover {
+.byr-add-btn:hover:not(:disabled) {
   opacity: 0.88;
+}
+
+/* Disabled rather than unmounted at 0 selected — removing the button collapsed
+   the panel and shifted the section. */
+.byr-add-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* ============================================================
@@ -1741,8 +2031,8 @@
   }
 
   /* The card image was 250px tall — far too dominant in a 2-up phone grid */
-  .byr-card-image {
-    height: 190px;
+  .byr-grid {
+    --byr-img-h: 190px;
   }
 
   /* Collapse the brown card into a compact zomato-style pill */
@@ -1761,9 +2051,6 @@
     display: flex;
   }
 
-  .byr-bundle-desc {
-    font-size: 1rem;
-  }
 
   /* Lay the bundle products out as a horizontal wrapping row of compact chips
      (thumbnail + name/price beneath) instead of a tall vertical list, so the
@@ -1841,8 +2128,11 @@
     padding: 0.5rem 0;
   }
 
+  .byr-grid {
+    --byr-img-h: 220px;
+  }
+
   .byr-card-image {
-    height: 220px;
     border-radius: 0.75rem;   /* matches .product-card-image on mobile */
   }
 
@@ -1882,10 +2172,6 @@
     margin-bottom: 0.45rem;
   }
 
-  .byr-bundle-desc {
-    font-size: 0.82rem;
-    line-height: 1.35;
-  }
 
   .byr-bundle-divider {
     margin: 0.85rem 0;
@@ -2147,9 +2433,6 @@
     font-size: 1.4rem;
   }
 
-  .byr-bundle-desc {
-    font-size: 1.1rem;
-  }
 }
 
 /* Ultra wide screens */
@@ -2340,9 +2623,6 @@
     font-size: 1.6rem;
   }
 
-  .byr-bundle-desc {
-    font-size: 1.25rem;
-  }
 
   .byr-slot-name {
     font-size: 1rem;

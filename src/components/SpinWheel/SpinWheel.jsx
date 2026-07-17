@@ -231,9 +231,10 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
   if (prizes.length === 0) return null;
 
   const segmentAngle = 360 / prizes.length;
-  const radius = 140;
+  const radius = 132; // leaves room for the rim
   const centerX = 150;
   const centerY = 150;
+  const RIM_R = 138;
 
   const createSegmentPath = (index) => {
     const startAngle = (index * segmentAngle - 90) * (Math.PI / 180);
@@ -246,14 +247,41 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
   };
 
   const getTextPosition = (index) => {
-    const angle = ((index * segmentAngle) + (segmentAngle / 2) - 90) * (Math.PI / 180);
-    const textRadius = radius * 0.65;
+    const mid = (index * segmentAngle) + (segmentAngle / 2);
+    const angle = (mid - 90) * (Math.PI / 180);
+    const textRadius = radius * 0.66;
     return {
       x: centerX + textRadius * Math.cos(angle),
       y: centerY + textRadius * Math.sin(angle),
-      rotation: (index * segmentAngle) + (segmentAngle / 2),
+      // Past the halfway point the label would hang upside down, so flip it back.
+      rotation: mid > 90 && mid < 270 ? mid + 180 : mid,
     };
   };
+
+  // Divider spokes sit on the boundary between two segments.
+  const spokeEnd = (index) => {
+    const a = (index * segmentAngle - 90) * (Math.PI / 180);
+    return { x: centerX + radius * Math.cos(a), y: centerY + radius * Math.sin(a) };
+  };
+
+  // The CMS sets a textColor per prize, but the values disagree with each other
+  // (one is gold, the rest cream/brown) which is a large part of why the wheel
+  // read as messy. Derive it from the segment fill instead so contrast is always
+  // right, whatever colours the CMS returns.
+  const isDark = (hex) => {
+    const h = String(hex || "").replace("#", "");
+    if (h.length !== 6) return true;
+    const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+    return (r * 299 + g * 587 + b * 114) / 1000 < 140;
+  };
+
+  // Bulbs around the rim, like a real prize wheel.
+  const BULBS = Array.from({ length: prizes.length * 3 }, (_, i) => {
+    const a = ((i * 360) / (prizes.length * 3) - 90) * (Math.PI / 180);
+    return { x: centerX + RIM_R * Math.cos(a), y: centerY + RIM_R * Math.sin(a), i };
+  });
+
+  const winIdx = result && !isSpinning ? prizes.findIndex((p) => p.value === result.value) : -1;
 
   return (
     <div className="spin-wheel-overlay">
@@ -318,9 +346,18 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
 
           <div className="spin-wheel-right">
             <div className="wheel-container">
-              <div className="wheel-pointer">
-                <svg width="24" height="32" viewBox="0 0 24 32" fill="#663532">
-                  <polygon points="12,32 0,0 24,0" />
+              <div className={`wheel-pointer${isSpinning ? " is-ticking" : ""}`}>
+                <svg width="30" height="40" viewBox="0 0 30 40">
+                  <defs>
+                    <linearGradient id="ptrGold" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#F3E2B6" />
+                      <stop offset="50%" stopColor="#C8AD73" />
+                      <stop offset="100%" stopColor="#8A6A2F" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M15 40 L3 12 A 12 12 0 1 1 27 12 Z" fill="url(#ptrGold)"
+                    stroke="#4F2C22" strokeWidth="1.5" strokeLinejoin="round" />
+                  <circle cx="15" cy="12" r="4.5" fill="#4F2C22" />
                 </svg>
               </div>
               <div
@@ -332,30 +369,83 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
                 }}
               >
                 <svg viewBox="0 0 300 300" className="wheel-svg">
-                  {prizes.map((prize, index) => (
-                    <g key={prize.value}>
-                      <path
-                        d={createSegmentPath(index)}
-                        fill={prize.color}
-                        stroke="#663532"
-                        strokeWidth="1"
-                      />
-                      <text
-                        x={getTextPosition(index).x}
-                        y={getTextPosition(index).y}
-                        fill={prize.textColor}
-                        fontSize="12"
-                        fontWeight="700"
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        transform={`rotate(${getTextPosition(index).rotation}, ${getTextPosition(index).x}, ${getTextPosition(index).y})`}
-                        style={{ textTransform: "uppercase", letterSpacing: "0.5px" }}
-                      >
-                        {prize.label}
-                      </text>
-                    </g>
+                  <defs>
+                    {/* Gold rim: the light/dark stops read as a bevel catching light. */}
+                    <linearGradient id="rimGold" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#F0DCA8" />
+                      <stop offset="35%" stopColor="#C8AD73" />
+                      <stop offset="65%" stopColor="#8A6A2F" />
+                      <stop offset="100%" stopColor="#E3C88C" />
+                    </linearGradient>
+                    <radialGradient id="hubGold" cx="35%" cy="30%">
+                      <stop offset="0%" stopColor="#F3E2B6" />
+                      <stop offset="60%" stopColor="#C8AD73" />
+                      <stop offset="100%" stopColor="#8A6A2F" />
+                    </radialGradient>
+                    {/* One sheen over the whole face — cheaper and more even than a
+                        gradient per segment, and it works with any CMS colour. */}
+                    <radialGradient id="faceSheen" cx="34%" cy="26%">
+                      <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.30" />
+                      <stop offset="55%" stopColor="#FFFFFF" stopOpacity="0.05" />
+                      <stop offset="100%" stopColor="#000000" stopOpacity="0.22" />
+                    </radialGradient>
+                    <filter id="rimShadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#2E1F14" floodOpacity="0.35" />
+                    </filter>
+                  </defs>
+
+                  {/* Rim */}
+                  <circle cx={centerX} cy={centerY} r={RIM_R} fill="none"
+                    stroke="url(#rimGold)" strokeWidth="11" filter="url(#rimShadow)" />
+
+                  {prizes.map((prize, index) => {
+                    const pos = getTextPosition(index);
+                    const ink = isDark(prize.color) ? "#F5EFE2" : "#4F2C22";
+                    return (
+                      <g key={prize.value}>
+                        <path d={createSegmentPath(index)} fill={prize.color} />
+                        <text
+                          x={pos.x}
+                          y={pos.y}
+                          fill={ink}
+                          fontSize="12.5"
+                          fontWeight="600"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          transform={`rotate(${pos.rotation}, ${pos.x}, ${pos.y})`}
+                          style={{ textTransform: "uppercase", letterSpacing: "1.2px" }}
+                        >
+                          {prize.label}
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Gold spokes on the segment boundaries */}
+                  {prizes.map((prize, index) => {
+                    const e = spokeEnd(index);
+                    return (
+                      <line key={`spoke-${prize.value}`} x1={centerX} y1={centerY} x2={e.x} y2={e.y}
+                        stroke="#C8AD73" strokeWidth="1.25" strokeOpacity="0.75" />
+                    );
+                  })}
+
+                  {/* Lighting pass, over the segments but under the rim furniture. */}
+                  <circle cx={centerX} cy={centerY} r={radius} fill="url(#faceSheen)" pointerEvents="none" />
+
+                  {/* Winning wedge, outlined once the wheel stops. */}
+                  {winIdx >= 0 && result?.value !== "tryagain" && (
+                    <path className="seg-win" d={createSegmentPath(winIdx)} fill="none"
+                      stroke="#F0DCA8" strokeWidth="3" strokeLinejoin="round" />
+                  )}
+
+                  {BULBS.map((b) => (
+                    <circle key={`bulb-${b.i}`} cx={b.x} cy={b.y} r="2.6"
+                      fill={b.i % 2 ? "#4F2C22" : "#FBEFCE"} fillOpacity={b.i % 2 ? 0.55 : 0.95} />
                   ))}
-                  <circle cx={centerX} cy={centerY} r="35" fill="#4F2C22" stroke="#663532" strokeWidth="3" />
+
+                  <circle cx={centerX} cy={centerY} r="34" fill="url(#hubGold)" filter="url(#rimShadow)" />
+                  <circle cx={centerX} cy={centerY} r="27" fill="#4F2C22" />
                 </svg>
                 <div className="wheel-center-logo">
                   <img src="/cleanse-monogram.svg" alt="Cleanse" />

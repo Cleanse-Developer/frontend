@@ -9,6 +9,8 @@ import { productApi, bundleApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import { cardPrice } from "@/lib/formatters";
 import ProductCard from "@/components/ProductCard/ProductCard";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // These sections fetch async and sit ABOVE the pinned PeelReveal section on the
@@ -245,6 +247,15 @@ export const BentoSection = () => {
   );
 };
 
+/* The supplied root/branch artwork, cropped to its content bounds and saved as
+   /root-branch.png. It grows out of the card's bottom-right corner on hover —
+   see the mask sweep in .sbc-flora-roots. Identical on all three cards. */
+const SbcFlora = () => (
+  <span className="sbc-card-flora" aria-hidden="true">
+    <img src="/root-branch.png" alt="" className="sbc-flora-roots" loading="lazy" />
+  </span>
+);
+
 export const ShopByCategory = () => {
   const categories = [
     { id: 1, name: "skin care", image: "/images/cat-skin.png", link: "/wardrobe?category=face-care" },
@@ -261,6 +272,8 @@ export const ShopByCategory = () => {
             <div className="sbc-card-box">
               <span className="sbc-card-name">{cat.name}</span>
             </div>
+            {/* Before the product in the DOM so it grows out from BEHIND it. */}
+            <SbcFlora />
             <img src={cat.image} alt={cat.name} className="sbc-card-img" loading="lazy" />
           </a>
         ))}
@@ -334,15 +347,33 @@ export const BuildYourRitual = () => {
 
   if (!bundleData) return null;
 
+  // One band's worth of text. Duplicated inside each band so the loop is
+  // seamless: the track shifts by exactly half its width, landing the copy
+  // where the original started.
+  const bandText = `Bundle · Save ${discountLabel} · `.repeat(8);
+
   return (
     <section className="byr-section">
       <div className="byr-header">
+        <span className="byr-badge">Bundle · Save {discountLabel}</span>
         <h2 className="byr-title">{bundleData.name || "BUILD YOUR RITUAL"}</h2>
         <p className="byr-subtitle">
           {bundleData.subtitle || `Buy ${minProducts}+ products and save upto ${discountLabel}`}
         </p>
       </div>
+
+      {/* Marquee band below the heading. In the flow rather than behind the
+          bundle: the cards are opaque and fill the centre, so a backdrop band
+          there is never actually seen. */}
+      <div className="byr-cross-band byr-cross-band-a" aria-hidden="true">
+        <div className="byr-cross-track">
+          <span>{bandText}</span>
+          <span>{bandText}</span>
+        </div>
+      </div>
+
       <div className="byr-layout">
+        <span className="byr-ribbon" aria-hidden="true">Save {discountLabel}</span>
         <div className="byr-grid">
           {products.map((product, i) => {
             const isSelected = selected[i];
@@ -413,11 +444,28 @@ export const BuildYourRitual = () => {
 
           <div className="byr-bundle-full">
           <h3 className="byr-bundle-title">YOUR BUNDLE</h3>
-          <p className="byr-bundle-desc">
-            {meetsMin
-              ? `Save ${discountLabel} on this bundle`
-              : `Add ${minProducts - selectedCount} more to unlock ${discountLabel} off`}
-          </p>
+          {/* Turns the passive "add N more" line into a visible goal: the bar
+              fills toward minProducts, so the discount reads as something you
+              are close to unlocking rather than a rule you have to parse. */}
+          <div
+            className={`byr-progress${meetsMin ? " byr-progress-unlocked" : ""}`}
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={minProducts}
+            aria-valuenow={Math.min(selectedCount, minProducts)}
+          >
+            <div className="byr-progress-track">
+              <div
+                className="byr-progress-fill"
+                style={{ width: `${Math.min(100, (selectedCount / minProducts) * 100)}%` }}
+              />
+            </div>
+            <p className="byr-progress-label">
+              {meetsMin
+                ? `${discountLabel} off unlocked`
+                : `${selectedCount} of ${minProducts} — add ${minProducts - selectedCount} more for ${discountLabel} off`}
+            </p>
+          </div>
           <div className="byr-bundle-divider" />
           <div className="byr-bundle-slots">
             {products.map((product, i) => {
@@ -458,15 +506,29 @@ export const BuildYourRitual = () => {
               <span className="byr-total-final">₹{meetsMin ? discountedTotal : originalTotal}</span>
             </div>
           </div>
-          {meetsMin && savings > 0 && (
-            <p className="byr-savings">YOU SAVE ₹{savings}</p>
-          )}
-          {selectedCount > 0 && (
-            <button className="byr-add-btn" onClick={handleAddToCart}>
-              ADD BUNDLE TO CART
-            </button>
-          )}
+          {/* Both stay mounted and are hidden/disabled rather than unmounted:
+              dropping them out of the DOM collapsed the summary's height, and
+              since the summary is the tallest column it dragged the whole
+              section up — the layout jumped on every select/deselect. */}
+          <p className={`byr-savings${meetsMin && savings > 0 ? "" : " byr-savings-placeholder"}`}>
+            YOU SAVE ₹{savings}
+          </p>
+          <button
+            className="byr-add-btn"
+            onClick={handleAddToCart}
+            disabled={selectedCount === 0}
+          >
+            ADD BUNDLE TO CART
+          </button>
           </div>
+        </div>
+      </div>
+
+      {/* Second band, running the opposite way. */}
+      <div className="byr-cross-band byr-cross-band-b" aria-hidden="true">
+        <div className="byr-cross-track">
+          <span>{bandText}</span>
+          <span>{bandText}</span>
         </div>
       </div>
     </section>

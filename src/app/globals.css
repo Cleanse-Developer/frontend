@@ -70,17 +70,22 @@
     --section-grid-gap: var(--gutter);
   }
 }
+/* --gutter stays 4rem from 1440 up: the root font-size grows on big screens
+   (below), so it still scales — 64px @1440 → 92px @3440. Growing the rem value
+   too made it compound to ~160px. --page-max must stay above the available
+   width (100vw - 2×gutter) at each step, or the leftover is added to the side
+   margins and the content strands in the middle of the screen. */
 @media (min-width: 1440px) {
   :root { --gutter: 4rem; --page-max: 1400px; }
 }
 @media (min-width: 1920px) {
-  :root { --gutter: 5rem; --page-max: 1820px; --section-py: 6rem; }
+  :root { --page-max: 1800px; --section-py: 6rem; }
 }
 @media (min-width: 2560px) {
-  :root { --gutter: 6rem; --page-max: 2360px; --section-py: 7rem; }
+  :root { --page-max: 2400px; --section-py: 7rem; }
 }
 @media (min-width: 3440px) {
-  :root { --gutter: 7rem; --page-max: 3040px; --section-py: 8rem; }
+  :root { --page-max: 3260px; --section-py: 8rem; }
 }
 
 /* ── Large external monitors (23"+ / 1920px and up) ─────────────────────────

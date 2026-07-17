@@ -58,10 +58,10 @@ const PILLARS = [
 ];
 
 const STATS = [
-  { value: "5,000+", label: "years of Ayurvedic heritage" },
+  { value: "155", label: "years old" },
   { value: "100%", label: "natural ingredients" },
   { value: "0", label: "synthetic additives" },
-  { value: "12", label: "botanical actives" },
+  { value: "20+", label: "botanical actives" },
 ];
 
 const JOURNEY = [

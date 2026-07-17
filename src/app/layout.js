@@ -23,6 +23,31 @@ export const metadata = {
   description: "Discover the ancient wisdom of Ayurveda through our premium skincare and beauty rituals. Handcrafted with pure, natural ingredients.",
 };
 
+// Decide whether the intro loader plays BEFORE the browser paints anything. This is
+// a parser-blocking script placed first in <body>, so it runs while the preloader
+// markup below is still being parsed: the panel is server-rendered (so it's part of
+// the very first paint, with no wait for hydration), and CSS only reveals it when
+// this script stamps data-loader="play" on <html>. On a reload or a non-home route
+// the attribute is "skip", so the panel never paints at all — no flash either way.
+// Keep the key in sync with LOADER_SESSION_KEY in components/Preloader/Preloader.
+const LOADER_DECISION_SCRIPT = `
+(function () {
+  var el = document.documentElement;
+  var isHome = location.pathname === "/";
+  try {
+    if (isHome && !sessionStorage.getItem("cleanse_loader_shown")) {
+      sessionStorage.setItem("cleanse_loader_shown", "1");
+      el.dataset.loader = "play";
+    } else {
+      el.dataset.loader = "skip";
+    }
+  } catch (e) {
+    /* sessionStorage blocked (private mode) — play on home, never persist */
+    el.dataset.loader = isHome ? "play" : "skip";
+  }
+})();
+`;
+
 // Fetch public settings on the server so CMS-driven content (the hero carousel in
 // particular) is present in the initial HTML — no client round-trip, no empty hero.
 async function getInitialSettings() {
@@ -46,9 +71,13 @@ export default async function RootLayout({ children }) {
   const heroFirst = initialSettings?.cmsHero?.carouselImages?.[0]?.url;
   if (heroFirst) ReactDOM.preload(heroFirst, { as: "image", fetchPriority: "high" });
 
+  // suppressHydrationWarning: LOADER_DECISION_SCRIPT stamps data-loader onto
+  // <html> before React hydrates, so the server markup and the DOM legitimately
+  // differ on this element.
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: LOADER_DECISION_SCRIPT }} />
         <ErrorBoundary>
         <AuthProvider>
         <SettingsProvider initial={initialSettings}>

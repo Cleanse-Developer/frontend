@@ -7,8 +7,7 @@
   width: 100%;
   background-color: #F0EDE8;
   /* Testimonials above already contributes 6rem of bottom padding, so the top
-     here stays minimal. Extra bottom padding absorbs LatestLaunches'
-     margin-top:-6rem overlap. */
+     here stays minimal. */
   padding: var(--section-py) var(--gutter) var(--section-py);
   position: relative;
   z-index: 4;

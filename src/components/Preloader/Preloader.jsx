@@ -1,30 +1,25 @@
 "use client";
 import "./Preloader.css";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 import { useLenis } from "lenis/react";
 import gsap from "gsap";
 
-// useLayoutEffect on the client (so the loader can be hidden BEFORE paint, with no
-// flash on reload), falling back to useEffect during SSR to avoid React's warning.
+// useLayoutEffect on the client (so a skipped loader is torn down BEFORE paint),
+// falling back to useEffect during SSR to avoid React's warning.
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
-// Show the intro loader at most once per browser session.
-const LOADER_SESSION_KEY = "cleanse_loader_shown";
 
 // Module-level flag: the loader only runs on the very first page load, not on
 // client-side route changes.
 let isInitialLoad = true;
 
-// Whether the intro loader will actually run for this load: only the first time the
-// home page is opened in a session. The home hero reads this to decide whether to
-// wait for the loader (long delay) or animate in immediately (short delay).
+// Whether the intro loader is playing for this load. The once-per-session, home-only
+// rule is decided by the blocking script in the root layout (before first paint) and
+// published as data-loader on <html> — read it rather than re-deriving it, or we'd
+// disagree with the markup the browser has already painted. The home hero reads this
+// to decide whether to wait for the loader (long delay) or animate in (short delay).
 export function shouldPlayLoader() {
   if (typeof window === "undefined") return true;
-  try {
-    return isInitialLoad && !sessionStorage.getItem(LOADER_SESSION_KEY);
-  } catch {
-    return isInitialLoad;
-  }
+  return document.documentElement.dataset.loader === "play";
 }
 
 // The Cleanse monogram (the leaf mark used in the favicon) — same paths as
@@ -48,12 +43,13 @@ const MONO_PATHS = [
 ];
 
 const Preloader = () => {
-  const pathname = usePathname();
-  const isHomePage = pathname === "/";
-  // Start HIDDEN so the loader is never in the SSR/initial HTML (that's what
-  // flashed for ~1s on reload). A client layout-effect decides — before paint —
-  // whether this is a genuine first load that should play the intro.
-  const [show, setShow] = useState(false);
+  // Start SHOWN so the panel is in the SSR HTML and lands in the browser's first
+  // paint — mounting it from a client effect instead is what left the page bare
+  // until hydration finished. Nothing here depends on the route: CSS keeps the
+  // panel hidden unless the layout's blocking script stamped data-loader="play",
+  // so a reload or a non-home route never paints it, and this then drops it from
+  // the DOM in a layout effect (before paint, so there's still no flash).
+  const [show, setShow] = useState(true);
   const wrapperRef = useRef(null);
   const innerRef = useRef(null);
   const svgRef = useRef(null);
@@ -65,41 +61,27 @@ const Preloader = () => {
 
   useEffect(() => () => { isInitialLoad = false; }, []);
 
-  // Resolve the once-per-session rule on the client, before paint: reloading an
-  // already-seen home page (or landing on any non-home route) hides the loader
-  // with no flash; the first home load marks the session so it never repeats.
+  // The blocking script already resolved the once-per-session, home-only rule before
+  // paint. If it said skip, the panel is display:none and was never seen — drop it
+  // from the DOM here. Runs once: nothing re-shows the loader on later navigations.
   useIsoLayoutEffect(() => {
-    // Only the very first load of the home page in a session plays the intro.
-    // Reloads (sessionStorage key already set) and client route changes
-    // (isInitialLoad false) keep it hidden, so there's no flash.
-    if (!isHomePage || !isInitialLoad) return;
-    try {
-      if (!sessionStorage.getItem(LOADER_SESSION_KEY)) {
-        sessionStorage.setItem(LOADER_SESSION_KEY, "1");
-        setShow(true);
-      }
-    } catch {
-      /* sessionStorage unavailable (private mode) — show once, do not persist */
-      setShow(true);
-    }
-  }, [isHomePage]);
+    if (!shouldPlayLoader() || !isInitialLoad) setShow(false);
+  }, []);
 
-  // Lock scroll + hide the scrollbar while the loader is on screen.
+  // Lock scroll while the loader is on screen. The overflow lock itself is CSS keyed
+  // off data-loader="play" (so it applies from the first paint, before Lenis exists);
+  // retiring the attribute to "done" is what releases it — clearing inline styles
+  // wouldn't, since there are none to clear.
   useEffect(() => {
-    if (show) {
-      if (lenis) lenis.stop();
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-    } else {
-      if (lenis) lenis.start();
-      document.documentElement.style.overflow = "";
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.documentElement.style.overflow = "";
-      document.body.style.overflow = "";
-    };
+    if (!lenis) return;
+    if (show) lenis.stop();
+    else lenis.start();
   }, [lenis, show]);
+
+  useEffect(() => {
+    if (show) return;
+    document.documentElement.dataset.loader = "done";
+  }, [show]);
 
   useEffect(() => {
     if (!show || !svgRef.current) return;
