@@ -10,4 +10,4 @@
 :HL["/_next/static/chunks/75c805a552b0b1d3.css","style"]
 :HL["/_next/static/chunks/20ca0fb132137055.css","style"]
 :HL["https://d3dm84701hs6ur.cloudfront.net/cleanse/cms/f7b6e3d7-66d5-4838-a082-12f26e2d06e5.webp","image",{"fetchPriority":"high"}]
-0:{"buildId":"5qmAsZ4oRhYBq4dBYbSHb","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"ritual","paramType":null,"paramKey":"ritual","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"H6F4lk6L203VsHLI2Yxou","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"ritual","paramType":null,"paramKey":"ritual","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}

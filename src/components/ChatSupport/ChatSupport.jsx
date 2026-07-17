@@ -7,6 +7,9 @@ const ChatSupport = () => {
   // Use the SAME contact number as the footer so they always match.
   const settings = useSettings();
   const supportPhone = settings.cmsFooter?.contact?.phone || "+91 80000 00000";
+  // Same source the footer uses; falls back to the real contact address rather
+  // than the old support@cleanse.com placeholder.
+  const supportEmail = settings.cmsFooter?.contact?.email || "hello@cleanseayurveda.com";
   const whatsappNumber = supportPhone.replace(/[^\d]/g, "");
 
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +62,7 @@ const ChatSupport = () => {
     setTimeout(() => {
       setMessages(prev => [...prev, {
         type: "bot",
-        text: "Thank you for your message! Our team will get back to you shortly. For immediate assistance, you can also email us at support@cleanse.com"
+        text: `Thank you for your message! Our team will get back to you shortly. For immediate assistance, you can also email us at ${supportEmail}`
       }]);
     }, 1000);
   };
@@ -85,7 +88,7 @@ const ChatSupport = () => {
           response = "We offer a 30-day return policy for unused products in original packaging. Would you like to initiate a return?";
           break;
         case "Talk to support":
-          response = `Our support team is available Mon-Sat, 9 AM - 6 PM IST. You can also email support@cleanse.com or call ${supportPhone}.`;
+          response = `Our support team is available Mon-Sat, 9 AM - 6 PM IST. You can also email ${supportEmail} or call ${supportPhone}.`;
           break;
         default:
           response = "How can I assist you further?";
