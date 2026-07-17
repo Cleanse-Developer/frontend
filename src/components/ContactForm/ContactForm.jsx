@@ -3,10 +3,16 @@ import "./ContactForm.css";
 import { useState, useEffect } from "react";
 import { MdOutlineArrowOutward } from "react-icons/md";
 import { newsletterApi } from "@/lib/endpoints";
+import { useSettings } from "@/context/SettingsContext";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ContactForm = () => {
+  const settings = useSettings();
+  // Same number the newsletter popup offers — read from the one CMS field so the
+  // two surfaces can never advertise different discounts.
+  const discountPercent = settings.newsletterPopupConfig?.discountPercent || 10;
+
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -58,8 +64,8 @@ const ContactForm = () => {
         </div>
         <div className="cf-copy">
           <p className="bodyCopy sm">
-            Receive exclusive rituals, new arrivals,
-            and ancient beauty secrets.
+            Subscribe and get {discountPercent}% off your first order, plus
+            exclusive rituals, new arrivals, and ancient beauty secrets.
           </p>
         </div>
         {!submitted ? (

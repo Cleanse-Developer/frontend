@@ -161,6 +161,22 @@
   box-shadow: 0 8px 40px rgba(46, 31, 20, 0.08);
 }
 
+/* Lead summary (the post's excerpt) — sits above the body as a short "what this
+   is about". Set apart with the gold rule and larger type so it reads as a
+   standfirst rather than the first paragraph. */
+.blogpost-summary {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #2E1F14;
+  line-height: 1.6;
+  text-transform: none;
+  letter-spacing: 0.005em;
+  margin: 0 0 2rem;
+  padding-left: 1.25rem;
+  border-left: 2px solid #C8AD73;
+}
+
 /* Paragraphs */
 .blogpost-paragraph {
   font-family: var(--font-body);
@@ -637,6 +653,12 @@
     font-size: 0.95rem;
   }
 
+  .blogpost-summary {
+    font-size: 1rem;
+    padding-left: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
   .blogpost-share {
     margin-top: 2rem;
     padding-top: 1.5rem;
@@ -779,6 +801,12 @@
 
   .blogpost-paragraph-first {
     font-size: 0.88rem;
+  }
+
+  .blogpost-summary {
+    font-size: 0.92rem;
+    padding-left: 0.85rem;
+    margin-bottom: 1.25rem;
   }
 
   .blogpost-share {

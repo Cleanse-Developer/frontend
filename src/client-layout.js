@@ -6,6 +6,10 @@ import { ReactLenis } from "lenis/react";
 import { registerScrollTrigger, ScrollTrigger } from "@/ui/animations/scrollTrigger";
 import Preloader from "@/components/Preloader/Preloader";
 
+// Clearance for the fixed header (.menu) so an anchored section doesn't land
+// underneath it.
+const ANCHOR_SCROLL_OFFSET = 100;
+
 export default function ClientLayout({ children, footer, header }) {
   const pageRef = useRef();
   const lenisRef = useRef(null);
@@ -81,18 +85,74 @@ export default function ClientLayout({ children, footer, header }) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // On every route change, jump to the top (hero). Lenis owns the scroll
-  // position via rAF, so a bare window.scrollTo gets reverted on the next
-  // tick — drive Lenis's own scrollTo (immediate) so the new page starts at
-  // the top. Falls back to window.scrollTo if Lenis isn't ready yet.
+  // On every route change, jump to the top (hero) — unless the URL carries a
+  // hash (e.g. /touchpoint#faq), in which case land on that section instead.
+  // Lenis owns the scroll position via rAF, so a bare window.scrollTo (and the
+  // browser's own anchor jump) gets reverted on the next tick — drive Lenis's
+  // own scrollTo (immediate) either way. Falls back to native if Lenis isn't
+  // ready yet.
   useEffect(() => {
     const lenis = lenisRef.current?.lenis;
-    if (lenis) {
-      lenis.scrollTo(0, { immediate: true, force: true });
-    } else {
-      window.scrollTo(0, 0);
+
+    const jumpToTop = () => {
+      if (lenis) lenis.scrollTo(0, { immediate: true, force: true });
+      else window.scrollTo(0, 0);
+    };
+
+    const scrollToEl = (el) => {
+      if (lenis) {
+        lenis.scrollTo(el, {
+          offset: -ANCHOR_SCROLL_OFFSET,
+          immediate: true,
+          force: true,
+        });
+      } else {
+        el.scrollIntoView();
+      }
+    };
+
+    const id = window.location.hash.slice(1);
+    const target = id && document.getElementById(id);
+    if (target) {
+      scrollToEl(target);
+      return;
     }
+
+    // No target (yet): start at the top, as every route change always has.
+    jumpToTop();
+    if (!id) return;
+
+    // The section may still be mounting — these pages are client-rendered and
+    // some wait on async data. Watch briefly and go once it appears. We never
+    // jump back to top from here: pages with their own hash handling (e.g.
+    // /ritual#evening) own the scroll position once we've defaulted to top.
+    let frames = 0;
+    let raf = requestAnimationFrame(function waitForTarget() {
+      const el = document.getElementById(id);
+      if (el) {
+        scrollToEl(el);
+        return;
+      }
+      if (frames++ < 90) raf = requestAnimationFrame(waitForTarget);
+    });
+
+    return () => cancelAnimationFrame(raf);
   }, [pathname]);
+
+  // Same-page anchor clicks (already on /touchpoint, clicking FAQ in the footer)
+  // never change `pathname`, so the effect above won't fire — and Lenis would
+  // fight the browser's native jump. Drive those through Lenis too.
+  useEffect(() => {
+    const onHashChange = () => {
+      const el = document.getElementById(window.location.hash.slice(1));
+      if (!el) return;
+      const lenis = lenisRef.current?.lenis;
+      if (lenis) lenis.scrollTo(el, { offset: -ANCHOR_SCROLL_OFFSET });
+      else el.scrollIntoView({ behavior: "smooth" });
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
 
   const scrollSettings = isMobile
     ? {

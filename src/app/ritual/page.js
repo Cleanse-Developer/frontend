@@ -5,6 +5,8 @@ import Link from "next/link";
 
 import Copy from "@/components/Copy/Copy";
 import ImageTrail from "@/components/ImageTrail/ImageTrail";
+import { productApi } from "@/lib/endpoints";
+import { productUrl } from "@/lib/normalizers";
 
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -120,8 +122,33 @@ export default function Ritual() {
   const pageRef = useRef(null);
   const stepsRef = useRef(null);
   const [mode, setMode] = useState("morning");
+  const [productsByName, setProductsByName] = useState(null);
 
   const ritual = RITUALS[mode];
+
+  // The RITUALS steps are authored copy and carry a product NAME, not a slug.
+  // Resolve those names against the real catalogue so each card links to its own
+  // product detail page.
+  useEffect(() => {
+    productApi
+      .getAll({ limit: 50 })
+      .then((data) => {
+        const map = new Map();
+        (data.products || []).forEach((p) => {
+          if (p?.name) map.set(p.name.trim().toLowerCase(), p);
+        });
+        setProductsByName(map);
+      })
+      .catch(() => setProductsByName(new Map()));
+  }, []);
+
+  // Falls back to a filtered wardrobe search when a step's product isn't in the
+  // catalogue (renamed, unpublished) — never a dead link, never the wrong product.
+  const stepHref = (step) => {
+    const match = productsByName?.get(step.product.trim().toLowerCase());
+    if (match?.slug) return productUrl(match);
+    return `/wardrobe?search=${encodeURIComponent(step.product)}`;
+  };
 
   /* Reveal each step as it scrolls in; re-runs whenever the AM/PM mode changes
      because useGSAP's context cleanup kills the prior ScrollTriggers. */
@@ -321,7 +348,7 @@ export default function Ritual() {
         </div>
         <div className="ritual-shop-grid">
           {RITUALS[mode].steps.map((step, i) => (
-            <Link href="/wardrobe" className="ritual-shop-card" key={step.n}>
+            <Link href={stepHref(step)} className="ritual-shop-card" key={step.n}>
               <div
                 className="ritual-shop-card-img"
                 style={{ backgroundColor: TILES[i % TILES.length] }}

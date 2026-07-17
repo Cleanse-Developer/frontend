@@ -369,6 +369,12 @@ a.touchpoint-info-value:hover {
   transition: background 0.3s ease;
 }
 
+/* globals.css sets `color` on every span, so the label would take the dark
+   default instead of inheriting the button's white. */
+.touchpoint-submit-btn span {
+  color: inherit;
+}
+
 .touchpoint-submit-btn:hover {
   background: #4F2C22;
 }
@@ -382,6 +388,8 @@ a.touchpoint-info-value:hover {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem var(--gutter) 4rem;
+  /* Clears the fixed header when arriving via /touchpoint#faq */
+  scroll-margin-top: 100px;
 }
 
 .touchpoint-faq-header {

@@ -88,6 +88,70 @@ const DEFAULTS = {
     ctaText: "SHOP NOW",
     ctaLink: "/wardrobe",
   },
+  // Shipping / Returns are rendered by <LegalPage>. Unlike cmsPrivacy/cmsTerms
+  // (CMS-only, empty until authored), these ship with copy so the footer links
+  // always land on a page with real information. Every line below restates a
+  // commitment the site already makes elsewhere — the touchpoint FAQ, the
+  // product-page policies block, and freeShippingThreshold above.
+  cmsShipping: {
+    breadcrumbLabel: "SHIPPING",
+    heroTitle: "Shipping",
+    subtitle: "Where we ship, how long it takes, and what it costs.",
+    sections: [
+      {
+        heading: "Order Processing",
+        body: "Orders are packed and dispatched within 2-3 business days of being placed.\n\nOrders placed on a weekend or a public holiday are processed on the next business day.",
+      },
+      {
+        heading: "Delivery Times",
+        body: "Once dispatched, delivery takes 5-7 days across India and 10-14 days for international orders.\n\nThese are estimates from the courier, not guarantees — remote pin codes and customs clearance can add time.",
+      },
+      {
+        heading: "Shipping Charges",
+        body: "Shipping is free on all orders above ₹1200 within India.\n\nInternational shipping is calculated at checkout based on your delivery location, so you will always see the exact cost before you pay.",
+      },
+      {
+        heading: "Where We Ship",
+        body: "We ship worldwide.\n\nAny customs duties or import taxes charged by your country are set by that country and are payable by you on delivery.",
+      },
+      {
+        heading: "Tracking Your Order",
+        body: "You can follow the status of every order from the Orders page in your account.\n\nIf anything looks wrong with your delivery, get in touch through our Contact page and we will look into it.",
+      },
+    ],
+  },
+  cmsReturns: {
+    breadcrumbLabel: "RETURNS",
+    heroTitle: "Returns",
+    subtitle: "Our return window, how to start one, and how refunds work.",
+    sections: [
+      {
+        heading: "Our Return Window",
+        body: "We offer a 7-day return policy on unopened products, counted from the day your order is delivered.",
+      },
+      {
+        heading: "What We Can Accept",
+        body: "Products must be unopened and in their original packaging, with any seals intact.\n\nBecause these are skincare products applied directly to the body, we cannot resell an opened item — so opened products fall outside the return window.",
+      },
+      {
+        heading: "How To Start A Return",
+        body: "Open the Orders page in your account and choose Return / Refund on the order you want to send back.\n\nYou can also reach our support team through the Contact page and we will start it for you.",
+      },
+      {
+        heading: "Refunds",
+        body: "Once your return is approved, we initiate the refund and the order moves through to refunded.\n\nYou can follow each of those steps from the Orders page, so you always know where your refund has reached.",
+      },
+      {
+        heading: "Damaged Or Incorrect Items",
+        body: "If your order arrives damaged, or is not what you ordered, contact us through the Contact page as soon as you can.\n\nSend a photo of the item and your order number and we will make it right.",
+      },
+    ],
+  },
+  cmsTestimonials: {
+    heading: "Stories from\nour ritual",
+    reviewCtaText: "Used our products? We'd love to hear from you.",
+    reviewCtaButton: "Write a Review",
+  },
   cmsHeader: {
     logoImage: null,
     navLinks: [

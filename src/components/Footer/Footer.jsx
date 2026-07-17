@@ -61,8 +61,8 @@ const Footer = () => {
       title: "Support",
       links: [
         { label: "Contact Us", href: "/touchpoint" },
-        { label: "Shipping", href: "/touchpoint#shipping" },
-        { label: "Returns", href: "/touchpoint#returns" },
+        { label: "Shipping", href: "/shipping" },
+        { label: "Returns", href: "/returns" },
         { label: "FAQ", href: "/touchpoint#faq" },
       ],
     },
@@ -99,7 +99,10 @@ const Footer = () => {
     "HRBD Life Sciences Pvt. Ltd.",
     "42 Wellness Avenue, Bandra West, Mumbai 400050",
   ];
-  const email = contact.email || "care@cleanseayurveda.com";
+  // Same address the contact page publishes (touchpoint/page.js) — the footer used
+  // to fall back to a different one, so the two surfaces disagreed. Note the CMS
+  // still overrides this, so the value in admin has to match too.
+  const email = contact.email || "hello@cleanseayurveda.com";
   const phone = contact.phone || "+91 80000 00000";
 
   return (

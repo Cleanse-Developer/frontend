@@ -6,15 +6,28 @@ import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { testimonialApi } from "@/lib/endpoints";
+import { useSettings } from "@/context/SettingsContext";
 
 gsap.registerPlugin(SplitText, ScrollTrigger);
 
 const Testimonials = () => {
+  const settings = useSettings();
+  const cmsTestimonials = settings.cmsTestimonials || {};
+  const heading = cmsTestimonials.heading || "Stories from\nour ritual";
+  const reviewCtaText =
+    cmsTestimonials.reviewCtaText || "Used our products? We'd love to hear from you.";
+  const reviewCtaButton = cmsTestimonials.reviewCtaButton || "Write a Review";
+
   const [testimonials, setTestimonials] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  // Mirrors the breakpoint where the CSS turns the slider into a swipeable
+  // scroll-snap track. Kept in sync via matchMedia rather than a width guess, so
+  // the JS and the CSS can never disagree about which mode we're in.
+  const [isMobile, setIsMobile] = useState(false);
   const cardsRef = useRef([]);
   const fluidBgRef = useRef(null);
   const containerRef = useRef(null);
+  const sliderRef = useRef(null);
   const headlineSplitsRef = useRef([]);
   const initRef = useRef(false);
 
@@ -49,6 +62,14 @@ const Testimonials = () => {
     }
   };
 
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1199px) and (orientation: portrait)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
   // Fetch testimonials from API
   useEffect(() => {
     testimonialApi.getAll({ type: "before-after", limit: 8 })
@@ -71,9 +92,12 @@ const Testimonials = () => {
       });
   }, []);
 
-  // Initialize animations after testimonials are loaded and rendered
+  // Initialize animations after testimonials are loaded and rendered.
+  // Desktop only: this rig hides every non-active headline's characters so they can
+  // flicker in on switch. On the mobile track every card is on screen, so that would
+  // just leave the neighbouring headlines blank.
   useEffect(() => {
-    if (testimonials.length === 0) return;
+    if (testimonials.length === 0 || isMobile) return;
 
     // Wait a tick for DOM to render
     const timer = setTimeout(() => {
@@ -105,8 +129,56 @@ const Testimonials = () => {
       headlineSplitsRef.current.forEach((split) => {
         if (split) split.revert();
       });
+      // Reset, or a re-run would see the reverted splits still parked here and skip
+      // rebuilding them — the headlines would never animate again.
+      headlineSplitsRef.current = [];
     };
-  }, [testimonials]);
+  }, [testimonials, isMobile]);
+
+  // On the mobile track the scroll position is the source of truth: whichever card
+  // is nearest the viewport centre is the active one, so the dots follow a swipe.
+  useEffect(() => {
+    if (!isMobile || testimonials.length === 0) return;
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    let frame = null;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        const centre = slider.scrollLeft + slider.clientWidth / 2;
+        let nearest = 0;
+        let nearestDist = Infinity;
+        cardsRef.current.forEach((card, i) => {
+          if (!card) return;
+          const dist = Math.abs(card.offsetLeft + card.offsetWidth / 2 - centre);
+          if (dist < nearestDist) {
+            nearestDist = dist;
+            nearest = i;
+          }
+        });
+        setActiveIndex((prev) => (prev === nearest ? prev : nearest));
+      });
+    };
+
+    slider.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => {
+      slider.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [isMobile, testimonials]);
+
+  const scrollToIndex = (index) => {
+    const slider = sliderRef.current;
+    const card = cardsRef.current[index];
+    if (!slider || !card) return;
+    slider.scrollTo({
+      left: card.offsetLeft - (slider.clientWidth - card.offsetWidth) / 2,
+      behavior: "smooth",
+    });
+  };
 
   const updateFluidPosition = (index, animate = true) => {
     const card = cardsRef.current[index];
@@ -182,6 +254,12 @@ const Testimonials = () => {
   };
 
   const handleTransition = (newIndex) => {
+    // On mobile the arrows and dots just drive the scroll; the scroll listener above
+    // is what updates activeIndex, so setting it here too would fight the snap.
+    if (isMobile) {
+      scrollToIndex(newIndex);
+      return;
+    }
     const oldIndex = activeIndex;
     setActiveIndex(newIndex);
     updateFluidPosition(newIndex, true);
@@ -218,7 +296,13 @@ const Testimonials = () => {
           </button>
           <div className="testimonials-title">
             <Copy>
-              <h2>Listen to what our<br />Clients say about us?</h2>
+              <h2>
+                {heading.split("\n").reduce((acc, line, i) => {
+                  if (i > 0) acc.push(<br key={`br-${i}`} />);
+                  acc.push(line);
+                  return acc;
+                }, [])}
+              </h2>
             </Copy>
           </div>
           <button className="nav-btn next" onClick={handleNext} aria-label="Next review">
@@ -232,7 +316,11 @@ const Testimonials = () => {
           {/* Fluid background that moves between cards */}
           <div className="fluid-bg" ref={fluidBgRef}></div>
 
-          <div className="testimonials-slider" style={{ '--slide-index': activeIndex }}>
+          <div
+            className="testimonials-slider"
+            ref={sliderRef}
+            style={{ '--slide-index': activeIndex }}
+          >
             {testimonials.map((testimonial, index) => (
               <div
                 key={testimonial.id || index}
@@ -286,9 +374,9 @@ const Testimonials = () => {
 
         {/* Write a review CTA */}
         <div className="testimonials-review-cta">
-          <p className="review-cta-text">Used our products? We'd love to hear from you.</p>
+          <p className="review-cta-text">{reviewCtaText}</p>
           <button className="review-cta-btn" onClick={openReviewForm}>
-            Write a Review
+            {reviewCtaButton}
           </button>
         </div>
       </div>

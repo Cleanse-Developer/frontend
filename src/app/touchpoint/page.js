@@ -218,8 +218,8 @@ export default function Touchpoint() {
         </div>
       </section>
 
-      {/* FAQ Section - Accordion */}
-      <section className="touchpoint-faq">
+      {/* FAQ Section - Accordion. id is the target of the footer's /touchpoint#faq link. */}
+      <section className="touchpoint-faq" id="faq">
         <div className="touchpoint-faq-header">
           <span className="touchpoint-faq-eyebrow">Support</span>
           <h2 className="touchpoint-faq-title">Frequently Asked<br />Questions</h2>

@@ -1,13 +1,17 @@
 "use client";
 
+import "./LegalPage.css";
 import Link from "next/link";
 import { useSettings } from "@/context/SettingsContext";
 
-// Shared renderer for the legal pages (Terms of Service, Privacy Policy).
+// Shared renderer for the information pages (Terms of Service, Privacy Policy,
+// Shipping, Returns).
 // Markup + class names mirror the original pages exactly so the existing CSS
 // (legal-* classes in terms.css / privacy.css) styles it unchanged.
 // Content comes ENTIRELY from the CMS via public settings — there are no
-// hardcoded fallbacks. If the section has no content, the page renders empty.
+// hardcoded fallbacks here. If the section has no content, the page renders
+// empty. (Shipping/Returns ship with defaults in SettingsContext, so they have
+// content out of the box; Privacy/Terms deliberately do not.)
 export default function LegalPage({ settingsKey }) {
   const settings = useSettings();
   const data = settings?.[settingsKey];

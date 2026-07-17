@@ -10,6 +10,7 @@ import { productApi, categoryApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import { cardPrice } from "@/lib/formatters";
 import ProductCard from "@/components/ProductCard/ProductCard";
+import BannerOverlay from "@/components/BannerOverlay/BannerOverlay";
 
 export default function Wardrobe() {
   return (
@@ -89,7 +90,6 @@ function WardrobeContent() {
   const [activeTag, setActiveTag] = useState(initialTag);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [sortBy, setSortBy] = useState("default");
   const [priceRange, setPriceRange] = useState("all");
   const [loading, setLoading] = useState(true);
   const productRefs = useRef([]);
@@ -126,24 +126,8 @@ function WardrobeContent() {
   // submitted from the header while already on this page).
   useEffect(() => {
     if (loading) return;
-    setFilteredProducts(applyFiltersAndSort(activeTag, sortBy, priceRange));
+    setFilteredProducts(applyFilters(activeTag, priceRange));
   }, [searchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const sortProducts = (productsToSort, sortOption) => {
-    const sorted = [...productsToSort];
-    switch (sortOption) {
-      case "price-low":
-        return sorted.sort((a, b) => cardPrice(a) - cardPrice(b));
-      case "price-high":
-        return sorted.sort((a, b) => cardPrice(b) - cardPrice(a));
-      case "name-az":
-        return sorted.sort((a, b) => a.name.localeCompare(b.name));
-      case "name-za":
-        return sorted.sort((a, b) => b.name.localeCompare(a.name));
-      default:
-        return sorted;
-    }
-  };
 
   const filterByPrice = (productsToFilter, range) => {
     switch (range) {
@@ -158,12 +142,11 @@ function WardrobeContent() {
     }
   };
 
-  const applyFiltersAndSort = (tag, sort, price) => {
+  const applyFilters = (tag, price) => {
     let result = allProducts.filter(
       (product) => matchesCategory(product, tag) && matchesSearch(product, searchQueryRef.current)
     );
     result = filterByPrice(result, price);
-    result = sortProducts(result, sort);
     return result;
   };
 
@@ -193,23 +176,16 @@ function WardrobeContent() {
       stagger: 0.03,
       ease: "power3.out",
       onComplete: () => {
-        const filtered = applyFiltersAndSort(newTag, sortBy, priceRange);
+        const filtered = applyFilters(newTag, priceRange);
         setFilteredProducts(filtered);
       },
     });
   };
 
-  const handleSortChange = (e) => {
-    const newSort = e.target.value;
-    setSortBy(newSort);
-    const filtered = applyFiltersAndSort(activeTag, newSort, priceRange);
-    setFilteredProducts(filtered);
-  };
-
   const handlePriceFilterChange = (e) => {
     const newPrice = e.target.value;
     setPriceRange(newPrice);
-    const filtered = applyFiltersAndSort(activeTag, sortBy, newPrice);
+    const filtered = applyFilters(activeTag, newPrice);
     setFilteredProducts(filtered);
   };
 
@@ -250,7 +226,7 @@ function WardrobeContent() {
         </div>
       </section>
 
-      {/* Category Filter + Sort */}
+      {/* Category Filter + Price Filter */}
       <section className="wardrobe-filters">
         <div className="category-filter">
           {["All", ...categories.map((c) => c.name)].map((tag) => (
@@ -278,22 +254,6 @@ function WardrobeContent() {
               <option value="under-500">Under ₹500</option>
               <option value="500-1000">₹500 - ₹1000</option>
               <option value="above-1000">Above ₹1000</option>
-            </select>
-          </div>
-          <span className="filter-divider"></span>
-          <div className="filter-group">
-            <label htmlFor="sort-by">Sort</label>
-            <select
-              id="sort-by"
-              value={sortBy}
-              onChange={handleSortChange}
-              className="filter-select"
-            >
-              <option value="default">Featured</option>
-              <option value="price-low">Price: Low → High</option>
-              <option value="price-high">Price: High → Low</option>
-              <option value="name-az">A → Z</option>
-              <option value="name-za">Z → A</option>
             </select>
           </div>
         </div>
@@ -340,6 +300,11 @@ function WardrobeContent() {
                   <img src="/top-banner-desktop.png" alt="Featured Collection" className="spotlight-banner-img" />
                 </picture>
               )}
+              <BannerOverlay
+                title={activeCategory?.name ? `The ${activeCategory.name} edit` : "Ayurvedic care, real results"}
+                ctaText="Shop the collection"
+                ctaLink={activeCategory?.link || "/wardrobe"}
+              />
             </div>
           </section>
 
@@ -368,6 +333,13 @@ function WardrobeContent() {
                   className="side-banner-img"
                 />
               </picture>
+              {/* Editorial line, not activeTag — that's a filter name ("All",
+                  "Face Care"), which reads as a stray label rather than copy. */}
+              <BannerOverlay
+                title="Clinically-backed, rooted in Ayurveda"
+                ctaText="Discover the ritual"
+                ctaLink="/ritual"
+              />
             </div>
             <div className="products-beside-banner">
               {filteredProducts.slice(6, 10).map((product, index) => (

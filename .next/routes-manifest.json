@@ -123,10 +123,22 @@
       "namedRegex": "^/profile(?:/)?$"
     },
     {
+      "page": "/returns",
+      "regex": "^/returns(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/returns(?:/)?$"
+    },
+    {
       "page": "/ritual",
       "regex": "^/ritual(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/ritual(?:/)?$"
+    },
+    {
+      "page": "/shipping",
+      "regex": "^/shipping(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/shipping(?:/)?$"
     },
     {
       "page": "/terms",

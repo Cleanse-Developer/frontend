@@ -411,12 +411,30 @@
     overflow: visible;
   }
 
+  /* A real swipeable track. This used to show one card at a time (every card
+     display:none bar .active), so there was nothing to drag — the arrows and dots
+     were the only way through. Native scroll-snap gives touch drag, momentum and
+     snapping without a JS drag rig, and it stays keyboard/scrollbar accessible. */
   .testimonials-slider {
     position: relative;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    /* Don't let a horizontal swipe chain into the page scroll or a browser
+       back-gesture once the track hits its end. */
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .testimonials-slider::-webkit-scrollbar {
+    display: none;
   }
 
   .testimonial-card {
-    display: none;
+    display: block;
+    /* One full-width card per snap position. */
+    flex: 0 0 100%;
+    scroll-snap-align: center;
     width: 100%;
     min-height: auto;
     padding: 1.5rem 2rem 2rem;
@@ -426,8 +444,13 @@
   }
 
   .testimonial-card.active {
-    display: block;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Every card in the track is fully readable — the desktop rule dims non-active
+     cards, which here would dim whichever card you're mid-swipe towards. */
+  .testimonial-card:not(.active) .testimonial-content {
+    opacity: 1;
   }
 
   .fluid-bg {

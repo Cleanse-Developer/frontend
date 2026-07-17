@@ -57,6 +57,49 @@ const indianStates = [
   "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry",
 ];
 
+// Suggested cities per state, offered through a <datalist> on the City field.
+// This is a convenience list, NOT a whitelist: the field stays a free-text input,
+// so a customer in a town that isn't listed can still type it and check out. Keys
+// must match `indianStates` exactly or the suggestions simply won't show.
+const CITIES_BY_STATE = {
+  "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool", "Rajahmundry", "Tirupati", "Kakinada"],
+  "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Pasighat", "Tawang"],
+  "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat", "Nagaon", "Tinsukia"],
+  "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Darbhanga", "Purnia"],
+  "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur", "Korba", "Durg"],
+  "Goa": ["Panaji", "Margao", "Vasco da Gama", "Mapusa", "Ponda"],
+  "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar", "Gandhinagar", "Anand"],
+  "Haryana": ["Gurugram", "Faridabad", "Panipat", "Ambala", "Karnal", "Hisar", "Rohtak"],
+  "Himachal Pradesh": ["Shimla", "Dharamshala", "Solan", "Mandi", "Manali"],
+  "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro Steel City", "Hazaribagh"],
+  "Karnataka": ["Bengaluru", "Mysuru", "Hubballi", "Mangaluru", "Belagavi", "Davanagere", "Ballari", "Shivamogga"],
+  "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam", "Kannur", "Alappuzha"],
+  "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior", "Ujjain", "Sagar", "Rewa"],
+  "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Thane", "Navi Mumbai", "Aurangabad", "Solapur", "Kolhapur"],
+  "Manipur": ["Imphal", "Thoubal", "Churachandpur"],
+  "Meghalaya": ["Shillong", "Tura", "Jowai"],
+  "Mizoram": ["Aizawl", "Lunglei", "Champhai"],
+  "Nagaland": ["Kohima", "Dimapur", "Mokokchung"],
+  "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Berhampur", "Sambalpur", "Puri"],
+  "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda", "Mohali"],
+  "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer", "Bikaner", "Alwar"],
+  "Sikkim": ["Gangtok", "Namchi", "Gyalshing"],
+  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tirunelveli", "Erode", "Vellore"],
+  "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar", "Khammam", "Secunderabad"],
+  "Tripura": ["Agartala", "Udaipur", "Dharmanagar"],
+  "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Varanasi", "Meerut", "Noida", "Prayagraj", "Bareilly"],
+  "Uttarakhand": ["Dehradun", "Haridwar", "Roorkee", "Haldwani", "Rishikesh", "Nainital"],
+  "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Asansol", "Siliguri", "Darjeeling"],
+  "Andaman and Nicobar Islands": ["Port Blair"],
+  "Chandigarh": ["Chandigarh"],
+  "Dadra and Nagar Haveli and Daman and Diu": ["Silvassa", "Daman", "Diu"],
+  "Delhi": ["New Delhi", "Delhi", "Dwarka", "Rohini", "Saket", "Karol Bagh"],
+  "Jammu and Kashmir": ["Srinagar", "Jammu", "Anantnag", "Baramulla"],
+  "Ladakh": ["Leh", "Kargil"],
+  "Lakshadweep": ["Kavaratti"],
+  "Puducherry": ["Puducherry", "Karaikal", "Yanam", "Mahe"],
+};
+
 const PHONE_CODES_LIST = [
   { code: "+91", label: "IN +91" },
   { code: "+1", label: "US +1" },
@@ -1224,6 +1267,43 @@ export default function CheckoutPage() {
     );
   };
 
+  // City is a combobox, not a <select>: the datalist suggests cities for the
+  // state already chosen, but any city can still be typed. See CITIES_BY_STATE.
+  const renderCityInput = (isBilling = false) => {
+    const key = isBilling ? "billing_city" : "city";
+    const val = isBilling ? billing.city : shipping.city;
+    const state = isBilling ? billing.state : shipping.state;
+    const listId = isBilling ? "billing-city-options" : "shipping-city-options";
+    const suggestions = CITIES_BY_STATE[state] || [];
+    const changeFn = isBilling
+      ? (e) => handleBillingChange("city", e.target.value)
+      : (e) => handleShippingChange("city", e.target.value);
+
+    return (
+      <div className="checkout-input-group">
+        <label>City</label>
+        <input
+          type="text"
+          list={suggestions.length ? listId : undefined}
+          placeholder={state ? "Select or type your city" : "City"}
+          value={val}
+          onChange={changeFn}
+          onBlur={() => handleBlur("city", val, isBilling)}
+          className={errors[key] ? "has-error" : ""}
+          autoComplete={isBilling ? "billing address-level2" : "shipping address-level2"}
+        />
+        {suggestions.length > 0 && (
+          <datalist id={listId}>
+            {suggestions.map((city) => (
+              <option key={city} value={city} />
+            ))}
+          </datalist>
+        )}
+        {errors[key] && <span className="checkout-field-error">{errors[key]}</span>}
+      </div>
+    );
+  };
+
   const renderStateSelect = (isBilling = false) => {
     const key = isBilling ? "billing_state" : "state";
     const val = isBilling ? billing.state : shipping.state;
@@ -1475,7 +1555,7 @@ export default function CheckoutPage() {
                 {renderInput("address1", "Address Line 1", "Street address")}
                 {renderInput("address2", "Address Line 2", "Apartment, suite, etc. (optional)")}
                 <div className="checkout-form-grid">
-                  {renderInput("city", "City", "City")}
+                  {renderCityInput()}
                   {renderStateSelect()}
                 </div>
                 <div className="checkout-form-grid">
@@ -1538,7 +1618,7 @@ export default function CheckoutPage() {
                     {renderInput("address1", "Address Line 1", "Street address", "text", { isBilling: true })}
                     {renderInput("address2", "Address Line 2", "Apartment, suite, etc. (optional)", "text", { isBilling: true })}
                     <div className="checkout-form-grid">
-                      {renderInput("city", "City", "City", "text", { isBilling: true })}
+                      {renderCityInput(true)}
                       {renderStateSelect(true)}
                     </div>
                     <div className="checkout-form-grid">
