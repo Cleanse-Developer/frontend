@@ -6,6 +6,9 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { useCart } from "@/context/CartContext";
 import { useSettings } from "@/context/SettingsContext";
+import { useLocale } from "@/context/LocaleContext";
+import { LOCALES } from "@/lib/locales";
+import { useTranslation } from "react-i18next";
 import Logo from "@/components/Logo/Logo";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
@@ -41,40 +44,56 @@ const CaretIcon = () => (
 
 /* Single capsule combining language + currency. Only EN and Rupees are
    offered, shown inside the dropdown. */
-const LocaleCapsule = ({ open, toggle, close }) => (
-  <div className="menu-locale">
-    <button
-      type="button"
-      className={`menu-locale-pill ${open ? "open" : ""}`}
-      aria-haspopup="listbox"
-      aria-expanded={open}
-      aria-label="Language and currency"
-      onClick={toggle}
-    >
-      <span className="menu-locale-current">EN</span>
-      <span className="menu-locale-divider" aria-hidden="true">·</span>
-      <span className="menu-locale-current">{"₹"}</span>
-      <CaretIcon />
-    </button>
-    {open && (
-      <div className="menu-locale-dropdown" role="listbox">
-        <div className="menu-locale-group">
-          <button type="button" className="menu-locale-option active" onClick={(e) => { e.stopPropagation(); close(); }}>
-            <span className="menu-locale-option-code">EN</span>
-            <span className="menu-locale-option-name">English</span>
-          </button>
+/* Language + currency capsule. Language is live (drives the whole storefront);
+   currency stays ₹ for now (decoupled — language changes text, not price). */
+const LocaleCapsule = ({ open, toggle, close, activeCode, onSelect }) => {
+  const active = LOCALES.find((l) => l.code === activeCode) || LOCALES[0];
+  return (
+    <div className="menu-locale">
+      <button
+        type="button"
+        className={`menu-locale-pill ${open ? "open" : ""}`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Language and currency"
+        onClick={toggle}
+      >
+        <span className="menu-locale-current">{active.label}</span>
+        <span className="menu-locale-divider" aria-hidden="true">·</span>
+        <span className="menu-locale-current">{"₹"}</span>
+        <CaretIcon />
+      </button>
+      {open && (
+        <div className="menu-locale-dropdown" role="listbox">
+          <div className="menu-locale-group">
+            {LOCALES.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                className={`menu-locale-option ${l.code === activeCode ? "active" : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect(l.code);
+                  close();
+                }}
+              >
+                <span className="menu-locale-option-code">{l.label}</span>
+                <span className="menu-locale-option-name">{l.name}</span>
+              </button>
+            ))}
+          </div>
+          <span className="menu-locale-group-sep" aria-hidden="true" />
+          <div className="menu-locale-group">
+            <button type="button" className="menu-locale-option active" onClick={(e) => { e.stopPropagation(); close(); }}>
+              <span className="menu-locale-option-code">{"₹"}</span>
+              <span className="menu-locale-option-name">Rupees</span>
+            </button>
+          </div>
         </div>
-        <span className="menu-locale-group-sep" aria-hidden="true" />
-        <div className="menu-locale-group">
-          <button type="button" className="menu-locale-option active" onClick={(e) => { e.stopPropagation(); close(); }}>
-            <span className="menu-locale-option-code">{"₹"}</span>
-            <span className="menu-locale-option-name">Rupees</span>
-          </button>
-        </div>
-      </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
+};
 
 const Menu = () => {
   const pathname = usePathname();
@@ -108,7 +127,8 @@ const Menu = () => {
   const [isNavGreen, setIsNavGreen] = useState(!isHomePage);
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
-  const [lang, setLang] = useState("EN");
+  const { lang, setLang } = useLocale();
+  const { t } = useTranslation();
   const [currency, setCurrency] = useState("INR");
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showCurrMenu, setShowCurrMenu] = useState(false);
@@ -149,16 +169,14 @@ const Menu = () => {
   const mainLinkSplitsRef = useRef([]);
   const lastScrollY = useRef(0);
 
+  // Language is owned by LocaleContext (persists itself). Only currency is local.
   useEffect(() => {
-    const savedLang = localStorage.getItem("cleanse-lang");
     const savedCurrency = localStorage.getItem("cleanse-currency");
-    if (savedLang) setLang(savedLang);
     if (savedCurrency) setCurrency(savedCurrency);
   }, []);
 
   const handleLangChange = (l) => {
     setLang(l);
-    localStorage.setItem("cleanse-lang", l);
     setShowLangMenu(false);
   };
 
@@ -745,7 +763,7 @@ const Menu = () => {
             })}
           </div>
           <div className="menu-header-actions">
-            <LocaleCapsule open={showLangMenu} toggle={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }} close={() => setShowLangMenu(false)} />
+            <LocaleCapsule open={showLangMenu} toggle={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }} close={() => setShowLangMenu(false)} activeCode={lang} onSelect={handleLangChange} />
             <button type="button" className="menu-action-btn" aria-label="Search" onClick={openSearch}>
               <SearchIcon />
             </button>
@@ -791,7 +809,7 @@ const Menu = () => {
                 ref={searchInputRef}
                 type="text"
                 className="menu-search-input"
-                placeholder="Search products..."
+                placeholder={t("nav.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") submitSearch(); }}

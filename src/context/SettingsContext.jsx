@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { settingsApi } from "@/lib/endpoints";
+import { useLocale } from "@/context/LocaleContext";
 
 const SettingsContext = createContext(null);
 
@@ -152,6 +153,56 @@ const DEFAULTS = {
     reviewCtaText: "Used our products? We'd love to hear from you.",
     reviewCtaButton: "Write a Review",
   },
+  cmsRitualBanner: {
+    enabled: true,
+    heading: "Find your ritual",
+    subtitle:
+      "Skincare, slowed down. Two unhurried ceremonies, one to greet the morning, one to release the night, each made with Cleanse.",
+    cards: [
+      {
+        key: "am",
+        icon: "sun",
+        eyebrow: "Morning",
+        title: "Awaken",
+        subtitle: "The morning ritual",
+        meta: "4 steps · ~5 min",
+        desc: "Wake the skin gently, brighten it, and shield it against the day ahead.",
+        steps: ["Cleanse", "Hydrate", "Hair", "Body"],
+        linkText: "Begin the morning",
+        href: "/ritual",
+        image: { url: "/face.jpg", publicId: null },
+      },
+      {
+        key: "pm",
+        icon: "moon",
+        eyebrow: "Evening",
+        title: "Restore",
+        subtitle: "The evening ritual",
+        meta: "4 steps · ~8 min",
+        desc: "Undo the day, then let precious botanicals repair your skin as you sleep.",
+        steps: ["Cleanse", "Nourish", "Replenish", "Hair"],
+        linkText: "Begin the evening",
+        href: "/ritual#evening",
+        image: { url: "/skin.jpg", publicId: null },
+      },
+    ],
+    ctaText: "Explore the full ritual",
+    ctaLink: "/ritual",
+  },
+  // cmsRitualPage / cmsGenesis are deliberately absent, like cmsTerms and
+  // cmsPrivacy: whole-page sections are served by the backend's CMS_DEFAULTS
+  // and their pages tolerate an empty shape. Mirroring ~250 lines of page copy
+  // here would only add a third place for it to drift out of sync.
+  cmsWardrobe: {
+    spotlightImage: null,
+    spotlightTitle: "Ayurvedic care, real results",
+    spotlightCtaText: "Shop the collection",
+    spotlightCtaLink: "/wardrobe",
+    sideImage: null,
+    sideTitle: "Clinically-backed, rooted in Ayurveda",
+    sideCtaText: "Discover the ritual",
+    sideCtaLink: "/ritual",
+  },
   cmsHeader: {
     logoImage: null,
     navLinks: [
@@ -173,6 +224,11 @@ const DEFAULTS = {
       { label: "FACE CARE", href: "/wardrobe?category=Face Care" },
       { label: "ABOUT US", href: "/genesis" },
     ],
+    supportLinks: [
+      { label: "Contact Us", href: "/touchpoint" },
+      { label: "Shipping", href: "/shipping" },
+      { label: "Returns", href: "/returns" },
+    ],
     socialLinks: {
       instagram: "https://www.instagram.com/cleanseayurveda/",
       twitter: "https://twitter.com",
@@ -191,6 +247,9 @@ export function SettingsProvider({ children, initial }) {
     initial ? { ...DEFAULTS, ...initial } : DEFAULTS
   );
 
+  // Refetch whenever the language changes — the axios interceptor adds ?lang, so
+  // the storefront swaps to that language's CMS content (English fallback per field).
+  const { lang } = useLocale();
   useEffect(() => {
     settingsApi
       .getPublic()
@@ -200,7 +259,7 @@ export function SettingsProvider({ children, initial }) {
       .catch(() => {
         /* keep defaults */
       });
-  }, []);
+  }, [lang]);
 
   return (
     <SettingsContext.Provider value={settings}>

@@ -18,6 +18,8 @@ export const categoryApi = {
 // ── Bundles ──
 export const bundleApi = {
   getAll: (params) => api.get("/bundles", { params }).then((r) => r.data.data),
+  // The single admin-selected bundle for the homepage section.
+  getFeatured: () => api.get("/bundles/featured").then((r) => r.data.data),
   getBySlug: (slug) => api.get(`/bundles/${slug}`).then((r) => r.data.data),
 };
 
@@ -239,8 +241,11 @@ export const spinWheelApi = {
   getPrizes: () => api.get("/spin-wheel/prizes").then((r) => r.data.data),
   check: (email) =>
     api.get("/spin-wheel/check", { params: { email } }).then((r) => r.data.data),
-  spin: (email) =>
-    api.post("/spin-wheel", { email }).then((r) => r.data.data),
+  // Spin anonymously — returns { prize, spinToken }. No email required.
+  spin: () => api.post("/spin-wheel").then((r) => r.data.data),
+  // Claim the spun reward against an email using the token from spin().
+  claim: (email, spinToken) =>
+    api.post("/spin-wheel/claim", { email, spinToken }).then((r) => r.data.data),
 };
 
 // ── Social Proof ──

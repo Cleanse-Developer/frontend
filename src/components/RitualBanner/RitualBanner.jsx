@@ -3,6 +3,7 @@ import "./RitualBanner.css";
 import Link from "next/link";
 import { useRef } from "react";
 import Copy from "@/components/Copy/Copy";
+import { useSettings } from "@/context/SettingsContext";
 
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -15,9 +16,13 @@ gsap.registerPlugin(ScrollTrigger);
 
    Sits on the same #F0EDE8 background as the testimonials above and the
    product grid below. Two refined cards, Morning "Awaken" and Evening
-   "Restore", each previews its five-step sequence and deep-links into the
+   "Restore", each previews its step sequence and deep-links into the
    /ritual page (the PM card opens it in evening mode via the #evening hash,
-   which the ritual page now honours).
+   which the ritual page honours).
+
+   Content is admin-editable via the cmsRitualBanner CMS section. The two cards
+   are a fixed pair — `key` ("am"/"pm") drives the rhr-card--am / rhr-card--pm
+   modifier classes, so the admin edits cards in place rather than adding them.
 
    Notes on the global stylesheet (intentional, not accidental):
    - globals.css forces `img,svg { width:100%; height:100% }`, so every inline
@@ -46,42 +51,22 @@ const Arrow = () => (
   </svg>
 );
 
-const RITUALS = [
-  {
-    key: "am",
-    eyebrow: "Morning",
-    title: "Awaken",
-    subtitle: "The morning ritual",
-    href: "/ritual",
-    img: "/face.jpg",
-    meta: "5 steps · ~7 min",
-    Icon: SunIcon,
-    desc: "Wake the skin gently, brighten it, and shield it against the day ahead.",
-    steps: ["Cleanse", "Mist", "Treat", "Hydrate", "Protect"],
-    link: "Begin the morning",
-  },
-  {
-    key: "pm",
-    eyebrow: "Evening",
-    title: "Restore",
-    subtitle: "The evening ritual",
-    href: "/ritual#evening",
-    img: "/skin.jpg",
-    meta: "5 steps · ~10 min",
-    Icon: MoonIcon,
-    desc: "Undo the day, then let precious botanicals repair your skin as you sleep.",
-    steps: ["Melt", "Polish", "Treat", "Nourish", "Seal"],
-    link: "Begin the evening",
-  },
-];
+/* The CMS stores an icon id; keep these keys in sync with the ICON_GLYPHS map
+   in admin-frontend/src/components/cms/cms-ritual-banner-editor.jsx. */
+const RITUAL_ICONS = { sun: SunIcon, moon: MoonIcon };
 
 export default function RitualBanner() {
+  const settings = useSettings();
   const sectionRef = useRef(null);
+
+  const data = settings.cmsRitualBanner || {};
+  const cards = data.cards;
+  const enabled = data.enabled !== false;
 
   useGSAP(
     () => {
-      const cards = gsap.utils.toArray(".rhr-card");
-      cards.forEach((card, i) => {
+      const cardEls = gsap.utils.toArray(".rhr-card");
+      cardEls.forEach((card, i) => {
         gsap.fromTo(
           card,
           { y: 56, opacity: 0 },
@@ -96,8 +81,12 @@ export default function RitualBanner() {
         );
       });
     },
-    { scope: sectionRef }
+    // Re-run once the CMS cards land, otherwise the triggers are built against
+    // markup that isn't there yet and the cards stay at opacity 0.
+    { scope: sectionRef, dependencies: [cards, enabled] }
   );
+
+  if (!enabled || !cards?.length) return null;
 
   return (
     <section className="rhr-section" ref={sectionRef} aria-labelledby="rhr-title">
@@ -105,60 +94,68 @@ export default function RitualBanner() {
         <header className="rhr-head">
           <Copy type="flicker">
             <h2 id="rhr-title" className="rhr-headline">
-              Find your ritual
+              {data.heading}
             </h2>
           </Copy>
           <Copy>
-            <p className="bodyCopy rhr-sub">
-              Skincare, slowed down. Two unhurried ceremonies, one to greet the
-              morning, one to release the night, each made with Cleanse.
-            </p>
+            <p className="bodyCopy rhr-sub">{data.subtitle}</p>
           </Copy>
         </header>
 
         <div className="rhr-cards">
-          {RITUALS.map(({ key, eyebrow, title, subtitle, href, img, meta, Icon, desc, steps, link }) => (
-            <Link href={href} className={`rhr-card rhr-card--${key}`} key={key} aria-label={`${title}, the ${eyebrow.toLowerCase()} ritual`}>
-              <img className="rhr-card-img" src={img} alt={`${title}, the ${eyebrow.toLowerCase()} ritual`} loading="lazy" />
-              <span className="rhr-card-scrim" aria-hidden="true" />
+          {cards.map((card, ci) => {
+            const Icon = RITUAL_ICONS[card.icon] || SunIcon;
+            const label = `${card.title}, the ${(card.eyebrow || "").toLowerCase()} ritual`;
+            return (
+              <Link
+                href={card.href || "/ritual"}
+                className={`rhr-card rhr-card--${card.key}`}
+                key={card.key || ci}
+                aria-label={label}
+              >
+                <img className="rhr-card-img" src={card.image?.url} alt={label} loading="lazy" />
+                <span className="rhr-card-scrim" aria-hidden="true" />
 
-              <div className="rhr-card-top">
-                <span className="rhr-card-badge">
-                  <Icon />
-                  {eyebrow}
-                </span>
-                <span className="rhr-card-meta">{meta}</span>
-              </div>
+                <div className="rhr-card-top">
+                  <span className="rhr-card-badge">
+                    <Icon />
+                    {card.eyebrow}
+                  </span>
+                  <span className="rhr-card-meta">{card.meta}</span>
+                </div>
 
-              <div className="rhr-card-content">
-                <span className="rhr-card-subtitle">{subtitle}</span>
-                <h3 className="rhr-card-title">{title}</h3>
-                <p className="bodyCopy rhr-card-desc">{desc}</p>
+                <div className="rhr-card-content">
+                  <span className="rhr-card-subtitle">{card.subtitle}</span>
+                  <h3 className="rhr-card-title">{card.title}</h3>
+                  <p className="bodyCopy rhr-card-desc">{card.desc}</p>
 
-                <ol className="rhr-steps">
-                  {steps.map((s) => (
-                    <li className="rhr-step" key={s}>
-                      <span className="rhr-step-dot" aria-hidden="true" />
-                      <span className="rhr-step-label">{s}</span>
-                    </li>
-                  ))}
-                </ol>
+                  <ol className="rhr-steps">
+                    {(card.steps || []).map((s, i) => (
+                      <li className="rhr-step" key={i}>
+                        <span className="rhr-step-dot" aria-hidden="true" />
+                        <span className="rhr-step-label">{s}</span>
+                      </li>
+                    ))}
+                  </ol>
 
-                <span className="rhr-card-link">
-                  {link}
-                  <Arrow />
-                </span>
-              </div>
+                  <span className="rhr-card-link">
+                    {card.linkText}
+                    <Arrow />
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {data.ctaText && (
+          <div className="rhr-foot">
+            <Link href={data.ctaLink || "/ritual"} className="rhr-cta">
+              {data.ctaText}
+              <Arrow />
             </Link>
-          ))}
-        </div>
-
-        <div className="rhr-foot">
-          <Link href="/ritual" className="rhr-cta">
-            Explore the full ritual
-            <Arrow />
-          </Link>
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );

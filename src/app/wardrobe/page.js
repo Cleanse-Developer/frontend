@@ -5,10 +5,12 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useSettings } from "@/context/SettingsContext";
 import { gsap } from "gsap";
 import { productApi, categoryApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import { cardPrice } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import BannerOverlay from "@/components/BannerOverlay/BannerOverlay";
 
@@ -81,6 +83,9 @@ function matchesSearch(product, q) {
 
 function WardrobeContent() {
   const { addToCart } = useCart();
+  const { t } = useTranslation();
+  const settings = useSettings();
+  const shopBanner = settings.cmsWardrobe || {};
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
   const searchQuery = searchParams.get("search") || "";
@@ -243,17 +248,17 @@ function WardrobeContent() {
 
         <div className="sort-filter-bar">
           <div className="filter-group">
-            <label htmlFor="price-filter">Filter</label>
+            <label htmlFor="price-filter">{t("wardrobe.filter")}</label>
             <select
               id="price-filter"
               value={priceRange}
               onChange={handlePriceFilterChange}
               className="filter-select"
             >
-              <option value="all">All Prices</option>
-              <option value="under-500">Under ₹500</option>
-              <option value="500-1000">₹500 - ₹1000</option>
-              <option value="above-1000">Above ₹1000</option>
+              <option value="all">{t("wardrobe.allPrices")}</option>
+              <option value="under-500">{t("wardrobe.under500")}</option>
+              <option value="500-1000">{t("wardrobe.p500to1000")}</option>
+              <option value="above-1000">{t("wardrobe.above1000")}</option>
             </select>
           </div>
         </div>
@@ -292,9 +297,19 @@ function WardrobeContent() {
             </div>
             <div className="spotlight-banner">
               {activeCategory?.bannerTop ? (
+                // A specific category is selected — use its own top banner.
                 <img src={activeCategory.bannerTop} alt="Featured Collection" className="spotlight-banner-img" />
+              ) : shopBanner.spotlightImage?.url ? (
+                // All Products view — admin-set spotlight (mobile variant if uploaded).
+                <picture className="spotlight-banner-pic">
+                  {shopBanner.spotlightImage.sources?.mobile?.url && (
+                    <source media="(max-width: 1024px)" srcSet={shopBanner.spotlightImage.sources.mobile.url} />
+                  )}
+                  <img src={shopBanner.spotlightImage.url} alt="Featured Collection" className="spotlight-banner-img" />
+                </picture>
               ) : (
-                /* Desktop shows the portrait top banner; mobile shows the landscape one. */
+                /* No admin banner set — ship the static default. Desktop shows the
+                   portrait top banner; mobile shows the landscape one. */
                 <picture className="spotlight-banner-pic">
                   {/* Mobile keeps the existing image; desktop (the <img> fallback,
                       shown above 1024px) uses the new product banner. */}
@@ -303,9 +318,13 @@ function WardrobeContent() {
                 </picture>
               )}
               <BannerOverlay
-                title={activeCategory?.name ? `The ${activeCategory.name} edit` : "Ayurvedic care, real results"}
-                ctaText="Shop the collection"
-                ctaLink={activeCategory?.link || "/wardrobe"}
+                title={
+                  activeCategory?.name
+                    ? `The ${activeCategory.name} edit`
+                    : shopBanner.spotlightTitle || "Ayurvedic care, real results"
+                }
+                ctaText={activeCategory ? "Shop the collection" : shopBanner.spotlightCtaText || "Shop the collection"}
+                ctaLink={activeCategory?.link || shopBanner.spotlightCtaLink || "/wardrobe"}
               />
             </div>
           </section>
@@ -326,21 +345,36 @@ function WardrobeContent() {
           {/* Section 3: Side Banner + 4 Products */}
           <section className="wardrobe-section section-row-3">
             <div className="side-banner">
-              {/* Desktop shows the square banner; mobile shows the landscape one. */}
-              <picture className="side-banner-pic">
-                <source media="(max-width: 1024px)" srcSet="/banner-bottom-mobile.png" />
-                <img
-                  src="/banner-bottom-mobile.png"
-                  alt={activeTag || "Ayurvedic Care, Real Results"}
-                  className="side-banner-img"
-                />
-              </picture>
+              {shopBanner.sideImage?.url ? (
+                // Admin-set side banner (mobile variant if uploaded).
+                <picture className="side-banner-pic">
+                  {shopBanner.sideImage.sources?.mobile?.url && (
+                    <source media="(max-width: 1024px)" srcSet={shopBanner.sideImage.sources.mobile.url} />
+                  )}
+                  <img
+                    src={shopBanner.sideImage.url}
+                    alt={activeTag || "Ayurvedic Care, Real Results"}
+                    className="side-banner-img"
+                  />
+                </picture>
+              ) : (
+                /* No admin banner set — ship the static default. Desktop shows the
+                   square banner; mobile shows the long one. */
+                <picture className="side-banner-pic">
+                  <source media="(max-width: 1024px)" srcSet="/banner-bottom.webp" />
+                  <img
+                    src="/banner-bottom-desktop.png"
+                    alt={activeTag || "Ayurvedic Care, Real Results"}
+                    className="side-banner-img"
+                  />
+                </picture>
+              )}
               {/* Editorial line, not activeTag — that's a filter name ("All",
                   "Face Care"), which reads as a stray label rather than copy. */}
               <BannerOverlay
-                title="Clinically-backed, rooted in Ayurveda"
-                ctaText="Discover the ritual"
-                ctaLink="/ritual"
+                title={shopBanner.sideTitle || "Clinically-backed, rooted in Ayurveda"}
+                ctaText={shopBanner.sideCtaText || "Discover the ritual"}
+                ctaLink={shopBanner.sideCtaLink || "/ritual"}
               />
             </div>
             <div className="products-beside-banner">

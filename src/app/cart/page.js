@@ -9,7 +9,7 @@ import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import Copy from "@/components/Copy/Copy";
 import DiscountProgress from "@/components/DiscountProgress/DiscountProgress";
 import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
-import { toNum, formatPrice } from "@/lib/formatters";
+import { toNum, formatPrice, cardPrice } from "@/lib/formatters";
 
 export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity, addToCart, cartCount, subtotal, serverPricing } = useCart();
@@ -48,6 +48,11 @@ export default function CartPage() {
     spTotal != null
       ? spTotal + giftWrapCost
       : subtotal + shippingCost + giftWrapCost;
+
+  // Loyalty points the shopper will earn on this purchase (backend-computed;
+  // fall back to a client estimate at the default 1 pt / ₹10 rate).
+  const loyaltyPoints =
+    toNum(serverPricing?.loyaltyPoints) ?? Math.floor(subtotal * 0.1);
 
   const [recommended, setRecommended] = useState([]);
 
@@ -215,6 +220,11 @@ export default function CartPage() {
                 <span>Total</span>
                 <span>&#8377;{formatPrice(summaryTotal)}</span>
               </div>
+              {loyaltyPoints > 0 && (
+                <div className="cart-summary-loyalty">
+                  <span>⭐ Earn {loyaltyPoints} loyalty {loyaltyPoints === 1 ? "point" : "points"} on this order</span>
+                </div>
+              )}
             </div>
             <button
               className="cart-checkout-btn"
@@ -274,7 +284,7 @@ export default function CartPage() {
                   <div className="cart-rec-card-info">
                     <h4 className="cart-rec-card-name">{product.name}</h4>
                     <div className="cart-rec-card-footer">
-                      <span className="cart-rec-card-price">&#8377;{product.price}</span>
+                      <span className="cart-rec-card-price">&#8377;{cardPrice(product)}</span>
                       <button className="cart-rec-add-btn" onClick={() => addToCart(product)}>
                         Add
                       </button>

@@ -16,6 +16,8 @@ import {
   loyaltyApi,
 } from "@/lib/endpoints";
 import { normalizeOrder, normalizeCoupon } from "@/lib/normalizers";
+import { cardPrice } from "@/lib/formatters";
+import { COUNTRIES, statesForCountry, citiesForState, postalLabel } from "@/lib/countries";
 
 const tabs = ["Orders", "Wishlist", "Coupons", "Addresses", "Settings"];
 
@@ -413,7 +415,7 @@ export default function ProfilePage() {
                       </div>
                       <div className="profile-wishlist-info">
                         <h4 className="profile-wishlist-name">{product.name}</h4>
-                        <p className="profile-wishlist-price">&#8377;{product.price}</p>
+                        <p className="profile-wishlist-price">&#8377;{cardPrice(product)}</p>
                       </div>
                       <button
                         className="profile-wishlist-add-btn"
@@ -521,29 +523,60 @@ export default function ProfilePage() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                     <input
                       type="text"
+                      list={citiesForState(addressForm.country, addressForm.state).length ? "profile-city-options" : undefined}
                       placeholder="City"
                       value={addressForm.city}
                       onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
                       className="profile-form-input"
                     />
+                    {citiesForState(addressForm.country, addressForm.state).length > 0 && (
+                      <datalist id="profile-city-options">
+                        {citiesForState(addressForm.country, addressForm.state).map((c) => (
+                          <option key={c} value={c} />
+                        ))}
+                      </datalist>
+                    )}
+                    {statesForCountry(addressForm.country).length > 0 ? (
+                      <select
+                        value={addressForm.state}
+                        onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
+                        className="profile-form-input"
+                      >
+                        <option value="" disabled>Select state</option>
+                        {statesForCountry(addressForm.country).map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        placeholder="State / Province / Region"
+                        value={addressForm.state}
+                        onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
+                        className="profile-form-input"
+                      />
+                    )}
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                    <input
+                      type="text"
+                      placeholder={postalLabel(addressForm.country)}
+                      value={addressForm.pincode}
+                      onChange={(e) => setAddressForm({ ...addressForm, pincode: e.target.value })}
+                      className="profile-form-input"
+                    />
                     <select
-                      value={addressForm.state}
-                      onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
+                      value={addressForm.country}
+                      onChange={(e) =>
+                        setAddressForm({ ...addressForm, country: e.target.value, state: "" })
+                      }
                       className="profile-form-input"
                     >
-                      <option value="" disabled>Select state</option>
-                      {indianStates.map((s) => (
-                        <option key={s} value={s}>{s}</option>
+                      {COUNTRIES.map((c) => (
+                        <option key={c.code} value={c.name}>{c.name}</option>
                       ))}
                     </select>
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Pincode"
-                    value={addressForm.pincode}
-                    onChange={(e) => setAddressForm({ ...addressForm, pincode: e.target.value })}
-                    className="profile-form-input"
-                  />
                   <div style={{ display: "flex", gap: "0.75rem" }}>
                     <button className="profile-update-btn" onClick={handleAddAddress}>Save Address</button>
                     <button className="profile-address-delete" onClick={() => setShowAddressForm(false)}>Cancel</button>

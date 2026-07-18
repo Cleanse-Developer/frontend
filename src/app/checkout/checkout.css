@@ -1156,6 +1156,17 @@
   font-size: clamp(0.95rem, 1.1vw, 1.05rem);
 }
 
+.checkout-summary-loyalty {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(102, 53, 50, 0.06);
+  text-align: center;
+  font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+  font-weight: 500;
+  color: #663532;
+}
+
 .checkout-continue-shopping {
   display: block;
   text-align: center;

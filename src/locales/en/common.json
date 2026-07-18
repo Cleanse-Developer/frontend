@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "navigate": "Navigate",
+    "explore": "Explore",
+    "discover": "Discover",
+    "socials": "Socials",
+    "searchPlaceholder": "Search products..."
+  },
+  "footer": {
+    "shop": "Shop",
+    "discover": "Discover",
+    "account": "Account",
+    "support": "Support",
+    "ourGenesis": "Our Genesis",
+    "lookbook": "Lookbook",
+    "journal": "Journal",
+    "touchpoint": "Touchpoint",
+    "myProfile": "My Profile",
+    "myOrders": "My Orders",
+    "shoppingBag": "Shopping Bag",
+    "signIn": "Sign In"
+  },
+  "product": {
+    "buyNow": "Buy Now",
+    "addToCart": "Add to Cart"
+  },
+  "wardrobe": {
+    "filter": "Filter",
+    "all": "All",
+    "allPrices": "All Prices",
+    "under500": "Under ₹500",
+    "p500to1000": "₹500 - ₹1000",
+    "above1000": "Above ₹1000",
+    "loading": "Loading products...",
+    "noProducts": "No products found"
+  }
+}

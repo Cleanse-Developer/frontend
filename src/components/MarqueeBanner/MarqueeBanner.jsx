@@ -204,13 +204,12 @@ const MarqueeBanner = () => {
     velRef.current = 0;
   };
 
-  // For reels WITHOUT a hosted video, a click opens the Instagram reel in a new
-  // tab. For reels WITH a hosted video, the click does nothing here — the inline
-  // <video> controls handle play, and the "Reel ↗" badge handles the redirect.
-  // We never embed Instagram, so no IG chrome renders over our UI.
+  // Clicking a reel always opens its Instagram reel in a new tab. We never embed
+  // or self-host playback here (that path was unreliable — a dead video left the
+  // card doing nothing), so "play" = open the reel on Instagram.
   const handleCardClick = (reel) => {
     if (movedRef.current) return; // that was a swipe, not a tap
-    if (!reel.video && reel.reelUrl) {
+    if (reel.reelUrl) {
       window.open(reel.reelUrl, "_blank", "noopener,noreferrer");
     }
   };
@@ -294,37 +293,18 @@ const MarqueeBanner = () => {
           >
             <div className="reel-card-inner">
               <div className="reel-media">
-                {reel.video ? (
-                  // Self-hosted playback (no autoplay, no Instagram chrome).
-                  // stopPropagation so using the controls doesn't trigger the
-                  // card click. preload="none" → only the poster shows until play.
-                  <video
-                    src={reel.video}
-                    poster={reel.poster}
-                    className="reel-poster"
-                    controls
-                    playsInline
-                    preload="none"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                ) : (
-                  <img
-                    src={reel.poster}
-                    alt={reel.title}
-                    className="reel-poster"
-                    loading="lazy"
-                  />
-                )}
+                <img
+                  src={reel.poster}
+                  alt={reel.title}
+                  className="reel-poster"
+                  loading="lazy"
+                />
                 <div className="reel-overlay"></div>
               </div>
 
-              {/* When a video is present, the overlay is visual-only (so the
-                  video controls remain clickable); the badge stays clickable to
-                  open the reel on Instagram. */}
-              <div
-                className="reel-content"
-                style={reel.video ? { pointerEvents: "none" } : undefined}
-              >
+              {/* Card click (bubbles up) opens the Instagram reel; the badge is
+                  an explicit link to the same place. */}
+              <div className="reel-content">
                 {reel.reelUrl ? (
                   <a
                     className="reel-badge"
@@ -343,13 +323,11 @@ const MarqueeBanner = () => {
                   <p className="reel-subtitle">{reel.subtitle}</p>
                   <h4 className="reel-title">{reel.title}</h4>
                 </div>
-                {!reel.video && (
-                  <div className="reel-play">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path d="M8 5.14v14.72a1 1 0 001.5.86l11-7.36a1 1 0 000-1.72l-11-7.36a1 1 0 00-1.5.86z" fill="currentColor"/>
-                    </svg>
-                  </div>
-                )}
+                <div className="reel-play">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8 5.14v14.72a1 1 0 001.5.86l11-7.36a1 1 0 000-1.72l-11-7.36a1 1 0 00-1.5.86z" fill="currentColor"/>
+                  </svg>
+                </div>
               </div>
 
               <div className="reel-shine"></div>

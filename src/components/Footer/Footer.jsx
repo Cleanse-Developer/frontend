@@ -2,6 +2,7 @@
 import { useState } from "react";
 import "./Footer.css";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { useSettings } from "@/context/SettingsContext";
 
 import ContactForm from "../ContactForm/ContactForm";
@@ -13,6 +14,7 @@ const titleCase = (s = "") =>
   s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
 const Footer = () => {
+  const { t } = useTranslation();
   const settings = useSettings();
   // Mobile accordion: which footer column is expanded (null = all collapsed).
   // On desktop the columns reveal on hover (CSS), so this only drives mobile.
@@ -31,40 +33,41 @@ const Footer = () => {
     youtube: "https://www.youtube.com/@cleanseayurveda",
   };
   const copyrightText = cmsFooter.copyrightText || "2026 CLEANSE AYURVEDA . ALL RIGHTS RESERVED";
+  // Support column is admin-editable (label + href) via cmsFooter.supportLinks.
+  const supportLinks = cmsFooter.supportLinks || [
+    { label: "Contact Us", href: "/touchpoint" },
+    { label: "Shipping", href: "/shipping" },
+    { label: "Returns", href: "/returns" },
+  ];
 
   // Footer link columns — same content as desktop, mapped so each can act as a
   // collapsible dropdown on mobile.
   const sections = [
     {
-      title: "Shop",
+      title: t("footer.shop"),
       links: navLinks.map((l) => ({ label: titleCase(l.label), href: l.href })),
     },
     {
-      title: "Discover",
+      title: t("footer.discover"),
       links: [
-        { label: "Our Genesis", href: "/genesis" },
-        { label: "Lookbook", href: "/lookbook" },
-        { label: "Journal", href: "/blog" },
-        { label: "Touchpoint", href: "/touchpoint" },
+        { label: t("footer.ourGenesis"), href: "/genesis" },
+        { label: t("footer.lookbook"), href: "/lookbook" },
+        { label: t("footer.journal"), href: "/blog" },
+        { label: t("footer.touchpoint"), href: "/touchpoint" },
       ],
     },
     {
-      title: "Account",
+      title: t("footer.account"),
       links: [
-        { label: "My Profile", href: "/profile" },
-        { label: "My Orders", href: "/orders" },
-        { label: "Shopping Bag", href: "/cart" },
-        { label: "Sign In", href: "/login" },
+        { label: t("footer.myProfile"), href: "/profile" },
+        { label: t("footer.myOrders"), href: "/orders" },
+        { label: t("footer.shoppingBag"), href: "/cart" },
+        { label: t("footer.signIn"), href: "/login" },
       ],
     },
     {
-      title: "Support",
-      links: [
-        { label: "Contact Us", href: "/touchpoint" },
-        { label: "Shipping", href: "/shipping" },
-        { label: "Returns", href: "/returns" },
-        { label: "FAQ", href: "/touchpoint#faq" },
-      ],
+      title: t("footer.support"),
+      links: supportLinks.map((l) => ({ label: titleCase(l.label), href: l.href })),
     },
   ];
 

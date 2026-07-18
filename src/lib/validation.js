@@ -1,8 +1,8 @@
 // Checkout form validation utilities
 
+import { validatePostal, validatePhoneForCountry, DEFAULT_COUNTRY } from "./countries";
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[6-9]\d{9}$/;
-const PINCODE_REGEX = /^\d{6}$/;
 
 export function validateEmail(value, { optional = false } = {}) {
   if (!value || !value.trim()) return optional ? null : "Email address is required";
@@ -10,11 +10,9 @@ export function validateEmail(value, { optional = false } = {}) {
   return null;
 }
 
-export function validatePhone(value) {
+export function validatePhone(value, country = DEFAULT_COUNTRY) {
   if (!value || !value.trim()) return "Phone number is required";
-  const digits = value.replace(/[\s\-]/g, "");
-  if (!PHONE_REGEX.test(digits)) return "Please enter a valid 10-digit phone number";
-  return null;
+  return validatePhoneForCountry(value, country);
 }
 
 export function validateFullName(value, { optional = false } = {}) {
@@ -35,14 +33,12 @@ export function validateCity(value) {
 }
 
 export function validateState(value) {
-  if (!value || !value.trim()) return "Please select a state";
+  if (!value || !value.trim()) return "Please select a state / region";
   return null;
 }
 
-export function validatePincode(value) {
-  if (!value || !value.trim()) return "Pincode is required";
-  if (!PINCODE_REGEX.test(value.trim())) return "Please enter a valid 6-digit pincode";
-  return null;
+export function validatePincode(value, country = DEFAULT_COUNTRY) {
+  return validatePostal(value, country);
 }
 
 export function validateUpiId(value) {
@@ -51,17 +47,19 @@ export function validateUpiId(value) {
   return null;
 }
 
-// Validate a single field by name. `opts` (e.g. { optional }) is forwarded to the
-// contact validators (email/fullName) so they can be relaxed for guest checkout.
+// Validate a single field by name. `opts` is forwarded to the contact validators
+// (email/fullName → { optional }) and carries `country` for the country-aware
+// phone/pincode rules.
 export function validateField(fieldName, value, opts = {}) {
+  const country = opts.country || DEFAULT_COUNTRY;
   const validators = {
     email: validateEmail,
-    phone: validatePhone,
+    phone: (v) => validatePhone(v, country),
     fullName: validateFullName,
     address1: validateAddress1,
     city: validateCity,
     state: validateState,
-    pincode: validatePincode,
+    pincode: (v) => validatePincode(v, country),
     upiId: validateUpiId,
   };
   const fn = validators[fieldName];
@@ -72,14 +70,16 @@ export function validateField(fieldName, value, opts = {}) {
 
 // Validate the entire shipping form. When requireContact is false (guest
 // checkout), email + full name become optional (but are still format-checked
-// when provided); phone stays required.
+// when provided); phone stays required. Phone/pincode formats follow
+// shipping.country.
 export function validateShippingForm(shipping, { requireContact = true } = {}) {
   const errors = {};
   const fields = ["email", "phone", "fullName", "address1", "city", "state", "pincode"];
+  const country = shipping.country || DEFAULT_COUNTRY;
 
   for (const field of fields) {
     const optional = !requireContact && (field === "email" || field === "fullName");
-    const error = validateField(field, shipping[field], { optional });
+    const error = validateField(field, shipping[field], { optional, country });
     if (error) errors[field] = error;
   }
 
@@ -90,9 +90,10 @@ export function validateShippingForm(shipping, { requireContact = true } = {}) {
 export function validateBillingForm(billing) {
   const errors = {};
   const fields = ["fullName", "address1", "city", "state", "pincode"];
+  const country = billing.country || DEFAULT_COUNTRY;
 
   for (const field of fields) {
-    const error = validateField(field, billing[field]);
+    const error = validateField(field, billing[field], { country });
     if (error) {
       errors[`billing_${field}`] = error;
     }

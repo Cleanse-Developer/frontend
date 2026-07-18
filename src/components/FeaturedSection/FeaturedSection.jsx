@@ -291,10 +291,11 @@ export const BuildYourRitual = () => {
   const [selected, setSelected] = useState([]);
 
   useEffect(() => {
-    bundleApi.getAll().then((data) => {
-      const bundles = data.bundles || data || [];
-      if (bundles.length > 0) {
-        const b = bundles[0];
+    // The admin picks which bundle lands here; the endpoint falls back to the
+    // highest-priority active bundle when nothing is explicitly featured.
+    bundleApi.getFeatured().then((data) => {
+      const b = data.bundle;
+      if (b) {
         setBundleData(b);
         setSelected((b.products || []).map(() => true));
       }
@@ -328,7 +329,7 @@ export const BuildYourRitual = () => {
   const selectedCount = selected.filter(Boolean).length;
   const meetsMin = selectedCount >= minProducts;
 
-  const originalTotal = products.reduce((sum, p, i) => selected[i] ? sum + Number(p.price || 0) : sum, 0);
+  const originalTotal = products.reduce((sum, p, i) => selected[i] ? sum + cardPrice(p) : sum, 0);
   const discountedTotal = bundleData && meetsMin
     ? bundleData.discountType === "percentage"
       ? Math.round(originalTotal * (1 - bundleData.discountValue / 100))
@@ -341,6 +342,10 @@ export const BuildYourRitual = () => {
       ? `${bundleData.discountValue}%`
       : `₹${bundleData.discountValue}`
     : "";
+
+  /* The ribbon's benefit copy is admin-authored; it falls back to the
+     discount-derived label so bundles that never set one read as before. */
+  const ribbonLabel = bundleData?.ribbonText?.trim() || `Save ${discountLabel}`;
 
   const handleAddToCart = async () => {
     for (let i = 0; i < products.length; i++) {
@@ -376,7 +381,7 @@ export const BuildYourRitual = () => {
       </div>
 
       <div className="byr-layout">
-        <span className="byr-ribbon" aria-hidden="true">Save {discountLabel}</span>
+        <span className="byr-ribbon" aria-hidden="true">{ribbonLabel}</span>
         {/* --byr-cols drives the desktop/tablet column count so the row is always
             exactly full: a 4-product bundle sits 4-up, a 3-product one 3-up, with
             no empty track either way. Capped at 4 — beyond that the cards wrap.
@@ -411,7 +416,7 @@ export const BuildYourRitual = () => {
                 <div className="byr-card-info">
                   <h4 className="byr-card-name">{product.name}</h4>
                   {product.shortDescription && <p className="byr-card-desc">{product.shortDescription}</p>}
-                  <span className="byr-card-price">₹{product.price}</span>
+                  <span className="byr-card-price">₹{cardPrice(product)}</span>
                 </div>
               </div>
             );
@@ -487,7 +492,7 @@ export const BuildYourRitual = () => {
                       </div>
                       <div className="byr-slot-info">
                         <span className="byr-slot-name">{product.name}</span>
-                        <span className="byr-slot-price">₹{product.price}</span>
+                        <span className="byr-slot-price">₹{cardPrice(product)}</span>
                       </div>
                     </>
                   ) : (

@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "navigate": "नेविगेशन",
+    "explore": "खोजें",
+    "discover": "जानें",
+    "socials": "सोशल",
+    "searchPlaceholder": "उत्पाद खोजें..."
+  },
+  "footer": {
+    "shop": "शॉप",
+    "discover": "जानें",
+    "account": "खाता",
+    "support": "सहायता",
+    "ourGenesis": "हमारी कहानी",
+    "lookbook": "लुकबुक",
+    "journal": "जर्नल",
+    "touchpoint": "संपर्क",
+    "myProfile": "मेरी प्रोफ़ाइल",
+    "myOrders": "मेरे ऑर्डर",
+    "shoppingBag": "शॉपिंग बैग",
+    "signIn": "साइन इन"
+  },
+  "product": {
+    "buyNow": "अभी खरीदें",
+    "addToCart": "कार्ट में डालें"
+  },
+  "wardrobe": {
+    "filter": "फ़िल्टर",
+    "all": "सभी",
+    "allPrices": "सभी कीमतें",
+    "under500": "₹500 से कम",
+    "p500to1000": "₹500 - ₹1000",
+    "above1000": "₹1000 से अधिक",
+    "loading": "उत्पाद लोड हो रहे हैं...",
+    "noProducts": "कोई उत्पाद नहीं मिला"
+  }
+}

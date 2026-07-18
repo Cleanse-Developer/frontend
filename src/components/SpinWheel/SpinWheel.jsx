@@ -14,6 +14,7 @@ const FALLBACK_PRIZES = [
 ];
 
 const SPIN_DURATION_MS = 4000;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function safeSetItem(key, value) {
   try {
@@ -47,10 +48,12 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
   const [result, setResult] = useState(null);
   const [email, setEmail] = useState("");
   const [hasSpun, setHasSpun] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const wheelRef = useRef(null);
   const apiResultRef = useRef(null);
+  const spinTokenRef = useRef(null);
   const initRef = useRef(false);
   const mountedRef = useRef(true);
   const spinTimerRef = useRef(null);
@@ -143,18 +146,20 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
   }, [isOpen]);
 
   const spinWheel = useCallback(async () => {
-    if (isSpinning || (!email && !isAuthenticated)) return;
+    if (isSpinning) return;
 
     setIsSpinning(true);
     setResult(null);
     setError("");
 
     try {
-      const data = await spinWheelApi.spin(email);
+      // Anonymous spin — no email needed. Server picks the prize and returns a
+      // signed token we present at claim time.
+      const data = await spinWheelApi.spin();
 
       if (!mountedRef.current) return;
 
-      // If already spun, show existing result
+      // Logged-in user who already has an active reward: show it (already claimed).
       if (data.alreadySpun) {
         setResult(data.prize);
         setHasSpun(true);
@@ -163,6 +168,7 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
       }
 
       apiResultRef.current = data.prize;
+      spinTokenRef.current = data.spinToken;
     } catch (err) {
       if (!mountedRef.current) return;
       const msg = err.response?.data?.message || "Something went wrong. Try again later.";
@@ -193,17 +199,15 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
     const finishSpin = () => {
       if (!mountedRef.current) return;
       const prize = apiResultRef.current;
-      const resultData = {
+      // No couponCode yet — the reward becomes real only after the user claims
+      // it with an email. Nothing is cached until then.
+      setResult({
         label: prize.label,
         value: prize.value,
-        couponCode: prize.couponCode,
-      };
-      setResult(resultData);
+        isReward: prize.isReward,
+      });
       setIsSpinning(false);
       setHasSpun(true);
-
-      safeSetItem("spinWheelEmail", email);
-      safeSetItem("spinWheelResult", JSON.stringify({ email, prize: resultData }));
     };
 
     // Listen for CSS transition end on the wheel
@@ -217,12 +221,32 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
       if (wheelEl) wheelEl.removeEventListener("transitionend", handleTransitionEnd);
       finishSpin();
     }, SPIN_DURATION_MS + 200);
-  }, [isSpinning, email, isAuthenticated, prizes, rotation]);
+  }, [isSpinning, prizes, rotation]);
 
-  const handleClaim = () => {
-    if (onComplete) onComplete(result);
-    onClose();
-  };
+  // Claim the spun reward: bind it to the entered email, which is when the
+  // coupon is actually created server-side.
+  const handleClaim = useCallback(async () => {
+    if (isClaiming) return;
+    if (!EMAIL_RE.test(email)) {
+      setError("Please enter a valid email");
+      return;
+    }
+    setIsClaiming(true);
+    setError("");
+    try {
+      const data = await spinWheelApi.claim(email, spinTokenRef.current);
+      if (!mountedRef.current) return;
+      setResult(data.prize);
+      safeSetItem("spinWheelEmail", email);
+      safeSetItem("spinWheelResult", JSON.stringify({ email, prize: data.prize }));
+      if (onComplete) onComplete(data.prize);
+    } catch (err) {
+      if (!mountedRef.current) return;
+      setError(err.response?.data?.message || "Could not claim your reward. Please try again.");
+    } finally {
+      if (mountedRef.current) setIsClaiming(false);
+    }
+  }, [email, isClaiming, onComplete]);
 
   if (!isOpen) return null;
 
@@ -305,28 +329,48 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
               </div>
             ) : !hasSpun ? (
               <div className="spin-wheel-form">
+                <p style={{ fontSize: "0.85rem", color: "rgba(79, 44, 34, 0.6)", margin: "0 0 0.5rem" }}>
+                  No email needed to spin — enter it after to claim your reward.
+                </p>
+                {error && <p style={{ color: "#c0392b", fontSize: "0.85rem", margin: "0.25rem 0 0" }}>{error}</p>}
+                <button
+                  className="spin-btn"
+                  onClick={spinWheel}
+                  disabled={isSpinning}
+                >
+                  {isSpinning ? "Spinning..." : "Spin Now"}
+                </button>
+              </div>
+            ) : result?.isReward && !result?.couponCode ? (
+              // Reward won but not yet claimed — collect the email now.
+              <div className="spin-result">
+                <div className="result-badge">
+                  <span className="result-label">You Won!</span>
+                  <span className="result-prize">{result?.label}</span>
+                </div>
                 {emailLocked ? (
-                  <p style={{ fontSize: "0.85rem", color: "rgba(79, 44, 34, 0.6)", margin: "0 0 0.5rem" }}>
-                    Spinning as <strong>{user.email}</strong>
+                  <p style={{ fontSize: "0.85rem", color: "rgba(79, 44, 34, 0.6)", margin: "0.25rem 0" }}>
+                    Claiming as <strong>{user.email}</strong>
                   </p>
                 ) : (
                   <input
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter your email to claim"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 )}
                 {error && <p style={{ color: "#c0392b", fontSize: "0.85rem", margin: "0.25rem 0 0" }}>{error}</p>}
                 <button
-                  className="spin-btn"
-                  onClick={spinWheel}
-                  disabled={isSpinning || !email}
+                  className="claim-btn"
+                  onClick={handleClaim}
+                  disabled={isClaiming || (!emailLocked && !email)}
                 >
-                  {isSpinning ? "Spinning..." : "Spin Now"}
+                  {isClaiming ? "Claiming..." : "Claim Reward"}
                 </button>
               </div>
             ) : (
+              // Final view: claimed reward (with code) or a "try again" result.
               <div className="spin-result">
                 <div className="result-badge">
                   <span className="result-label">{result?.value === "tryagain" ? "Oops!" : "You Won!"}</span>
@@ -337,8 +381,8 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
                 ) : (
                   <p className="result-code">Better luck next time!</p>
                 )}
-                <button className="claim-btn" onClick={handleClaim}>
-                  {result?.couponCode ? "Claim Reward" : "Close"}
+                <button className="claim-btn" onClick={onClose}>
+                  {result?.couponCode ? "Done" : "Close"}
                 </button>
               </div>
             )}

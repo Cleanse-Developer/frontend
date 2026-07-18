@@ -11,17 +11,10 @@ import { useToast } from "@/context/ToastContext";
 import { productApi, shippingApi, reviewApi, bundleApi } from "@/lib/endpoints";
 import { normalizeProduct } from "@/lib/normalizers";
 import { productUrl } from "@/lib/normalizers";
+import { cardPrice } from "@/lib/formatters";
 import ProductCard from "@/components/ProductCard/ProductCard";
-// Realistic, name-matched icons from react-icons — botanicals from Game Icons,
-// everything else from Font Awesome 6 (solid) for one consistent, filled look.
-import { GiBerryBush, GiDaisy, GiThreeLeaves, GiHerbsBundle, GiVineLeaf, GiAgave, GiLotus, GiVineFlower } from "react-icons/gi";
-import {
-  FaSeedling, FaDroplet, FaLeaf, FaPaw, FaFlask, FaHandsBubbles,
-  FaHandHoldingDroplet, FaHandsHolding, FaHandSparkles, FaMoon, FaArrowsRotate,
-  FaTruckFast, FaClock, FaBolt, FaEarthAmericas, FaRotateLeft, FaShieldHalved,
-  FaCertificate, FaCalendarDays, FaSun, FaVial, FaHand, FaCircleCheck,
-  FaChevronUp, FaChevronDown,
-} from "react-icons/fa6";
+import { renderTabHighlightIcon } from "@/lib/tab-highlight-icons";
+import { FaChevronUp, FaChevronDown } from "react-icons/fa6";
 
 const productImages = [
   "/images/1.png",
@@ -103,48 +96,9 @@ function buildProductInfoTabs(product) {
   }));
 }
 
-const ValueIcon = ({ type }) => {
-  const icons = {
-    /* Botanical herbs — Game Icons (detailed, name-matched) */
-    amla: <GiBerryBush />,
-    bhringraj: <GiDaisy />,
-    neem: <GiThreeLeaves />,
-    tulsi: <GiHerbsBundle />,
-    brahmi: <GiVineLeaf />,
-    aloe: <GiAgave />,
-    saffron: <GiVineFlower />,
-    lotus: <GiLotus />,
-    /* Values */
-    plant: <FaSeedling />,
-    dropper: <FaDroplet />,
-    leaf: <FaLeaf />,
-    paw: <FaPaw />,
-    chemical: <FaFlask />,
-    noparaben: <FaDroplet />,
-    /* How to use */
-    wash: <FaHandsBubbles />,
-    drops: <FaHandHoldingDroplet />,
-    hands: <FaHandsHolding />,
-    massage: <FaHandSparkles />,
-    moon: <FaMoon />,
-    repeat: <FaArrowsRotate />,
-    /* Shipping */
-    truck: <FaTruckFast />,
-    clock: <FaClock />,
-    express: <FaBolt />,
-    globe: <FaEarthAmericas />,
-    returnbox: <FaRotateLeft />,
-    shield: <FaShieldHalved />,
-    /* Policies */
-    certificate: <FaCertificate />,
-    calendar: <FaCalendarDays />,
-    sun: <FaSun />,
-    test: <FaVial />,
-    external: <FaHand />,
-    check: <FaCircleCheck />,
-  };
-  return icons[type] || null;
-};
+// Icons come from the shared tab-highlight registry (@/lib/tab-highlight-icons),
+// which the admin picker mirrors — one place defines what keys exist.
+const ValueIcon = ({ type }) => renderTabHighlightIcon(type);
 
 export default function Unit({ params }) {
   return (
@@ -358,7 +312,7 @@ function UnitContent({ params }) {
 
   const selectedBundleCount = bundleSelected.filter(Boolean).length;
   const bundleOriginalTotal = bundleProducts.reduce((sum, p, i) =>
-    bundleSelected[i] ? sum + Number(p.price) : sum, 0
+    bundleSelected[i] ? sum + cardPrice(p) : sum, 0
   );
 
   const bundleDiscountedTotal = activeBundle
@@ -673,7 +627,7 @@ function UnitContent({ params }) {
                     <div className="bundle-card-info">
                       <p className="bundle-card-name">{bp.name}</p>
                       <p className="bundle-card-desc">{bp.shortDescription || bp.description}</p>
-                      <p className="bundle-card-price">&#8377;{bp.price}</p>
+                      <p className="bundle-card-price">&#8377;{cardPrice(bp)}</p>
                     </div>
                   </button>
                 );
@@ -727,7 +681,7 @@ function UnitContent({ params }) {
                           </div>
                           <div className="bundle-slot-info">
                             <span className="bundle-slot-name">{bp.name}</span>
-                            <span className="bundle-slot-price">&#8377;{bp.price}</span>
+                            <span className="bundle-slot-price">&#8377;{cardPrice(bp)}</span>
                           </div>
                         </>
                       ) : (

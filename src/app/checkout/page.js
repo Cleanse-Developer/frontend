@@ -10,7 +10,9 @@ import { authApi, couponApi, specialCouponApi, orderApi, paymentApi, checkoutApi
 import { useToast } from "@/context/ToastContext";
 import { loadRazorpay } from "@/lib/razorpay";
 import { validateField, validateShippingForm, validateBillingForm, validatePhone } from "@/lib/validation";
+import { COUNTRIES, statesForCountry, citiesForState, isIndia, dialForCountry, postalLabel, postalExample } from "@/lib/countries";
 import { saveCheckoutData, loadCheckoutData, clearCheckoutData } from "@/lib/checkoutStorage";
+import { getAttributionPayload, getStoredCoupon } from "@/lib/affiliate";
 import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, extractWidgetToken } from "@/lib/msg91";
 import CouponModal from "./CouponModal";
 import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
@@ -46,73 +48,24 @@ function couponErrorMessage(message, code, subtotal) {
   return message || "This code isn't valid for your order.";
 }
 
-const indianStates = [
-  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
-  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
-  "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
-  "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
-  "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
-  "Uttar Pradesh", "Uttarakhand", "West Bengal",
-  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
-  "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry",
-];
 
-// Suggested cities per state, offered through a <datalist> on the City field.
-// This is a convenience list, NOT a whitelist: the field stays a free-text input,
-// so a customer in a town that isn't listed can still type it and check out. Keys
-// must match `indianStates` exactly or the suggestions simply won't show.
-const CITIES_BY_STATE = {
-  "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool", "Rajahmundry", "Tirupati", "Kakinada"],
-  "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Pasighat", "Tawang"],
-  "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat", "Nagaon", "Tinsukia"],
-  "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Darbhanga", "Purnia"],
-  "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur", "Korba", "Durg"],
-  "Goa": ["Panaji", "Margao", "Vasco da Gama", "Mapusa", "Ponda"],
-  "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar", "Gandhinagar", "Anand"],
-  "Haryana": ["Gurugram", "Faridabad", "Panipat", "Ambala", "Karnal", "Hisar", "Rohtak"],
-  "Himachal Pradesh": ["Shimla", "Dharamshala", "Solan", "Mandi", "Manali"],
-  "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro Steel City", "Hazaribagh"],
-  "Karnataka": ["Bengaluru", "Mysuru", "Hubballi", "Mangaluru", "Belagavi", "Davanagere", "Ballari", "Shivamogga"],
-  "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam", "Kannur", "Alappuzha"],
-  "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior", "Ujjain", "Sagar", "Rewa"],
-  "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Thane", "Navi Mumbai", "Aurangabad", "Solapur", "Kolhapur"],
-  "Manipur": ["Imphal", "Thoubal", "Churachandpur"],
-  "Meghalaya": ["Shillong", "Tura", "Jowai"],
-  "Mizoram": ["Aizawl", "Lunglei", "Champhai"],
-  "Nagaland": ["Kohima", "Dimapur", "Mokokchung"],
-  "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Berhampur", "Sambalpur", "Puri"],
-  "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda", "Mohali"],
-  "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer", "Bikaner", "Alwar"],
-  "Sikkim": ["Gangtok", "Namchi", "Gyalshing"],
-  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tirunelveli", "Erode", "Vellore"],
-  "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar", "Khammam", "Secunderabad"],
-  "Tripura": ["Agartala", "Udaipur", "Dharmanagar"],
-  "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Varanasi", "Meerut", "Noida", "Prayagraj", "Bareilly"],
-  "Uttarakhand": ["Dehradun", "Haridwar", "Roorkee", "Haldwani", "Rishikesh", "Nainital"],
-  "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Asansol", "Siliguri", "Darjeeling"],
-  "Andaman and Nicobar Islands": ["Port Blair"],
-  "Chandigarh": ["Chandigarh"],
-  "Dadra and Nagar Haveli and Daman and Diu": ["Silvassa", "Daman", "Diu"],
-  "Delhi": ["New Delhi", "Delhi", "Dwarka", "Rohini", "Saket", "Karol Bagh"],
-  "Jammu and Kashmir": ["Srinagar", "Jammu", "Anantnag", "Baramulla"],
-  "Ladakh": ["Leh", "Kargil"],
-  "Lakshadweep": ["Kavaratti"],
-  "Puducherry": ["Puducherry", "Karaikal", "Yanam", "Mahe"],
-};
-
-const PHONE_CODES_LIST = [
-  { code: "+91", label: "IN +91" },
-  { code: "+1", label: "US +1" },
-  { code: "+44", label: "UK +44" },
-  { code: "+971", label: "AE +971" },
-  { code: "+65", label: "SG +65" },
-  { code: "+61", label: "AU +61" },
-  { code: "+974", label: "QA +974" },
-  { code: "+966", label: "SA +966" },
-  { code: "+977", label: "NP +977" },
-  { code: "+94", label: "LK +94" },
-  { code: "+880", label: "BD +880" },
-];
+// Dial-code options for the phone field, derived from the full country list so
+// every selectable country has a matching code. Deduped by dial (e.g. US/CA
+// share +1), India first, then ascending by numeric code.
+const PHONE_CODES_LIST = (() => {
+  const seen = new Set();
+  const list = [];
+  for (const c of COUNTRIES) {
+    if (seen.has(c.dial)) continue;
+    seen.add(c.dial);
+    list.push({ code: c.dial, label: `${c.code} ${c.dial}` });
+  }
+  return list.sort((a, b) => {
+    if (a.code === "+91") return -1;
+    if (b.code === "+91") return 1;
+    return Number(a.code.slice(1)) - Number(b.code.slice(1));
+  });
+})();
 const PHONE_CODES = PHONE_CODES_LIST.map((c) => c.code);
 
 // Split a full phone (e.g. "+919876543210") into { code, local }
@@ -135,6 +88,41 @@ function splitPhone(phone) {
     return { code: "+91", local: cleaned.slice(2) };
   }
   return { code: "+91", local: cleaned };
+}
+
+// crypto.randomUUID() is undefined on iOS Safari < 15.4 and in any non-secure
+// context / in-app webview — calling it there throws and crashes the checkout
+// mount for those users. This resolves to a valid RFC-4122 v4 UUID everywhere:
+// native API when present, else getRandomValues, else Math.random.
+function safeUUID() {
+  try {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+  } catch {
+    // fall through to the manual generator
+  }
+  const bytes = new Uint8Array(16);
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256);
+  }
+  // Set the version (4) and variant (10xx) bits per RFC 4122.
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0"));
+  return (
+    hex.slice(0, 4).join("") +
+    "-" +
+    hex.slice(4, 6).join("") +
+    "-" +
+    hex.slice(6, 8).join("") +
+    "-" +
+    hex.slice(8, 10).join("") +
+    "-" +
+    hex.slice(10, 16).join("")
+  );
 }
 
 export default function CheckoutPage() {
@@ -386,12 +374,17 @@ export default function CheckoutPage() {
   const shippingCost = pricingSource?.shippingCost ?? (subtotal >= 1200 ? 0 : 99);
   const couponAmount = pricingSource?.couponDiscount || 0;
   const total = pricingSource?.total ?? subtotal;
+  // Loyalty points earned on this purchase (backend-computed estimate)
+  const loyaltyPointsEarned = Math.max(0, Math.floor(pricingSource?.loyaltyPoints || 0));
 
   // Full phone with country code (for backend/redirect). Strip any country code
   // already present in the local part (10-digit India) so we never double-prefix.
   const localPhoneDigits = (() => {
     const d = (shipping.phone || "").replace(/\D/g, "");
-    return d.length > 10 ? d.slice(-10) : d;
+    // India numbers are 10 digits — trim any duplicated country code. Other
+    // countries keep the full national number (E.164 allows up to 15 digits).
+    if (isIndia(shipping.country)) return d.length > 10 ? d.slice(-10) : d;
+    return d.slice(0, 15);
   })();
   const fullPhone = localPhoneDigits ? `${shipping.phoneCode}${localPhoneDigits}` : "";
 
@@ -410,7 +403,9 @@ export default function CheckoutPage() {
   // optional().isEmail() would reject an empty string).
   const getShippingInfo = () => {
     const { phoneCode, ...rest } = shipping;
-    const info = { ...rest, phone: fullPhone };
+    // Send countryCode explicitly so the backend applies country-aware phone
+    // validation (and doesn't default a non-India number to the India rule).
+    const info = { ...rest, phone: fullPhone, countryCode: phoneCode };
     info.fullName = (info.fullName || "").trim() || "User";
     if (!info.email || !info.email.trim()) {
       delete info.email;
@@ -521,11 +516,20 @@ export default function CheckoutPage() {
     };
   }, []);
 
+  // Serviceability (checkDelivery / Shiprocket) is India-only. A ref keeps the
+  // current country available to the debounced checkPincode callback without
+  // re-creating it on every keystroke.
+  const countryRef = useRef(shipping.country);
+  useEffect(() => {
+    countryRef.current = shipping.country;
+  }, [shipping.country]);
+
   // ── Pincode serviceability check (debounced) ──
   const checkPincode = useCallback((pincode) => {
     if (pincodeTimeoutRef.current) clearTimeout(pincodeTimeoutRef.current);
 
-    if (!pincode || !/^\d{6}$/.test(pincode)) {
+    // Non-India addresses have no Shiprocket serviceability gate — never block.
+    if (!isIndia(countryRef.current) || !pincode || !/^\d{6}$/.test(pincode)) {
       setPincodeStatus(null);
       setPincodeMessage("");
       return;
@@ -556,11 +560,11 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (shipping.pincode !== prevPincodeRef.current) {
       prevPincodeRef.current = shipping.pincode;
-      if (/^\d{6}$/.test(shipping.pincode) && pincodeStatus === null) {
+      if (isIndia(shipping.country) && /^\d{6}$/.test(shipping.pincode) && pincodeStatus === null) {
         checkPincode(shipping.pincode);
       }
     }
-  }, [shipping.pincode, pincodeStatus, checkPincode]);
+  }, [shipping.pincode, shipping.country, pincodeStatus, checkPincode]);
 
   // ── Handlers ──
   const handleShippingChange = (field, value) => {
@@ -591,10 +595,40 @@ export default function CheckoutPage() {
     }
   };
 
+  // Changing country resets the (now country-specific) state and, for shipping,
+  // aligns the phone dial code and drops any stale serviceability status.
+  const handleCountryChange = (value, isBilling = false) => {
+    if (isBilling) {
+      setBilling((prev) => ({ ...prev, country: value, state: "" }));
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.billing_state;
+        delete next.billing_pincode;
+        return next;
+      });
+      return;
+    }
+    setShipping((prev) => ({
+      ...prev,
+      country: value,
+      state: "",
+      phoneCode: dialForCountry(value),
+    }));
+    setPincodeStatus(null);
+    setPincodeMessage("");
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.state;
+      delete next.pincode;
+      return next;
+    });
+  };
+
   const handleBlur = (field, value, isBilling = false) => {
     // Guests: email + full name are optional (format-checked only when filled).
     const optional = guestMode && (field === "email" || field === "fullName");
-    const error = validateField(field, value, { optional });
+    const country = isBilling ? billing.country : shipping.country;
+    const error = validateField(field, value, { optional, country });
     const key = isBilling ? `billing_${field}` : field;
     setErrors((prev) => {
       if (error) return { ...prev, [key]: error };
@@ -653,7 +687,7 @@ export default function CheckoutPage() {
   };
 
   const handleVerifyPhone = async () => {
-    const phoneErr = validatePhone(shipping.phone);
+    const phoneErr = validatePhone(shipping.phone, shipping.country);
     if (phoneErr) {
       setErrors((prev) => ({ ...prev, phone: phoneErr }));
       return;
@@ -666,7 +700,10 @@ export default function CheckoutPage() {
         toast.error("Couldn't load the OTP service. Please try again.");
         return;
       }
-      await sendOtpViaWidget(`91${localPhoneDigits}`);
+      // Use the selected country's dial code (digits only), not a hardcoded 91,
+      // so OTP works for international numbers. (MSG91 must be configured to
+      // deliver to the target country for this to succeed at runtime.)
+      await sendOtpViaWidget(`${shipping.phoneCode.replace(/\D/g, "")}${localPhoneDigits}`);
       setOtpValue("");
       setOtpModalOpen(true);
       toast.success("OTP sent to your mobile number");
@@ -766,19 +803,23 @@ export default function CheckoutPage() {
           }
         }
       }
-      if (pincodeStatus === "unavailable") {
-        setErrors({ pincode: "Delivery is not available to this pincode" });
-        return;
-      }
-      if (pincodeStatus === "checking") {
-        setErrors({ pincode: "Please wait while we check delivery availability" });
-        return;
-      }
-      if (pincodeStatus === null && /^\d{6}$/.test(shipping.pincode)) {
-        // Pincode entered but check hasn't fired yet, trigger it and block
-        checkPincode(shipping.pincode);
-        setErrors({ pincode: "Please wait while we check delivery availability" });
-        return;
+      // Serviceability gate is India-only (Shiprocket). International addresses
+      // skip it — the address is accepted and the order proceeds.
+      if (isIndia(shipping.country)) {
+        if (pincodeStatus === "unavailable") {
+          setErrors({ pincode: "Delivery is not available to this pincode" });
+          return;
+        }
+        if (pincodeStatus === "checking") {
+          setErrors({ pincode: "Please wait while we check delivery availability" });
+          return;
+        }
+        if (pincodeStatus === null && /^\d{6}$/.test(shipping.pincode)) {
+          // Pincode entered but check hasn't fired yet, trigger it and block
+          checkPincode(shipping.pincode);
+          setErrors({ pincode: "Please wait while we check delivery availability" });
+          return;
+        }
       }
     }
     if (step === 3 && activeStep === 2) {
@@ -880,6 +921,31 @@ export default function CheckoutPage() {
       setCouponLoading(false);
     }
   };
+
+  // ── Promoter (affiliate) code auto-apply ──
+  // A promoter link may carry a bound coupon (?coupon=…). Prefill it into the ONE
+  // existing coupon input and validate it through the existing flow — no new field.
+  const [autoApplyPending, setAutoApplyPending] = useState(false);
+  useEffect(() => {
+    const code = getStoredCoupon();
+    if (code) {
+      setCouponCode((prev) => prev || code);
+      setAutoApplyPending(true);
+    }
+  }, []);
+  useEffect(() => {
+    if (
+      autoApplyPending &&
+      couponCode.trim() &&
+      subtotal > 0 &&
+      couponStatus !== "valid" &&
+      !couponLoading
+    ) {
+      setAutoApplyPending(false);
+      handleApplyCoupon();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoApplyPending, couponCode, subtotal, couponStatus, couponLoading]);
 
   // ── Loyalty redemption handlers ──
   const handleApplyLoyalty = async () => {
@@ -992,6 +1058,8 @@ export default function CheckoutPage() {
       specialCouponCode: appliedSpecialCode || undefined,
       giftWrap: false,
       loyaltyPointsToRedeem: loyaltyApplied || 0,
+      // Promoter last-click attribution (resolved server-side from the slug).
+      attribution: getAttributionPayload(),
     };
 
     try {
@@ -1027,6 +1095,7 @@ export default function CheckoutPage() {
             paymentMethod: "razorpay",
             idempotencyKey,
             loyaltyPointsToRedeem: loyaltyApplied || 0,
+            attribution: orderData.attribution,
           });
         } catch (err) {
           handleInitiateError(err);
@@ -1268,13 +1337,15 @@ export default function CheckoutPage() {
   };
 
   // City is a combobox, not a <select>: the datalist suggests cities for the
-  // state already chosen, but any city can still be typed. See CITIES_BY_STATE.
+  // selected country + state, but any city can still be typed. See
+  // citiesForState / CITIES_BY_STATE in @/lib/countries.
   const renderCityInput = (isBilling = false) => {
     const key = isBilling ? "billing_city" : "city";
     const val = isBilling ? billing.city : shipping.city;
     const state = isBilling ? billing.state : shipping.state;
+    const country = isBilling ? billing.country : shipping.country;
     const listId = isBilling ? "billing-city-options" : "shipping-city-options";
-    const suggestions = CITIES_BY_STATE[state] || [];
+    const suggestions = citiesForState(country, state);
     const changeFn = isBilling
       ? (e) => handleBillingChange("city", e.target.value)
       : (e) => handleShippingChange("city", e.target.value);
@@ -1304,12 +1375,33 @@ export default function CheckoutPage() {
     );
   };
 
+  // State field is a dropdown for countries with a known subdivision list,
+  // otherwise a free-text region input. Driven by the row's selected country.
   const renderStateSelect = (isBilling = false) => {
     const key = isBilling ? "billing_state" : "state";
     const val = isBilling ? billing.state : shipping.state;
+    const country = isBilling ? billing.country : shipping.country;
+    const states = statesForCountry(country);
     const changeFn = isBilling
       ? (e) => handleBillingChange("state", e.target.value)
       : (e) => handleShippingChange("state", e.target.value);
+
+    if (states.length === 0) {
+      return (
+        <div className="checkout-input-group">
+          <label>State / Province / Region</label>
+          <input
+            type="text"
+            placeholder="State / Province / Region"
+            value={val}
+            onChange={changeFn}
+            onBlur={() => handleBlur("state", val, isBilling)}
+            className={errors[key] ? "has-error" : ""}
+          />
+          {errors[key] && <span className="checkout-field-error">{errors[key]}</span>}
+        </div>
+      );
+    }
 
     return (
       <div className="checkout-input-group">
@@ -1321,11 +1413,30 @@ export default function CheckoutPage() {
           className={errors[key] ? "has-error" : ""}
         >
           <option value="" disabled>Select state</option>
-          {indianStates.map((state) => (
+          {states.map((state) => (
             <option key={state} value={state}>{state}</option>
           ))}
         </select>
         {errors[key] && <span className="checkout-field-error">{errors[key]}</span>}
+      </div>
+    );
+  };
+
+  // Country dropdown (full list). Changing it re-scopes the state field and,
+  // for shipping, the phone dial code — see handleCountryChange.
+  const renderCountrySelect = (isBilling = false) => {
+    const val = isBilling ? billing.country : shipping.country;
+    return (
+      <div className="checkout-input-group">
+        <label>Country</label>
+        <select
+          value={val}
+          onChange={(e) => handleCountryChange(e.target.value, isBilling)}
+        >
+          {COUNTRIES.map((c) => (
+            <option key={c.code} value={c.name}>{c.name}</option>
+          ))}
+        </select>
       </div>
     );
   };
@@ -1560,15 +1671,15 @@ export default function CheckoutPage() {
                 </div>
                 <div className="checkout-form-grid">
                   <div className="checkout-input-group">
-                    <label>Pincode</label>
+                    <label>{postalLabel(shipping.country)}</label>
                     <input
                       type="text"
-                      placeholder="000000"
+                      placeholder={postalExample(shipping.country) || "Postal code"}
                       value={shipping.pincode}
                       onChange={(e) => handleShippingChange("pincode", e.target.value)}
                       onBlur={() => handleBlur("pincode", shipping.pincode)}
                       className={errors.pincode ? "has-error" : ""}
-                      maxLength={6}
+                      maxLength={isIndia(shipping.country) ? 6 : 12}
                     />
                     {errors.pincode && <span className="checkout-field-error">{errors.pincode}</span>}
                     {!errors.pincode && pincodeStatus && (
@@ -1578,10 +1689,7 @@ export default function CheckoutPage() {
                       </span>
                     )}
                   </div>
-                  <div className="checkout-input-group">
-                    <label>Country</label>
-                    <input type="text" value={shipping.country} readOnly />
-                  </div>
+                  {renderCountrySelect()}
                 </div>
               </div>
 
@@ -1622,11 +1730,8 @@ export default function CheckoutPage() {
                       {renderStateSelect(true)}
                     </div>
                     <div className="checkout-form-grid">
-                      {renderInput("pincode", "Pincode", "000000", "text", { isBilling: true })}
-                      <div className="checkout-input-group">
-                        <label>Country</label>
-                        <input type="text" value={billing.country} readOnly />
-                      </div>
+                      {renderInput("pincode", postalLabel(billing.country), postalExample(billing.country) || "Postal code", "text", { isBilling: true })}
+                      {renderCountrySelect(true)}
                     </div>
                   </div>
                 </div>
@@ -1916,6 +2021,11 @@ export default function CheckoutPage() {
                 <span>Total</span>
                 <span>&#8377;{formatPrice(total)}</span>
               </div>
+              {loyaltyPointsEarned > 0 && (
+                <div className="checkout-summary-loyalty">
+                  ⭐ Earn {loyaltyPointsEarned} loyalty {loyaltyPointsEarned === 1 ? "point" : "points"} on this order
+                </div>
+              )}
             </div>
 
             <Link href="/wardrobe" className="checkout-continue-shopping">Continue Shopping</Link>
