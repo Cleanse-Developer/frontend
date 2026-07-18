@@ -69,25 +69,25 @@ const JOURNEY = [
     step: "01",
     title: "The source",
     desc: "High in the Himalayan foothills, where the air runs clean and the herbs grow wild, Ayurveda was born.",
-    img: "/images/b1.png",
+    img: "/gallery-4.png",
   },
   {
     step: "02",
     title: "The craft",
     desc: "We partner with growers who honour the land, harvesting each botanical at its peak of potency.",
-    img: "/images/b2.png",
+    img: "/gallery-1.png",
   },
   {
     step: "03",
     title: "The formula",
     desc: "Every blend is composed slowly, balancing ancient tradition with modern, considered refinement.",
-    img: "/images/a.png",
+    img: "/gallery-5.png",
   },
   {
     step: "04",
     title: "The ritual",
     desc: "What reaches you is more than a product. It is a daily ceremony for your skin and your self.",
-    img: "/images/b3.png",
+    img: "/gallery-6.png",
   },
 ];
 
@@ -154,30 +154,32 @@ export default function Genesis() {
       {/* Fixed zoom gallery — driven by .project-page-whitespace (kept intact) */}
       <section className="project-preview">
         <div className="project-preview-wrapper">
+          {/* Zoom gallery — text-free product shots only (the labelled/ad
+              images were dropped). main-preview-img is the frame that zooms. */}
           <div className="preview-col">
-            <div className="preview-img"><img src="/images/1.png" alt="" /></div>
-            <div className="preview-img"><img src="/images/2.png" alt="" /></div>
-            <div className="preview-img"><img src="/images/3.png" alt="" /></div>
+            <div className="preview-img"><img src="/gallery-2.png" alt="" /></div>
+            <div className="preview-img"><img src="/gallery-3.png" alt="" /></div>
+            <div className="preview-img"><img src="/gallery-4.png" alt="" /></div>
           </div>
           <div className="preview-col">
-            <div className="preview-img"><img src="/images/4.png" alt="" /></div>
-            <div className="preview-img"><img src="/images/a.png" alt="" /></div>
-            <div className="preview-img"><img src="/images/banner.png" alt="" /></div>
+            <div className="preview-img"><img src="/gallery-5.png" alt="" /></div>
+            <div className="preview-img"><img src="/gallery-6.png" alt="" /></div>
+            <div className="preview-img"><img src="/genesis.png" alt="" /></div>
           </div>
           <div className="preview-col main-preview-col">
-            <div className="preview-img"><img src="/images/why1.png" alt="" /></div>
-            <div className="preview-img main-preview-img"><img src="/images/top.png" alt="" /></div>
-            <div className="preview-img"><img src="/images/why2.png" alt="" /></div>
+            <div className="preview-img"><img src="/footer.png" alt="" /></div>
+            <div className="preview-img main-preview-img"><img src="/center.png" alt="" /></div>
+            <div className="preview-img"><img src="/top-banner-desktop-new.png" alt="" /></div>
           </div>
           <div className="preview-col">
-            <div className="preview-img"><img src="/images/c1.png" alt="" /></div>
-            <div className="preview-img"><img src="/images/c2.png" alt="" /></div>
-            <div className="preview-img"><img src="/images/c3.png" alt="" /></div>
+            <div className="preview-img"><img src="/banner-bottom-mobile.png" alt="" /></div>
+            <div className="preview-img"><img src="/gallery-1.png" alt="" /></div>
+            <div className="preview-img"><img src="/gallery-3.png" alt="" /></div>
           </div>
           <div className="preview-col">
-            <div className="preview-img"><img src="/images/b1.png" alt="" /></div>
-            <div className="preview-img"><img src="/images/b2.png" alt="" /></div>
-            <div className="preview-img"><img src="/images/b3.png" alt="" /></div>
+            <div className="preview-img"><img src="/gallery-5.png" alt="" /></div>
+            <div className="preview-img"><img src="/gallery-2.png" alt="" /></div>
+            <div className="preview-img"><img src="/gallery-6.png" alt="" /></div>
           </div>
         </div>
       </section>
@@ -204,7 +206,7 @@ export default function Genesis() {
       <section className="gen-lead">
         <div className="gen-inner gen-lead-split">
           <div className="gen-lead-media">
-            <img src="/model.png" alt="A Cleanse Ayurveda ritual" loading="lazy" />
+            <img src="/beauty-flow.png" alt="A Cleanse Ayurveda ritual" loading="lazy" />
           </div>
           <div className="gen-lead-content">
             <span className="gen-eyebrow">The philosophy</span>
@@ -249,7 +251,7 @@ export default function Genesis() {
       {/* Heritage — full-bleed image band */}
       <section className="gen-heritage">
         <div className="gen-inner gen-heritage-card">
-          <img className="gen-heritage-img" src="/skin.jpg" alt="Botanicals of the Himalayan foothills" loading="lazy" />
+          <img className="gen-heritage-img" src="/heritage.png" alt="Botanicals of the Himalayan foothills" loading="lazy" />
           <span className="gen-heritage-scrim" aria-hidden="true"></span>
           <div className="gen-heritage-content">
             <span className="gen-eyebrow gen-eyebrow--light">Our heritage</span>

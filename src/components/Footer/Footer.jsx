@@ -99,10 +99,10 @@ const Footer = () => {
     "HRBD Life Sciences Pvt. Ltd.",
     "42 Wellness Avenue, Bandra West, Mumbai 400050",
   ];
-  // Same address the contact page publishes (touchpoint/page.js) — the footer used
-  // to fall back to a different one, so the two surfaces disagreed. Note the CMS
-  // still overrides this, so the value in admin has to match too.
-  const email = contact.email || "hello@cleanseayurveda.com";
+  // Locked to the same address the contact page publishes (touchpoint/page.js).
+  // Hardcoded (no CMS override) so the footer can never show a different email
+  // from the contact page again.
+  const email = "hello@cleanseayurveda.com";
   const phone = contact.phone || "+91 80000 00000";
 
   return (

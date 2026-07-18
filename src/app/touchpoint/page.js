@@ -125,7 +125,7 @@ export default function Touchpoint() {
           </div>
           <div className="touchpoint-info-text">
             <span className="touchpoint-info-label">Visit Us</span>
-            <span className="touchpoint-info-value">Rishikesh, Uttarakhand</span>
+            <span className="touchpoint-info-value">Mumbai, Maharashtra</span>
           </div>
         </div>
 

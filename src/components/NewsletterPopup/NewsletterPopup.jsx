@@ -23,7 +23,7 @@ const NewsletterPopup = ({ isOpen, onClose }) => {
     popupConfig.description ||
     "Subscribe to our newsletter and receive exclusive offers, Ayurvedic tips, and new product updates.";
   const note = popupConfig.note || "No spam, unsubscribe anytime.";
-  const image = popupConfig.image || "/popups/range-square.webp";
+  const image = popupConfig.image || "/footer.png";
 
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle"); // idle | submitting | success | error

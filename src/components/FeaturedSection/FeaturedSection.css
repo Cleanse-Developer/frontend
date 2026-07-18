@@ -640,6 +640,16 @@
   height: 100%;
 }
 
+/* Grid reveals (GSAP) leave a transform on each card, so every card is its own
+   stacking context and a later card paints over the previous card's cart
+   controls. Lift a card above its neighbours while its cart stepper (the qty
+   number) is showing, and on hover/focus, so the number is never buried. */
+.product-card:hover,
+.product-card:focus-within,
+.product-card:has(.cart-qty-stepper) {
+  z-index: 20;
+}
+
 .product-card-image,
 .product-card-info a {
   text-decoration: none;
@@ -802,7 +812,7 @@
   }
 }
 
-.cart-qty-btn {
+.cart-qty-stepper .cart-qty-btn {
   width: 28px;
   height: 100%;
   padding: 0;
@@ -822,11 +832,11 @@
   transition: color 0.2s ease;
 }
 
-.cart-qty-btn:hover {
+.cart-qty-stepper .cart-qty-btn:hover {
   color: #fff;
 }
 
-.cart-qty-value {
+.cart-qty-stepper .cart-qty-value {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 0.8rem;
   font-weight: 500;

@@ -296,8 +296,10 @@ function WardrobeContent() {
               ) : (
                 /* Desktop shows the portrait top banner; mobile shows the landscape one. */
                 <picture className="spotlight-banner-pic">
+                  {/* Mobile keeps the existing image; desktop (the <img> fallback,
+                      shown above 1024px) uses the new product banner. */}
                   <source media="(max-width: 1024px)" srcSet="/top-banner-mobile.png" />
-                  <img src="/top-banner-desktop.png" alt="Featured Collection" className="spotlight-banner-img" />
+                  <img src="/top-banner-desktop-new.png" alt="Featured Collection" className="spotlight-banner-img" />
                 </picture>
               )}
               <BannerOverlay
@@ -324,11 +326,11 @@ function WardrobeContent() {
           {/* Section 3: Side Banner + 4 Products */}
           <section className="wardrobe-section section-row-3">
             <div className="side-banner">
-              {/* Desktop shows the square banner; mobile shows the long one. */}
+              {/* Desktop shows the square banner; mobile shows the landscape one. */}
               <picture className="side-banner-pic">
-                <source media="(max-width: 1024px)" srcSet="/banner-bottom.webp" />
+                <source media="(max-width: 1024px)" srcSet="/banner-bottom-mobile.png" />
                 <img
-                  src="/banner-bottom-desktop.png"
+                  src="/banner-bottom-mobile.png"
                   alt={activeTag || "Ayurvedic Care, Real Results"}
                   className="side-banner-img"
                 />

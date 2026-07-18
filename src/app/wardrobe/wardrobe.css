@@ -266,7 +266,9 @@
   width: auto;
   height: 100%;
   align-self: stretch;
-  border-radius: 31px;
+  /* Match the product cards' 16px (was 31px) so the banner reads as part of the
+     same grid, not a rounder odd-one-out. */
+  border-radius: 16px;
   overflow: hidden;
   position: relative;
 }
@@ -889,6 +891,8 @@
   text-transform: uppercase;
   color: #4F2C22;
   text-decoration: none;
+  /* Keep the label on one line — it was wrapping to two on the narrow banner. */
+  white-space: nowrap;
   transition: background 0.25s ease, transform 0.25s ease;
 }
 
@@ -921,7 +925,10 @@
   }
 
   .banner-overlay-cta {
-    padding: 0.6rem 0.95rem;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    gap: 0.4rem;
   }
 }
 
@@ -929,5 +936,14 @@
   .banner-overlay-cta,
   .banner-overlay-cta svg {
     transition: none;
+  }
+}
+
+/* Mobile: nudge the bottom banner's crop so the products shift left in the
+   narrow portrait frame (the shot's products sit centre-right, leaving dead
+   space on the left otherwise). */
+@media (max-width: 1199px) and (orientation: portrait) {
+  .wardrobe-page .side-banner .side-banner-img {
+    object-position: 62% center;
   }
 }

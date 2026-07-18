@@ -56,7 +56,7 @@ const ContactForm = () => {
   return (
     <section className="contact-form">
       <div className="contact-parallax-image-wrapper">
-        <img src="/images/hero.png" alt="Cleanse Ayurveda Products" />
+        <img src="/footer.png" alt="Cleanse Ayurveda Products" />
       </div>
       <div className="contact-form-container">
         <div className="cf-header">

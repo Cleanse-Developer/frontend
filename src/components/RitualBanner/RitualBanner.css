@@ -76,7 +76,8 @@
   position: relative;
   display: block;
   overflow: hidden;
-  border-radius: 28px;
+  /* Match the product cards' 16px (was 28px). */
+  border-radius: 16px;
   /* Full-bleed editorial panels, not image-over-white cards */
   min-height: clamp(340px, 32vw, 440px);
   isolation: isolate;

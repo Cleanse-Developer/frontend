@@ -335,8 +335,11 @@
 .hero .hero-header h1.hero-logo-heading .hero-logo-mark {
   --logo-r-color: var(--base-700);
   --logo-r-size: clamp(0.55rem, 1.2vw, 0.95rem);
-  --logo-r-top: -2%;
-  --logo-r-right: 0.6em;
+  /* Sit the ® as a superscript at the top-right CORNER of the wordmark rather
+     than overlapping the final letter: lift it above the cap height (top) and
+     move it out to the right edge (right). */
+  --logo-r-top: -32%;
+  --logo-r-right: 0.15em;
   /* Starts hidden below the mask; slides up on load in sync with the Shop Now
      button + subtitle reveal (pure CSS, same pattern as .hero-btn) */
   transform: translateY(110%);

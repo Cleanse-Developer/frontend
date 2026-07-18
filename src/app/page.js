@@ -122,7 +122,8 @@ export default function Index() {
         desktop: img.url,
         mobile: img.sources?.mobile?.url || img.url,
       }))
-    : [];
+    // Fallback so the hero is never empty when the CMS has no carousel images.
+    : [{ desktop: "/hero-fallback.png", mobile: "/hero-fallback.png" }];
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
   useEffect(() => {
