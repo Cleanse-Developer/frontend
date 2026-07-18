@@ -6,7 +6,6 @@ import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { useLocale } from "@/context/LocaleContext";
 
 gsap.registerPlugin(SplitText, ScrollTrigger);
 
@@ -19,9 +18,6 @@ export default function Copy({
   const containerRef = useRef(null);
   const elementRefs = useRef([]);
   const splitRefs = useRef([]);
-  // Re-split when the language changes: the text content re-renders, so the old
-  // SplitText line/char spans would otherwise go stale (wrong masking, orphans).
-  const { lang } = useLocale();
 
   const waitForFonts = async () => {
     try {
@@ -158,7 +154,7 @@ export default function Copy({
         });
       };
     },
-    { scope: containerRef, dependencies: [animateOnScroll, delay, type, lang] }
+    { scope: containerRef, dependencies: [animateOnScroll, delay, type] }
   );
 
   if (React.Children.count(children) === 1) {

@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import { useTranslation } from "react-i18next";
 import CartQtyButton from "@/components/CartQtyButton/CartQtyButton";
 import { productUrl } from "@/lib/normalizers";
 import { cardPrice } from "@/lib/formatters";
@@ -47,7 +46,6 @@ const ProductCard = forwardRef(function ProductCard(
 ) {
   const router = useRouter();
   const { addToCart } = useCart();
-  const { t } = useTranslation();
 
   if (!product) return null;
 
@@ -88,7 +86,7 @@ const ProductCard = forwardRef(function ProductCard(
               router.push("/cart");
             }}
           >
-            {t("product.buyNow")}
+            Buy Now
           </button>
         </div>
       </div>

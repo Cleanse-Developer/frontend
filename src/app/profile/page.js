@@ -17,9 +17,60 @@ import {
 } from "@/lib/endpoints";
 import { normalizeOrder, normalizeCoupon } from "@/lib/normalizers";
 import { cardPrice } from "@/lib/formatters";
-import { COUNTRIES, statesForCountry, citiesForState, postalLabel } from "@/lib/countries";
+import { COUNTRIES, postalLabel } from "@/lib/countries";
+import { useGeo } from "@/lib/useGeo";
 
 const tabs = ["Orders", "Wishlist", "Coupons", "Addresses", "Settings"];
+
+// A <select> from `options` with an "Other" free-text escape (so a value not in
+// the dataset still works). Free text when there are no options.
+function ProfileGeoField({ placeholder, value, options, onChange }) {
+  const inList = options.includes(value);
+  const [manual, setManual] = useState(false);
+  useEffect(() => {
+    if (value && options.length > 0 && !options.includes(value)) setManual(true);
+  }, [options, value]);
+  useEffect(() => { if (!value) setManual(false); }, [value]);
+
+  if (options.length === 0) {
+    return (
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="profile-form-input"
+      />
+    );
+  }
+  const selectVal = manual ? "__other__" : inList ? value : "";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+      <select
+        value={selectVal}
+        className="profile-form-input"
+        onChange={(e) => {
+          const v = e.target.value;
+          if (v === "__other__") { setManual(true); onChange(""); }
+          else { setManual(false); onChange(v); }
+        }}
+      >
+        <option value="" disabled>{placeholder}</option>
+        {options.map((o) => <option key={o} value={o}>{o}</option>)}
+        <option value="__other__">Other (type manually)</option>
+      </select>
+      {manual && (
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="profile-form-input"
+        />
+      )}
+    </div>
+  );
+}
 
 const indianStates = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -87,6 +138,8 @@ export default function ProfilePage() {
     country: "India",
     isDefault: false,
   });
+  // State/city option lists for the address form (fetched per country/state).
+  const addressGeo = useGeo(addressForm.country, addressForm.state);
 
   // Auth guard
   useEffect(() => {
@@ -521,41 +574,18 @@ export default function ProfilePage() {
                     className="profile-form-input"
                   />
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-                    <input
-                      type="text"
-                      list={citiesForState(addressForm.country, addressForm.state).length ? "profile-city-options" : undefined}
+                    <ProfileGeoField
                       placeholder="City"
                       value={addressForm.city}
-                      onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
-                      className="profile-form-input"
+                      options={addressGeo.cities}
+                      onChange={(v) => setAddressForm({ ...addressForm, city: v })}
                     />
-                    {citiesForState(addressForm.country, addressForm.state).length > 0 && (
-                      <datalist id="profile-city-options">
-                        {citiesForState(addressForm.country, addressForm.state).map((c) => (
-                          <option key={c} value={c} />
-                        ))}
-                      </datalist>
-                    )}
-                    {statesForCountry(addressForm.country).length > 0 ? (
-                      <select
-                        value={addressForm.state}
-                        onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
-                        className="profile-form-input"
-                      >
-                        <option value="" disabled>Select state</option>
-                        {statesForCountry(addressForm.country).map((s) => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        type="text"
-                        placeholder="State / Province / Region"
-                        value={addressForm.state}
-                        onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
-                        className="profile-form-input"
-                      />
-                    )}
+                    <ProfileGeoField
+                      placeholder="State / Province / Region"
+                      value={addressForm.state}
+                      options={addressGeo.states.map((s) => s.name)}
+                      onChange={(v) => setAddressForm({ ...addressForm, state: v, city: "" })}
+                    />
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                     <input
@@ -568,7 +598,7 @@ export default function ProfilePage() {
                     <select
                       value={addressForm.country}
                       onChange={(e) =>
-                        setAddressForm({ ...addressForm, country: e.target.value, state: "" })
+                        setAddressForm({ ...addressForm, country: e.target.value, state: "", city: "" })
                       }
                       className="profile-form-input"
                     >

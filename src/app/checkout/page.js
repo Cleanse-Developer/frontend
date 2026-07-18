@@ -10,7 +10,8 @@ import { authApi, couponApi, specialCouponApi, orderApi, paymentApi, checkoutApi
 import { useToast } from "@/context/ToastContext";
 import { loadRazorpay } from "@/lib/razorpay";
 import { validateField, validateShippingForm, validateBillingForm, validatePhone } from "@/lib/validation";
-import { COUNTRIES, statesForCountry, citiesForState, isIndia, dialForCountry, postalLabel, postalExample } from "@/lib/countries";
+import { COUNTRIES, isIndia, dialForCountry, postalLabel, postalExample } from "@/lib/countries";
+import { useGeo } from "@/lib/useGeo";
 import { saveCheckoutData, loadCheckoutData, clearCheckoutData } from "@/lib/checkoutStorage";
 import { getAttributionPayload, getStoredCoupon } from "@/lib/affiliate";
 import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, extractWidgetToken } from "@/lib/msg91";
@@ -125,6 +126,68 @@ function safeUUID() {
   );
 }
 
+// A <select> populated from `options`, with an "Other" escape that reveals a
+// free-text input — so a value not in the dataset (or a country/state with no
+// list) never blocks checkout. Falls back to a plain text input when empty.
+function GeoSelectField({ label, value, options, onChange, error, textPlaceholder }) {
+  const inList = options.includes(value);
+  const [manual, setManual] = useState(false);
+
+  // A pre-filled value not present in the loaded list → manual entry.
+  useEffect(() => {
+    if (value && options.length > 0 && !options.includes(value)) setManual(true);
+  }, [options, value]);
+  // Cleared value (country/state changed) → back to the dropdown.
+  useEffect(() => { if (!value) setManual(false); }, [value]);
+
+  if (options.length === 0) {
+    return (
+      <div className="checkout-input-group">
+        <label>{label}</label>
+        <input
+          type="text"
+          placeholder={textPlaceholder || label}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={error ? "has-error" : ""}
+        />
+        {error && <span className="checkout-field-error">{error}</span>}
+      </div>
+    );
+  }
+
+  const selectVal = manual ? "__other__" : (inList ? value : "");
+  return (
+    <div className="checkout-input-group">
+      <label>{label}</label>
+      <select
+        value={selectVal}
+        className={error ? "has-error" : ""}
+        onChange={(e) => {
+          const v = e.target.value;
+          if (v === "__other__") { setManual(true); onChange(""); }
+          else { setManual(false); onChange(v); }
+        }}
+      >
+        <option value="" disabled>Select {label.toLowerCase()}</option>
+        {options.map((o) => <option key={o} value={o}>{o}</option>)}
+        <option value="__other__">Other (type manually)</option>
+      </select>
+      {manual && (
+        <input
+          type="text"
+          placeholder={textPlaceholder || `Enter ${label.toLowerCase()}`}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={error ? "has-error" : ""}
+          style={{ marginTop: "0.5rem" }}
+        />
+      )}
+      {error && <span className="checkout-field-error">{error}</span>}
+    </div>
+  );
+}
+
 export default function CheckoutPage() {
   const { cartItems, cartCount, subtotal, clearCart, serverPricing, fetchPricingPreview } = useCart();
   const router = useRouter();
@@ -211,6 +274,9 @@ export default function CheckoutPage() {
     pincode: "",
     country: "India",
   });
+  // State/city option lists (fetched from the geo endpoint per country/state).
+  const shipGeo = useGeo(shipping.country, shipping.state);
+  const billGeo = useGeo(billing.country, billing.state);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [couponCode, setCouponCode] = useState("");
   const [couponStatus, setCouponStatus] = useState(null);
@@ -595,14 +661,15 @@ export default function CheckoutPage() {
     }
   };
 
-  // Changing country resets the (now country-specific) state and, for shipping,
-  // aligns the phone dial code and drops any stale serviceability status.
+  // Changing country resets the (now country-specific) state + city and, for
+  // shipping, aligns the phone dial code and drops any stale serviceability.
   const handleCountryChange = (value, isBilling = false) => {
     if (isBilling) {
-      setBilling((prev) => ({ ...prev, country: value, state: "" }));
+      setBilling((prev) => ({ ...prev, country: value, state: "", city: "" }));
       setErrors((prev) => {
         const next = { ...prev };
         delete next.billing_state;
+        delete next.billing_city;
         delete next.billing_pincode;
         return next;
       });
@@ -612,6 +679,7 @@ export default function CheckoutPage() {
       ...prev,
       country: value,
       state: "",
+      city: "",
       phoneCode: dialForCountry(value),
     }));
     setPincodeStatus(null);
@@ -619,7 +687,30 @@ export default function CheckoutPage() {
     setErrors((prev) => {
       const next = { ...prev };
       delete next.state;
+      delete next.city;
       delete next.pincode;
+      return next;
+    });
+  };
+
+  // Changing state clears the (now state-specific) city.
+  const handleStateChange = (value, isBilling = false) => {
+    if (isBilling) {
+      setBilling((prev) => ({ ...prev, state: value, city: "" }));
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.billing_state;
+        delete next.billing_city;
+        return next;
+      });
+      return;
+    }
+    setShipping((prev) => ({ ...prev, state: value, city: "" }));
+    if (selectedAddressId) setSelectedAddressId(null);
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.state;
+      delete next.city;
       return next;
     });
   };
@@ -1336,89 +1427,39 @@ export default function CheckoutPage() {
     );
   };
 
-  // City is a combobox, not a <select>: the datalist suggests cities for the
-  // selected country + state, but any city can still be typed. See
-  // citiesForState / CITIES_BY_STATE in @/lib/countries.
+  // City dropdown, populated from the geo endpoint for the selected state (with
+  // an "Other" free-text escape). Free text when no city list is available.
   const renderCityInput = (isBilling = false) => {
+    const geo = isBilling ? billGeo : shipGeo;
     const key = isBilling ? "billing_city" : "city";
     const val = isBilling ? billing.city : shipping.city;
-    const state = isBilling ? billing.state : shipping.state;
-    const country = isBilling ? billing.country : shipping.country;
-    const listId = isBilling ? "billing-city-options" : "shipping-city-options";
-    const suggestions = citiesForState(country, state);
-    const changeFn = isBilling
-      ? (e) => handleBillingChange("city", e.target.value)
-      : (e) => handleShippingChange("city", e.target.value);
-
     return (
-      <div className="checkout-input-group">
-        <label>City</label>
-        <input
-          type="text"
-          list={suggestions.length ? listId : undefined}
-          placeholder={state ? "Select or type your city" : "City"}
-          value={val}
-          onChange={changeFn}
-          onBlur={() => handleBlur("city", val, isBilling)}
-          className={errors[key] ? "has-error" : ""}
-          autoComplete={isBilling ? "billing address-level2" : "shipping address-level2"}
-        />
-        {suggestions.length > 0 && (
-          <datalist id={listId}>
-            {suggestions.map((city) => (
-              <option key={city} value={city} />
-            ))}
-          </datalist>
-        )}
-        {errors[key] && <span className="checkout-field-error">{errors[key]}</span>}
-      </div>
+      <GeoSelectField
+        label="City"
+        value={val}
+        options={geo.cities}
+        error={errors[key]}
+        textPlaceholder="City"
+        onChange={(v) => (isBilling ? handleBillingChange("city", v) : handleShippingChange("city", v))}
+      />
     );
   };
 
-  // State field is a dropdown for countries with a known subdivision list,
-  // otherwise a free-text region input. Driven by the row's selected country.
+  // State dropdown, populated from the geo endpoint for the selected country
+  // (with an "Other" free-text escape). Free text when the country has no list.
   const renderStateSelect = (isBilling = false) => {
+    const geo = isBilling ? billGeo : shipGeo;
     const key = isBilling ? "billing_state" : "state";
     const val = isBilling ? billing.state : shipping.state;
-    const country = isBilling ? billing.country : shipping.country;
-    const states = statesForCountry(country);
-    const changeFn = isBilling
-      ? (e) => handleBillingChange("state", e.target.value)
-      : (e) => handleShippingChange("state", e.target.value);
-
-    if (states.length === 0) {
-      return (
-        <div className="checkout-input-group">
-          <label>State / Province / Region</label>
-          <input
-            type="text"
-            placeholder="State / Province / Region"
-            value={val}
-            onChange={changeFn}
-            onBlur={() => handleBlur("state", val, isBilling)}
-            className={errors[key] ? "has-error" : ""}
-          />
-          {errors[key] && <span className="checkout-field-error">{errors[key]}</span>}
-        </div>
-      );
-    }
-
     return (
-      <div className="checkout-input-group">
-        <label>State</label>
-        <select
-          value={val}
-          onChange={changeFn}
-          onBlur={() => handleBlur("state", val, isBilling)}
-          className={errors[key] ? "has-error" : ""}
-        >
-          <option value="" disabled>Select state</option>
-          {states.map((state) => (
-            <option key={state} value={state}>{state}</option>
-          ))}
-        </select>
-        {errors[key] && <span className="checkout-field-error">{errors[key]}</span>}
-      </div>
+      <GeoSelectField
+        label="State / Province / Region"
+        value={val}
+        options={geo.states.map((s) => s.name)}
+        error={errors[key]}
+        textPlaceholder="State / Province / Region"
+        onChange={(v) => handleStateChange(v, isBilling)}
+      />
     );
   };
 

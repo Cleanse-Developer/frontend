@@ -1,6 +1,4 @@
 import axios from "axios";
-import { getLocale } from "./localeState";
-import { DEFAULT_LOCALE } from "./locales";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "https://d6mvnylha0j3u.cloudfront.net/api",
@@ -8,19 +6,13 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Request interceptor — attach access token + active language
+// Request interceptor — attach access token
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-  }
-  // Carry the active storefront language so the backend serves localized content
-  // (CMS sections). English is the default and needs no param.
-  const lang = getLocale();
-  if (lang && lang !== DEFAULT_LOCALE) {
-    config.params = { ...(config.params || {}), lang };
   }
   return config;
 });

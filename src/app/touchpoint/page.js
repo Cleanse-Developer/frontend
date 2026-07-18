@@ -5,6 +5,7 @@ import Link from "next/link";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { contactApi } from "@/lib/endpoints";
+import { useSettings } from "@/context/SettingsContext";
 
 const faqs = [
   { q: "What are your shipping times?", a: "We ship within 2-3 business days. Delivery takes 5-7 days across India and 10-14 days internationally." },
@@ -14,6 +15,9 @@ const faqs = [
 ];
 
 export default function Touchpoint() {
+  // Same CMS field the footer uses, so the published contact email is one source.
+  const settings = useSettings();
+  const supportEmail = settings?.cmsFooter?.contact?.email || "hello@cleanseayurveda.com";
   const heroRef = useRef(null);
   const cardsRef = useRef([]);
   const formRef = useRef(null);
@@ -88,7 +92,7 @@ export default function Touchpoint() {
           </div>
           <div className="touchpoint-info-text">
             <span className="touchpoint-info-label">Email Us</span>
-            <a href="mailto:hello@cleanseayurveda.com" className="touchpoint-info-value">hello@cleanseayurveda.com</a>
+            <a href={`mailto:${supportEmail}`} className="touchpoint-info-value">{supportEmail}</a>
           </div>
         </div>
 

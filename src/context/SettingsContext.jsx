@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { settingsApi } from "@/lib/endpoints";
-import { useLocale } from "@/context/LocaleContext";
 
 const SettingsContext = createContext(null);
 
@@ -247,9 +246,6 @@ export function SettingsProvider({ children, initial }) {
     initial ? { ...DEFAULTS, ...initial } : DEFAULTS
   );
 
-  // Refetch whenever the language changes — the axios interceptor adds ?lang, so
-  // the storefront swaps to that language's CMS content (English fallback per field).
-  const { lang } = useLocale();
   useEffect(() => {
     settingsApi
       .getPublic()
@@ -259,7 +255,7 @@ export function SettingsProvider({ children, initial }) {
       .catch(() => {
         /* keep defaults */
       });
-  }, [lang]);
+  }, []);
 
   return (
     <SettingsContext.Provider value={settings}>

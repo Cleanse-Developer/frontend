@@ -2,7 +2,6 @@
 import { useState } from "react";
 import "./Footer.css";
 import Link from "next/link";
-import { useTranslation } from "react-i18next";
 import { useSettings } from "@/context/SettingsContext";
 
 import ContactForm from "../ContactForm/ContactForm";
@@ -14,7 +13,6 @@ const titleCase = (s = "") =>
   s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
 const Footer = () => {
-  const { t } = useTranslation();
   const settings = useSettings();
   // Mobile accordion: which footer column is expanded (null = all collapsed).
   // On desktop the columns reveal on hover (CSS), so this only drives mobile.
@@ -44,29 +42,29 @@ const Footer = () => {
   // collapsible dropdown on mobile.
   const sections = [
     {
-      title: t("footer.shop"),
+      title: "Shop",
       links: navLinks.map((l) => ({ label: titleCase(l.label), href: l.href })),
     },
     {
-      title: t("footer.discover"),
+      title: "Discover",
       links: [
-        { label: t("footer.ourGenesis"), href: "/genesis" },
-        { label: t("footer.lookbook"), href: "/lookbook" },
-        { label: t("footer.journal"), href: "/blog" },
-        { label: t("footer.touchpoint"), href: "/touchpoint" },
+        { label: "Our Genesis", href: "/genesis" },
+        { label: "Lookbook", href: "/lookbook" },
+        { label: "Journal", href: "/blog" },
+        { label: "Touchpoint", href: "/touchpoint" },
       ],
     },
     {
-      title: t("footer.account"),
+      title: "Account",
       links: [
-        { label: t("footer.myProfile"), href: "/profile" },
-        { label: t("footer.myOrders"), href: "/orders" },
-        { label: t("footer.shoppingBag"), href: "/cart" },
-        { label: t("footer.signIn"), href: "/login" },
+        { label: "My Profile", href: "/profile" },
+        { label: "My Orders", href: "/orders" },
+        { label: "Shopping Bag", href: "/cart" },
+        { label: "Sign In", href: "/login" },
       ],
     },
     {
-      title: t("footer.support"),
+      title: "Support",
       links: supportLinks.map((l) => ({ label: titleCase(l.label), href: l.href })),
     },
   ];
@@ -102,10 +100,9 @@ const Footer = () => {
     "HRBD Life Sciences Pvt. Ltd.",
     "42 Wellness Avenue, Bandra West, Mumbai 400050",
   ];
-  // Locked to the same address the contact page publishes (touchpoint/page.js).
-  // Hardcoded (no CMS override) so the footer can never show a different email
-  // from the contact page again.
-  const email = "hello@cleanseayurveda.com";
+  // Admin-editable via cmsFooter.contact.email. The contact page
+  // (touchpoint/page.js) reads the same field, so the two stay in sync.
+  const email = contact.email || "hello@cleanseayurveda.com";
   const phone = contact.phone || "+91 80000 00000";
 
   return (

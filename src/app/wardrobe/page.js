@@ -10,7 +10,6 @@ import { gsap } from "gsap";
 import { productApi, categoryApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import { cardPrice } from "@/lib/formatters";
-import { useTranslation } from "react-i18next";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import BannerOverlay from "@/components/BannerOverlay/BannerOverlay";
 
@@ -83,7 +82,6 @@ function matchesSearch(product, q) {
 
 function WardrobeContent() {
   const { addToCart } = useCart();
-  const { t } = useTranslation();
   const settings = useSettings();
   const shopBanner = settings.cmsWardrobe || {};
   const searchParams = useSearchParams();
@@ -248,17 +246,17 @@ function WardrobeContent() {
 
         <div className="sort-filter-bar">
           <div className="filter-group">
-            <label htmlFor="price-filter">{t("wardrobe.filter")}</label>
+            <label htmlFor="price-filter">Filter</label>
             <select
               id="price-filter"
               value={priceRange}
               onChange={handlePriceFilterChange}
               className="filter-select"
             >
-              <option value="all">{t("wardrobe.allPrices")}</option>
-              <option value="under-500">{t("wardrobe.under500")}</option>
-              <option value="500-1000">{t("wardrobe.p500to1000")}</option>
-              <option value="above-1000">{t("wardrobe.above1000")}</option>
+              <option value="all">All Prices</option>
+              <option value="under-500">Under ₹500</option>
+              <option value="500-1000">₹500 - ₹1000</option>
+              <option value="above-1000">Above ₹1000</option>
             </select>
           </div>
         </div>
