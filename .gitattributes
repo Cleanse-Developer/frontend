@@ -1,3 +1,16 @@
 # Build output: store verbatim, no line-ending normalization, treat as binary.
 # Keeps prebuilt .next identical across local (Windows) and EC2 (Linux).
-.next/** -text -diff
+#
+# `-merge` matters as much as the other two. These files are regenerated whole
+# on every `next build`, so when two people both build, git was attempting a
+# line-by-line three-way merge on hundreds of generated/binary files and
+# producing pages of conflicts (and, for binaries, meaningless output). With
+# -merge git makes no attempt: a clash is a plain pick-one-side, resolved with
+#
+#     git checkout --ours .next   # or --theirs
+#     git add .next
+#
+# and then a fresh `npm run build`, since whichever side you keep is stale the
+# moment the sources differ. NOTE: .next is committed deliberately — the EC2 box
+# runs `next start` without building (see .gitignore) — so it must stay tracked.
+.next/** -text -diff -merge
