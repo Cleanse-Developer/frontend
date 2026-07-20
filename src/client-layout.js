@@ -6,6 +6,7 @@ import { ReactLenis } from "lenis/react";
 import { registerScrollTrigger, ScrollTrigger } from "@/ui/animations/scrollTrigger";
 import Preloader from "@/components/Preloader/Preloader";
 import AffiliateCapture from "@/components/AffiliateCapture/AffiliateCapture";
+import ReferralCapture from "@/components/ReferralCapture/ReferralCapture";
 
 // Clearance for the fixed header (.menu) so an anchored section doesn't land
 // underneath it.
@@ -227,6 +228,7 @@ export default function ClientLayout({ children, footer, header }) {
   return (
     <ReactLenis root options={scrollSettings} ref={lenisRef}>
       <AffiliateCapture />
+      <ReferralCapture />
       <Preloader />
       <div className="page" ref={pageRef}>
         {pathname !== "/login" && header}

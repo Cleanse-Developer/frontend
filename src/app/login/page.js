@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, extractWidgetToken } from "@/lib/msg91";
+import { getStoredReferralCode, clearReferralCode } from "@/lib/referral";
 import { signInWithGoogle } from "@/lib/google";
 import Logo from "@/components/Logo/Logo";
 import gsap from "gsap";
@@ -181,8 +182,15 @@ function LoginContent() {
         setError("OTP verification failed. Please try again.");
         return;
       }
-      // Backend exchanges the widget token for an app session.
-      const { isNewUser } = await loginWithWidgetToken(widgetToken, toLocalPhone(loginPhone));
+      // Backend exchanges the widget token for an app session. Send any referral
+      // code captured from a ?ref= share link — the backend only applies a
+      // referral at signup, so it has to travel with this call.
+      const { isNewUser } = await loginWithWidgetToken(
+        widgetToken,
+        toLocalPhone(loginPhone),
+        getStoredReferralCode()
+      );
+      if (isNewUser) clearReferralCode();
       toast.success(isNewUser ? "Account created — welcome!" : "Logged in successfully");
       router.replace(redirectTo);
     } catch (err) {
@@ -203,7 +211,8 @@ function LoginContent() {
     setError("");
     try {
       const code = await signInWithGoogle();
-      const { isNewUser } = await loginWithGoogle(code);
+      const { isNewUser } = await loginWithGoogle(code, getStoredReferralCode());
+      if (isNewUser) clearReferralCode();
       toast.success(isNewUser ? "Account created — welcome!" : "Logged in successfully");
       router.replace(redirectTo);
     } catch (err) {

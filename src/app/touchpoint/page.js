@@ -7,25 +7,31 @@ import { useGSAP } from "@gsap/react";
 import { contactApi } from "@/lib/endpoints";
 import { useSettings } from "@/context/SettingsContext";
 
-const faqs = [
+// Fallbacks only — the real content is CMS-driven (settings.cmsContact). These
+// match the seeded defaults so the page still renders if settings haven't loaded.
+const FALLBACK_FAQS = [
   { q: "What are your shipping times?", a: "We ship within 2-3 business days. Delivery takes 5-7 days across India and 10-14 days internationally." },
   { q: "Do you offer returns?", a: "Yes, we offer a 7-day return policy on unopened products. Contact our support team to initiate a return." },
   { q: "Are your products 100% natural?", a: "All Cleanse products are made with pure, ethically sourced Ayurvedic ingredients with no synthetic additives." },
   { q: "Do you ship internationally?", a: "Yes, we ship worldwide. International shipping charges are calculated at checkout based on your location." },
 ];
+const FALLBACK_SUBJECTS = ["Order Inquiry", "Product Question", "Returns & Exchanges", "Wholesale & Partnerships", "Other"];
+
+// Render a string with "\n" as line breaks.
+const lines = (s) => String(s || "").split("\n").flatMap((t, i) => (i ? [<br key={i} />, t] : [t]));
 
 export default function Touchpoint() {
-  // Same CMS field the footer uses, so the published contact email is one source.
   const settings = useSettings();
+  const c = settings?.cmsContact || {};
   // Email, phone AND address all come from the one admin-editable
   // `cmsFooter.contact` block the footer reads, so the two surfaces can never
   // advertise different details. Phone and location used to be hardcoded here,
   // which is why this page showed a number the footer didn't. Fallbacks match
   // the footer's exactly.
-  const footerContact = settings?.cmsFooter?.contact || {};
-  const supportEmail = footerContact.email || "hello@cleanseayurveda.com";
-  const supportPhone = footerContact.phone || "+91 80000 00000";
-  const addressLines = footerContact.addressLines || [
+  const info = settings?.cmsFooter?.contact || {};
+  const supportEmail = info.email || "hello@cleanseayurveda.com";
+  const supportPhone = info.phone || "+91 80000 00000";
+  const addressLines = info.addressLines || [
     "HRBD Life Sciences Pvt. Ltd.",
     "42 Wellness Avenue, Bandra West, Mumbai 400050",
   ];
@@ -40,12 +46,14 @@ export default function Touchpoint() {
       .filter((part) => part && !/^\d{4,8}$/.test(part))
       .slice(-2)
       .join(", ") || "Mumbai, Maharashtra";
+  const faqs = c.faqs?.length ? c.faqs : FALLBACK_FAQS;
+  const subjectOptions = c.subjectOptions?.length ? c.subjectOptions : FALLBACK_SUBJECTS;
   const heroRef = useRef(null);
   const cardsRef = useRef([]);
   const formRef = useRef(null);
   const faqRefs = useRef([]);
   const [openFaq, setOpenFaq] = useState(null);
-  const [formData, setFormData] = useState({ name: "", lastName: "", email: "", subject: "", message: "" });
+  const [formData, setFormData] = useState({ name: "", lastName: "", email: "", subject: "", message: "", website: "" });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -59,6 +67,8 @@ export default function Touchpoint() {
         email: formData.email,
         subject: formData.subject || "General Inquiry",
         message: formData.message,
+        // Honeypot — hidden from humans; if a bot fills it the server drops it.
+        website: formData.website,
       });
       setSubmitted(true);
       setFormData({ name: "", lastName: "", email: "", subject: "", message: "" });
@@ -82,15 +92,15 @@ export default function Touchpoint() {
       {/* Hero - Full screen centered */}
       <section className="touchpoint-hero" ref={heroRef}>
         <div className="touchpoint-hero-bg">
-          <img src="/images/b2.png" alt="" />
+          <img src={c.heroImage?.url || "/images/b2.png"} alt="" />
         </div>
         <div className="touchpoint-hero-content">
           <div className="touchpoint-breadcrumb">
             <Link href="/">HOME</Link>/ <span>CONTACT</span>
           </div>
-          <h1 className="touchpoint-hero-title">LET&apos;S<br />CONNECT</h1>
+          <h1 className="touchpoint-hero-title">{lines(c.heroTitle || "LET'S\nCONNECT")}</h1>
           <p className="touchpoint-hero-subtitle">
-            We&apos;re here to guide your wellness journey with ancient wisdom and modern care.
+            {c.heroSubtitle || "We're here to guide your wellness journey with ancient wisdom and modern care."}
           </p>
           <div className="touchpoint-hero-scroll">
             <span>Scroll</span>
@@ -170,7 +180,7 @@ export default function Touchpoint() {
           </div>
           <div className="touchpoint-info-text">
             <span className="touchpoint-info-label">Hours</span>
-            <span className="touchpoint-info-value">Mon to Sat, 10am–6pm</span>
+            <span className="touchpoint-info-value">{info.hours || "Mon to Sat, 10am–6pm"}</span>
           </div>
         </div>
       </section>
@@ -179,13 +189,13 @@ export default function Touchpoint() {
       <section className="touchpoint-form-section" ref={formRef}>
         <div className="touchpoint-form-split">
           <div className="touchpoint-form-left">
-            <span className="touchpoint-form-eyebrow">Get in Touch</span>
-            <h2 className="touchpoint-form-heading">Send Us<br />A Message</h2>
+            <span className="touchpoint-form-eyebrow">{c.formEyebrow || "Get in Touch"}</span>
+            <h2 className="touchpoint-form-heading">{lines(c.formHeading || "Send Us\nA Message")}</h2>
             <p className="touchpoint-form-copy">
-              Whether it&apos;s a question about our products, a partnership inquiry, or just to say hello, we&apos;d love to hear from you.
+              {c.formCopy || "Whether it's a question about our products, a partnership inquiry, or just to say hello, we'd love to hear from you."}
             </p>
             <div className="touchpoint-form-image">
-              <img src="/images/why1.png" alt="Cleanse Ayurveda" />
+              <img src={c.formImage?.url || "/images/why1.png"} alt="Cleanse Ayurveda" />
             </div>
           </div>
           <div className="touchpoint-form-right">
@@ -204,6 +214,18 @@ export default function Touchpoint() {
               </div>
             ) : (
               <form className="touchpoint-form" onSubmit={handleContactSubmit}>
+                {/* Honeypot: hidden from people, irresistible to bots. Anything
+                    typed here makes the server silently discard the submission. */}
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  value={formData.website}
+                  onChange={(e) => setFormData((p) => ({ ...p, website: e.target.value }))}
+                  style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+                />
                 <div className="touchpoint-form-row">
                   <div className="touchpoint-input-group">
                     <label>First Name</label>
@@ -222,11 +244,9 @@ export default function Touchpoint() {
                   <label>Subject</label>
                   <select value={formData.subject} onChange={(e) => setFormData((p) => ({ ...p, subject: e.target.value }))}>
                     <option value="">Select a topic</option>
-                    <option value="Order Inquiry">Order Inquiry</option>
-                    <option value="Product Question">Product Question</option>
-                    <option value="Returns & Exchanges">Returns & Exchanges</option>
-                    <option value="Wholesale & Partnerships">Wholesale & Partnerships</option>
-                    <option value="Other">Other</option>
+                    {subjectOptions.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="touchpoint-input-group">
@@ -249,8 +269,8 @@ export default function Touchpoint() {
       {/* FAQ Section - Accordion. id is the target of the footer's /touchpoint#faq link. */}
       <section className="touchpoint-faq" id="faq">
         <div className="touchpoint-faq-header">
-          <span className="touchpoint-faq-eyebrow">Support</span>
-          <h2 className="touchpoint-faq-title">Frequently Asked<br />Questions</h2>
+          <span className="touchpoint-faq-eyebrow">{c.faqTag || "Support"}</span>
+          <h2 className="touchpoint-faq-title">{lines(c.faqTitle || "Frequently Asked\nQuestions")}</h2>
         </div>
         <div className="touchpoint-faq-list">
           {faqs.map((faq, index) => (

@@ -14,6 +14,7 @@ import { COUNTRIES, isIndia, dialForCountry, postalLabel, postalExample } from "
 import { useGeo } from "@/lib/useGeo";
 import { saveCheckoutData, loadCheckoutData, clearCheckoutData } from "@/lib/checkoutStorage";
 import { getAttributionPayload, getStoredCoupon } from "@/lib/affiliate";
+import { getStoredReferralCode, clearReferralCode } from "@/lib/referral";
 import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, extractWidgetToken } from "@/lib/msg91";
 import CouponModal from "./CouponModal";
 import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
@@ -195,12 +196,12 @@ export default function CheckoutPage() {
   const toast = useToast();
 
   // Razorpay checkout session state
-  const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
+  const [idempotencyKey, setIdempotencyKey] = useState(() => safeUUID());
   const [paymentVerifying, setPaymentVerifying] = useState(false);
   const [stockErrors, setStockErrors] = useState([]);
 
   const resetCheckoutSession = useCallback(() => {
-    setIdempotencyKey(crypto.randomUUID());
+    setIdempotencyKey(safeUUID());
   }, []);
 
   // Step management
@@ -839,7 +840,16 @@ export default function CheckoutPage() {
       } else {
         // Guest: verifying the phone IS the login — exchange the widget token for
         // an app session so they can place the order directly (no second OTP).
-        await loginWithWidgetToken(token, localPhoneDigits);
+        // This CREATES the account for a new phone, so any referral code captured
+        // from a ?ref= share link must travel with it (referrals only apply at
+        // signup) — otherwise arriving via a referral link and checking out as a
+        // guest silently loses the referral.
+        const { isNewUser } = await loginWithWidgetToken(
+          token,
+          localPhoneDigits,
+          getStoredReferralCode()
+        );
+        if (isNewUser) clearReferralCode();
       }
       setPhoneVerified(true);
       setOtpModalOpen(false);
