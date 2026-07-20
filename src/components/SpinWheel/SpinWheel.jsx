@@ -3,6 +3,7 @@ import "./SpinWheel.css";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { spinWheelApi } from "@/lib/endpoints";
 import { useAuth } from "@/context/AuthContext";
+import { useLenis } from "lenis/react";
 
 const FALLBACK_PRIZES = [
   { label: "10% OFF", value: "10off", color: "#4F2C22", textColor: "#F0EDE8" },
@@ -42,6 +43,30 @@ function safeRemoveItem(key) {
 
 const SpinWheel = ({ isOpen, onClose, onComplete }) => {
   const { user, isAuthenticated } = useAuth();
+  const lenis = useLenis();
+
+  // Freeze the page behind the modal. Without this the document kept its own
+  // scroll while the overlay was up, so opening the modal visibly shifted the
+  // layout: the body scrollbar is removed the moment scrolling is disabled, the
+  // content reflows into the reclaimed width, and on mobile Lenis carried on
+  // animating the page underneath — which is the jump and the stray gap at the
+  // bottom. Padding the body by exactly the scrollbar width keeps the content
+  // width identical, so nothing moves.
+  useEffect(() => {
+    if (!isOpen) return;
+    const body = document.body;
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    const prevOverflow = body.style.overflow;
+    const prevPadding = body.style.paddingRight;
+    body.style.overflow = "hidden";
+    if (scrollbar > 0) body.style.paddingRight = `${scrollbar}px`;
+    lenis?.stop();
+    return () => {
+      body.style.overflow = prevOverflow;
+      body.style.paddingRight = prevPadding;
+      lenis?.start();
+    };
+  }, [isOpen, lenis]);
   const [prizes, setPrizes] = useState(FALLBACK_PRIZES);
   const [isSpinning, setIsSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
@@ -239,7 +264,11 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
       setResult(data.prize);
       safeSetItem("spinWheelEmail", email);
       safeSetItem("spinWheelResult", JSON.stringify({ email, prize: data.prize }));
-      if (onComplete) onComplete(data.prize);
+      // Deliberately NOT calling onComplete() here. The wrapper's handler closes
+      // the modal, so firing it on a successful claim tore the modal down the
+      // instant the reward was granted — the code and the confirmation were
+      // rendered and unmounted in the same breath, so the user saw the popup
+      // simply vanish. It now fires from the Done button instead.
     } catch (err) {
       if (!mountedRef.current) return;
       setError(err.response?.data?.message || "Could not claim your reward. Please try again.");
@@ -251,6 +280,9 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
   if (!isOpen) return null;
 
   const emailLocked = isAuthenticated && !!user?.email;
+  // The reward has been bound to an email — i.e. the code was just issued and
+  // mailed out, as opposed to a "try again" result.
+  const isClaimed = !!result?.couponCode;
 
   if (prizes.length === 0) return null;
 
@@ -308,8 +340,15 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
   const winIdx = result && !isSpinning ? prizes.findIndex((p) => p.value === result.value) : -1;
 
   return (
-    <div className="spin-wheel-overlay">
-      <div className="spin-wheel-modal">
+    /* `data-lenis-prevent` is REQUIRED, not a nicety. While Lenis is stopped it
+       calls preventDefault() on every touch event it sees (see its
+       onVirtualScroll: `if (this.isStopped || this.isLocked) { … preventDefault }`),
+       which swallowed taps and drags inside the modal — the email field could
+       not be focused and the modal could not be scrolled. Lenis checks for this
+       attribute BEFORE that branch and bails out, so gestures inside the modal
+       stay completely native. */
+    <div className="spin-wheel-overlay" data-lenis-prevent>
+      <div className="spin-wheel-modal" data-lenis-prevent>
         <button className="spin-wheel-close" onClick={onClose} aria-label="Close">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M18 6L6 18M6 6l12 12" />
@@ -377,13 +416,35 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
                   <span className="result-label">{result?.value === "tryagain" ? "Oops!" : "You Won!"}</span>
                   <span className="result-prize">{result?.label}</span>
                 </div>
-                {result?.couponCode ? (
-                  <p className="result-code">Use code: <strong>{result.couponCode}</strong></p>
+                {isClaimed ? (
+                  <>
+                    {/* Confirm the claim landed, and say where the code went —
+                        otherwise the code just appears with no sign the email
+                        was accepted or that anything was sent. */}
+                    <p className="result-sent">
+                      <span className="result-sent-check" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                      </span>
+                      Sent to <strong>{emailLocked ? user.email : email}</strong>
+                    </p>
+                    <p className="result-code">Use code: <strong>{result.couponCode}</strong></p>
+                  </>
                 ) : (
                   <p className="result-code">Better luck next time!</p>
                 )}
-                <button className="claim-btn" onClick={onClose}>
-                  {result?.couponCode ? "Done" : "Close"}
+                <button
+                  className="claim-btn"
+                  onClick={() => {
+                    // A claimed reward finishes the flow (onComplete closes
+                    // without arming the 24h "dismissed" cooldown); a try-again
+                    // is an ordinary dismissal.
+                    if (isClaimed && onComplete) onComplete(result);
+                    else onClose();
+                  }}
+                >
+                  {isClaimed ? "Done" : "Close"}
                 </button>
               </div>
             )}

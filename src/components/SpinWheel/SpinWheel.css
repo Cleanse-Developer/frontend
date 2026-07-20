@@ -4,7 +4,15 @@
   top: 0;
   left: 0;
   width: 100%;
+  /* --app-height is the frozen innerHeight set in client-layout; it matches the
+     real visible viewport on mobile, where a plain 100% resolves against the
+     chrome-collapsed height and leaves a strip of page showing at the bottom. */
   height: 100%;
+  height: var(--app-height, 100dvh);
+  /* The modal is centred; when it is taller than the screen the overlay itself
+     scrolls rather than clipping the modal's lower half. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: rgba(0, 0, 0, 0);
   display: flex;
   align-items: center;
@@ -31,8 +39,18 @@
   border-radius: 20px;
   max-width: 800px;
   width: 90%;
+  /* dvh, so the cap follows the live viewport when mobile browser chrome slides
+     in/out — with vh the modal is measured against the chrome-collapsed height
+     and its lower edge sits under the address bar. */
   max-height: 90vh;
-  overflow: hidden;
+  max-height: 90dvh;
+  /* Was `hidden`: once the wheel had spun, the result + email field made the
+     modal taller than the cap and the overflow was clipped with no way to reach
+     it. It has to scroll instead. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   border: 1px solid rgba(79, 44, 34, 0.1);
   transform: scale(0.8) translateY(30px);
   opacity: 0;
@@ -281,6 +299,45 @@
 .result-code strong {
   color: #663532;
   font-weight: 600;
+}
+
+/* Confirmation that the claim went through and the code was emailed. */
+.result-sent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: rgba(79, 44, 34, 0.7);
+  margin-bottom: 0.6rem;
+}
+
+.result-sent strong {
+  color: var(--base-700);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.result-sent-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(102, 53, 50, 0.1);
+  color: #663532;
+}
+
+/* globals.css sets `svg { width:100%; height:100% }`, which would blow the tick
+   up to fill the row — pin it. */
+.result-sent-check svg {
+  width: 11px;
+  height: 11px;
+  object-fit: initial;
 }
 
 /* Claim email field — same cream treatment as the pre-spin form input, so the

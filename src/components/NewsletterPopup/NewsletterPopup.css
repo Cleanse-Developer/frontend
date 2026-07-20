@@ -3,7 +3,13 @@
   top: 0;
   left: 0;
   width: 100%;
+  /* --app-height (client-layout) is the real visible viewport on mobile; a plain
+     100% resolves against the chrome-collapsed height and leaves a strip of the
+     page showing below the overlay. */
   height: 100%;
+  height: var(--app-height, 100dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -19,26 +25,60 @@
   max-width: 800px;
   width: 90%;
   max-height: 90vh;
-  overflow: hidden;
+  max-height: 90dvh;
+  /* Scroll rather than clip: on a short screen the form sat below the cap with
+     no way to reach it. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   border: 1px solid rgba(79, 44, 34, 0.1);
   display: flex;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
 }
 
+/* The close control has to read on BOTH halves of the modal: on mobile the
+   layout stacks and this corner sits over the dark product photo, where the old
+   translucent brown-on-transparent cross was effectively invisible. A solid
+   light disc with a dark cross works over either background. */
 .newsletter-close {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  color: rgba(79, 44, 34, 0.5);
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(79, 44, 34, 0.12);
+  border-radius: 50%;
+  color: var(--base-700);
   cursor: pointer;
   z-index: 10;
-  transition: color 0.3s ease;
+  box-shadow: 0 2px 10px rgba(46, 31, 20, 0.18);
+  transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+}
+
+/* globals.css declares `svg { width:100%; height:100% }` as a bare element rule,
+   which beats the svg's own width/height ATTRIBUTES — without this the cross is
+   stretched to the full button instead of sitting at 15px. */
+.newsletter-close svg {
+  width: 15px;
+  height: 15px;
+  object-fit: initial;
+  flex-shrink: 0;
 }
 
 .newsletter-close:hover {
-  color: var(--base-700);
+  background: #fff;
+  color: #663532;
+  transform: scale(1.06);
+}
+
+.newsletter-close:active {
+  transform: scale(0.94);
 }
 
 .newsletter-content {

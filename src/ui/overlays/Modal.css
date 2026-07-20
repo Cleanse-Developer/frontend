@@ -2,11 +2,17 @@
 .ui-modal-overlay {
   position: fixed;
   inset: 0;
+  /* `inset: 0` resolves against the chrome-collapsed viewport on mobile, so the
+     overlay came up short and a strip of the page showed under it. --app-height
+     (client-layout) is the real visible height. */
+  height: var(--app-height, 100dvh);
   z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: rgba(28, 16, 10, 0.55);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
