@@ -8,10 +8,9 @@ import SpinWheel from "./SpinWheel";
 const POPUP_ID = "spin-wheel";
 const EXCLUDED_PATHS = ["/checkout", "/login", "/register"];
 const DISMISS_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
+// The wheel is the LEAD popup: it opens first, then the newsletter (10% off)
+// follows one minute after the wheel opens (sequenced in NewsletterPopupWrapper).
 const POPUP_DELAY_MS = 5000; // 5 seconds
-// Gap to leave after another popup closes before this one opens — symmetrical
-// with NewsletterPopupWrapper, so the two can never appear back to back.
-const AFTER_OTHER_POPUP_DELAY_MS = 60 * 1000;
 
 function safeGetItem(storage, key) {
   try {
@@ -76,26 +75,25 @@ export default function SpinWheelWrapper() {
       return false;
     };
 
-    let retryTimer = null;
-    let unsubscribe = null;
+    let unsubRelease = null;
 
-    const timer = setTimeout(() => {
-      if (!tryOpen()) {
-        // Another popup is showing. Wait for it to close, then leave a full
-        // minute rather than reopening straight away.
-        unsubscribe = onRelease(() => {
-          retryTimer = setTimeout(() => {
-            tryOpen();
-            if (unsubscribe) unsubscribe();
-          }, AFTER_OTHER_POPUP_DELAY_MS);
-        });
-      }
-    }, POPUP_DELAY_MS);
+    // Open now; if another popup somehow holds the slot, open once it frees.
+    const openOrWait = () => {
+      if (tryOpen()) return;
+      unsubRelease = onRelease(() => {
+        if (unsubRelease) {
+          unsubRelease();
+          unsubRelease = null;
+        }
+        tryOpen();
+      });
+    };
+
+    const timer = setTimeout(openOrWait, POPUP_DELAY_MS);
 
     return () => {
       clearTimeout(timer);
-      if (retryTimer) clearTimeout(retryTimer);
-      if (unsubscribe) unsubscribe();
+      if (unsubRelease) unsubRelease();
     };
   }, [settings.spinWheelEnabled, pathname, requestOpen, onRelease]);
 

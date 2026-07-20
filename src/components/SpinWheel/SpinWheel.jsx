@@ -354,6 +354,7 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
                   </p>
                 ) : (
                   <input
+                    className="claim-input"
                     type="email"
                     placeholder="Enter your email to claim"
                     value={email}

@@ -283,7 +283,33 @@
   font-weight: 600;
 }
 
+/* Claim email field — same cream treatment as the pre-spin form input, so the
+   reward screen keeps the modal's styling instead of a bare browser input. Full
+   width to line up with the badge above and the button below. */
+.claim-input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: #F0EDE8;
+  border: 1px solid rgba(79, 44, 34, 0.15);
+  border-radius: 8px;
+  color: var(--base-700);
+  font-size: 0.9rem;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s ease;
+  margin-bottom: 0.85rem;
+}
+
+.claim-input::placeholder {
+  color: rgba(79, 44, 34, 0.4);
+}
+
+.claim-input:focus {
+  border-color: rgba(79, 44, 34, 0.4);
+}
+
 .claim-btn {
+  width: 100%;
   padding: 1rem 2.5rem;
   background: #663532;
   color: #fff;

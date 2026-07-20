@@ -7,12 +7,17 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { blogApi, newsletterApi } from "@/lib/endpoints";
 import { normalizeBlog } from "@/lib/normalizers";
+import { useSettings } from "@/context/SettingsContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const categories = ["All", "Hair Care", "Skin Care", "Wellness", "Rituals", "Ingredients"];
 
 export default function BlogPage() {
+  const settings = useSettings();
+  // Admin-editable page chrome (hero media/heading + newsletter band). Falls back
+  // to the shipped copy/assets so an unconfigured section renders unchanged.
+  const blogCms = settings.cmsBlog || {};
   const heroRef = useRef(null);
   const gridRef = useRef(null);
   const cardsRef = useRef([]);
@@ -140,16 +145,17 @@ export default function BlogPage() {
       {/* Hero */}
       <section className="blog-hero" ref={heroRef}>
         <div className="blog-hero-bg">
-          <img src="/images/b2.png" alt="" />
+          <img src={blogCms.heroImage?.url || "/images/b2.png"} alt="" />
         </div>
         <div className="blog-hero-overlay" />
         <div className="blog-hero-content">
           <div className="blog-breadcrumb">
-            <Link href="/">HOME</Link> / <span>JOURNAL</span>
+            <Link href="/">HOME</Link> / <span>{blogCms.heroBreadcrumb || "JOURNAL"}</span>
           </div>
-          <h1 className="blog-hero-title">THE JOURNAL</h1>
+          <h1 className="blog-hero-title">{blogCms.heroTitle || "THE JOURNAL"}</h1>
           <p className="blog-hero-subtitle">
-            Ancient wisdom, modern stories, explore the art of Ayurvedic living.
+            {blogCms.heroSubtitle ||
+              "Ancient wisdom, modern stories, explore the art of Ayurvedic living."}
           </p>
         </div>
         <div className="blog-hero-scroll-indicator">
@@ -244,10 +250,20 @@ export default function BlogPage() {
       <section className="blog-newsletter">
         <div className="blog-newsletter-inner">
           <div className="blog-newsletter-content">
-            <span className="blog-newsletter-tag">STAY ROOTED</span>
-            <h2 className="blog-newsletter-title">Stories Delivered<br />To Your Inbox</h2>
+            <span className="blog-newsletter-tag">{blogCms.newsletterTag || "STAY ROOTED"}</span>
+            <h2 className="blog-newsletter-title">
+              {(blogCms.newsletterTitle || "Stories Delivered\nTo Your Inbox")
+                .split("\n")
+                .map((line, i, arr) => (
+                  <span key={i}>
+                    {line}
+                    {i < arr.length - 1 && <br />}
+                  </span>
+                ))}
+            </h2>
             <p className="blog-newsletter-desc">
-              Get weekly Ayurvedic insights, rituals, and exclusive content, straight from our journal.
+              {blogCms.newsletterDescription ||
+                "Get weekly Ayurvedic insights, rituals, and exclusive content, straight from our journal."}
             </p>
             {nlSubmitted ? (
               <p className="blog-newsletter-desc" style={{ color: "#4F2C22", fontWeight: 500 }}>Thank you for subscribing!</p>
@@ -259,7 +275,7 @@ export default function BlogPage() {
             )}
           </div>
           <div className="blog-newsletter-visual">
-            <img src="/images/cta.png" alt="Ayurvedic rituals" />
+            <img src={blogCms.newsletterImage?.url || "/images/cta.png"} alt="Ayurvedic rituals" />
           </div>
         </div>
       </section>
