@@ -1,9 +1,25 @@
+/* ── Drawer height ────────────────────────────────────────────────────────────
+   `dvh`, NOT `svh`. `svh` is the SMALL viewport — the height the page has while
+   the mobile browser's URL bar and bottom nav are showing. It is a fixed value
+   that never updates, so once those bars slide away the viewport grows and the
+   drawer stays at the old, shorter height, leaving a gap along the bottom.
+   `dvh` is the DYNAMIC viewport: it tracks the live visible height, so the
+   drawer matches the screen whether the bars are shown or hidden.
+
+   The usual reason to avoid `dvh` — elements resizing mid-scroll and shifting
+   the layout — does not apply here: this is `position: fixed` so it is outside
+   page flow, and ShoppingCart.jsx locks the body scroll while the drawer is
+   open, so the bars cannot move during that time anyway.
+
+   `svh` is kept as the preceding declaration purely as a fallback for engines
+   without `dvh`; it errs short, which is safe (a gap rather than overflow). */
 .shopping-cart-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100svh;
+  height: 100dvh;
   padding: 2rem;
   pointer-events: none;
   z-index: 9970;
@@ -63,6 +79,7 @@
   right: 2rem;
   width: 30%;
   height: calc(100svh - 4rem);
+  height: calc(100dvh - 4rem);
   background: #fff;
   border: none;
   color: var(--base-700);
@@ -719,6 +736,7 @@
     top: 1rem;
     right: 1rem;
     height: calc(100svh - 2rem);
+    height: calc(100dvh - 2rem);
   }
 
   .shopping-cart-container .cart-sidebar-content {
@@ -736,6 +754,7 @@
     right: 0;
     top: 0;
     height: 100svh;
+    height: 100dvh;
     border-radius: 0;
   }
 
