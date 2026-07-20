@@ -7,7 +7,7 @@ import Copy from "@/components/Copy/Copy";
 import ImageTrail from "@/components/ImageTrail/ImageTrail";
 import { productApi } from "@/lib/endpoints";
 import { useSettings } from "@/context/SettingsContext";
-import { productUrl } from "@/lib/normalizers";
+import { productUrl, normalizeProduct } from "@/lib/normalizers";
 
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -23,6 +23,9 @@ gsap.registerPlugin(ScrollTrigger);
 
 /* Soft tile backgrounds the product images rest on, drawn from the brand palette */
 const TILES = ["#E7D0A6", "#D9C9A8", "#C4B48C", "#D1BFA5", "#C8AD73"];
+
+/* Hero art per ritual, keyed by the same `slug` the mode toggle uses */
+const HERO_IMAGES = { morning: "/awaken.png", evening: "/night.png" };
 
 export default function Ritual() {
   const settings = useSettings();
@@ -57,10 +60,21 @@ export default function Ritual() {
 
   // Falls back to a filtered wardrobe search when a step's product isn't in the
   // catalogue (renamed, unpublished) — never a dead link, never the wrong product.
+  const stepProduct = (step) =>
+    productsByName?.get(step.product?.trim().toLowerCase());
+
   const stepHref = (step) => {
-    const match = productsByName?.get(step.product.trim().toLowerCase());
+    const match = stepProduct(step);
     if (match?.slug) return productUrl(match);
     return `/wardrobe?search=${encodeURIComponent(step.product)}`;
+  };
+
+  /* Show the real catalogue photo for the product each step names, so the tiles
+     can never drift from the copy beside them. The CMS step upload is the
+     fallback for a step whose product isn't in the catalogue yet. */
+  const stepImage = (step) => {
+    const match = stepProduct(step);
+    return match ? normalizeProduct(match).primaryImage : step.image?.url;
   };
 
   /* Reveal each step as it scrolls in; re-runs whenever the AM/PM mode changes
@@ -124,15 +138,12 @@ export default function Ritual() {
   return (
     <div className="ritual-page" ref={pageRef}>
       {/* ===== Hero ===== */}
-      {/* The base image lives in ritual.css; an admin upload overrides it here,
-          since a CSS background can't be driven by a CMS field on its own. */}
+      {/* The hero follows the selected ritual, morning and evening each get
+          their own image, so it can't be a static CSS background. Falls back to
+          the admin's single hero upload if a mode ever has no art of its own. */}
       <section
         className="ritual-hero"
-        style={
-          data.heroImage?.url
-            ? { backgroundImage: `url("${data.heroImage.url}")` }
-            : undefined
-        }
+        style={{ backgroundImage: `url("${HERO_IMAGES[mode] || data.heroImage?.url || HERO_IMAGES.morning}")` }}
       >
         <div className="ritual-hero-overlay" />
         <div className="ritual-hero-content">
@@ -214,7 +225,7 @@ export default function Ritual() {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div className="ritual-step-img">
-                    <img src={step.image?.url} alt={step.product} loading="lazy" />
+                    <img src={stepImage(step)} alt={step.product} loading="lazy" />
                   </div>
                 </div>
               </div>
@@ -272,7 +283,7 @@ export default function Ritual() {
                 className="ritual-shop-card-img"
                 style={{ backgroundColor: TILES[i % TILES.length] }}
               >
-                <img src={step.image?.url} alt={step.product} loading="lazy" />
+                <img src={stepImage(step)} alt={step.product} loading="lazy" />
               </div>
               <span className="ritual-shop-card-phase">{step.phase}</span>
               <span className="ritual-shop-card-name">{step.product}</span>

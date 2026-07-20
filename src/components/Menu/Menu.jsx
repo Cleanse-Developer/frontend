@@ -2,7 +2,13 @@
 import "./Menu.css";
 import Link from "next/link";
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+/* Transition-aware router. TransitionRouter's `auto` mode only intercepts <Link>
+   clicks, so a raw next/navigation router.push() skipped the leave/enter block
+   animation entirely and the page swapped instantly. Pushing through this hook
+   plays the same transition a <Link> would. */
+import { useTransitionRouter } from "next-transition-router";
+import { useLenis } from "lenis/react";
 
 import { useCart } from "@/context/CartContext";
 import { useSettings } from "@/context/SettingsContext";
@@ -80,7 +86,8 @@ const LocaleCapsule = ({ open, toggle, close }) => (
 
 const Menu = () => {
   const pathname = usePathname();
-  const router = useRouter();
+  const router = useTransitionRouter();
+  const lenis = useLenis();
   const isHomePage = pathname === "/";
   // Product detail pages have a light hero — use a transparent header with dark text/icons
   const isUnitPage = pathname?.startsWith("/unit");
@@ -391,7 +398,14 @@ const Menu = () => {
     setTimeout(() => {
       if (isHomePage) {
         const el = document.getElementById(sectionId);
-        if (el) el.scrollIntoView({ behavior: "smooth" });
+        if (!el) return;
+        /* Lenis owns the scroll position via rAF, so a native smooth
+           scrollIntoView gets fought/reverted on the next tick and lands as a
+           jump. Drive Lenis's own scrollTo when it's running (same approach as
+           the anchor handling in client-layout), and only fall back to native
+           if it isn't. The offset clears the fixed header. */
+        if (lenis?.scrollTo) lenis.scrollTo(el, { offset: -100, duration: 1.2 });
+        else el.scrollIntoView({ behavior: "smooth" });
       } else {
         setIsPageTransitioning(true);
         setIsMenuVisible(false);
@@ -871,9 +885,12 @@ const Menu = () => {
                 <a href="/#why-skin" onClick={(e) => handleSectionClick(e, "why-skin")}>
                   Why Cleanse
                 </a>
-                <a href="/#rituals" onClick={(e) => handleSectionClick(e, "rituals")}>
+                {/* Goes to the Ritual PAGE. The home page's `#rituals` anchor
+                    wraps <BuildYourRitual>, which is the bundle builder — this
+                    link used to land there, which read as "Rituals → bundles". */}
+                <Link href="/ritual" onClick={(e) => handleLinkClick(e, "/ritual")}>
                   Rituals
-                </a>
+                </Link>
                 <a href="/#testimonials" onClick={(e) => handleSectionClick(e, "testimonials")}>
                   Testimonials
                 </a>

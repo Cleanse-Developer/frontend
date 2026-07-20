@@ -57,14 +57,14 @@
    so ultrawides fell through to the 2560 rule and stranded the content in the
    middle of the screen). */
 @media (min-width: 1440px) {
-  :root { --gutter: 4rem; --page-max: 1400px; }
+  :root { --gutter: 4rem; --page-max: min(93vw, 3260px); }
 }
 @media (min-width: 1920px) {
-  :root { --page-max: 1800px; --section-py: 6rem; }
+  :root { --section-py: 6rem; }
 }
 @media (min-width: 2560px) {
-  :root { --page-max: 2400px; --section-py: 7rem; }
+  :root { --section-py: 7rem; }
 }
 @media (min-width: 3440px) {
-  :root { --page-max: 3260px; --section-py: 8rem; }
+  :root { --section-py: 8rem; }
 }

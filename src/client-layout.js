@@ -172,8 +172,13 @@ export default function ClientLayout({ children, footer, header }) {
         syncTouch: false,
       }
     : {
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        // Lerp ONLY — deliberately no `duration`/`easing` here. Lenis treats the
+        // two as mutually exclusive and duration wins (see Animate.advance), and
+        // a duration-based tween restarts from currentTime=0 on EVERY wheel
+        // event. With an expo-out easing that means each tick lurches fast then
+        // decelerates, and a continuous wheel/trackpad gesture reads as judder.
+        // `lerp` uses frame-rate-independent damping toward a moving target, so
+        // overlapping wheel events blend smoothly instead of restarting.
         direction: "vertical",
         gestureDirection: "vertical",
         smooth: true,
@@ -184,7 +189,7 @@ export default function ClientLayout({ children, footer, header }) {
         wheelMultiplier: 1,
         orientation: "vertical",
         smoothWheel: true,
-        syncTouch: true,
+        syncTouch: false,
       };
 
   return (

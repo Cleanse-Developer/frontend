@@ -30,11 +30,17 @@
 .ritual-hero {
   position: relative;
   width: 100%;
-  height: 88vh;
+  height: 100vh;
+  /* dvh so mobile browser chrome collapsing can't leave a strip of the next
+     section showing under the hero */
+  height: 100dvh;
   min-height: 540px;
-  background-image: url('/face.jpg');
+  background-image: url('/awaken.png');
+  /* Anchored bottom-centre: the ritual art is composed from the base up, so the
+     bottom edge stays flush with the section and any crop is taken off the top.
+     `cover` keeps it filling edge to edge at every viewport, never letterboxed. */
   background-size: cover;
-  background-position: center 30%;
+  background-position: center bottom;
   background-repeat: no-repeat;
   display: flex;
   align-items: flex-end;
@@ -602,7 +608,7 @@
 }
 
 @media (max-width: 768px) {
-  .ritual-hero { height: 80vh; min-height: 460px; }
+  .ritual-hero { height: 100vh; height: 100dvh; min-height: 460px; }
   .ritual-hero-content { padding: 1.75rem; gap: 1rem; }
 
   /* Match the home page's vertical section rhythm (--section-py) on mobile */

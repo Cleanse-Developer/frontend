@@ -4,6 +4,7 @@ import "@/components/FeaturedSection/FeaturedSection.css";
 import { Suspense, use, useState, useEffect, useCallback, useRef } from "react";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -407,7 +408,16 @@ function UnitContent({ params }) {
             onTouchStart={onGalleryTouchStart}
             onTouchEnd={onGalleryTouchEnd}
           >
-            <img src={galleryImages[activeImage]} alt={product.name} />
+            {/* next/image serves a viewport-sized rendition instead of the
+                full-res CMS upload — painting the raw upload inside this
+                sticky column was making the whole hero jank on scroll. */}
+            <Image
+              src={galleryImages[activeImage]}
+              alt={product.name}
+              fill
+              sizes="(max-width: 1199px) 100vw, 620px"
+              priority
+            />
           </div>
           <div className="product-thumbnails">
             {galleryImages.map((img, index) => (
@@ -416,7 +426,7 @@ function UnitContent({ params }) {
                 className={`product-thumbnail ${activeImage === index ? "active" : ""}`}
                 onClick={() => setActiveImage(index)}
               >
-                <img src={img} alt={`Product view ${index + 1}`} />
+                <Image src={img} alt={`Product view ${index + 1}`} fill sizes="64px" loading="lazy" />
               </button>
             ))}
           </div>
@@ -819,16 +829,16 @@ function UnitContent({ params }) {
                   </Link>
                 )}
                 {showReviewForm && (
-                  <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                    <div style={{ display: "flex", gap: "0.25rem" }}>
+                  <div className="review-form">
+                    <div className="review-form-stars">
                       {[1, 2, 3, 4, 5].map((s) => (
                         <button
                           key={s}
                           type="button"
+                          className="review-star-btn"
                           onClick={() => setReviewForm({ ...reviewForm, rating: s })}
-                          style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
                         >
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill={s <= reviewForm.rating ? "#4F2C22" : "none"} stroke="#4F2C22" strokeWidth="1.5">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill={s <= reviewForm.rating ? "#4F2C22" : "none"} stroke="#4F2C22" strokeWidth="1.5">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                           </svg>
                         </button>
@@ -836,17 +846,17 @@ function UnitContent({ params }) {
                     </div>
                     <input
                       type="text"
+                      className="review-form-input"
                       placeholder="Review title (optional)"
                       value={reviewForm.title}
                       onChange={(e) => setReviewForm({ ...reviewForm, title: e.target.value })}
-                      style={{ padding: "0.5rem", border: "1px solid #ddd", borderRadius: "4px", fontSize: "0.85rem" }}
                     />
                     <textarea
+                      className="review-form-textarea"
                       placeholder="Share your experience..."
                       value={reviewForm.text}
                       onChange={(e) => setReviewForm({ ...reviewForm, text: e.target.value })}
                       rows={3}
-                      style={{ padding: "0.5rem", border: "1px solid #ddd", borderRadius: "4px", fontSize: "0.85rem", resize: "vertical" }}
                     />
                     <button
                       className="write-review-btn"

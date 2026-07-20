@@ -67,10 +67,6 @@
   object-fit: contain;
 }
 
-.login-logo-mark {
-  --logo-r-color: #E5AD07;
-  --logo-r-size: 0.45rem;
-}
 
 .login-visual-text {
   display: flex;

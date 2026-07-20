@@ -8,7 +8,6 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import {
   orderApi,
-  wishlistApi,
   couponApi,
   addressApi,
   userApi,
@@ -20,7 +19,7 @@ import { cardPrice } from "@/lib/formatters";
 import { COUNTRIES, postalLabel } from "@/lib/countries";
 import { useGeo } from "@/lib/useGeo";
 
-const tabs = ["Orders", "Wishlist", "Coupons", "Addresses", "Settings"];
+const tabs = ["Orders", "Coupons", "Addresses", "Settings"];
 
 // A <select> from `options` with an "Other" free-text escape (so a value not in
 // the dataset still works). Free text when there are no options.
@@ -92,7 +91,6 @@ export default function ProfilePage() {
 
   // Data states
   const [orders, setOrders] = useState([]);
-  const [wishlistItems, setWishlistItems] = useState([]);
   const [coupons, setCoupons] = useState([]);
   const [addresses, setAddresses] = useState([]);
   const [loyaltyPoints, setLoyaltyPoints] = useState(0);
@@ -178,11 +176,6 @@ export default function ProfilePage() {
       orderApi.getMyOrders().then((data) => {
         setOrders((data.orders || data || []).map(normalizeOrder));
       }).catch(() => {}).finally(() => setTabLoading(false));
-    } else if (activeTab === "Wishlist") {
-      wishlistApi.get().then((data) => {
-        const items = data.wishlist || data || [];
-        setWishlistItems(items.map((w) => w.product || w));
-      }).catch(() => {}).finally(() => setTabLoading(false));
     } else if (activeTab === "Coupons") {
       couponApi.getMyCoupons().then((data) => {
         setCoupons((data.coupons || data || []).map(normalizeCoupon));
@@ -219,13 +212,6 @@ export default function ProfilePage() {
   }, [activeTab, isAuthenticated]);
 
   // ── Handlers ──
-
-  const handleRemoveFromWishlist = async (productId) => {
-    try {
-      await wishlistApi.remove(productId);
-      setWishlistItems((prev) => prev.filter((item) => item._id !== productId));
-    } catch { /* ignore */ }
-  };
 
   const handleOrderAgain = async (order) => {
     try {
@@ -432,65 +418,6 @@ export default function ProfilePage() {
                   </div>
                 );
               })
-            )}
-          </div>
-        )}
-
-        {/* ===== Wishlist Tab ===== */}
-        {activeTab === "Wishlist" && (
-          <div className="profile-wishlist">
-            {tabLoading ? (
-              <div className="profile-empty-state">
-                <p className="profile-empty-text">Loading wishlist...</p>
-              </div>
-            ) : wishlistItems.length > 0 ? (
-              <div className="profile-wishlist-grid">
-                {wishlistItems.map((product) => {
-                  const pid = product._id;
-                  const img = (product.images?.find((i) => i.isPrimary) || product.images?.[0])?.url || product.primaryImage || "/images/1.png";
-                  return (
-                    <div key={pid} className="profile-wishlist-card">
-                      <div className="profile-wishlist-img-wrap">
-                        <img
-                          src={img}
-                          alt={product.name}
-                          className="profile-wishlist-img"
-                        />
-                        <button
-                          className="profile-wishlist-heart"
-                          onClick={() => handleRemoveFromWishlist(pid)}
-                          aria-label="Remove from wishlist"
-                        >
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div className="profile-wishlist-info">
-                        <h4 className="profile-wishlist-name">{product.name}</h4>
-                        <p className="profile-wishlist-price">&#8377;{cardPrice(product)}</p>
-                      </div>
-                      <button
-                        className="profile-wishlist-add-btn"
-                        onClick={() => addToCart(product)}
-                      >
-                        Add to Cart
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="profile-empty-state">
-                <div className="profile-empty-icon">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-                  </svg>
-                </div>
-                <h3 className="profile-empty-title">Your Wishlist is Empty</h3>
-                <p className="profile-empty-text">Save items you love for later</p>
-                <Link href="/wardrobe" className="profile-action-btn">Explore Products</Link>
-              </div>
             )}
           </div>
         )}

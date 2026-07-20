@@ -1021,6 +1021,10 @@
   /* Space between the prices and the scrollbar so they don't touch; the
      reserved gutter keeps the layout from shifting when the bar appears. */
   padding-right: 0.9rem;
+  /* The qty badge is pulled 5px above its thumbnail, and this element scrolls
+     (overflow-y), which clips at the padding box — so the FIRST row's badge had
+     its top shaved off. Reserve the overhang here. */
+  padding-top: 7px;
   scrollbar-gutter: stable;
   border-bottom: 1px solid rgba(79, 44, 34, 0.08);
   /* Compact list — scrolls internally past ~3 items so the card stays small. */
@@ -1634,10 +1638,11 @@
 .checkout-otp-modal {
   position: relative;
   width: 100%;
-  max-width: 360px;
+  max-width: 380px;
   background: #f0ede8;
-  border-radius: 1rem;
-  padding: 1.85rem 1.5rem 1.5rem;
+  border-radius: 16px;
+  border: 1px solid rgba(79, 44, 34, 0.08);
+  padding: 2.25rem 1.75rem 1.75rem;
   box-shadow: 0 20px 60px rgba(40, 24, 22, 0.25);
   animation: checkout-otp-pop 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
@@ -1664,73 +1669,110 @@
 .checkout-otp-close:hover {
   opacity: 1;
 }
+/* `--font-display` is not a token in this project, so the fallback resolved to
+   a generic system serif that matched nothing else on the site. Use the real
+   heading face, and the shared brown scale instead of one-off hexes. */
 .checkout-otp-title {
-  font-family: var(--font-display, serif);
-  font-size: 1.25rem;
-  color: #3a2320;
-  margin: 0 0 0.35rem;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--base-700);
+  margin: 0 0 0.4rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  line-height: 1.1;
 }
 .checkout-otp-sub {
   font-family: var(--font-body);
   font-size: 0.85rem;
-  color: #6b5a54;
-  margin: 0 0 1.1rem;
+  line-height: 1.5;
+  color: rgba(79, 44, 34, 0.6);
+  margin: 0 0 1.35rem;
 }
 .checkout-otp-input {
   width: 100%;
-  padding: 0.8rem 0.9rem;
-  border: 1px solid #d8cfc4;
-  border-radius: 0.5rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(79, 44, 34, 0.15);
+  border-radius: 8px;
   background: #fff;
-  font-size: 1rem;
-  letter-spacing: 0.3em;
+  color: var(--base-700);
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  font-weight: 500;
+  /* Wide tracking suits a 6-digit code, but it also stretched the placeholder
+     into "E n t e r  O T P". Track the digits only (placeholder reset below).
+     text-indent offsets the trailing letter-space so centring stays true. */
+  letter-spacing: 0.4em;
+  text-indent: 0.4em;
   text-align: center;
-  margin-bottom: 0.75rem;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 0.85rem;
+}
+.checkout-otp-input::placeholder {
+  color: rgba(79, 44, 34, 0.35);
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-indent: 0;
 }
 .checkout-otp-input:focus {
-  outline: none;
-  border-color: #663532;
+  border-color: rgba(79, 44, 34, 0.4);
+  box-shadow: 0 0 0 3px rgba(79, 44, 34, 0.08);
 }
 .checkout-otp-error {
-  color: #c44;
+  color: #c0392b;
+  font-family: var(--font-body);
   font-size: 0.82rem;
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.7rem;
 }
 .checkout-otp-verify-btn {
   width: 100%;
-  padding: 0.85rem;
+  padding: 1rem;
   background: #663532;
-  color: #fff;
+  color: #F0EDE8;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 0.85rem;
+  font-weight: 600;
+  font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: background 0.3s ease, transform 0.2s ease, opacity 0.2s ease;
 }
-.checkout-otp-verify-btn:hover {
-  opacity: 0.9;
+.checkout-otp-verify-btn:hover:not(:disabled) {
+  background: #4F2C22;
+  transform: translateY(-2px);
 }
 .checkout-otp-verify-btn:disabled {
-  opacity: 0.55;
-  cursor: default;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .checkout-otp-resend {
   display: block;
-  margin: 0.75rem auto 0;
+  margin: 1rem auto 0;
+  padding: 0.25rem 0.5rem;
   background: none;
   border: none;
-  color: #663532;
-  font-size: 0.82rem;
-  text-decoration: underline;
+  color: rgba(79, 44, 34, 0.65);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-decoration: none;
   cursor: pointer;
+  transition: color 0.2s ease;
+}
+.checkout-otp-resend:hover:not(:disabled) {
+  color: var(--base-700);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .checkout-otp-resend:disabled {
   opacity: 0.5;
-  cursor: default;
+  cursor: not-allowed;
 }

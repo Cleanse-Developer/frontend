@@ -8,6 +8,43 @@ footer {
   z-index: 10;
 }
 
+/* ── Footer type scale ───────────────────────────────────────────────────────
+   The same role tokens as the hero (see home.css), so a size is set once here
+   rather than re-declared in each of the footer's viewport blocks. The three
+   steps are the desktop / tablet / mobile columns of the brand type spec.
+
+   Sizes are rem, not px: they resolve to the spec exactly at the default 16px
+   root, while still tracking a reader's browser font setting and the root
+   step-up globals.css applies on 1920px+ screens.
+
+   Body, supporting and caption are one size at every width, so they are
+   declared once and never overridden. */
+footer {
+  --footer-fs-heading: 2.5rem;      /* 40px */
+  --footer-fs-section: 1.75rem;     /* 28px */
+  --footer-fs-subheading: 1.25rem;  /* 20px */
+  --footer-fs-body: 1rem;           /* 16px */
+  --footer-fs-supporting: 0.875rem; /* 14px */
+  --footer-fs-caption: 0.75rem;     /* 12px */
+}
+
+/* Tablet */
+@media (max-width: 1199px) {
+  footer {
+    --footer-fs-heading: 2.125rem;    /* 34px */
+    --footer-fs-section: 1.5rem;      /* 24px */
+    --footer-fs-subheading: 1.125rem; /* 18px */
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  footer {
+    --footer-fs-heading: 1.75rem;   /* 28px */
+    --footer-fs-section: 1.375rem;  /* 22px */
+  }
+}
+
 .footer-container {
   padding: 1.25rem max(var(--gutter), (100% - var(--page-max)) / 2) 1.5rem;
   display: flex;
@@ -49,7 +86,7 @@ footer {
 
 .footer-pages-title {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: var(--footer-fs-subheading);
   font-weight: 500;
   color: #1a1a1a;
   margin-bottom: 0;
@@ -72,7 +109,7 @@ footer {
 
 .footer-pages-links a {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: var(--footer-fs-supporting);
   font-weight: 400;
   color: #1a1a1a;
   text-decoration: none;
@@ -164,10 +201,6 @@ footer {
   /* Don't let the flex column stretch the wrapper to full width */
   align-self: flex-start;
   transform: translateX(-1.25rem);
-  --logo-r-color: #422D1C;
-  --logo-r-size: clamp(0.42rem, 0.75vw, 0.7rem);
-  --logo-r-top: -2%;
-  --logo-r-right: -0.15em;
 }
 
 .footer-logo-mark::before {
@@ -180,9 +213,6 @@ footer {
   pointer-events: none;
 }
 
-.footer-logo-mark .logo-registered {
-  z-index: 1;
-}
 
 /* Address + contact details */
 .footer-contact {
@@ -194,7 +224,7 @@ footer {
 
 .footer-contact-line {
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: var(--footer-fs-supporting);
   font-weight: 400;
   color: #1a1a1a;
   letter-spacing: 0.02em;
@@ -215,6 +245,9 @@ footer {
 }
 
 .footer-contact-actions a {
+  /* The email + phone links sit inside .footer-contact-line, but `a` is styled
+     globally, so the role size is restated here rather than inherited. */
+  font-size: var(--footer-fs-supporting);
   color: #1a1a1a;
   text-decoration: none;
   text-transform: none;
@@ -241,7 +274,7 @@ footer {
 
 .footer-socials a {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--footer-fs-supporting);
   font-weight: 500;
   color: #1a1a1a;
   text-decoration: none;
@@ -285,7 +318,7 @@ footer {
 
 .footer-copyright {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: var(--footer-fs-caption);
   font-weight: 400;
   color: #1a1a1a;
   letter-spacing: 0.03em;
@@ -298,7 +331,7 @@ footer {
 
 .footer-legal-links a {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: var(--footer-fs-caption);
   font-weight: 400;
   color: #1a1a1a;
   text-decoration: none;
@@ -354,7 +387,6 @@ footer {
   }
 
   .footer-pages-title {
-    font-size: clamp(0.68rem, 3.2vw, 0.9rem) !important;
     justify-content: center;
     gap: 0.35rem;
     padding: 0;
@@ -426,16 +458,11 @@ footer {
   }
 
   .footer-pages-links a {
-    font-size: 0.82rem !important;
     white-space: nowrap;
   }
 
   .footer-logo {
     width: clamp(210px, 54vw, 310px);
-  }
-
-  .footer-contact-line {
-    font-size: 0.96rem !important;
   }
 
   /* All four socials on ONE horizontal line */
@@ -446,7 +473,6 @@ footer {
   }
 
   .footer-socials a {
-    font-size: 0.8rem !important;
     white-space: nowrap;
   }
 
@@ -464,12 +490,7 @@ footer {
 
   /* "...ALL RIGHTS RESERVED" stays on one line */
   .footer-copyright {
-    font-size: 0.76rem !important;
     white-space: nowrap;
-  }
-
-  .footer-legal-links a {
-    font-size: 0.88rem !important;
   }
 }
 
@@ -494,16 +515,11 @@ footer {
   }
 
   .footer-pages-title {
-    font-size: 0.95rem;
     margin-bottom: 0;
   }
 
   .footer-pages-links {
     gap: 0.6rem;
-  }
-
-  .footer-pages-links a {
-    font-size: 0.85rem;
   }
 
   .footer-bottom {
@@ -518,21 +534,12 @@ footer {
     gap: 1.5rem;
   }
 
-  .footer-socials a {
-    font-size: 0.78rem;
-  }
-
   .footer-divider {
     border-top-width: 2.5px;
   }
 
   .footer-legal-links {
     gap: 1.5rem;
-  }
-
-  .footer-copyright,
-  .footer-legal-links a {
-    font-size: 0.72rem;
   }
 }
 
@@ -581,7 +588,6 @@ footer {
   }
 
   .footer-pages-title {
-    font-size: clamp(0.68rem, 3.2vw, 0.9rem) !important;
     margin-bottom: 0;
     letter-spacing: 0.02em;
     justify-content: center;
@@ -589,7 +595,6 @@ footer {
   }
 
   .footer-pages-links a {
-    font-size: 0.82rem !important;
     line-height: 1.3;
     text-align: center;
     white-space: nowrap;
@@ -622,7 +627,6 @@ footer {
   }
 
   .footer-contact-line {
-    font-size: clamp(0.4rem, 2vw, 0.58rem);
     line-height: 1.3;
     white-space: normal;
     max-width: 100%;
@@ -632,7 +636,6 @@ footer {
   .footer-contact-actions {
     flex-basis: 100%;
     margin-top: 0.35rem;
-    font-size: clamp(0.5rem, 2.4vw, 0.66rem);
   }
 
   /* Thin separator between the company name and the street address. */
@@ -662,20 +665,12 @@ footer {
   }
 
   .footer-socials a {
-    font-size: 0.6rem;
     white-space: nowrap;
   }
 
   .footer-legal-links {
     gap: 1rem;
     justify-content: center;
-  }
-
-  /* Terms / Privacy + ©2026 copyright: identical size. !important on both beats
-     the ≤1000px tablet rules (0.88rem / 0.76rem !important) that leak down. */
-  .footer-legal-links a,
-  .footer-copyright {
-    font-size: 0.72rem !important;
   }
 
   .footer-divider {
@@ -696,22 +691,8 @@ footer {
     gap: 4rem;
   }
 
-  .footer-pages-title {
-    font-size: 1.1rem;
-  }
-
-  .footer-pages-links a {
-    font-size: 1rem;
-  }
-
-  .footer-socials a {
-    font-size: 1rem;
-  }
-
-  .footer-copyright,
-  .footer-legal-links a {
-    font-size: 0.9rem;
-  }
+  /* No type overrides: the --footer-fs-* tokens are rem, so they already scale
+     with the root font-size step-up on big screens. */
 }
 
 @media (min-width: 2560px) {
@@ -720,25 +701,14 @@ footer {
     gap: 5rem;
   }
 
-  .footer-pages-title {
-    font-size: 1.25rem;
-  }
-
   .footer-pages-links a {
-    font-size: 1.1rem;
     gap: 1rem;
-  }
-
-  .footer-socials a {
-    font-size: 1.15rem;
   }
 
   .footer-logo {
     width: clamp(300px, 20vw, 500px);
   }
 
-  .footer-copyright,
-  .footer-legal-links a {
-    font-size: 1rem;
-  }
+  /* No type overrides: the --footer-fs-* tokens are rem, so they already scale
+     with the root font-size step-up on big screens. */
 }

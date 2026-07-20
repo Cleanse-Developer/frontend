@@ -657,85 +657,9 @@
   gap: 1.5rem;
 }
 
-.cart-rec-card {
-  display: flex;
-  flex-direction: column;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #fff;
-  transition: transform 0.3s ease;
-}
-
-.cart-rec-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(79, 44, 34, 0.1);
-}
-
-.cart-rec-card-image {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: rgba(79, 44, 34, 0.03);
-}
-
-.cart-rec-card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.cart-rec-card-info {
-  padding: 1.25rem;
-}
-
-.cart-rec-card-name {
-  font-family: var(--font-body);
-  /* Shared product-card type scale (matches Best Sellers) */
-  font-size: var(--fs-card-title);
-  font-weight: 500;
-  color: var(--base-700);
-  text-transform: none;
-  letter-spacing: 0.02em;
-  margin-bottom: 0.75rem;
-}
-
-.cart-rec-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.cart-rec-card-price {
-  font-family: var(--font-body);
-  /* Shared product-card type scale (matches Best Sellers) */
-  font-size: var(--fs-card-price);
-  font-weight: 600;
-  color: var(--base-700);
-}
-
-.cart-rec-add-btn {
-  background: var(--base-700);
-  color: var(--base-100);
-  border: none;
-  padding: 0.5rem 1.25rem;
-  font-family: var(--font-body);
-  font-size: var(--fs-card-btn);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-radius: 0.35rem;
-  cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.cart-rec-add-btn:hover {
-  opacity: 0.85;
-}
-
-.cart-rec-add-btn:active {
-  transform: scale(0.95);
-}
+/* Cards inside the recommended grid are the shared global ProductCard
+   (components/ProductCard) — styled by FeaturedSection.css, same as the home
+   "Our Best Sellers" grid. Only the grid layout is defined here. */
 
 /* Responsive */
 @media (max-width: 1199px) and (orientation: portrait) {

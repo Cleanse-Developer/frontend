@@ -75,17 +75,24 @@
    too made it compound to ~160px. --page-max must stay above the available
    width (100vw - 2×gutter) at each step, or the leftover is added to the side
    margins and the content strands in the middle of the screen. */
+/* Fluid above 1440 for the same reason the root font-size is (see below):
+   stepping these at min-width breakpoints made the content column snap wider
+   mid-zoom. `min(93vw, 3260px)` follows the old ladder closely — 1400 @1440,
+   ~1790 @1920, ~2380 @2560, capped at 3260 — without the jumps. */
 @media (min-width: 1440px) {
-  :root { --gutter: 4rem; --page-max: 1400px; }
+  :root { --gutter: 4rem; --page-max: min(93vw, 3260px); }
 }
+/* --section-py stays stepped: it's vertical padding, so a step is far less
+   visible than a type or column-width jump, and it's already rem-based so the
+   fluid root size scales it between steps. */
 @media (min-width: 1920px) {
-  :root { --page-max: 1800px; --section-py: 6rem; }
+  :root { --section-py: 6rem; }
 }
 @media (min-width: 2560px) {
-  :root { --page-max: 2400px; --section-py: 7rem; }
+  :root { --section-py: 7rem; }
 }
 @media (min-width: 3440px) {
-  :root { --page-max: 3260px; --section-py: 8rem; }
+  :root { --section-py: 8rem; }
 }
 
 /* ── Large external monitors (23"+ / 1920px and up) ─────────────────────────
@@ -94,10 +101,18 @@
    that's otherwise capped by rem clamps — instead of leaving the desktop layout
    looking tiny in a sea of margin on a big screen. Headings use vw-dominated
    clamps, so they stay controlled and don't overshoot. Paired with the wider
-   --page-max above so the bigger content has room to breathe. */
-@media (min-width: 1920px) { html { font-size: 18px; } }
-@media (min-width: 2560px) { html { font-size: 20px; } }
-@media (min-width: 3440px) { html { font-size: 23px; } }
+   --page-max above so the bigger content has room to breathe.
+
+   Fluid, NOT stepped. Browser zoom changes the CSS-pixel viewport width, so a
+   `min-width` breakpoint fires on zoom exactly as it would on a bigger monitor.
+   As stepped rules (16→18→20→23px) that meant every zoom step past 1920/2560/
+   3440 snapped the root size, and since the entire layout is rem-based, all the
+   type and spacing lurched at once. This clamp tracks the same curve
+   (≈16px @1440 → 18px @1920 → 20px @2560 → 23px @3440) continuously, so zooming
+   scales the page smoothly instead of jumping. */
+html {
+  font-size: clamp(16px, 0.35vw + 10.96px, 23px);
+}
 
 * {
   margin: 0;

@@ -372,6 +372,60 @@
   /* span classes no longer used */
 }
 
+/* Shown instead of the grid when a filter (or the whole journal) has no posts,
+   so the section never renders as a blank gap. */
+.blog-grid-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  padding: 4rem 1.5rem 4.5rem;
+  border: 1px dashed rgba(79, 44, 34, 0.18);
+  border-radius: 20px;
+  background: rgba(79, 44, 34, 0.02);
+}
+
+.blog-grid-empty-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 400;
+  color: var(--base-700);
+  letter-spacing: 0.02em;
+}
+
+.blog-grid-empty-text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(79, 44, 34, 0.6);
+  max-width: 460px;
+}
+
+.blog-grid-empty-btn {
+  margin-top: 0.75rem;
+  padding: 0.85rem 1.75rem;
+  background: #663532;
+  color: #F0EDE8;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.blog-grid-empty-btn:hover {
+  opacity: 0.9;
+}
+
+.blog-grid-empty-btn:active {
+  transform: scale(0.97);
+}
+
 .blog-grid-card {
   display: flex;
   flex-direction: column;
@@ -527,121 +581,6 @@
   color: #F0EDE8;
   transform: rotate(-45deg);
 }
-
-/* ===== Newsletter CTA ===== */
-/* Contained rounded card on the page background — not a full-bleed band */
-.blog-newsletter {
-  background: #F0EDE8;
-  padding: 2rem var(--gutter) 5rem;
-}
-
-.blog-newsletter-inner {
-  max-width: var(--page-max);
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 4rem;
-  background: #2E1F14;
-  border-radius: 32px;
-  padding: clamp(2.5rem, 4vw, 4rem);
-}
-
-.blog-newsletter-content {
-  flex: 1;
-}
-
-.blog-newsletter-tag {
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: #C8AD73;
-  display: block;
-  margin-bottom: 1.25rem;
-}
-
-.blog-newsletter-title {
-  font-family: var(--font-heading);
-  font-size: clamp(2rem, 4vw, 3.5rem);
-  font-weight: 400;
-  color: #F0EDE8;
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  margin-bottom: 1rem;
-}
-
-.blog-newsletter-desc {
-  font-family: var(--font-body);
-  font-size: 0.88rem;
-  color: rgba(240, 237, 232, 0.5);
-  line-height: 1.6;
-  margin-bottom: 2rem;
-  max-width: 420px;
-}
-
-.blog-newsletter-form {
-  display: flex;
-  gap: 0.75rem;
-  max-width: 420px;
-}
-
-.blog-newsletter-form input {
-  flex: 1;
-  padding: 0.9rem 1.25rem;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  color: #F0EDE8;
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  outline: none;
-  transition: border-color 0.3s ease;
-}
-
-.blog-newsletter-form input::placeholder {
-  color: rgba(240, 237, 232, 0.3);
-}
-
-.blog-newsletter-form input:focus {
-  border-color: rgba(200, 173, 115, 0.4);
-}
-
-.blog-newsletter-form button {
-  padding: 0.9rem 1.75rem;
-  background: #C8AD73;
-  color: #2E1F14;
-  border: none;
-  border-radius: 10px;
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.blog-newsletter-form button:hover {
-  background: #d4ba82;
-  transform: translateY(-2px);
-}
-
-.blog-newsletter-visual {
-  flex: 0 0 380px;
-  height: 380px;
-  border-radius: 24px;
-  overflow: hidden;
-}
-
-.blog-newsletter-visual img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 /* ===== Responsive - Tablet ===== */
 @media (max-width: 1024px) {
   .blog-hero {
@@ -663,15 +602,6 @@
 
   .blog-grid-container {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .blog-newsletter-inner {
-    gap: 2.5rem;
-  }
-
-  .blog-newsletter-visual {
-    flex: 0 0 280px;
-    height: 280px;
   }
 }
 
@@ -811,34 +741,7 @@
   .blog-grid-card-arrow svg {
     width: 14px;
     height: 14px;
-  }
-
-  .blog-newsletter {
-    padding: 3rem var(--gutter);
-  }
-
-  .blog-newsletter-inner {
-    flex-direction: column;
-    gap: 2rem;
-  }
-
-  .blog-newsletter-visual {
-    flex: none;
-    width: 100%;
-    height: 220px;
-    border-radius: 16px;
-    order: -1;
-  }
-
-  .blog-newsletter-form {
-    flex-direction: column;
-    max-width: 100%;
-  }
-
-  .blog-newsletter-desc {
-    margin-bottom: 1.5rem;
-  }
-}
+  }}
 
 /* ===== Responsive - Small Mobile ===== */
 @media (max-width: 480px) {
@@ -942,52 +845,35 @@
   .blog-grid-card-arrow svg {
     width: 12px;
     height: 12px;
-  }
+  }}
 
-  .blog-newsletter {
-    padding: 2.5rem var(--gutter);
-  }
 
-  .blog-newsletter-title {
-    font-size: clamp(1.75rem, 7vw, 2.5rem);
-  }
-
-  .blog-newsletter-visual {
-    height: 180px;
-    border-radius: 12px;
-  }
-
-  .blog-newsletter-tag {
-    font-size: 0.6rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .blog-newsletter-desc {
-    font-size: 0.8rem;
-  }
-
-  .blog-newsletter-form input {
-    padding: 0.8rem 1rem;
-    font-size: 0.8rem;
-  }
-
-  .blog-newsletter-form button {
-    padding: 0.8rem 1.5rem;
-    font-size: 0.72rem;
-  }
-}
 
 /* =============================================================================
    Case rule: ONLY the hero is all-caps. Everything below it (featured story,
-   filter, grid cards, newsletter) uses its natural sentence/title case.
-   The copy is already capitalised in the source — these elements were only
-   uppercased by CSS here and by globals.css `a,p,span { text-transform:uppercase }`.
-   `:is(...)` keeps specificity just above those rules so this wins cleanly.
+   filter, grid cards) uses its natural sentence/title case. The copy is already
+   capitalised in the source — these elements were only uppercased by CSS here
+   and by globals.css `a,p,span { text-transform:uppercase }`. `:is(...)` keeps
+   specificity just above those rules so this wins cleanly.
    ========================================================================== */
 .blog-featured :is(h1, h2, h3, h4, h5, p, span, a, div, li, button),
-.blog-grid-section :is(h1, h2, h3, h4, h5, p, span, a, div, li, button),
-.blog-newsletter :is(h1, h2, h3, h4, h5, p, span, a, div, li, button) {
+.blog-grid-section :is(h1, h2, h3, h4, h5, p, span, a, div, li, button) {
   text-transform: none;
+}
+
+/* globals.css sets `a, p, span { color: var(--base-700); font-size: … }` as a
+   bare element rule, so a <span> takes that dark brown directly instead of
+   inheriting its parent's colour — inheritance always loses to a rule that
+   matches the element. On this light-on-dark label that rendered "Read Full
+   Story" in dark brown on dark brown (invisible; the sibling <svg> stayed white
+   because it isn't a span). Opt the span back into its parent's type. */
+.blog-featured-cta :is(span) {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  font-family: inherit;
 }
 
 /* All blog typography — headings, paragraphs, everything — in Lexend. */

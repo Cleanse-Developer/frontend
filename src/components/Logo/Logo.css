@@ -1,8 +1,4 @@
 .logo-mark {
-  --logo-r-color: #E5AD07;
-  --logo-r-size: 0.45rem;
-  --logo-r-top: -2%;
-  --logo-r-right: -0.15em;
   position: relative;
   display: inline-block;
   line-height: 0;
@@ -12,15 +8,3 @@
   display: block;
 }
 
-.logo-registered {
-  position: absolute;
-  top: var(--logo-r-top);
-  right: var(--logo-r-right);
-  color: var(--logo-r-color);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: var(--logo-r-size);
-  font-weight: 700;
-  line-height: 1;
-  pointer-events: none;
-  user-select: none;
-}

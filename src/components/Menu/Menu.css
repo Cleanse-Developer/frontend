@@ -284,13 +284,6 @@
   flex-shrink: 0;
 }
 
-/* Registered mark matches the gold wordmark */
-.menu .menu-logo-mark {
-  --logo-r-color: #E5AD07;
-  --logo-r-size: 0.45rem;
-  --logo-r-top: -1%;
-  --logo-r-right: -0.15em;
-}
 
 .menu .menu-logo-img {
   width: 150px;
@@ -714,11 +707,6 @@
     font-size: clamp(1.25rem, 5vw, 1.5rem);
   }
 
-  .menu .menu-logo-mark {
-    --logo-r-size: 0.34rem;
-    --logo-r-top: -5%;
-    --logo-r-right: -0.12em;
-  }
 
   .menu .menu-logo-img {
     width: clamp(120px, 35vw, 145px);
@@ -1061,15 +1049,14 @@
   position: absolute;
   top: calc(100% + 0.45rem);
   right: 0;
-  /* Glassy + transparent, matching the capsule pill exactly */
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  /* Solid, matching the capsule pill exactly. No backdrop-filter: the panel is
+     opaque, so blurring what sits behind it would cost a paint for no effect. */
+  background: var(--base-700);
   border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 0.7rem;
   padding: 0.55rem 0.6rem;
   z-index: 1000;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
   /* Horizontal: Language group | Currency group */
   display: flex;
   flex-direction: row;
@@ -1115,7 +1102,7 @@
 }
 .menu-locale-option:hover,
 .menu-locale-option.active {
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--base-600);
 }
 .menu-locale-option-code {
   font-size: 0.72rem;

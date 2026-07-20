@@ -181,11 +181,6 @@ export const BentoSection = () => {
         <div className="featured-rating-badge">
           <div className="featured-rating-top">
             <span className="featured-rating-text">{cmsBento.ratingText || "4+ Star Ratings"}</span>
-            <div className="featured-rating-ellipses">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="rating-ellipse" />
-              ))}
-            </div>
           </div>
           <div className="featured-rating-stars">
             {[...Array(5)].map((_, i) => (

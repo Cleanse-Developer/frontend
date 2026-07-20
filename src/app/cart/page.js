@@ -5,14 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { productApi, shippingApi } from "@/lib/endpoints";
-import { normalizeProduct, productUrl } from "@/lib/normalizers";
+import { normalizeProduct } from "@/lib/normalizers";
 import Copy from "@/components/Copy/Copy";
+import ProductCard from "@/components/ProductCard/ProductCard";
 import DiscountProgress from "@/components/DiscountProgress/DiscountProgress";
 import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
-import { toNum, formatPrice, cardPrice } from "@/lib/formatters";
+import { toNum, formatPrice } from "@/lib/formatters";
 
 export default function CartPage() {
-  const { cartItems, removeFromCart, updateQuantity, addToCart, cartCount, subtotal, serverPricing } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, cartCount, subtotal, serverPricing } = useCart();
   const router = useRouter();
 
   const [giftWrap, setGiftWrap] = useState(false);
@@ -275,24 +276,9 @@ export default function CartPage() {
             <h2 className="cart-recommended-heading">Recommended</h2>
           </Copy>
           <div className="cart-recommended-grid">
-            {recommended.map((product, i) => {
-              return (
-                <div key={product._id || i} className="cart-rec-card">
-                  <Link href={productUrl(product)} className="cart-rec-card-image">
-                    <img src={product.primaryImage || `/images/${(i % 4) + 1}.png`} alt={product.name} />
-                  </Link>
-                  <div className="cart-rec-card-info">
-                    <h4 className="cart-rec-card-name">{product.name}</h4>
-                    <div className="cart-rec-card-footer">
-                      <span className="cart-rec-card-price">&#8377;{cardPrice(product)}</span>
-                      <button className="cart-rec-add-btn" onClick={() => addToCart(product)}>
-                        Add
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {recommended.map((product, i) => (
+              <ProductCard key={product._id || i} product={product} index={i} />
+            ))}
           </div>
         </section>
       )}

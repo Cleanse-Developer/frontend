@@ -12,7 +12,6 @@ const Logo = ({
 }) => (
   <span className={`logo-mark ${className}`}>
     <img src={src} alt={alt} className={imgClassName} {...imgProps} />
-    <span className="logo-registered" aria-hidden="true">{"\u00AE"}</span>
   </span>
 );
 

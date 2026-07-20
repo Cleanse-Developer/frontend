@@ -68,47 +68,52 @@ const ContactForm = () => {
             exclusive rituals, new arrivals, and ancient beauty secrets.
           </p>
         </div>
-        {!submitted ? (
-          <>
-            <div className="cf-row">
-              <div className="cf-input">
-                <input
-                  type="email"
-                  required
-                  placeholder="Enter Your Email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (error) setError("");
-                  }}
-                  onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                  aria-invalid={!!error}
-                />
-              </div>
-              <button
-                type="button"
-                className="cf-submit"
-                onClick={handleSubmit}
-                disabled={submitting}
-                aria-label="Subscribe"
-                style={{ cursor: submitting ? "wait" : "pointer", border: "none" }}
-              >
-                {submitting ? "..." : <MdOutlineArrowOutward />}
-              </button>
+        {/* On success the field gives way to the thank-you message. It is hidden
+            with visibility rather than unmounted, so it keeps occupying its own
+            box and the card's contents don't jump when the two swap.
+
+            The wrapper is also the positioning context for the message, which is
+            out of the flow so an error can't resize the card either. */}
+        <div className={`cf-field ${submitted ? "is-submitted" : ""}`}>
+          <div className="cf-row">
+            <div className="cf-input">
+              <input
+                type="email"
+                required
+                placeholder="Enter Your Email"
+                value={email}
+                disabled={submitted}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError("");
+                }}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                aria-invalid={!!error}
+              />
             </div>
-            {error && (
-              <div className="cf-input">
-                <p className="bodyCopy sm" style={{ color: "#c62828" }}>
-                  {error}
-                </p>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="cf-input">
-            <p className="bodyCopy sm" style={{ color: "#4CAF50" }}>Thank you for subscribing!</p>
+            <button
+              type="button"
+              className="cf-submit"
+              onClick={handleSubmit}
+              disabled={submitting || submitted}
+              aria-label="Subscribe"
+            >
+              {submitting ? "..." : <MdOutlineArrowOutward />}
+            </button>
           </div>
-        )}
+
+          {/* Always in the DOM so aria-live announces a message to screen readers
+              without focus being moved. */}
+          <p
+            className={`bodyCopy sm cf-message ${
+              submitted ? "cf-message--success" : error ? "cf-message--error" : ""
+            }`}
+            role="status"
+            aria-live="polite"
+          >
+            {submitted ? "Thank you for subscribing!" : error}
+          </p>
+        </div>
         <div className="cf-footer">
           <div className="cf-divider"></div>
           <div className="cf-footer-copy">

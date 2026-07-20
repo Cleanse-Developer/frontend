@@ -76,6 +76,11 @@
   aspect-ratio: 1 / 1;
   border-radius: 1rem;
   touch-action: pan-y;
+  /* Own compositor layer: the sticky gallery repositions every frame while
+     Lenis animates scroll — without this the browser re-rasterizes the
+     rounded image layer each frame and the hero stutters. */
+  transform: translateZ(0);
+  contain: layout paint;
 }
 
 .product-hero-image img {
@@ -116,9 +121,13 @@
 }
 
 .product-thumbnail img {
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  /* Cover, not contain: thumbnails are previews, so cropping beats the white
+     letterbox bars a non-square image leaves inside the square card. */
+  object-fit: cover;
+  object-position: center;
   transition: transform 0.3s ease;
 }
 
@@ -1310,6 +1319,72 @@
 
 .write-review-btn:active {
   transform: scale(0.97);
+}
+
+.write-review-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Inline review form — fields follow the site-wide input treatment (cream
+   fill, brown-tinted border) instead of browser defaults. */
+.review-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.review-form-stars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.review-star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 0;
+  transition: transform 0.15s ease;
+}
+
+.review-star-btn:hover {
+  transform: scale(1.15);
+}
+
+.review-form-input,
+.review-form-textarea {
+  width: 100%;
+  padding: 0.85rem 1.1rem;
+  background: #F0EDE8;
+  border: 1px solid rgba(79, 44, 34, 0.15);
+  border-radius: 8px;
+  color: var(--base-700);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.review-form-textarea {
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.6;
+}
+
+.review-form-input::placeholder,
+.review-form-textarea::placeholder {
+  color: rgba(79, 44, 34, 0.4);
+}
+
+.review-form-input:focus,
+.review-form-textarea:focus {
+  border-color: rgba(79, 44, 34, 0.4);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(79, 44, 34, 0.08);
 }
 
 .reviews-right {

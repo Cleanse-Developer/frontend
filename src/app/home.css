@@ -56,10 +56,47 @@
   perspective: 1600px;
 }
 
+/* ── Hero type scale ─────────────────────────────────────────────────────────
+   One source of truth for every text size in the hero, so a role is set once
+   here rather than re-declared in each viewport block further down. The three
+   steps are the desktop / tablet / mobile columns of the brand type spec.
+
+   Sized against the HERO BOX, not the root font-size. The blob (.hero-panel)
+   and the copy column (.hero-header) are both percentages of .hero, which is
+   70svh tall — so they shrink on a short viewport. Fixed rem sizes did not:
+   they only stepped at two width breakpoints and grew with the root font-size
+   on wide screens. The two scales drifted apart, and on any viewport where the
+   hero was shorter than the reference the copy outgrew the shape it sits in
+   and spilled past the blob's edge.
+
+   `cqmin` is a percentage of the hero's smaller side (see `container-type` on
+   .hero below), so type now scales on exactly the same curve as the blob and
+   can no longer outrun it. Calibrated at the 1440x900 reference — hero is then
+   1440x630, so 6.35cqmin = 40px, matching the old desktop spec — and each
+   clamp caps at that spec, so this never renders LARGER than the current
+   design, only smaller when the hero has less room.
+
+   The old tablet/mobile steps are gone: cqmin interpolates through those sizes
+   continuously, so the hand-tuned breakpoints are redundant. */
+.hero-wrapper {
+  --hero-fs-heading: clamp(1.5rem, 6.35cqmin, 2.5rem);      /* ≤40px */
+  --hero-fs-section: clamp(1.2rem, 4.44cqmin, 1.75rem);     /* ≤28px */
+  --hero-fs-subheading: clamp(1rem, 3.175cqmin, 1.25rem);   /* ≤20px */
+  --hero-fs-body: clamp(0.85rem, 2.54cqmin, 1rem);          /* ≤16px */
+  --hero-fs-supporting: clamp(0.75rem, 2.22cqmin, 0.875rem);/* ≤14px */
+  --hero-fs-caption: clamp(0.65rem, 1.905cqmin, 0.75rem);   /* ≤12px */
+}
+
 .hero {
   position: relative;
   width: 100%;
   height: 70svh;
+  /* Size container for the hero type scale (see --hero-fs-* above), so the copy
+     tracks the blob instead of the root font-size. Safe as a `size` container
+     because the height is always definite (70svh here, --app-height on the
+     mobile blocks below) — contents never determine it. */
+  container-type: size;
+  container-name: hero;
   overflow: hidden;
   background-color: #F0EDE8;
   /* Slightly curved bottom corners (top stays sharp) */
@@ -209,8 +246,9 @@
   flex-direction: column;
   align-items: center;
   /* The stack has to fit inside .hero-panel (76% of a 70svh hero), so the
-     rhythm here is deliberately tight. */
-  gap: 0.85rem;
+     rhythm here is deliberately tight — and container-relative, so a short
+     hero compresses the stack instead of pushing it out of the blob's top. */
+  gap: clamp(0.35rem, 2.16cqh, 0.85rem);
   z-index: 3;
 }
 
@@ -273,8 +311,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.4rem;
-  height: 2.4rem;
+  width: clamp(1.5rem, 6.1cqh, 2.4rem);
+  height: clamp(1.5rem, 6.1cqh, 2.4rem);
   border-radius: 50%;
   border: 1px solid rgba(132, 89, 44, 0.45);
   color: var(--base-500);
@@ -282,15 +320,15 @@
 
 /* Beat globals.css `svg { width:100%; height:100%; object-fit:cover }`. */
 .hero .hero-feature-icon svg {
-  width: 1.35rem;
-  height: 1.35rem;
+  width: clamp(0.85rem, 3.43cqh, 1.35rem);
+  height: clamp(0.85rem, 3.43cqh, 1.35rem);
   object-fit: contain;
 }
 
 /* globals.css styles bare `span`, and a direct rule beats inheritance. */
 .hero .hero-feature-label {
   font-family: var(--font-body);
-  font-size: clamp(0.7rem, 0.72vw, 0.8rem);
+  font-size: var(--hero-fs-supporting);
   font-weight: 400;
   line-height: 1.45;
   color: var(--base-700);
@@ -305,7 +343,7 @@
 .hero .hero-header h1 {
   font-family: var(--font-heading);
   font-weight: 400;
-  font-size: clamp(2.5rem, 4.2vw, 3.8rem);
+  font-size: var(--hero-fs-heading);
   letter-spacing: 0.09em;
   line-height: 1;
   text-transform: uppercase;
@@ -333,13 +371,9 @@
 }
 
 .hero .hero-header h1.hero-logo-heading .hero-logo-mark {
-  --logo-r-color: var(--base-700);
-  --logo-r-size: clamp(0.55rem, 1.2vw, 0.95rem);
   /* Sit the ® as a superscript at the top-right CORNER of the wordmark rather
      than overlapping the final letter: lift it above the cap height (top) and
      move it out to the right edge (right). */
-  --logo-r-top: -32%;
-  --logo-r-right: 0.15em;
   /* Starts hidden below the mask; slides up on load in sync with the Shop Now
      button + subtitle reveal (pure CSS, same pattern as .hero-btn) */
   transform: translateY(110%);
@@ -371,7 +405,7 @@
 .hero .hero-subtitle {
   display: none;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 1rem;
+  font-size: var(--hero-fs-subheading);
   font-weight: 500;
   color: #FFFFFF;
   line-height: 1.25;
@@ -385,7 +419,7 @@
 .hero .hero-header h2.hero-display-heading {
   font-family: var(--font-heading);
   font-weight: 400;
-  font-size: clamp(1.3rem, 2.1vw, 2.3rem);
+  font-size: var(--hero-fs-heading);
   line-height: 1.15;
   letter-spacing: -0.01em;
   text-transform: none;
@@ -401,7 +435,7 @@
 /* Supporting line under the flourish. */
 .hero .hero-description {
   font-family: var(--font-body);
-  font-size: clamp(0.9rem, 1vw, 1.05rem);
+  font-size: var(--hero-fs-body);
   font-weight: 400;
   color: var(--base-600);
   line-height: 1.6;
@@ -437,7 +471,7 @@
 .hero .hero-proof-item {
   position: relative;
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.72vw, 0.8rem);
+  font-size: var(--hero-fs-caption);
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0.02em;
@@ -459,30 +493,22 @@
 /* The header is centred in the hero with translateY(-50%), so a taller stack
    grows upward too and can slide under the fixed nav on short laptop screens.
    Tighten the stack instead of dropping the content. */
-@media (max-height: 780px) {
-  .hero .hero-header {
-    gap: 1rem;
-  }
-
-  .hero .hero-header h2.hero-display-heading {
-    font-size: clamp(2rem, 3vw, 3rem);
-  }
-
-  .hero .hero-proof-item {
-    font-size: 0.65rem;
-  }
-}
+/* The short-screen gap override that used to live here (gap: 1rem) is gone: it
+   sat AFTER the base rule with equal specificity, so on exactly the short
+   viewports that need the tightest stack it replaced the container-relative
+   clamp with a LARGER fixed gap, pushing the copy up out of the blob. The
+   clamp on .hero-header already tightens the rhythm as the hero shortens. */
 
 .hero .hero-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 10.5rem;
-  height: 2.9rem;
+  width: clamp(7.5rem, 26.7cqh, 10.5rem);
+  height: clamp(2.1rem, 7.37cqh, 2.9rem);
   background-color: #C8AD73;
   color: #fff;
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: var(--hero-fs-body);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0;
@@ -753,13 +779,11 @@
   }
 
   .hero .hero-header h1 {
-    font-size: clamp(3rem, 7vw, 4.5rem);
     letter-spacing: 0.06em;
     line-height: 1;
   }
 
   .hero .hero-subtitle {
-    font-size: clamp(1rem, 2vw, 1.25rem);
     white-space: normal;
     letter-spacing: 0;
     width: auto;
@@ -774,18 +798,27 @@
   .hero .hero-btn {
     width: 13.5rem;
     height: 3.75rem;
-    font-size: 1.15rem;
   }
 }
 
-@media (min-width: 2000px) {
-  .hero .hero-header {
-    width: 45%;
-  }
-}
+/* No large-screen width override for .hero-header. It used to widen to 45% at
+   2000px+, but .hero-panel (the blob) is only 44% wide and starts at 52% — a
+   45% column anchored at right:11% begins at 44%, i.e. ~200px LEFT of the
+   blob's edge, so the feature row spilled straight out of the shape on any
+   display 2000px or wider. The base 28% is sized to the blob's pinched waist
+   (~66% of a 44% box ≈ 29%), so it stays inside at every width. */
 
 /* Formulas Section */
+/* ── Formulas type scale ─────────────────────────────────────────────────────
+   The same role tokens as the hero, CTA, footer and subscribe card. Body,
+   supporting and caption are one size at every width. */
 .formulas {
+  --formulas-fs-section: 1.75rem;     /* 28px */
+  --formulas-fs-subheading: 1.25rem;  /* 20px */
+  --formulas-fs-body: 1rem;           /* 16px */
+  --formulas-fs-supporting: 0.875rem; /* 14px */
+  --formulas-fs-caption: 0.75rem;     /* 12px */
+
   position: relative;
   width: 100%;
   min-height: auto;
@@ -797,6 +830,21 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+/* Tablet */
+@media (max-width: 1199px) {
+  .formulas {
+    --formulas-fs-section: 1.5rem;      /* 24px */
+    --formulas-fs-subheading: 1.125rem; /* 18px */
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .formulas {
+    --formulas-fs-section: 1.375rem;    /* 22px */
+  }
 }
 
 .formulas-header {
@@ -811,7 +859,7 @@
 
 .formulas-tagline {
   font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--formulas-fs-section);
   font-weight: 400;
   color: var(--base-700);
   line-height: 1;
@@ -916,8 +964,9 @@
 
 .formula-box h4 {
   font-family: var(--font-body);
-  /* Match the product-card title role */
-  font-size: var(--fs-card-title);
+  /* Body, not Subheading: these titles sit in a 11.5rem-wide card, and the
+     20px subheading step wraps most of them onto three lines. */
+  font-size: var(--formulas-fs-body);
   font-weight: 600;
   color: var(--base-700);
   margin-bottom: 0.6rem;
@@ -926,8 +975,7 @@
 
 .formula-box p {
   font-family: var(--font-body);
-  /* Match the product-card description role */
-  font-size: var(--fs-card-desc);
+  font-size: var(--formulas-fs-supporting);
   font-weight: 400;
   color: #555;
   line-height: 1.5;
@@ -1019,13 +1067,11 @@
   }
 
   .formula-box h4 {
-    font-size: var(--fs-card-title);
     margin-bottom: 0.6rem;
     line-height: 1.2;
   }
 
   .formula-box p {
-    font-size: var(--fs-card-desc);
     line-height: 1.4;
   }
 
@@ -1142,9 +1188,6 @@
     padding: 2rem 1rem 0;
   }
 
-  .formulas-tagline {
-    font-size: clamp(1rem, 4vw, 1.25rem);
-  }
 }
 
 @media (max-width: 480px) {
@@ -1202,13 +1245,11 @@
   }
 
   .hero .hero-header h1 {
-    font-size: clamp(2.5rem, 10vw, 4rem);
     letter-spacing: 0.05em;
     line-height: 1;
   }
 
   .hero .hero-subtitle {
-    font-size: clamp(0.85rem, 3.5vw, 1.1rem);
     white-space: normal;
     letter-spacing: 0;
     width: auto;
@@ -1222,7 +1263,6 @@
   .hero .hero-btn {
     width: 11.25rem;
     height: 3.125rem;
-    font-size: 1rem;
   }
 
   .about {
@@ -1283,12 +1323,10 @@
   }
 
   .formula-box h4 {
-    font-size: var(--fs-card-title);
     margin-bottom: 0.35rem;
   }
 
   .formula-box p {
-    font-size: var(--fs-card-desc);
     line-height: 1.4;
   }
 
@@ -1321,16 +1359,37 @@
     padding: 1.5rem 1rem 0;
   }
 
-  .formulas-tagline {
-    font-size: clamp(0.9rem, 4vw, 1.1rem);
-  }
 }
 
 /* CTA Section */
+/* ── CTA type scale ──────────────────────────────────────────────────────────
+   The same role tokens as the hero, footer and subscribe card. Body, supporting
+   and caption are one size at every width, so they are declared once. */
 .cta-section {
+  --cta-fs-section: 1.75rem;     /* 28px */
+  --cta-fs-subheading: 1.25rem;  /* 20px */
+  --cta-fs-body: 1rem;           /* 16px */
+  --cta-fs-supporting: 0.875rem; /* 14px */
+  --cta-fs-caption: 0.75rem;     /* 12px */
+
   width: 100%;
   padding: var(--section-py) var(--gutter);
   background-color: #F0EDE8;
+}
+
+/* Tablet */
+@media (max-width: 1199px) {
+  .cta-section {
+    --cta-fs-section: 1.5rem;      /* 24px */
+    --cta-fs-subheading: 1.125rem; /* 18px */
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .cta-section {
+    --cta-fs-section: 1.375rem;    /* 22px */
+  }
 }
 
 .cta-card {
@@ -1368,7 +1427,7 @@
 .cta-heading {
   font-family: var(--font-heading);
   font-weight: 400;
-  font-size: 3rem;
+  font-size: var(--cta-fs-section);
   line-height: 100%;
   letter-spacing: 0.04em;
   text-align: right;
@@ -1379,7 +1438,7 @@
 .cta-desc {
   font-family: 'Helvetica Neue', sans-serif;
   font-weight: 400;
-  font-size: 1.5rem;
+  font-size: var(--cta-fs-body);
   line-height: 100%;
   letter-spacing: 0;
   text-align: right;
@@ -1397,7 +1456,7 @@
   border-radius: 0.75rem;
   font-family: 'Inter', sans-serif;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: var(--cta-fs-body);
   line-height: 100%;
   color: #1a1a1a;
   text-decoration: none;
@@ -1414,19 +1473,16 @@
   }
 
   .cta-heading {
-    font-size: var(--fs-section-title);
     max-width: 22rem;
   }
 
   .cta-desc {
-    font-size: 1rem;
     text-align: left;
   }
 
   .cta-shop-btn {
     width: 11.25rem;
     height: 3.125rem;
-    font-size: 1rem;
   }
 
   .cta-content {
@@ -1447,18 +1503,12 @@
   }
 
   .cta-heading {
-    font-size: var(--fs-section-title);
     max-width: 18rem;
-  }
-
-  .cta-desc {
-    font-size: 1rem;
   }
 
   .cta-shop-btn {
     width: 7.5rem;
     height: 2.375rem;
-    font-size: 0.75rem;
     border-radius: 0.5rem;
   }
 
@@ -1501,10 +1551,6 @@
     padding: 4rem 3rem 0;
   }
 
-  .formulas-tagline {
-    font-size: 2.5rem;
-  }
-
   .cta-section {
     padding: var(--section-py) var(--gutter);
   }
@@ -1517,9 +1563,8 @@
 
 /* Extra large screens (1920px / 24-27 inch) */
 @media (min-width: 1920px) {
-  .hero .hero-header h1 {
-    font-size: clamp(3rem, 4vw, 5rem);
-  }
+  /* No .hero-header h1 override: --hero-fs-heading is rem, so it already scales
+     with the root font-size step-up on big screens. */
 
 
   /* No .hero-btn override: the base rem sizing already scales with the root
@@ -1561,10 +1606,6 @@
     padding: 5rem 4rem 0;
   }
 
-  .formulas-tagline {
-    font-size: 3rem;
-  }
-
   .formulas-center {
     width: 46.875rem;
     height: 26.25rem;
@@ -1602,14 +1643,6 @@
     right: 5%;
   }
 
-  .formula-box h4 {
-    font-size: var(--fs-card-title);
-  }
-
-  .formula-box p {
-    font-size: var(--fs-card-desc);
-  }
-
   .hero-bottom-tagline {
     /* full-bleed marquee — no max-width clamp */
   }
@@ -1629,12 +1662,7 @@
   }
 
   .cta-heading {
-    font-size: 3.5rem;
     max-width: 32.5rem;
-  }
-
-  .cta-desc {
-    font-size: 1.75rem;
   }
 
   .cta-content {
@@ -1644,9 +1672,8 @@
 
 /* Ultra wide screens (2560px+) */
 @media (min-width: 2560px) {
-  .hero .hero-header h1 {
-    font-size: clamp(4rem, 4.5vw, 6rem);
-  }
+  /* No .hero-header h1 override: --hero-fs-heading is rem, so it already scales
+     with the root font-size step-up on big screens. */
 
 
   /* No .hero-btn override: the base rem sizing already scales with the root
@@ -1680,10 +1707,6 @@
 
   .formulas-header {
     padding: 6rem 5rem 0;
-  }
-
-  .formulas-tagline {
-    font-size: 3.5rem;
   }
 
   .formulas-center {
@@ -1723,14 +1746,6 @@
     right: 4%;
   }
 
-  .formula-box h4 {
-    font-size: var(--fs-card-title);
-  }
-
-  .formula-box p {
-    font-size: var(--fs-card-desc);
-  }
-
   .hero-bottom-tagline {
     /* full-bleed marquee — no max-width clamp */
   }
@@ -1749,18 +1764,12 @@
   }
 
   .cta-heading {
-    font-size: 4rem;
     max-width: 37.5rem;
-  }
-
-  .cta-desc {
-    font-size: 2rem;
   }
 
   .cta-shop-btn {
     width: 17.5rem;
     height: 4.6875rem;
-    font-size: 1.375rem;
   }
 
   .cta-content {

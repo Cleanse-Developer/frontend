@@ -859,9 +859,6 @@
   filter: brightness(0) invert(1);
 }
 
-.banner-overlay-logo .logo-registered {
-  color: #fff;
-}
 
 .banner-overlay-title {
   font-family: var(--font-heading);

@@ -5,7 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { blogApi, newsletterApi } from "@/lib/endpoints";
+import { blogApi } from "@/lib/endpoints";
 import { normalizeBlog } from "@/lib/normalizers";
 import { useSettings } from "@/context/SettingsContext";
 
@@ -25,21 +25,6 @@ export default function BlogPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [nlEmail, setNlEmail] = useState("");
-  const [nlSubmitted, setNlSubmitted] = useState(false);
-  const [nlSubmitting, setNlSubmitting] = useState(false);
-
-  const handleNewsletterSubmit = async (e) => {
-    e.preventDefault();
-    if (!nlEmail || nlSubmitting) return;
-    setNlSubmitting(true);
-    try {
-      await newsletterApi.subscribe(nlEmail, "blog");
-    } catch { /* silent */ }
-    setNlSubmitted(true);
-    setNlSubmitting(false);
-  };
-
   useEffect(() => {
     blogApi.getAll({ limit: 50 }).then((data) => {
       const normalized = (data.blogs || []).map(normalizeBlog);
@@ -213,6 +198,25 @@ export default function BlogPage() {
 
       {/* Blog Grid - Bento/Masonry style */}
       <section className="blog-grid-section" ref={gridRef}>
+        {!loading && gridBlogs.length === 0 ? (
+          <div className="blog-grid-empty">
+            <h3 className="blog-grid-empty-title">
+              {activeCategory === "All"
+                ? "No stories yet"
+                : `Nothing in ${activeCategory} yet`}
+            </h3>
+            <p className="blog-grid-empty-text">
+              {activeCategory === "All"
+                ? "Our journal is being written. Check back soon for Ayurvedic rituals, ingredient deep-dives and skincare wisdom."
+                : "We haven't published in this category yet. Browse the full journal for our latest stories."}
+            </p>
+            {activeCategory !== "All" && (
+              <button className="blog-grid-empty-btn" onClick={() => setActiveCategory("All")}>
+                View all stories
+              </button>
+            )}
+          </div>
+        ) : null}
         <div className="blog-grid-container">
           {gridBlogs.map((blog, index) => (
             <Link
@@ -246,39 +250,6 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* Newsletter CTA */}
-      <section className="blog-newsletter">
-        <div className="blog-newsletter-inner">
-          <div className="blog-newsletter-content">
-            <span className="blog-newsletter-tag">{blogCms.newsletterTag || "STAY ROOTED"}</span>
-            <h2 className="blog-newsletter-title">
-              {(blogCms.newsletterTitle || "Stories Delivered\nTo Your Inbox")
-                .split("\n")
-                .map((line, i, arr) => (
-                  <span key={i}>
-                    {line}
-                    {i < arr.length - 1 && <br />}
-                  </span>
-                ))}
-            </h2>
-            <p className="blog-newsletter-desc">
-              {blogCms.newsletterDescription ||
-                "Get weekly Ayurvedic insights, rituals, and exclusive content, straight from our journal."}
-            </p>
-            {nlSubmitted ? (
-              <p className="blog-newsletter-desc" style={{ color: "#4F2C22", fontWeight: 500 }}>Thank you for subscribing!</p>
-            ) : (
-              <form className="blog-newsletter-form" onSubmit={handleNewsletterSubmit}>
-                <input type="email" placeholder="Enter your email" required value={nlEmail} onChange={(e) => setNlEmail(e.target.value)} />
-                <button type="submit" disabled={nlSubmitting}>{nlSubmitting ? "..." : "Subscribe"}</button>
-              </form>
-            )}
-          </div>
-          <div className="blog-newsletter-visual">
-            <img src={blogCms.newsletterImage?.url || "/images/cta.png"} alt="Ayurvedic rituals" />
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
