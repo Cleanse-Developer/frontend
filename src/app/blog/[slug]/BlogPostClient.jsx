@@ -9,6 +9,23 @@ import "./blogpost.css";
 // and passes it in as `initialBlog` so the first HTML already contains the real
 // title/image/body (crawlable + no loading flash). This component only re-fetches
 // as a fallback when the server didn't supply data and it wasn't a confirmed 404.
+
+/* A summary that just repeats the opening paragraph makes the article read as
+   though it starts twice. The summary is admin-authored, so we can't rewrite it
+   here — but we can decline to print the same text twice. Compared on collapsed
+   whitespace/punctuation, and by prefix, since a summary is often the first
+   paragraph truncated. */
+const flatten = (s = "") =>
+  s.toLowerCase().replace(/[^\w\s]/g, "").replace(/\s+/g, " ").trim();
+
+function summaryRepeatsOpening(summary, content) {
+  const s = flatten(summary);
+  const first = flatten(content?.[0]);
+  if (!s || !first) return false;
+  const [shorter, longer] = s.length <= first.length ? [s, first] : [first, s];
+  // Ignore a trivially short summary — too little overlap to call it a repeat.
+  return shorter.length >= 40 && longer.startsWith(shorter.slice(0, 120));
+}
 export default function BlogPostClient({
   slug,
   initialBlog = null,
@@ -132,8 +149,11 @@ export default function BlogPostClient({
       <section className="blogpost-body">
         <article className="blogpost-article">
           {/* Admin-authored summary. Rendered only when present — no fallback,
-              never faked. Distinct from `excerpt` (the list-card teaser). */}
-          {blog.summary && <p className="blogpost-summary">{blog.summary}</p>}
+              never faked. Distinct from `excerpt` (the list-card teaser).
+              Suppressed when it merely repeats the opening paragraph. */}
+          {blog.summary && !summaryRepeatsOpening(blog.summary, blog.content) && (
+            <p className="blogpost-summary">{blog.summary}</p>
+          )}
           {blog.content.map((paragraph, index) => (
             <p
               key={index}

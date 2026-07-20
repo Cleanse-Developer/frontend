@@ -17,17 +17,17 @@
 .ui-cart-item-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
 .ui-cart-item-name {
   font-family: var(--font-body);
-  font-size: 0.92rem;
+  font-size: var(--fs-body);
   font-weight: 500;
   color: var(--base-700);
   text-transform: none;
 }
-.ui-cart-item-size { font-family: var(--font-body); font-size: 0.75rem; color: rgba(46, 31, 20, 0.55); }
+.ui-cart-item-size { font-family: var(--font-body); font-size: var(--fs-supporting); color: rgba(46, 31, 20, 0.55); }
 .ui-cart-item-remove {
   background: transparent;
   border: none;
   color: var(--base-500);
-  font-size: 1.25rem;
+  font-size: var(--fs-subheading);
   line-height: 1;
   cursor: pointer;
   padding: 0;

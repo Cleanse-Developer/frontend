@@ -53,6 +53,10 @@
 
 .product .product-info-wrapper p:first-child {
   flex: 1;
+  /* A flex item won't shrink below its content's min-content width by default,
+     and `nowrap` makes that the full name — so the ellipsis never engages and
+     the row overflows instead. */
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

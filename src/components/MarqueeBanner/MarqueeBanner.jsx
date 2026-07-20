@@ -45,20 +45,8 @@ const MarqueeBanner = () => {
   const [activeIndex, setActiveIndex] = useState(0); // front card, for the dots
   const N = reelsData.length;
 
-  const cardRefs = useRef([]);
-  const posRef = useRef(0);       // continuous deck position, in card units
-  const velRef = useRef(0);       // velocity, card units per frame
-  const targetRef = useRef(null); // dot-tap easing target (or null)
-  const rafRef = useRef(null);
-  const draggingRef = useRef(false);
-  const startXRef = useRef(0);
-  const startPosRef = useRef(0);
-  const lastXRef = useRef(0);
-  const lastTRef = useRef(0);
-  const lastIdxRef = useRef(0);
-  const movedRef = useRef(false); // distinguishes a swipe from a tap
-  const dirRef = useRef(-1);      // which side the transitioning card sits on
-
+  // The deck (and its swipe handling) is phones only; wider screens keep the
+  // static fanned layout, so `.is-deck` and every handler below are gated on it.
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 480px)");
     const update = () => {
@@ -70,138 +58,169 @@ const MarqueeBanner = () => {
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // Where a card sits at a given depth: 0 is the front card, N-1 the back one.
-  // Depth is fractional during a swipe, so the whole deck shuffles continuously.
-  const stackAt = (d) => ({
-    x: d * 6,          // %  of card width
-    y: d * 10,         // px
-    rot: d * 4,        // deg
-    scale: 1 - d * 0.05,
-  });
+  const cardRefs = useRef([]);
+  // Stack order, bottom → top. The LAST entry is the card on top. A swipe moves
+  // the top entry to the front of the array (i.e. to the bottom of the deck).
+  const orderRef = useRef([...Array(reelsData.length).keys()]);
+  const animatingRef = useRef(false);
+  const draggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const startYRef = useRef(0);
+  const dxRef = useRef(0);
+  const movedRef = useRef(false); // distinguishes a swipe from a tap
+  const timersRef = useRef([]);
 
-  // Paint the deck from the continuous position. Imperative so the drag stays
-  // 1:1 with the finger (no React re-render per frame).
-  //
-  // The swiped card doesn't fly away — it swings out to the side the finger is
-  // going, dips down, and tucks back in at the BOTTOM of the stack, one below
-  // the others. That's a single continuous path: it rides the normal stack
-  // positions from depth 0 to depth N-1 while an arc adds the sideways swing and
-  // the dip on top. Because the arc is a sine, it is exactly 0 at both ends, so
-  // the card enters and leaves the transition seamlessly — no snap.
-  const paintCards = () => {
-    const pos = posRef.current;
-    for (let i = 0; i < N; i++) {
-      const el = cardRefs.current[i];
-      if (!el) continue;
-      const u = (((i - pos) % N) + N) % N;
-      if (u > N - 1) {
-        // The card going under: t runs 0 (still the front card) → 1 (settled at
-        // the back of the stack).
-        const t = N - u;
-        const dir = dirRef.current;
-        const arc = Math.sin(t * Math.PI); // 0 → 1 → 0
-        const s = stackAt(t * (N - 1));
-        el.style.transform =
-          `translate(calc(-50% + ${s.x + dir * arc * 60}%), calc(-50% + ${s.y + arc * 34}px)) ` +
-          `rotate(${s.rot + dir * arc * 10}deg) scale(${s.scale - arc * 0.04})`;
-        el.style.opacity = "1";
-        // Drop behind the others as soon as it starts moving — it's heading for
-        // the bottom of the stack, so it must pass under, not over.
-        el.style.zIndex = t > 0.12 ? "5" : "40";
-      } else {
-        const s = stackAt(u);
-        el.style.transform =
-          `translate(calc(-50% + ${s.x}%), calc(-50% + ${s.y}px)) rotate(${s.rot}deg) scale(${s.scale})`;
-        el.style.opacity = "1";
-        el.style.zIndex = String(30 - Math.round(u * 10));
-      }
-    }
+  // ── Deck geometry ─────────────────────────────────────────────────────────
+  // Depth 0 is the top card. Each step back lifts, shrinks and tilts slightly.
+  const STEP_Y = -9;        // px per depth step
+  const STEP_SCALE = 0.055; // scale lost per depth step
+  const TILTS = [0, -4, 3.2, -2.4, 4.6];
+
+  // How far the card swings out before it tucks. It must clear the deck
+  // completely, or the moment its paint order changes reads as the card being
+  // sliced in half — that was the long-standing bug here.
+  const FLY_PX = 330;
+  const FLY_MS = 380;   // phase 1 — swing out
+  const TUCK_MS = 500;  // phase 2 — drop behind and slide into the back slot
+  // Finger distance that commits to a card change. One committed swipe always
+  // advances exactly ONE card, because the animation below is scripted rather
+  // than tied to how far the finger travelled.
+  const SWIPE_MIN_PX = 70;
+
+  const transformFor = (depth) => {
+    const tilt = depth === 0 ? 0 : TILTS[depth % TILTS.length];
+    return `translate(-50%, -50%) translateY(${depth * STEP_Y}px) ` +
+      `scale(${1 - depth * STEP_SCALE}) rotate(${tilt}deg)`;
   };
 
-  // Wrap a position into [0, N).
-  const norm = (v) => ((v % N) + N) % N;
+  // Paint every card from the current order.
+  const applyLayout = () => {
+    const order = orderRef.current;
+    const n = order.length;
+    order.forEach((cardIdx, i) => {
+      const el = cardRefs.current[cardIdx];
+      if (!el) return;
+      const depth = n - 1 - i;
+      el.style.zIndex = String(i);
+      el.style.transform = transformFor(depth);
+      el.style.pointerEvents = depth === 0 ? "auto" : "none";
+    });
+  };
 
-  // The deck only ever eases toward a target card — there is no free momentum.
-  // A flick used to be allowed to coast across several cards, which on a 3-card
-  // deck meant one swipe routinely landed 2 cards along; since +2 and -1 are the
-  // same place with 3 cards, that read as the deck moving the wrong way.
+  const topCardIndex = () => orderRef.current[orderRef.current.length - 1];
+
+  // A committed swipe, in two scripted phases. Phase 1 swings the top card fully
+  // clear of the deck while it is still the front-most card, so nothing can
+  // cover it. Only THEN — with the card out to the side and overlapping nothing
+  // — does its paint order drop to the back, and phase 2 slides it home
+  // underneath the others. Splitting it this way is what makes the hand-over
+  // invisible; while the cards overlap there is no ordering that looks clean.
+  const swipe = (dir) => {
+    if (animatingRef.current || !isMobile) return;
+    animatingRef.current = true;
+
+    const idx = topCardIndex();
+    const el = cardRefs.current[idx];
+    if (!el) { animatingRef.current = false; return; }
+
+    el.classList.remove("is-dragging");
+    el.classList.add("is-flyout");
+    el.style.transform =
+      `translate(-50%, -50%) translate(${dir * FLY_PX}px, -26px) ` +
+      `rotate(${dir * 18}deg) rotateY(${dir * 12}deg) scale(0.94)`;
+
+    timersRef.current.push(setTimeout(() => {
+      el.classList.remove("is-flyout");
+
+      // Top card goes to the bottom of the deck.
+      const order = orderRef.current;
+      orderRef.current = [idx, ...order.slice(0, -1)];
+      const n = orderRef.current.length;
+
+      // Re-stack: everyone else steps forward one place (their own transition
+      // animates it); the swiped card drops to the lowest paint order while it
+      // is still out at the side.
+      orderRef.current.forEach((cardIdx, i) => {
+        const other = cardRefs.current[cardIdx];
+        if (!other) return;
+        other.style.zIndex = String(i);
+        other.style.pointerEvents = i === n - 1 ? "auto" : "none";
+        if (cardIdx === idx) return;
+        other.style.transform = transformFor(n - 1 - i);
+      });
+
+      // Reflow so the tuck transition starts from the side position rather than
+      // being collapsed into the same style recalculation.
+      void el.offsetHeight;
+      el.classList.add("is-tuck");
+      el.style.transform = transformFor(n - 1);
+
+      setActiveIndex(orderRef.current[n - 1]);
+
+      timersRef.current.push(setTimeout(() => {
+        el.classList.remove("is-tuck");
+        animatingRef.current = false;
+      }, TUCK_MS));
+    }, FLY_MS));
+  };
+
+  // Jump straight to a card (the dots), one swipe per step.
+  const goToCard = (target) => {
+    if (animatingRef.current) return;
+    if (topCardIndex() === target) return;
+    swipe(-1);
+  };
+
   useEffect(() => {
     if (!isMobile) return;
-    posRef.current = 0;
-    velRef.current = 0;
-    targetRef.current = null;
-    const loop = () => {
-      if (!draggingRef.current && targetRef.current !== null) {
-        // Take the short way round, so 2 → 0 goes forwards rather than back
-        // through 1.
-        let diff = norm(targetRef.current - posRef.current);
-        if (diff > N / 2) diff -= N;
-        if (Math.abs(diff) < 0.002) {
-          posRef.current = targetRef.current;
-          targetRef.current = null;
-        } else {
-          posRef.current += diff * 0.16;
-        }
-      }
-      posRef.current = norm(posRef.current);
-      paintCards();
-      const idx = Math.round(posRef.current) % N;
-      if (idx !== lastIdxRef.current) { lastIdxRef.current = idx; setActiveIndex(idx); }
-      rafRef.current = requestAnimationFrame(loop);
-    };
-    paintCards();
-    rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
+    orderRef.current = [...Array(N).keys()];
+    animatingRef.current = false;
+    applyLayout();
+    setActiveIndex(orderRef.current[N - 1]);
+    const timers = timersRef.current;
+    return () => { timers.forEach(clearTimeout); timers.length = 0; };
   }, [isMobile, N]);
 
-  const STEP_PX = 150; // finger px ~ one card
-
   const onCardTouchStart = (e) => {
-    if (!isMobile) return;
+    if (!isMobile || animatingRef.current) return;
     draggingRef.current = true;
     movedRef.current = false;
-    velRef.current = 0;
-    targetRef.current = null;
-    startXRef.current = lastXRef.current = e.touches[0].clientX;
-    startPosRef.current = posRef.current;
-    lastTRef.current = performance.now();
+    dxRef.current = 0;
+    startXRef.current = e.touches[0].clientX;
+    startYRef.current = e.touches[0].clientY;
+    const el = cardRefs.current[topCardIndex()];
+    if (el) el.classList.add("is-dragging");
   };
+
   const onCardTouchMove = (e) => {
     if (!isMobile || !draggingRef.current) return;
-    const x = e.touches[0].clientX;
-    const dx = x - startXRef.current;
-    if (Math.abs(dx) > 6) {
-      movedRef.current = true;
-      // Throw the card the way the finger is going.
-      dirRef.current = dx < 0 ? -1 : 1;
-    }
-    // Clamped to ±1 card: dragging further must not queue up extra cards, or the
-    // release lands somewhere the gesture never pointed at.
-    const raw = startPosRef.current - dx / STEP_PX;
-    const lo = startPosRef.current - 1;
-    const hi = startPosRef.current + 1;
-    posRef.current = Math.min(hi, Math.max(lo, raw));
-    const now = performance.now();
-    const dt = now - lastTRef.current;
-    // Speed only decides whether a short flick still counts as a swipe — it
-    // never drives the deck.
-    if (dt > 0) velRef.current = Math.abs(x - lastXRef.current) / dt;
-    lastXRef.current = x;
-    lastTRef.current = now;
-    paintCards();
+    const dx = e.touches[0].clientX - startXRef.current;
+    const dy = e.touches[0].clientY - startYRef.current;
+    // A mostly-vertical gesture is the page scrolling, not a swipe — let it go.
+    if (!movedRef.current && Math.abs(dy) > Math.abs(dx)) return;
+    if (Math.abs(dx) > 6) movedRef.current = true;
+    dxRef.current = dx;
+    const el = cardRefs.current[topCardIndex()];
+    if (!el) return;
+    // The top card tracks the finger 1:1 — direct manipulation, so it always
+    // feels like you are moving that card and nothing else.
+    el.style.transform =
+      `translate(-50%, -50%) translate(${dx}px, ${dy * 0.25}px) ` +
+      `rotate(${dx / 18}deg) rotateY(${dx / 26}deg)`;
   };
 
   const onCardTouchEnd = () => {
-    if (!isMobile) return;
+    if (!isMobile || !draggingRef.current) return;
     draggingRef.current = false;
-    const dx = lastXRef.current - startXRef.current;
-    // Either a decisive distance or a quick flick commits to the next card;
-    // anything less springs back to the one you started on.
-    const committed = Math.abs(dx) > 45 || velRef.current > 0.45;
-    // Swipe left → next card. Swipe right → previous.
-    const step = committed ? (dx < 0 ? 1 : -1) : 0;
-    targetRef.current = norm(startPosRef.current + step);
-    velRef.current = 0;
+    const dx = dxRef.current;
+    const el = cardRefs.current[topCardIndex()];
+    if (el) el.classList.remove("is-dragging");
+    if (Math.abs(dx) > SWIPE_MIN_PX) {
+      swipe(dx > 0 ? 1 : -1);
+    } else {
+      applyLayout(); // snap back
+    }
+    dxRef.current = 0;
   };
 
   // Clicking a reel always opens its Instagram reel in a new tab. We never embed
@@ -345,7 +364,7 @@ const MarqueeBanner = () => {
                 type="button"
                 className={`reel-dot ${i === activeIndex ? "active" : ""}`}
                 aria-label={`Go to reel ${i + 1}`}
-                onClick={() => { targetRef.current = i; }}
+                onClick={() => goToCard(i)}
               />
             ))}
           </div>

@@ -450,7 +450,7 @@ export const BuildYourRitual = () => {
           </div>
 
           <div className="byr-bundle-full">
-          <h3 className="byr-bundle-title">YOUR BUNDLE</h3>
+          <h3 className="byr-bundle-title">Your Bundle</h3>
           {/* Turns the passive "add N more" line into a visible goal: the bar
               fills toward minProducts, so the discount reads as something you
               are close to unlocking rather than a rule you have to parse. */}
@@ -518,7 +518,7 @@ export const BuildYourRitual = () => {
               since the summary is the tallest column it dragged the whole
               section up — the layout jumped on every select/deselect. */}
           <p className={`byr-savings${meetsMin && savings > 0 ? "" : " byr-savings-placeholder"}`}>
-            YOU SAVE ₹{savings}
+            You save ₹{savings}
           </p>
           <button
             className="byr-add-btn"

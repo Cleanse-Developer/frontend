@@ -22,14 +22,14 @@
 .ui-order-card-info { flex: 1; display: flex; flex-direction: column; gap: 0.3rem; }
 .ui-order-card-head { display: flex; align-items: center; gap: 0.6rem; }
 .ui-order-card-id { font-family: var(--font-body); font-weight: 600; color: var(--base-700); }
-.ui-order-card-meta { font-family: var(--font-body); font-size: 0.8rem; color: rgba(46, 31, 20, 0.55); }
+.ui-order-card-meta { font-family: var(--font-body); font-size: var(--fs-supporting); color: rgba(46, 31, 20, 0.55); }
 .ui-order-card-foot { display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem; }
 .ui-order-card-view {
   background: none;
   border: none;
   padding: 0;
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: var(--fs-supporting);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--base-500);

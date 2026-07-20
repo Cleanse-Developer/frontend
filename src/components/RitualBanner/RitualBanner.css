@@ -42,7 +42,7 @@
   font-family: var(--font-body);
   text-transform: uppercase;
   letter-spacing: 0.35em;
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--base-300);
 }
@@ -54,7 +54,7 @@
   line-height: 1.05;
   letter-spacing: -0.01em;
   /* Match the other section headings (Best Sellers, Featured, etc.) */
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--fs-section-title);
 }
 
 .rhr-sub {
@@ -142,7 +142,7 @@
   font-family: var(--font-body);
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  font-size: 0.68rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   padding: 0.5rem 0.9rem;
   border-radius: 100px;
@@ -156,7 +156,7 @@
   font-family: var(--font-body);
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  font-size: 0.66rem;
+  font-size: var(--fs-caption);
   text-shadow: 0 1px 8px rgba(20, 12, 8, 0.6);
 }
 
@@ -177,7 +177,7 @@
   font-family: var(--font-body);
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  font-size: 0.64rem;
+  font-size: var(--fs-caption);
   color: rgba(255, 255, 255, 0.7);
 }
 .rhr-card-title {
@@ -186,7 +186,7 @@
   color: #fff;
   line-height: 0.92;
   letter-spacing: -0.01em;
-  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  font-size: var(--fs-subheading);
   margin-top: -0.15rem;
 }
 .rhr-card-desc {
@@ -247,7 +247,7 @@
   font-family: var(--font-body);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-size: 0.62rem;
+  font-size: var(--fs-caption);
   color: #fff;
   font-weight: 500;
 }
@@ -262,7 +262,7 @@
   font-family: var(--font-body);
   text-transform: none;
   letter-spacing: 0.04em;
-  font-size: 0.76rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: #fff;
   padding-bottom: 4px;
@@ -289,7 +289,7 @@
   font-family: var(--font-body);
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-size: 0.82rem;
+  font-size: var(--fs-body);
   font-weight: 500;
   padding: 1.15rem 2.6rem;
   border-radius: 100px;
@@ -304,7 +304,7 @@
   font-family: var(--font-body);
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  font-size: 0.66rem;
+  font-size: var(--fs-caption);
   color: var(--base-300);
 }
 
@@ -359,7 +359,6 @@
     overflow: visible;
     max-width: none;
   }
-  .rhr-card-title { font-size: clamp(1.3rem, 6vw, 1.7rem); }
 
   /* Full-width CTA that can't overflow the viewport (was being cut on the right) */
   .rhr-foot { width: 100%; }
@@ -382,7 +381,7 @@
     margin-top: 0;
   }
 
-  .rhr-head .rhr-sub { font-size: 1rem; line-height: 1.5; }
+  .rhr-head .rhr-sub { font-size: var(--fs-body); line-height: 1.5; }
 
   /* Match the product cards' corner radius on mobile (was 28px) */
   .rhr-card {
@@ -392,11 +391,9 @@
   .rhr-card-top { padding: 1rem 1.1rem; }
   .rhr-card-content { padding: 1.35rem 1.2rem 1.5rem; }
   .rhr-step { padding: 0.3rem 0; }
-  .rhr-step-label { font-size: 0.6rem; }
-  .rhr-card-desc { font-size: 0.9rem; }
   .rhr-cta {
     padding: 1rem 1rem;
-    font-size: 0.74rem;
+    font-size: var(--fs-body);
     letter-spacing: 0.06em;
     border-radius: 12px;   /* match the card radius (was a 100px pill) */
   }
@@ -432,7 +429,7 @@
   }
 
   /* "Skincare, slowed down…" intro reads too large here — shrink it */
-  .rhr-head .rhr-sub { font-size: 1.02rem; line-height: 1.5; }
+  .rhr-head .rhr-sub { line-height: 1.5; }
 
   .rhr-cards {
     margin-top: 0;

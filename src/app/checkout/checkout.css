@@ -30,14 +30,14 @@
 
 .checkout-empty-title {
   font-family: var(--font-heading);
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: var(--fs-hero-title);
   color: var(--base-700);
   line-height: 0.95;
 }
 
 .checkout-empty-text {
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 1vw, 0.95rem);
+  font-size: var(--fs-body);
   color: rgba(79, 44, 34, 0.5);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -48,7 +48,7 @@
   background: #663532;
   color: #fff;
   font-family: var(--font-body);
-  font-size: clamp(0.75rem, 0.85vw, 0.82rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 1rem 2.5rem;
@@ -96,7 +96,7 @@
 
 .checkout-breadcrumb {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: var(--fs-supporting);
   font-weight: 400;
   color: rgba(255, 255, 255, 0.7);
   letter-spacing: 0.15em;
@@ -121,7 +121,7 @@
 
 .checkout-hero-title {
   font-family: var(--font-heading);
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: var(--fs-hero-title);
   font-weight: 400;
   color: #fff;
   line-height: 1;
@@ -165,7 +165,7 @@
 
 .checkout-step-circle span {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: rgba(79, 44, 34, 0.3);
   line-height: 1;
@@ -191,7 +191,7 @@
 
 .checkout-step-label {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -260,7 +260,7 @@
 
 .checkout-section-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-size: var(--fs-hero-title);
   font-weight: 400;
   color: var(--base-700);
   letter-spacing: 0.02em;
@@ -295,7 +295,7 @@
 
 .checkout-input-group label {
   font-family: var(--font-body);
-  font-size: 0.65rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: rgba(79, 44, 34, 0.45);
   text-transform: uppercase;
@@ -305,7 +305,7 @@
 .checkout-input-group input,
 .checkout-input-group select {
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: var(--fs-supporting);
   padding: 0.85rem 0;
   border: none;
   border-bottom: 1.5px solid rgba(79, 44, 34, 0.12);
@@ -362,7 +362,7 @@
 
 .checkout-phone-row > select.checkout-phone-code {
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: var(--fs-supporting);
   padding: 0.85rem 0;
   padding-right: 1rem;
   border: none;
@@ -385,7 +385,7 @@
 
 .checkout-phone-row > input {
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: var(--fs-supporting);
   padding: 0.85rem 0;
   padding-left: 0.65rem;
   border: none !important;
@@ -419,7 +419,7 @@
   border: none;
   padding: 1.15rem;
   font-family: var(--font-body);
-  font-size: clamp(0.78rem, 0.88vw, 0.85rem);
+  font-size: var(--fs-supporting);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -444,7 +444,7 @@
 
 .checkout-guest-sub {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   color: rgba(46, 31, 20, 0.6);
   margin: 0.25rem 0 1.5rem;
   line-height: 1.4;
@@ -464,7 +464,7 @@
   border: 1px solid var(--base-700);
   border-radius: 0.5rem;
   font-family: var(--font-body);
-  font-size: clamp(0.78rem, 0.88vw, 0.85rem);
+  font-size: var(--fs-supporting);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -512,7 +512,7 @@
   border: 1.5px solid rgba(79, 44, 34, 0.15);
   padding: 1.15rem 1.5rem;
   font-family: var(--font-body);
-  font-size: clamp(0.78rem, 0.88vw, 0.85rem);
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: var(--base-700);
   border-radius: 0.5rem;
@@ -585,7 +585,7 @@
 
 .checkout-toggle-label {
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.6);
   text-transform: none;
   letter-spacing: 0.01em;
@@ -633,7 +633,7 @@
 
 .checkout-coming-soon {
   display: inline-block;
-  font-size: 0.65rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -691,7 +691,7 @@
 
 .checkout-payment-name {
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: var(--base-700);
   text-transform: uppercase;
@@ -713,7 +713,7 @@
 .checkout-payment-note {
   width: 100%;
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.4);
   text-transform: none;
   line-height: 1.5;
@@ -744,7 +744,7 @@
   border: 1.5px solid rgba(79, 44, 34, 0.15);
   padding: 0.82rem 1.75rem;
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -763,7 +763,7 @@
 
 .checkout-coupon-msg {
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: var(--fs-supporting);
   margin-top: 0.5rem;
   text-transform: none;
 }
@@ -845,7 +845,7 @@
 .coupon-modal-title {
   margin: 0 0 0.5rem;
   font-family: var(--font-heading, Georgia, serif);
-  font-size: 1.3rem;
+  font-size: var(--fs-subheading);
   letter-spacing: 0.01em;
   color: #4f2c22;
 }
@@ -853,7 +853,7 @@
 .coupon-modal-message {
   margin: 0 0 1.5rem;
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   line-height: 1.55;
   color: #7a675c;
 }
@@ -862,7 +862,7 @@
   width: 100%;
   padding: 0.85rem;
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: var(--fs-supporting);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #f4e9d8;
@@ -906,7 +906,7 @@
 
 .checkout-review-name {
   font-family: var(--font-body);
-  font-size: 0.92rem;
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--base-700);
   text-transform: none;
@@ -915,7 +915,7 @@
 
 .checkout-review-line {
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.5);
   text-transform: none;
   line-height: 1.5;
@@ -923,7 +923,7 @@
 
 .checkout-edit-link {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: #663532;
   text-transform: uppercase;
@@ -947,7 +947,7 @@
   border: none;
   padding: 1.25rem;
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 0.92vw, 0.88rem);
+  font-size: var(--fs-supporting);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -988,7 +988,7 @@
 
 .checkout-summary-title {
   font-family: var(--font-body);
-  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  font-size: var(--fs-subheading);
   font-weight: 600;
   color: var(--base-700);
   text-transform: uppercase;
@@ -1004,7 +1004,7 @@
 
 .checkout-summary-count {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   font-weight: 400;
   color: rgba(79, 44, 34, 0.4);
   text-transform: uppercase;
@@ -1089,7 +1089,7 @@
   background: var(--base-700);
   color: var(--base-100);
   font-family: var(--font-body);
-  font-size: 0.62rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   border-radius: 10px;
   display: flex;
@@ -1109,7 +1109,7 @@
 
 .checkout-summary-item-name {
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: var(--base-700);
   text-transform: uppercase;
@@ -1121,7 +1121,7 @@
 
 .checkout-summary-item-price {
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: var(--fs-supporting);
   font-weight: 600;
   color: var(--base-700);
   flex-shrink: 0;
@@ -1139,7 +1139,7 @@
   display: flex;
   justify-content: space-between;
   font-family: var(--font-body);
-  font-size: clamp(0.8rem, 0.9vw, 0.88rem);
+  font-size: var(--fs-supporting);
   color: var(--base-700);
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -1157,7 +1157,7 @@
 
 .checkout-summary-total span {
   font-weight: 700;
-  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  font-size: var(--fs-body);
 }
 
 .checkout-summary-loyalty {
@@ -1166,7 +1166,7 @@
   border-radius: 8px;
   background: rgba(102, 53, 50, 0.06);
   text-align: center;
-  font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: #663532;
 }
@@ -1176,7 +1176,7 @@
   text-align: center;
   margin-top: 0.75rem;
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.75rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.45);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1238,7 +1238,7 @@
   }
 
   .checkout-step-label {
-    font-size: 0.65rem;
+    font-size: var(--fs-caption);
     margin-left: 0.4rem;
   }
 
@@ -1263,11 +1263,11 @@
   }
 
   .checkout-hero-title {
-    font-size: clamp(2rem, 8vw, 3rem);
+    font-size: var(--fs-hero-title);
   }
 
   .checkout-breadcrumb {
-    font-size: 0.7rem;
+    font-size: var(--fs-caption);
   }
 
   .checkout-steps {
@@ -1280,7 +1280,7 @@
   }
 
   .checkout-step-circle span {
-    font-size: 0.68rem;
+    font-size: var(--fs-caption);
   }
 
   .checkout-step-circle svg {
@@ -1294,7 +1294,7 @@
   }
 
   .checkout-step-label {
-    font-size: 0.58rem;
+    font-size: var(--fs-caption);
     margin-left: 0.3rem;
     letter-spacing: 0.04em;
   }
@@ -1305,7 +1305,7 @@
   }
 
   .checkout-section-title {
-    font-size: clamp(1.25rem, 4vw, 1.6rem);
+    font-size: var(--fs-section-title);
     margin-bottom: 1.25rem;
   }
 
@@ -1314,12 +1314,12 @@
   }
 
   .checkout-input-group label {
-    font-size: 0.6rem;
+    font-size: var(--fs-caption);
   }
 
   .checkout-input-group input,
   .checkout-input-group select {
-    font-size: 0.82rem;
+    font-size: var(--fs-supporting);
     padding: 0.75rem 0;
   }
 
@@ -1330,15 +1330,15 @@
   }
 
   .checkout-toggle-label {
-    font-size: 0.75rem;
+    font-size: var(--fs-supporting);
   }
 
   .checkout-payment-name {
-    font-size: 0.8rem;
+    font-size: var(--fs-supporting);
   }
 
   .checkout-payment-note {
-    font-size: 0.7rem;
+    font-size: var(--fs-caption);
     padding-left: 1.8rem;
   }
 
@@ -1347,11 +1347,11 @@
   }
 
   .checkout-review-name {
-    font-size: 0.85rem;
+    font-size: var(--fs-supporting);
   }
 
   .checkout-review-line {
-    font-size: 0.75rem;
+    font-size: var(--fs-supporting);
   }
 
   .checkout-summary-card {
@@ -1364,11 +1364,11 @@
   }
 
   .checkout-summary-item-name {
-    font-size: 0.72rem;
+    font-size: var(--fs-caption);
   }
 
   .checkout-summary-item-price {
-    font-size: 0.75rem;
+    font-size: var(--fs-supporting);
   }
 
   .checkout-coupon-row {
@@ -1396,11 +1396,11 @@
   }
 
   .checkout-hero-title {
-    font-size: clamp(1.75rem, 9vw, 2.5rem);
+    font-size: var(--fs-hero-title);
   }
 
   .checkout-breadcrumb {
-    font-size: 0.62rem;
+    font-size: var(--fs-caption);
   }
 
   .checkout-steps {
@@ -1413,7 +1413,7 @@
   }
 
   .checkout-step-circle span {
-    font-size: 0.6rem;
+    font-size: var(--fs-caption);
   }
 
   .checkout-step-line {
@@ -1422,7 +1422,7 @@
   }
 
   .checkout-step-label {
-    font-size: 0.52rem;
+    font-size: var(--fs-caption);
     margin-left: 0.2rem;
   }
 
@@ -1456,7 +1456,7 @@
 .checkout-field-error {
   display: block;
   color: #c44;
-  font-size: 0.78rem;
+  font-size: var(--fs-supporting);
   font-family: var(--font-body);
   margin-top: 0.25rem;
   line-height: 1.3;
@@ -1469,14 +1469,14 @@
 
 .checkout-order-error {
   color: #c44;
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   font-family: var(--font-body);
   margin-bottom: 1rem;
 }
 
 .checkout-stock-errors ul {
   margin: 0.5rem 0 0 1.25rem;
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   color: #c44;
   list-style: disc;
   font-family: var(--font-body);
@@ -1487,7 +1487,7 @@
 }
 
 .checkout-login-hint {
-  font-size: 0.8rem;
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.5);
   font-family: var(--font-body);
   text-align: center;
@@ -1499,7 +1499,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  font-size: 0.7rem;
+  font-size: var(--fs-caption);
   font-family: var(--font-body);
   margin-top: 0.4rem;
   letter-spacing: 0.01em;
@@ -1571,12 +1571,12 @@
 
 .checkout-address-label {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   color: var(--base-700);
 }
 
 .checkout-address-preview {
-  font-size: 0.78rem;
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.5);
   line-height: 1.3;
 }
@@ -1594,7 +1594,7 @@
   border: none;
   border-radius: 0.4rem;
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -1615,7 +1615,7 @@
   white-space: nowrap;
   padding: 0 0.7rem;
   color: #2e7d32;
-  font-size: 0.8rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
 }
 
@@ -1674,7 +1674,7 @@
    heading face, and the shared brown scale instead of one-off hexes. */
 .checkout-otp-title {
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: var(--fs-section-title);
   font-weight: 400;
   color: var(--base-700);
   margin: 0 0 0.4rem;
@@ -1684,7 +1684,7 @@
 }
 .checkout-otp-sub {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   line-height: 1.5;
   color: rgba(79, 44, 34, 0.6);
   margin: 0 0 1.35rem;
@@ -1697,7 +1697,7 @@
   background: #fff;
   color: var(--base-700);
   font-family: var(--font-body);
-  font-size: 1.15rem;
+  font-size: var(--fs-subheading);
   font-weight: 500;
   /* Wide tracking suits a 6-digit code, but it also stretched the placeholder
      into "E n t e r  O T P". Track the digits only (placeholder reset below).
@@ -1713,7 +1713,7 @@
 }
 .checkout-otp-input::placeholder {
   color: rgba(79, 44, 34, 0.35);
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   font-weight: 400;
   letter-spacing: 0.02em;
   text-indent: 0;
@@ -1725,7 +1725,7 @@
 .checkout-otp-error {
   color: #c0392b;
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: var(--fs-supporting);
   margin: 0 0 0.7rem;
 }
 .checkout-otp-verify-btn {
@@ -1737,7 +1737,7 @@
   border-radius: 8px;
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   cursor: pointer;
@@ -1759,7 +1759,7 @@
   border: none;
   color: rgba(79, 44, 34, 0.65);
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.12em;

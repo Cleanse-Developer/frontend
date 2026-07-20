@@ -46,7 +46,7 @@
 
 .profile-hero-label {
   font-family: var(--font-body);
-  font-size: clamp(0.7rem, 0.85vw, 0.8rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.25em;
   color: rgba(255, 255, 255, 0.5);
@@ -54,7 +54,7 @@
 
 .profile-hero-heading {
   font-family: var(--font-heading);
-  font-size: clamp(3rem, 5vw, 4.5rem);
+  font-size: var(--fs-hero-title);
   color: #fff;
   line-height: 1;
   letter-spacing: 0.08em;
@@ -63,7 +63,7 @@
 
 .profile-hero-subtitle {
   font-family: var(--font-body);
-  font-size: clamp(0.8rem, 0.9vw, 0.9rem);
+  font-size: var(--fs-body);
   color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -78,7 +78,7 @@
 
 .profile-loyalty-points {
   font-family: var(--font-heading);
-  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-size: var(--fs-hero-title);
   color: #fff;
   line-height: 1.1;
   letter-spacing: 0.04em;
@@ -86,7 +86,7 @@
 
 .profile-loyalty-subtext {
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.74rem);
+  font-size: var(--fs-caption);
   color: rgba(255, 255, 255, 0.35);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -116,7 +116,7 @@
   border: none;
   padding: 1.25rem 1.5rem;
   font-family: var(--font-body);
-  font-size: clamp(0.75rem, 0.85vw, 0.82rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgba(79, 44, 34, 0.4);
@@ -171,7 +171,7 @@
 
 .profile-order-id {
   font-family: var(--font-body);
-  font-size: clamp(0.9rem, 1vw, 0.95rem);
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--base-700);
   text-transform: uppercase;
@@ -180,14 +180,14 @@
 
 .profile-order-date {
   font-family: var(--font-body);
-  font-size: clamp(0.72rem, 0.82vw, 0.78rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.4);
   margin-top: 0.25rem;
 }
 
 .profile-order-status {
   font-family: var(--font-body);
-  font-size: clamp(0.62rem, 0.72vw, 0.68rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 0.35rem 0.9rem;
@@ -221,13 +221,13 @@
 
 .profile-order-item-name {
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 0.92vw, 0.88rem);
+  font-size: var(--fs-supporting);
   color: var(--base-700);
 }
 
 .profile-order-item-detail {
   font-family: var(--font-body);
-  font-size: clamp(0.78rem, 0.88vw, 0.84rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.5);
 }
 
@@ -241,7 +241,7 @@
 
 .profile-order-total {
   font-family: var(--font-body);
-  font-size: clamp(0.9rem, 1vw, 0.95rem);
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--base-700);
 }
@@ -258,7 +258,7 @@
   border: none;
   padding: 0.65rem 1.5rem;
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.72rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border-radius: 8px;
@@ -278,7 +278,7 @@
   background: none;
   border: none;
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.72rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: rgba(79, 44, 34, 0.45);
@@ -295,7 +295,7 @@
 
 .profile-return-submitted {
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.72rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #1a7a42;
@@ -314,7 +314,7 @@
 
 .profile-return-label {
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.74rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgba(79, 44, 34, 0.45);
@@ -323,7 +323,7 @@
 .profile-return-select {
   width: 100%;
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 0.92vw, 0.88rem);
+  font-size: var(--fs-supporting);
   padding: 0.75rem 1rem;
   border: 1.5px solid rgba(79, 44, 34, 0.12);
   border-radius: 8px;
@@ -345,7 +345,7 @@
   border: none;
   padding: 0.65rem 1.5rem;
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.72rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border-radius: 8px;
@@ -388,14 +388,14 @@
 
 .profile-empty-title {
   font-family: var(--font-heading);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: var(--fs-hero-title);
   color: var(--base-700);
   line-height: 1;
 }
 
 .profile-empty-text {
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 0.95vw, 0.92rem);
+  font-size: var(--fs-body);
   color: rgba(79, 44, 34, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -406,7 +406,7 @@
   background: var(--base-700);
   color: var(--base-100);
   font-family: var(--font-body);
-  font-size: clamp(0.75rem, 0.85vw, 0.8rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 1rem 2.5rem;
@@ -470,7 +470,7 @@
 
 .profile-coupon-code {
   font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", "Courier New", monospace;
-  font-size: clamp(1rem, 1.15vw, 1.1rem);
+  font-size: var(--fs-subheading);
   font-weight: 600;
   color: var(--base-700);
   letter-spacing: 0.1em;
@@ -478,14 +478,14 @@
 
 .profile-coupon-desc {
   font-family: var(--font-body);
-  font-size: clamp(0.8rem, 0.9vw, 0.86rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.55);
   text-transform: none;
 }
 
 .profile-coupon-validity {
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.72rem);
+  font-size: var(--fs-caption);
   color: rgba(79, 44, 34, 0.35);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -498,7 +498,7 @@
   border: none;
   padding: 0.6rem 1.4rem;
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.75vw, 0.7rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border-radius: 8px;
@@ -542,7 +542,7 @@
   top: 2rem;
   right: 2rem;
   font-family: var(--font-body);
-  font-size: clamp(0.6rem, 0.7vw, 0.65rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--base-700);
@@ -553,7 +553,7 @@
 
 .profile-address-name {
   font-family: var(--font-body);
-  font-size: clamp(1rem, 1.1vw, 1.05rem);
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--base-700);
   text-transform: uppercase;
@@ -563,7 +563,7 @@
 
 .profile-address-line {
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 0.95vw, 0.9rem);
+  font-size: var(--fs-body);
   color: rgba(79, 44, 34, 0.55);
   line-height: 1.6;
   text-transform: none;
@@ -571,7 +571,7 @@
 
 .profile-address-phone {
   font-family: var(--font-body);
-  font-size: clamp(0.78rem, 0.88vw, 0.84rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.4);
   margin-top: 0.75rem;
 }
@@ -589,7 +589,7 @@
   background: transparent;
   border: none;
   font-family: var(--font-body);
-  font-size: clamp(0.7rem, 0.8vw, 0.75rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   cursor: pointer;
@@ -625,7 +625,7 @@
   border-radius: 10px;
   color: rgba(79, 44, 34, 0.45);
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.75vw, 0.7rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   cursor: pointer;
@@ -660,7 +660,7 @@
 
 .profile-settings-title {
   font-family: var(--font-body);
-  font-size: clamp(1rem, 1.1vw, 1.05rem);
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--base-700);
   text-transform: uppercase;
@@ -685,7 +685,7 @@
 .profile-form-label {
   display: block;
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.74rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgba(79, 44, 34, 0.4);
@@ -695,7 +695,7 @@
 .profile-form-input {
   width: 100%;
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 0.95vw, 0.9rem);
+  font-size: var(--fs-body);
   padding: 0.9rem 1.1rem;
   border: 1.5px solid rgba(79, 44, 34, 0.1);
   border-radius: 10px;
@@ -722,7 +722,7 @@
   border: none;
   padding: 1rem 2.25rem;
   font-family: var(--font-body);
-  font-size: clamp(0.75rem, 0.85vw, 0.8rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border-radius: 10px;
@@ -755,7 +755,7 @@
 
 .profile-pref-name {
   font-family: var(--font-body);
-  font-size: clamp(0.88rem, 0.98vw, 0.92rem);
+  font-size: var(--fs-body);
   font-weight: 500;
   color: var(--base-700);
   text-transform: uppercase;
@@ -764,7 +764,7 @@
 
 .profile-pref-desc {
   font-family: var(--font-body);
-  font-size: clamp(0.75rem, 0.85vw, 0.8rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.35);
   margin-top: 0.25rem;
   text-transform: none;
@@ -821,7 +821,7 @@
 /* ===== Referral Section ===== */
 .profile-referral-desc {
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 0.92vw, 0.88rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.55);
   text-transform: none;
   margin-bottom: 1.25rem;
@@ -841,7 +841,7 @@
 
 .profile-referral-code {
   font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", "Courier New", monospace;
-  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--base-700);
   letter-spacing: 0.08em;
@@ -854,7 +854,7 @@
   border: none;
   padding: 0.5rem 1.25rem;
   font-family: var(--font-body);
-  font-size: clamp(0.62rem, 0.72vw, 0.68rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border-radius: 6px;
@@ -880,7 +880,7 @@
   padding: 0.65rem 1.25rem;
   border-radius: 8px;
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.72rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   cursor: pointer;
@@ -934,14 +934,14 @@
 
 .profile-payment-name {
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 0.95vw, 0.9rem);
+  font-size: var(--fs-body);
   font-weight: 500;
   color: var(--base-700);
 }
 
 .profile-payment-expiry {
   font-family: var(--font-body);
-  font-size: clamp(0.72rem, 0.82vw, 0.78rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.4);
   margin-top: 0.2rem;
 }
@@ -950,7 +950,7 @@
   background: transparent;
   border: none;
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.72rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(79, 44, 34, 0.35);
@@ -973,7 +973,7 @@
   border-radius: 8px;
   color: rgba(79, 44, 34, 0.45);
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.75vw, 0.7rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   cursor: pointer;
@@ -998,7 +998,7 @@
   border: 1.5px solid rgba(79, 44, 34, 0.15);
   padding: 1.1rem;
   font-family: var(--font-body);
-  font-size: clamp(0.75rem, 0.85vw, 0.8rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgba(79, 44, 34, 0.45);
@@ -1125,17 +1125,17 @@
   }
 
   .profile-hero-heading {
-    font-size: clamp(2.25rem, 10vw, 3rem);
+    font-size: var(--fs-hero-title);
     letter-spacing: 0.05em;
   }
 
   .profile-hero-label {
-    font-size: 0.65rem;
+    font-size: var(--fs-caption);
     letter-spacing: 0.2em;
   }
 
   .profile-hero-subtitle {
-    font-size: 0.72rem;
+    font-size: var(--fs-caption);
     max-width: 260px;
   }
 
@@ -1150,11 +1150,11 @@
   }
 
   .profile-loyalty-points {
-    font-size: clamp(1.5rem, 8vw, 2rem);
+    font-size: var(--fs-hero-title);
   }
 
   .profile-loyalty-subtext {
-    font-size: 0.62rem;
+    font-size: var(--fs-caption);
   }
 
   .profile-tabs-section {
@@ -1169,7 +1169,7 @@
 
   .profile-tab {
     padding: 1rem 0.5rem;
-    font-size: 0.6rem;
+    font-size: var(--fs-caption);
     letter-spacing: 0.04em;
   }
 
@@ -1184,7 +1184,7 @@
   }
 
   .profile-empty-title {
-    font-size: clamp(1.75rem, 8vw, 2.25rem);
+    font-size: var(--fs-hero-title);
   }
 
   .profile-order-card {
@@ -1198,7 +1198,7 @@
   }
 
   .profile-order-id {
-    font-size: 0.82rem;
+    font-size: var(--fs-supporting);
   }
 
   .profile-order-actions {
@@ -1227,11 +1227,11 @@
   }
 
   .profile-coupon-code {
-    font-size: 0.88rem;
+    font-size: var(--fs-supporting);
   }
 
   .profile-coupon-desc {
-    font-size: 0.75rem;
+    font-size: var(--fs-supporting);
   }
 
   .profile-address-card {
@@ -1242,16 +1242,16 @@
   .profile-address-badge {
     top: 1.25rem;
     right: 1.25rem;
-    font-size: 0.55rem;
+    font-size: var(--fs-caption);
     padding: 0.25rem 0.6rem;
   }
 
   .profile-address-name {
-    font-size: 0.9rem;
+    font-size: var(--fs-body);
   }
 
   .profile-address-line {
-    font-size: 0.8rem;
+    font-size: var(--fs-supporting);
   }
 
   .profile-settings-card {
@@ -1260,14 +1260,14 @@
   }
 
   .profile-settings-title {
-    font-size: 0.9rem;
+    font-size: var(--fs-body);
     margin-bottom: 1.25rem;
     padding-bottom: 1rem;
   }
 
   .profile-form-input {
     padding: 0.8rem 0.9rem;
-    font-size: 0.82rem;
+    font-size: var(--fs-supporting);
     border-radius: 8px;
   }
 
@@ -1285,11 +1285,11 @@
   }
 
   .profile-pref-name {
-    font-size: 0.82rem;
+    font-size: var(--fs-supporting);
   }
 
   .profile-pref-desc {
-    font-size: 0.72rem;
+    font-size: var(--fs-caption);
   }
 
   .profile-referral-box {
@@ -1302,7 +1302,7 @@
   }
 
   .profile-referral-code {
-    font-size: 0.88rem;
+    font-size: var(--fs-supporting);
   }
 
   .profile-payment-info {
@@ -1321,25 +1321,25 @@
   }
 
   .profile-payment-name {
-    font-size: 0.82rem;
+    font-size: var(--fs-supporting);
   }
 
   .profile-signout-btn {
     padding: 0.9rem;
     border-radius: 8px;
-    font-size: 0.72rem;
+    font-size: var(--fs-caption);
   }
 
   .profile-add-address-btn {
     padding: 0.65rem 1.25rem;
     border-radius: 8px;
-    font-size: 0.62rem;
+    font-size: var(--fs-caption);
   }
 
   .profile-action-btn {
     padding: 0.9rem 2rem;
     border-radius: 8px;
-    font-size: 0.72rem;
+    font-size: var(--fs-caption);
   }
 }
 
@@ -1363,18 +1363,18 @@
 
 .profile-loyalty-row-desc {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: var(--fs-supporting);
   color: #2a2018;
 }
 
 .profile-loyalty-row-date {
   margin: 0.15rem 0 0;
-  font-size: 0.7rem;
+  font-size: var(--fs-caption);
   color: rgba(42, 32, 24, 0.6);
 }
 
 .profile-loyalty-row-points {
-  font-size: 0.95rem;
+  font-size: var(--fs-body);
   font-weight: 600;
   white-space: nowrap;
 }

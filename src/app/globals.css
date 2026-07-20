@@ -21,16 +21,37 @@
   --font-heading: 'Caelune Beauty', serif;
   --font-body: 'Lexend', sans-serif;
 
-  /* Type scale tokens — single source of truth for repeated text roles.
-     Fluid clamp() values so every instance is identical at any viewport width
-     (no per-component @media overrides needed). Product-card roles use the
-     HOME "Our Best Sellers" card as the reference: 1.1 / 0.85 / 1.1 / 0.85rem. */
-  --fs-card-title: clamp(0.8rem, 0.55rem + 1.1vw, 1.1rem);
-  --fs-card-price: clamp(0.8rem, 0.55rem + 1.1vw, 1.1rem);
-  --fs-card-desc:  clamp(0.7rem, 0.58rem + 0.55vw, 0.85rem);
-  --fs-card-btn:   clamp(0.75rem, 0.66rem + 0.4vw, 0.85rem);
-  --fs-card-tag:   clamp(0.55rem, 0.5rem + 0.2vw, 0.65rem);
-  --fs-section-title: clamp(1.5rem, 3vw, 2.5rem);
+  /* ── Brand type scale ──────────────────────────────────────────────────────
+     Single source of truth for every text role on the site. EVERY role steps
+     down at tablet (≤1199px) and mobile (≤768px) — see the media blocks below.
+
+                         Desktop    Tablet    Mobile
+       Hero heading        40px      34px      28px
+       Main page heading   32px      28px      24px
+       Section heading     28px      22px      20px
+       Subheading          20px      18px    17.6px
+       Body                16px      15px      14px
+       Secondary           14px    13.6px    12.8px
+       Caption / label     12px      12px    11.2px
+
+     The home hero has its own container-based scale (--hero-fs-* in home.css)
+     because it must track the frosted blob it sits inside. */
+  --fs-hero-title:    2.5rem;   /* 40px */
+  --fs-page-title:    2rem;     /* 32px */
+  --fs-section-title: 1.75rem;  /* 28px */
+  --fs-subheading:    1.25rem;  /* 20px */
+  --fs-body:          1rem;     /* 16px */
+  --fs-supporting:    0.875rem; /* Secondary 14px */
+  --fs-caption:       0.75rem;  /* 12px */
+
+  /* Product-card roles are aliases, not their own sizes: name and price are
+     Body, description and button are Secondary, tags are Caption. Aliasing
+     means cards pick up the steps above automatically. */
+  --fs-card-title: var(--fs-body);
+  --fs-card-price: var(--fs-body);
+  --fs-card-desc:  var(--fs-supporting);
+  --fs-card-btn:   var(--fs-supporting);
+  --fs-card-tag:   var(--fs-caption);
 
   /* Horizontal spacing tokens — single source of truth for the page gutter and
      the standard content width, so every section/footer/hero/nav lines up.
@@ -50,6 +71,31 @@
   --base-500: #5A2510;  /* Deep Brown - secondary text */
   --base-600: #422D1C;  /* Very Dark Brown - near dark */
   --base-700: #2E1F14;  /* Darkest Brown - primary text, dark bg */
+}
+
+/* Section-heading steps from the brand type spec. Width-only (no orientation
+   clause, unlike the gutter blocks below): a heading's size should follow the
+   viewport width on a landscape tablet too. */
+@media (max-width: 1199px) {
+  :root {
+    --fs-hero-title:    2.125rem; /* 34px */
+    --fs-page-title:    1.75rem;  /* 28px */
+    --fs-section-title: 1.375rem; /* 22px */
+    --fs-subheading:    1.125rem; /* 18px */
+    --fs-body:          0.9375rem;/* 15px */
+    --fs-supporting:    0.85rem;  /* 13.6px */
+  }
+}
+@media (max-width: 768px) {
+  :root {
+    --fs-hero-title:    1.75rem;  /* 28px */
+    --fs-page-title:    1.5rem;   /* 24px */
+    --fs-section-title: 1.25rem;  /* 20px */
+    --fs-subheading:    1.1rem;   /* 17.6px */
+    --fs-body:          0.875rem; /* 14px */
+    --fs-supporting:    0.8rem;   /* 12.8px */
+    --fs-caption:       0.7rem;   /* 11.2px */
+  }
 }
 
 /* Responsive gutter + content width — mirrors the reference section scale. */
@@ -239,7 +285,10 @@ button {
   color: var(--base-700);
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: clamp(0.85rem, 1vw, 0.85rem);
+  /* Supporting role, matching --fs-card-btn. Buttons sat at 13.6px while the
+     card buttons overriding this sat at 14px, so the same label rendered at two
+     sizes depending on which rule won. */
+  font-size: var(--fs-supporting);
   line-height: 1;
   border-radius: 0.5rem;
   cursor: pointer;
@@ -278,7 +327,10 @@ button.secondary {
   color: var(--base-700);
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: clamp(0.85rem, 1vw, 0.85rem);
+  /* Supporting role, matching --fs-card-btn. Buttons sat at 13.6px while the
+     card buttons overriding this sat at 14px, so the same label rendered at two
+     sizes depending on which rule won. */
+  font-size: var(--fs-supporting);
   line-height: 1;
   border-radius: 0.5rem;
   cursor: pointer;

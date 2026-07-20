@@ -7,31 +7,17 @@
 }
 
 /* ── Subscribe card type scale ───────────────────────────────────────────────
-   The same role tokens as the hero and footer. The card renders just above the
-   footer but sits outside <footer>, so it can't inherit those tokens and
-   declares its own. Body, supporting and caption are one size at every width. */
+   Aliases of the global role tokens. The card renders just above the footer but
+   sits outside <footer>, so it names its own; the steps come from globals.css. */
 .contact-form {
-  --cf-fs-section: 1.75rem;     /* 28px */
-  --cf-fs-subheading: 1.25rem;  /* 20px */
-  --cf-fs-body: 1rem;           /* 16px */
-  --cf-fs-supporting: 0.875rem; /* 14px */
-  --cf-fs-caption: 0.75rem;     /* 12px */
+  --cf-fs-section: var(--fs-section-title);
+  --cf-fs-subheading: var(--fs-subheading);
+  --cf-fs-body: var(--fs-body);
+  --cf-fs-supporting: var(--fs-supporting);
+  --cf-fs-caption: var(--fs-caption);
 }
 
-/* Tablet */
-@media (max-width: 1199px) {
-  .contact-form {
-    --cf-fs-section: 1.5rem;      /* 24px */
-    --cf-fs-subheading: 1.125rem; /* 18px */
-  }
-}
 
-/* Mobile */
-@media (max-width: 768px) {
-  .contact-form {
-    --cf-fs-section: 1.375rem;    /* 22px */
-  }
-}
 
 .contact-form .contact-parallax-image-wrapper {
   position: relative;

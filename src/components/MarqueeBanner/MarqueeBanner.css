@@ -107,7 +107,7 @@
 .marquee-banner .reels-tagline {
   max-width: 678px;
   font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--fs-section-title);
   font-weight: 400;
   color: #663532;
   text-align: center;
@@ -832,6 +832,13 @@
     padding: 0;
     margin: 0 auto;
     overflow: visible;
+    /* Perspective gives the rotateY on the departing card a real sense of turn.
+       Deliberately NOT `transform-style: preserve-3d`: with a shared 3D space
+       the browser sorts the cards per-pixel, and a rotated card's plane cuts
+       through the flat ones behind it — the browser then draws that
+       intersection, slicing the card in half. Flat (the default) keeps the
+       rotateY looking 3D while paint order stays a simple, predictable
+       z-index. */
     perspective: 1200px;
     /* Let vertical page scroll through, but claim horizontal so a swipe across
        the deck doesn't also pan the page. */
@@ -851,11 +858,39 @@
     max-width: none !important;
     height: auto !important;
     aspect-ratio: 9 / 16;
-    /* Driven every frame by JS, so no CSS transition may fight it. The centred
-       fallback avoids a flash before the first paint. */
+    /* The centred fallback avoids a flash before the first paint. */
     transform: translate(-50%, -50%);
+    /* Cards that are NOT being dragged ease into their stack slot, so when the
+       top card leaves the rest visibly step forward. The drag itself and the two
+       swipe phases override this below. */
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  /* While the finger is down the transform is set every move event, so any
+     transition would lag behind the finger. */
+  .marquee-banner .reels-container.is-deck .reel-card.is-dragging {
     transition: none !important;
-    will-change: transform, opacity;
+  }
+
+  /* Phase 1 — swing fully clear of the deck. Eases IN (slow start) so it reads
+     as the card being thrown rather than snapping away. */
+  .marquee-banner .reels-container.is-deck .reel-card.is-flyout {
+    transition: transform 0.38s cubic-bezier(0.3, 0, 0.6, 1) !important;
+  }
+
+  /* Phase 2 — now behind the deck, slide home into the back slot. */
+  .marquee-banner .reels-container.is-deck .reel-card.is-tuck {
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-banner .reels-container.is-deck .reel-card,
+    .marquee-banner .reels-container.is-deck .reel-card.is-flyout,
+    .marquee-banner .reels-container.is-deck .reel-card.is-tuck {
+      transition: none !important;
+    }
   }
 
   /* Dots */

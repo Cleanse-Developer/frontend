@@ -154,7 +154,7 @@
   align-items: center;
   gap: 0.5rem;
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -198,7 +198,7 @@
 
 .rating-count {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: var(--fs-supporting);
   color: var(--base-500);
 }
 
@@ -208,7 +208,7 @@
 .product-title {
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+  font-size: var(--fs-section-title);
   color: var(--base-700);
   line-height: 1.4;
   letter-spacing: 0;
@@ -226,21 +226,21 @@
 .product-price-current {
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 1.5rem;
+  font-size: var(--fs-subheading);
   color: var(--base-700);
 }
 
 .product-price-original {
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 0.95rem;
+  font-size: var(--fs-supporting);
   color: var(--base-400);
   text-decoration: line-through;
 }
 
 .product-price-discount {
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: #663532;
   background: rgba(102, 53, 50, 0.08);
@@ -254,7 +254,7 @@
 .product-description {
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 1.1rem;
+  font-size: var(--fs-body);
   line-height: 1.7;
   color: var(--base-500);
 }
@@ -270,7 +270,7 @@
 /* Section Label */
 .product-section-label {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -291,7 +291,7 @@
 
 .product-size-btn {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   padding: 0.6rem 1.5rem;
   background: transparent;
@@ -329,7 +329,7 @@
 
 .qty-btn {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: var(--fs-body);
   font-weight: 400;
   width: 2.5rem;
   height: 2.75rem;
@@ -349,7 +349,7 @@
 
 .qty-value {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   min-width: 2rem;
   text-align: center;
@@ -359,7 +359,7 @@
 .add-to-cart-btn {
   flex: 1;
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   padding: 0.75rem 2rem;
   background: #663532;
@@ -384,7 +384,7 @@
 .buy-now-btn {
   width: 100%;
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   padding: 0.85rem;
   background: transparent;
@@ -423,7 +423,7 @@
 .delivery-input {
   flex: 1;
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: var(--fs-supporting);
   padding: 0.85rem 1rem;
   border: none;
   border-radius: 0;
@@ -443,7 +443,7 @@
 
 .delivery-check-btn {
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -463,7 +463,7 @@
 
 .delivery-msg {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   color: #663532;
   margin-top: 0.5rem;
 }
@@ -483,14 +483,14 @@
 
 .policy-item span {
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: var(--base-500);
   white-space: nowrap;
 }
 
 .policy-divider {
-  font-size: 0.6rem;
+  font-size: var(--fs-caption);
   color: var(--base-300);
 }
 
@@ -523,7 +523,7 @@
   background: #663532;
   color: #E7D0A6;
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -541,7 +541,7 @@
 .bundle-title {
   font-family: var(--font-heading);
   font-weight: 400;
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--fs-section-title);
   color: #4F2C22;
   text-transform: uppercase;
   line-height: 1;
@@ -549,8 +549,8 @@
 }
 
 .bundle-subtitle {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 1rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
   font-weight: 400;
   color: #4F2C22;
   opacity: 0.7;
@@ -592,7 +592,7 @@
   background: #F4EFE6;
   border: 1px solid rgba(102, 53, 50, 0.28);
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-size: var(--fs-body);
   font-weight: 400;
   line-height: 1;
   color: #663532;
@@ -742,8 +742,8 @@
 }
 
 .bundle-summary-title {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 1.25rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-subheading);
   font-weight: 700;
   color: #fff;
   text-transform: uppercase;
@@ -751,8 +751,8 @@
 }
 
 .bundle-summary-desc {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 18px;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
   font-weight: 400;
   color: #fff;
   opacity: 0.7;
@@ -810,14 +810,14 @@
 
 .bundle-slot-name {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: #fff;
 }
 
 .bundle-slot-price {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: var(--fs-supporting);
   color: rgba(255, 255, 255, 0.6);
 }
 
@@ -839,8 +839,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 1rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
   font-weight: 600;
   color: #fff;
   letter-spacing: 0.05em;
@@ -859,20 +859,20 @@
 }
 
 .bundle-total-original {
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   color: rgba(255, 255, 255, 0.5);
   text-decoration: line-through;
 }
 
 .bundle-total-final {
-  font-size: 1.25rem;
+  font-size: var(--fs-subheading);
   font-weight: 700;
   color: #fff;
 }
 
 .bundle-summary-savings {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: var(--fs-supporting);
   color: rgba(255, 255, 255, 0.6);
   margin-top: 0.25rem;
   margin-bottom: 1.5rem;
@@ -881,7 +881,7 @@
 .bundle-add-btn {
   width: 100%;
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: var(--fs-supporting);
   font-weight: 600;
   padding: 0.85rem 1.5rem;
   background: #C8AD73;
@@ -965,15 +965,15 @@
 }
 
 .bundle-compact-count {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 1rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
   font-weight: 700;
   color: #fff;
 }
 
 .bundle-compact-sub {
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: var(--fs-supporting);
   color: rgba(255, 255, 255, 0.7);
 }
 
@@ -988,7 +988,7 @@
   border: none;
   border-radius: 8px;
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -996,7 +996,7 @@
 }
 
 .bundle-compact-btn span {
-  font-size: 1.15rem;
+  font-size: var(--fs-subheading);
   line-height: 1;
 }
 
@@ -1037,7 +1037,7 @@
   border: 1.5px solid transparent;
   cursor: pointer;
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -1097,7 +1097,7 @@
   flex: 1;
   font-family: var(--font-body);
   /* Match the product description on the right (was 1.25rem/1.8) */
-  font-size: 1.1rem;
+  font-size: var(--fs-body);
   line-height: 1.7;
   color: var(--base-500);
   max-width: 560px;
@@ -1142,7 +1142,7 @@
 
 .info-value-label {
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -1190,7 +1190,7 @@
 
 .reviews-label {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -1204,7 +1204,7 @@
   font-family: var(--font-heading);
   font-weight: 400;
   /* full section-heading size now that it spans the centered header */
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--fs-section-title);
   color: var(--base-700);
   line-height: 1.1;
   margin-bottom: 0;
@@ -1221,7 +1221,7 @@
 
 .reviews-avg {
   font-family: var(--font-body);
-  font-size: 2.25rem;
+  font-size: var(--fs-hero-title);
   font-weight: 700;
   color: var(--base-700);
   line-height: 1;
@@ -1229,7 +1229,7 @@
 
 .reviews-out-of {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   color: var(--base-400);
   font-weight: 400;
 }
@@ -1248,7 +1248,7 @@
 
 .reviews-rating-count {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   color: var(--base-400);
   margin-bottom: 1.5rem;
 }
@@ -1268,7 +1268,7 @@
 
 .review-bar-label {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--base-400);
   width: 14px;
@@ -1292,7 +1292,7 @@
 
 .reviews-summary-text {
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-size: var(--fs-body);
   line-height: 1.7;
   color: var(--base-500);
   margin-bottom: 1.5rem;
@@ -1300,7 +1300,7 @@
 
 .write-review-btn {
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -1362,7 +1362,7 @@
   border-radius: 8px;
   color: var(--base-700);
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   outline: none;
   appearance: none;
   -webkit-appearance: none;
@@ -1518,7 +1518,7 @@
 
 .review-card-quote {
   font-family: var(--font-heading);
-  font-size: 2.5rem;
+  font-size: var(--fs-section-title);
   color: var(--base-200);
   line-height: 1;
   margin-bottom: -0.25rem;
@@ -1543,7 +1543,7 @@
 
 .review-date {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   color: var(--base-400);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -1551,14 +1551,14 @@
 
 .review-title {
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-size: var(--fs-subheading);
   font-weight: 600;
   color: var(--base-700);
 }
 
 .review-text {
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-size: var(--fs-body);
   line-height: 1.7;
   color: var(--base-500);
 }
@@ -1577,7 +1577,7 @@
   background: #663532;
   color: var(--base-100);
   font-family: var(--font-heading);
-  font-size: 0.75rem;
+  font-size: var(--fs-supporting);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1592,14 +1592,14 @@
 
 .review-name {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: var(--fs-supporting);
   font-weight: 600;
   color: var(--base-700);
 }
 
 .review-location {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   color: var(--base-300);
 }
 
@@ -1620,7 +1620,7 @@
 
 .recommended-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--fs-section-title);
   font-weight: 400;
   color: #000;
   text-align: center;
@@ -1683,7 +1683,6 @@
   }
 
   .info-tab {
-    font-size: 0.55rem;
     padding: 0.75rem 0.75rem;
     letter-spacing: 0.1em;
   }
@@ -1813,9 +1812,6 @@
     padding: 2rem var(--gutter);
   }
 
-  .product-title {
-    font-size: 1.2rem;
-  }
 
   .bundle-section {
     padding: 3rem var(--gutter);
@@ -1900,7 +1896,6 @@
   }
 
   .info-tab {
-    font-size: 0.5rem;
     padding: 0.65rem 0.75rem;
     flex: none;
   }
@@ -1952,12 +1947,10 @@
 
   /* Bigger product name, smaller description */
   .product-title {
-    font-size: 1.3rem;
     line-height: 1.35;
   }
 
   .product-description {
-    font-size: 0.9rem;
     line-height: 1.55;
   }
 
@@ -1967,7 +1960,6 @@
 
   .product-size-btn {
     padding: 0.5rem 1.25rem;
-    font-size: 0.75rem;
   }
 
   .product-cart-row {
@@ -1984,7 +1976,6 @@
   .buy-now-btn {
     width: 100%;
     padding: 0.85rem 1rem;
-    font-size: 0.8rem;
   }
 
   /* One horizontal line: "7 Day Return Policy" left, "Ships Worldwide" right */
@@ -2001,7 +1992,6 @@
   }
 
   .product-policies .policy-item span {
-    font-size: 0.72rem;
     white-space: nowrap;
   }
 
@@ -2031,21 +2021,11 @@
   }
 
   .bundle-title {
-    font-size: 1.5rem;
     margin-bottom: 0.5rem;
   }
 
-  .bundle-subtitle {
-    font-size: 0.8rem;
-  }
 
-  .bundle-card-name {
-    font-size: 0.75rem;
-  }
 
-  .bundle-card-price {
-    font-size: 0.8rem;
-  }
 
   .bundle-check-circle {
     width: 20px;
@@ -2057,24 +2037,14 @@
     height: 10px;
   }
 
-  .bundle-summary-title {
-    font-size: 1rem;
-  }
 
-  .bundle-summary-desc {
-    font-size: 0.8rem;
-  }
 
   .bundle-summary-divider {
     margin: 1rem 0;
   }
 
-  .bundle-total-final {
-    font-size: 1rem;
-  }
 
   .bundle-add-btn {
-    font-size: 0.75rem;
     padding: 0.75rem 1rem;
   }
 
@@ -2099,13 +2069,9 @@
     --thumb-overlap: -14px;
   }
 
-  .bundle-compact-count {
-    font-size: 0.92rem;
-  }
 
   .bundle-compact-btn {
     padding: 0.6rem 1.1rem;
-    font-size: 0.82rem;
   }
 
   /* Narrow phones: same horizontal chip row, just smaller thumbnails. */
@@ -2143,13 +2109,7 @@
     align-self: center;
   }
 
-  .bundle-slot-name {
-    font-size: 0.7rem;
-  }
 
-  .bundle-slot-price {
-    font-size: 0.65rem;
-  }
 
   /* Less dead space above the Recommended section */
   .recommended-section {
@@ -2157,19 +2117,16 @@
   }
 
   .recommended-title {
-    font-size: clamp(1.5rem, 6vw, 2rem);
     margin-bottom: 1.5rem;
   }
 
   /* Tab headings were tiny; the paragraph + value icons/labels were oversized */
   .info-tab {
-    font-size: 0.82rem;
     padding: 0.6rem 0.9rem;
     letter-spacing: 0.08em;
   }
 
   .info-tab-text {
-    font-size: 0.85rem;
     line-height: 1.6;
   }
 
@@ -2209,7 +2166,6 @@
   }
 
   .info-value-label {
-    font-size: 0.72rem;
     text-align: center;
     width: 100%;
   }
@@ -2218,21 +2174,12 @@
     height: auto;
   }
 
-  .reviews-title {
-    font-size: 1.75rem;
-  }
 
-  .reviews-avg {
-    font-size: 1.75rem;
-  }
 
   .reviews-bars {
     max-width: 100%;
   }
 
-  .reviews-summary-text {
-    font-size: 0.8rem;
-  }
 
   .write-review-btn {
     width: 100%;
@@ -2248,7 +2195,6 @@
   }
 
   .review-card .review-text {
-    font-size: 0.8rem;
     -webkit-line-clamp: 2;
   }
 
@@ -2256,9 +2202,6 @@
     display: none;
   }
 
-  .review-card-quote {
-    font-size: 2rem;
-  }
 
   .reviews-nav-btn {
     width: 44px;
@@ -2314,7 +2257,6 @@
   border: none;
   cursor: pointer;
   font-family: var(--font-body);
-  font-size: 0.95rem;
   font-weight: 500;
   letter-spacing: 0.01em;
   color: #442824;
@@ -2341,7 +2283,6 @@
   margin: 0;
   padding: 0 0 1.1rem;
   font-family: var(--font-body);
-  font-size: 0.9rem;
   line-height: 1.65;
   color: rgba(68, 40, 36, 0.78);
   text-transform: none;

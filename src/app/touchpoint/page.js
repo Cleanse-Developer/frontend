@@ -17,7 +17,29 @@ const faqs = [
 export default function Touchpoint() {
   // Same CMS field the footer uses, so the published contact email is one source.
   const settings = useSettings();
-  const supportEmail = settings?.cmsFooter?.contact?.email || "hello@cleanseayurveda.com";
+  // Email, phone AND address all come from the one admin-editable
+  // `cmsFooter.contact` block the footer reads, so the two surfaces can never
+  // advertise different details. Phone and location used to be hardcoded here,
+  // which is why this page showed a number the footer didn't. Fallbacks match
+  // the footer's exactly.
+  const footerContact = settings?.cmsFooter?.contact || {};
+  const supportEmail = footerContact.email || "hello@cleanseayurveda.com";
+  const supportPhone = footerContact.phone || "+91 80000 00000";
+  const addressLines = footerContact.addressLines || [
+    "HRBD Life Sciences Pvt. Ltd.",
+    "42 Wellness Avenue, Bandra West, Mumbai 400050",
+  ];
+  // "Visit Us" wants a short place, not the full postal address: use the last
+  // address line (the one carrying the city) and trim any postcode.
+  const visitLocation =
+    (addressLines[addressLines.length - 1] || "")
+      .split(",")
+      .map((part) => part.trim())
+      // Drop empties and a bare postcode, so the last two parts are real
+      // place names ("South Delhi, Delhi") rather than "Delhi, 110048".
+      .filter((part) => part && !/^\d{4,8}$/.test(part))
+      .slice(-2)
+      .join(", ") || "Mumbai, Maharashtra";
   const heroRef = useRef(null);
   const cardsRef = useRef([]);
   const formRef = useRef(null);
@@ -110,7 +132,7 @@ export default function Touchpoint() {
           </div>
           <div className="touchpoint-info-text">
             <span className="touchpoint-info-label">Call Us</span>
-            <a href="tel:+919876543210" className="touchpoint-info-value">+91 98765 43210</a>
+            <a href={`tel:${supportPhone.replace(/\s+/g, "")}`} className="touchpoint-info-value">{supportPhone}</a>
           </div>
         </div>
 
@@ -129,7 +151,7 @@ export default function Touchpoint() {
           </div>
           <div className="touchpoint-info-text">
             <span className="touchpoint-info-label">Visit Us</span>
-            <span className="touchpoint-info-value">Mumbai, Maharashtra</span>
+            <span className="touchpoint-info-value">{visitLocation}</span>
           </div>
         </div>
 
@@ -168,13 +190,15 @@ export default function Touchpoint() {
           </div>
           <div className="touchpoint-form-right">
             {submitted ? (
-              <div className="touchpoint-form" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1rem", minHeight: "300px" }}>
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4F2C22" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <h3 style={{ color: "#4F2C22", fontSize: "1.4rem" }}>Message Sent!</h3>
-                <p style={{ color: "#6b5c4c", textAlign: "center" }}>Thank you for reaching out. We&apos;ll get back to you soon.</p>
-                <button className="touchpoint-submit-btn" onClick={() => setSubmitted(false)} style={{ marginTop: "0.5rem" }}>
+              <div className="touchpoint-form touchpoint-sent">
+                <span className="touchpoint-sent-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                </span>
+                <h3 className="touchpoint-sent-title">Message Sent!</h3>
+                <p className="touchpoint-sent-text">Thank you for reaching out. We&apos;ll get back to you soon.</p>
+                <button className="touchpoint-submit-btn touchpoint-sent-btn" onClick={() => setSubmitted(false)}>
                   <span>Send Another</span>
                 </button>
               </div>

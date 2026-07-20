@@ -147,7 +147,7 @@
   /* Lexend — same family as the header nav (Home, Shop, …) */
   font-family: var(--font-body);
   /* Same scale as the section headings */
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--fs-section-title);
   font-weight: 400;
   color: var(--base-700);
   line-height: 1.35;
@@ -404,7 +404,7 @@
    .hero-description instead. Rendered always, shown here. */
 .hero .hero-subtitle {
   display: none;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: var(--hero-fs-subheading);
   font-weight: 500;
   color: #FFFFFF;
@@ -724,6 +724,21 @@
     color: #FFFFFF;
   }
 
+  /* …and the wordmark has to follow the copy. The base rule tints the gold PNG
+     to --base-700 so it matches the brown copy INSIDE the frosted panel; here
+     there's no panel, the copy is white over a dark photo, and that same brown
+     tint left the logo reading as a near-black smudge. Flatten to white so it
+     matches the text beside it, exactly as it matches the text on desktop. */
+  .hero .hero-header h1.hero-logo-heading .hero-logo-img {
+    filter: brightness(0) invert(1);
+  }
+
+  /* Slightly stronger shadow than the desktop default — white-on-photo needs
+     more separation than brown-on-cream. */
+  .hero .hero-header h1.hero-logo-heading {
+    filter: drop-shadow(0 2px 12px rgba(46, 31, 20, 0.45));
+  }
+
   .about .about-copy {
     width: 90%;
   }
@@ -810,14 +825,13 @@
 
 /* Formulas Section */
 /* ── Formulas type scale ─────────────────────────────────────────────────────
-   The same role tokens as the hero, CTA, footer and subscribe card. Body,
-   supporting and caption are one size at every width. */
+   Aliases of the global role tokens; the steps live in globals.css. */
 .formulas {
-  --formulas-fs-section: 1.75rem;     /* 28px */
-  --formulas-fs-subheading: 1.25rem;  /* 20px */
-  --formulas-fs-body: 1rem;           /* 16px */
-  --formulas-fs-supporting: 0.875rem; /* 14px */
-  --formulas-fs-caption: 0.75rem;     /* 12px */
+  --formulas-fs-section: var(--fs-section-title);
+  --formulas-fs-subheading: var(--fs-subheading);
+  --formulas-fs-body: var(--fs-body);
+  --formulas-fs-supporting: var(--fs-supporting);
+  --formulas-fs-caption: var(--fs-caption);
 
   position: relative;
   width: 100%;
@@ -832,20 +846,7 @@
   justify-content: center;
 }
 
-/* Tablet */
-@media (max-width: 1199px) {
-  .formulas {
-    --formulas-fs-section: 1.5rem;      /* 24px */
-    --formulas-fs-subheading: 1.125rem; /* 18px */
-  }
-}
 
-/* Mobile */
-@media (max-width: 768px) {
-  .formulas {
-    --formulas-fs-section: 1.375rem;    /* 22px */
-  }
-}
 
 .formulas-header {
   text-align: center;
@@ -1363,34 +1364,20 @@
 
 /* CTA Section */
 /* ── CTA type scale ──────────────────────────────────────────────────────────
-   The same role tokens as the hero, footer and subscribe card. Body, supporting
-   and caption are one size at every width, so they are declared once. */
+   Aliases of the global role tokens; the steps live in globals.css. */
 .cta-section {
-  --cta-fs-section: 1.75rem;     /* 28px */
-  --cta-fs-subheading: 1.25rem;  /* 20px */
-  --cta-fs-body: 1rem;           /* 16px */
-  --cta-fs-supporting: 0.875rem; /* 14px */
-  --cta-fs-caption: 0.75rem;     /* 12px */
+  --cta-fs-section: var(--fs-section-title);
+  --cta-fs-subheading: var(--fs-subheading);
+  --cta-fs-body: var(--fs-body);
+  --cta-fs-supporting: var(--fs-supporting);
+  --cta-fs-caption: var(--fs-caption);
 
   width: 100%;
   padding: var(--section-py) var(--gutter);
   background-color: #F0EDE8;
 }
 
-/* Tablet */
-@media (max-width: 1199px) {
-  .cta-section {
-    --cta-fs-section: 1.5rem;      /* 24px */
-    --cta-fs-subheading: 1.125rem; /* 18px */
-  }
-}
 
-/* Mobile */
-@media (max-width: 768px) {
-  .cta-section {
-    --cta-fs-section: 1.375rem;    /* 22px */
-  }
-}
 
 .cta-card {
   max-width: var(--page-max);
@@ -1436,7 +1423,7 @@
 }
 
 .cta-desc {
-  font-family: 'Helvetica Neue', sans-serif;
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: var(--cta-fs-body);
   line-height: 100%;
@@ -1792,7 +1779,7 @@
   .blog-section-title,
   .reels-tagline,
   .testimonials-title h2 {
-    font-size: clamp(1.75rem, 4vw, 2.25rem) !important;
+    /* No font-size: --fs-section-title already carries the tablet step. */
     line-height: 1.05 !important;
     white-space: nowrap !important;
     letter-spacing: 0.04em !important;

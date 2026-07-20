@@ -6,7 +6,7 @@
 }
 .ui-summary-title {
   font-family: var(--font-heading);
-  font-size: 1.4rem;
+  font-size: var(--fs-subheading);
   text-transform: uppercase;
   color: var(--base-700);
   margin-bottom: 1rem;
@@ -17,7 +17,7 @@
   align-items: center;
   justify-content: space-between;
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: var(--fs-supporting);
   color: var(--base-600);
 }
 .ui-summary-line.is-muted { color: rgba(46, 31, 20, 0.55); }

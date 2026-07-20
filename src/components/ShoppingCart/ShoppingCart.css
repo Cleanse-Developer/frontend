@@ -28,7 +28,7 @@
   pointer-events: all;
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: clamp(0.85rem, 1vw, 0.85rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   border-radius: 0.75rem;
   box-shadow: 0 4px 24px rgba(46, 31, 20, 0.3);
@@ -53,7 +53,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
 }
 
@@ -101,7 +101,7 @@
 
 .shopping-cart-container .cart-header h2 {
   color: #5C3D1E;
-  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-size: var(--fs-hero-title);
   margin: 0;
 }
 
@@ -115,7 +115,7 @@
   font-weight: 500;
   text-transform: uppercase;
   transition: opacity 0.2s ease;
-  font-size: clamp(0.8rem, 0.75vw, 0.85rem);
+  font-size: var(--fs-supporting);
 }
 
 /* Discount Progress Bar */
@@ -136,7 +136,7 @@
 
 .shopping-cart-container .discount-progress-msg {
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 1vw, 0.95rem);
+  font-size: var(--fs-body);
   font-weight: 500;
   color: #5C3D1E;
   text-align: center;
@@ -187,14 +187,14 @@
 
 .shopping-cart-container .discount-tier .tier-price {
   font-family: var(--font-body);
-  font-size: clamp(0.7rem, 0.85vw, 0.8rem);
+  font-size: var(--fs-supporting);
   font-weight: 600;
   color: #5C3D1E;
 }
 
 .shopping-cart-container .discount-tier .tier-label {
   font-family: var(--font-body);
-  font-size: clamp(0.6rem, 0.7vw, 0.68rem);
+  font-size: var(--fs-caption);
   color: rgba(92, 61, 30, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -375,7 +375,7 @@
 .shopping-cart-container .cart-item-quantity {
   font-weight: 600;
   color: #5C3D1E;
-  font-size: clamp(0.9rem, 1.1vw, 1rem);
+  font-size: var(--fs-body);
   text-transform: uppercase;
   background: rgba(158, 146, 104, 0.15);
   padding: 0.25rem 0.5rem;
@@ -395,7 +395,7 @@
   cursor: pointer;
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: clamp(0.75rem, 0.9vw, 0.8rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   margin-top: 0.5rem;
   text-align: left;
@@ -428,7 +428,7 @@
   display: flex;
   justify-content: space-between;
   color: #5C3D1E;
-  font-size: clamp(0.85rem, 1vw, 0.9rem);
+  font-size: var(--fs-body);
   text-transform: uppercase;
 }
 
@@ -438,7 +438,7 @@
 
 .shopping-cart-container .cart-discount-row span {
   color: #663532;
-  font-size: clamp(0.78rem, 0.9vw, 0.82rem);
+  font-size: var(--fs-supporting);
 }
 
 .shopping-cart-container .cart-total-row {
@@ -448,7 +448,7 @@
 
 .shopping-cart-container .cart-total-row span {
   font-weight: 600;
-  font-size: clamp(0.9rem, 1.1vw, 1rem);
+  font-size: var(--fs-body);
 }
 
 .shopping-cart-container .cart-checkout {
@@ -460,7 +460,7 @@
   cursor: pointer;
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: clamp(0.8rem, 0.95vw, 0.85rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   border-radius: 0.5rem;
   margin-top: 0.25rem;
@@ -517,7 +517,7 @@
 
 .shopping-cart-container .cart-timer-label {
   font-family: var(--font-body);
-  font-size: clamp(0.7rem, 0.85vw, 0.75rem);
+  font-size: var(--fs-supporting);
   color: rgba(158, 146, 104, 0.7);
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -529,7 +529,7 @@
 
 .shopping-cart-container .cart-timer-time {
   font-family: var(--font-body);
-  font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+  font-size: var(--fs-supporting);
   font-weight: 600;
   color: #5C3D1E;
   letter-spacing: 0.03em;
@@ -568,14 +568,14 @@
 
 .shopping-cart-container .loyalty-points-value {
   font-family: var(--font-body);
-  font-size: clamp(0.8rem, 0.9vw, 0.9rem);
+  font-size: var(--fs-body);
   font-weight: 600;
   color: #5C3D1E;
 }
 
 .shopping-cart-container .loyalty-points-label {
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.75vw, 0.7rem);
+  font-size: var(--fs-caption);
   color: rgba(158, 146, 104, 0.8);
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -593,7 +593,7 @@
 
 .shopping-cart-container .cross-sell-title {
   font-family: var(--font-body);
-  font-size: clamp(0.6rem, 0.75vw, 0.7rem);
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: rgba(158, 146, 104, 0.7);
   text-transform: uppercase;
@@ -649,7 +649,7 @@
 
 .shopping-cart-container .cross-sell-name {
   font-family: var(--font-body);
-  font-size: clamp(0.55rem, 0.7vw, 0.65rem);
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: #5C3D1E;
   text-transform: uppercase;
@@ -662,7 +662,7 @@
 
 .shopping-cart-container .cross-sell-price {
   font-family: var(--font-body);
-  font-size: clamp(0.55rem, 0.7vw, 0.65rem);
+  font-size: var(--fs-caption);
   color: rgba(158, 146, 104, 0.8);
   margin: 0;
 }
@@ -682,7 +682,7 @@
   color: #fff;
   border: none;
   border-radius: 50%;
-  font-size: 1rem;
+  font-size: var(--fs-body);
   font-weight: 400;
   line-height: 0;
   padding: 0;
@@ -748,11 +748,11 @@
     right: 0.75rem;
     height: 3rem;
     padding: 0 1.25rem;
-    font-size: 0.75rem;
+    font-size: var(--fs-supporting);
   }
 
   .shopping-cart-container .cart-header h2 {
-    font-size: 1.5rem;
+    font-size: var(--fs-section-title);
   }
 
   .shopping-cart-container .cart-item {
@@ -779,7 +779,7 @@
   }
 
   .shopping-cart-container .cart-timer-time {
-    font-size: 0.75rem;
+    font-size: var(--fs-supporting);
   }
 
   .shopping-cart-container .loyalty-points {
@@ -809,14 +809,14 @@
     min-height: 22px;
     max-height: 22px;
     flex: 0 0 22px;
-    font-size: 0.85rem;
+    font-size: var(--fs-supporting);
   }
 
   .shopping-cart-container .cross-sell-name {
-    font-size: 0.5rem;
+    font-size: var(--fs-caption);
   }
 
   .shopping-cart-container .cross-sell-price {
-    font-size: 0.5rem;
+    font-size: var(--fs-caption);
   }
 }

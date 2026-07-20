@@ -124,20 +124,52 @@ export default function ClientLayout({ children, footer, header }) {
     if (!id) return;
 
     // The section may still be mounting — these pages are client-rendered and
-    // some wait on async data. Watch briefly and go once it appears. We never
-    // jump back to top from here: pages with their own hash handling (e.g.
-    // /ritual#evening) own the scroll position once we've defaulted to top.
-    let frames = 0;
+    // some wait on async data. Watch and go once it appears. We never jump back
+    // to top from here: pages with their own hash handling (e.g. /ritual#evening)
+    // own the scroll position once we've defaulted to top.
+    //
+    // Deadline is TIME-based, not a frame count. The old 90-frame budget assumed
+    // 60fps (~1.5s), but it burns down at whatever rate the page actually
+    // renders — and on a data-fetching page like /unit/[slug] (which also
+    // arrives via a redirect from /unit, restarting the watch) the section
+    // mounts after the product request resolves, so the budget ran out before
+    // the anchor ever existed and the deep link silently landed on the hero.
+    const deadline = Date.now() + 8000;
+    let cancelled = false;
+    // If the reader starts scrolling while we wait, the page is theirs — never
+    // yank them to the anchor after the fact.
+    const onUserScroll = () => { cancelled = true; };
+    window.addEventListener("wheel", onUserScroll, { passive: true, once: true });
+    window.addEventListener("touchstart", onUserScroll, { passive: true, once: true });
+
+    // Finding the element is NOT enough to scroll to it. Lenis caches the page
+    // dimensions and clamps any target to that cached limit — so on a page that
+    // just mounted (or whose images haven't loaded) the limit is still tiny, the
+    // target clamps to ~0, and scrollTo silently no-ops. Hence: resize() first
+    // to refresh the limit, then re-assert every frame while late content keeps
+    // shifting the anchor, and stop once it actually settles at the offset.
+    let settledFrames = 0;
     let raf = requestAnimationFrame(function waitForTarget() {
+      if (cancelled) return;
       const el = document.getElementById(id);
       if (el) {
-        scrollToEl(el);
-        return;
+        lenis?.resize();
+        const delta = el.getBoundingClientRect().top - ANCHOR_SCROLL_OFFSET;
+        if (Math.abs(delta) > 2) {
+          scrollToEl(el);
+          settledFrames = 0;
+        } else if (++settledFrames > 8) {
+          return; // parked on the anchor for 8 straight frames — done
+        }
       }
-      if (frames++ < 90) raf = requestAnimationFrame(waitForTarget);
+      if (Date.now() < deadline) raf = requestAnimationFrame(waitForTarget);
     });
 
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("wheel", onUserScroll);
+      window.removeEventListener("touchstart", onUserScroll);
+    };
   }, [pathname]);
 
   // Same-page anchor clicks (already on /touchpoint, clicking FAQ in the footer)

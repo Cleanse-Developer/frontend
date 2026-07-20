@@ -8,42 +8,20 @@ footer {
   z-index: 10;
 }
 
-/* ── Footer type scale ───────────────────────────────────────────────────────
-   The same role tokens as the hero (see home.css), so a size is set once here
-   rather than re-declared in each of the footer's viewport blocks. The three
-   steps are the desktop / tablet / mobile columns of the brand type spec.
-
-   Sizes are rem, not px: they resolve to the spec exactly at the default 16px
-   root, while still tracking a reader's browser font setting and the root
-   step-up globals.css applies on 1920px+ screens.
-
-   Body, supporting and caption are one size at every width, so they are
-   declared once and never overridden. */
+/* ── Footer type scale ──────────────────────────────────────────────────────
+   Aliases of the global role tokens in globals.css, kept as --footer-fs-* so
+   the rules below read by role. Every role steps at tablet and mobile there,
+   so this file needs no viewport blocks of its own. */
 footer {
-  --footer-fs-heading: 2.5rem;      /* 40px */
-  --footer-fs-section: 1.75rem;     /* 28px */
-  --footer-fs-subheading: 1.25rem;  /* 20px */
-  --footer-fs-body: 1rem;           /* 16px */
-  --footer-fs-supporting: 0.875rem; /* 14px */
-  --footer-fs-caption: 0.75rem;     /* 12px */
+  --footer-fs-heading: var(--fs-hero-title);
+  --footer-fs-section: var(--fs-section-title);
+  --footer-fs-subheading: var(--fs-subheading);
+  --footer-fs-body: var(--fs-body);
+  --footer-fs-supporting: var(--fs-supporting);
+  --footer-fs-caption: var(--fs-caption);
 }
 
-/* Tablet */
-@media (max-width: 1199px) {
-  footer {
-    --footer-fs-heading: 2.125rem;    /* 34px */
-    --footer-fs-section: 1.5rem;      /* 24px */
-    --footer-fs-subheading: 1.125rem; /* 18px */
-  }
-}
 
-/* Mobile */
-@media (max-width: 768px) {
-  footer {
-    --footer-fs-heading: 1.75rem;   /* 28px */
-    --footer-fs-section: 1.375rem;  /* 22px */
-  }
-}
 
 .footer-container {
   padding: 1.25rem max(var(--gutter), (100% - var(--page-max)) / 2) 1.5rem;

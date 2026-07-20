@@ -27,7 +27,7 @@
   justify-content: center;
   border-radius: 50%;
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: var(--fs-supporting);
   font-weight: 600;
   border: 1px solid rgba(46, 31, 20, 0.25);
   color: var(--base-500);
@@ -35,7 +35,7 @@
 }
 .ui-stepper-label {
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: var(--fs-supporting);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgba(46, 31, 20, 0.55);

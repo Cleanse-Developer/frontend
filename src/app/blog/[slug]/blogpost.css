@@ -53,7 +53,7 @@
 /* Breadcrumb */
 .blogpost-breadcrumb {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: var(--fs-supporting);
   font-weight: 400;
   color: rgba(255, 255, 255, 0.5);
   letter-spacing: 0.1em;
@@ -68,7 +68,7 @@
 .blogpost-breadcrumb a {
   color: rgba(255, 255, 255, 0.5);
   text-decoration: none;
-  font-size: 0.72rem;
+  font-size: var(--fs-supporting);
   letter-spacing: 0.1em;
   transition: color 0.3s ease;
 }
@@ -79,12 +79,12 @@
 
 .blogpost-breadcrumb-sep {
   color: rgba(255, 255, 255, 0.25);
-  font-size: 0.72rem;
+  font-size: var(--fs-supporting);
 }
 
 .blogpost-breadcrumb-current {
   color: #C8AD73;
-  font-size: 0.72rem;
+  font-size: var(--fs-supporting);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   max-width: 400px;
@@ -96,7 +96,7 @@
 /* Category Badge */
 .blogpost-hero-category {
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -111,7 +111,7 @@
 /* Hero Title */
 .blogpost-hero-title {
   font-family: var(--font-heading);
-  font-size: clamp(2rem, 5vw, 3.75rem);
+  font-size: var(--fs-hero-title);
   font-weight: 400;
   color: #fff;
   line-height: 1;
@@ -131,7 +131,7 @@
 .blogpost-hero-readtime,
 .blogpost-hero-author {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: var(--fs-supporting);
   color: rgba(255, 255, 255, 0.55);
   letter-spacing: 0.05em;
   text-transform: none;
@@ -166,7 +166,7 @@
    standfirst rather than the first paragraph. */
 .blogpost-summary {
   font-family: var(--font-body);
-  font-size: 1.1rem;
+  font-size: var(--fs-subheading);
   font-weight: 400;
   color: #2E1F14;
   line-height: 1.6;
@@ -180,7 +180,7 @@
 /* Paragraphs */
 .blogpost-paragraph {
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: var(--fs-body);
   font-weight: 400;
   color: #3D2B1F;
   line-height: 1.7;
@@ -190,7 +190,7 @@
 }
 
 .blogpost-paragraph-first {
-  font-size: 1.05rem;
+  font-size: var(--fs-body);
   color: #2E1F14;
 }
 
@@ -211,7 +211,7 @@
 
 .blogpost-share-label {
   font-family: var(--font-body);
-  font-size: 0.68rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -240,7 +240,7 @@
 
 .blogpost-share-btn span {
   font-family: var(--font-body);
-  font-size: 0.68rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -285,7 +285,7 @@
 
 .blogpost-author-avatar span {
   font-family: var(--font-heading);
-  font-size: 1.4rem;
+  font-size: var(--fs-subheading);
   color: #F0EDE8;
   text-transform: uppercase;
   line-height: 1;
@@ -297,7 +297,7 @@
 
 .blogpost-author-label {
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -308,7 +308,7 @@
 
 .blogpost-author-name {
   font-family: var(--font-heading);
-  font-size: 1.25rem;
+  font-size: var(--fs-subheading);
   font-weight: 400;
   color: #2E1F14;
   text-transform: none;
@@ -319,7 +319,7 @@
 
 .blogpost-author-bio {
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: var(--fs-supporting);
   font-weight: 400;
   color: rgba(79, 44, 34, 0.5);
   line-height: 1.55;
@@ -344,7 +344,7 @@
 
 .blogpost-related-tag {
   font-family: var(--font-body);
-  font-size: 0.62rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   letter-spacing: 0.25em;
   text-transform: uppercase;
@@ -355,7 +355,7 @@
 
 .blogpost-related-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+  font-size: var(--fs-section-title);
   font-weight: 400;
   color: #F0EDE8;
   line-height: 1.05;
@@ -422,7 +422,7 @@
   align-items: center;
   gap: 0.75rem;
   font-family: var(--font-body);
-  font-size: 0.62rem;
+  font-size: var(--fs-caption);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(240, 237, 232, 0.35);
@@ -435,7 +435,7 @@
 
 .blogpost-related-card-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.05rem, 1.4vw, 1.35rem);
+  font-size: var(--fs-subheading);
   font-weight: 400;
   color: #F0EDE8;
   line-height: 1.2;
@@ -502,7 +502,7 @@
 
 .blogpost-not-found-tag {
   font-family: var(--font-heading);
-  font-size: clamp(4rem, 10vw, 7rem);
+  font-size: var(--fs-hero-title);
   font-weight: 400;
   color: rgba(79, 44, 34, 0.06);
   line-height: 1;
@@ -513,7 +513,7 @@
 
 .blogpost-not-found-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-size: var(--fs-section-title);
   font-weight: 400;
   color: #2E1F14;
   text-transform: uppercase;
@@ -524,7 +524,7 @@
 
 .blogpost-not-found-desc {
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: var(--fs-body);
   color: rgba(79, 44, 34, 0.5);
   line-height: 1.6;
   text-transform: none;
@@ -533,7 +533,7 @@
 
 .blogpost-not-found-link {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: var(--fs-supporting);
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -562,9 +562,6 @@
     padding: 2.5rem var(--gutter) 4.5rem;
   }
 
-  .blogpost-hero-title {
-    font-size: clamp(1.75rem, 4.5vw, 3rem);
-  }
 
   .blogpost-article {
     padding: 3rem;
@@ -595,29 +592,23 @@
   }
 
   .blogpost-breadcrumb {
-    font-size: 0.62rem;
     gap: 0.35rem;
     margin-bottom: 1.25rem;
   }
 
   .blogpost-breadcrumb a,
   .blogpost-breadcrumb-sep,
-  .blogpost-breadcrumb-current {
-    font-size: 0.62rem;
-  }
 
   .blogpost-breadcrumb-current {
     max-width: 180px;
   }
 
   .blogpost-hero-category {
-    font-size: 0.55rem;
     padding: 0.3rem 0.85rem;
     margin-bottom: 1rem;
   }
 
   .blogpost-hero-title {
-    font-size: clamp(1.5rem, 6vw, 2.25rem);
     margin-bottom: 1.25rem;
   }
 
@@ -626,9 +617,6 @@
   }
 
   .blogpost-hero-readtime,
-  .blogpost-hero-author {
-    font-size: 0.68rem;
-  }
 
   .blogpost-hero-divider {
     width: 14px;
@@ -645,16 +633,11 @@
   }
 
   .blogpost-paragraph {
-    font-size: 0.88rem;
     margin-bottom: 1.25rem;
   }
 
-  .blogpost-paragraph-first {
-    font-size: 0.95rem;
-  }
 
   .blogpost-summary {
-    font-size: 1rem;
     padding-left: 1rem;
     margin-bottom: 1.5rem;
   }
@@ -678,17 +661,8 @@
     height: 48px;
   }
 
-  .blogpost-author-avatar span {
-    font-size: 1.2rem;
-  }
 
-  .blogpost-author-name {
-    font-size: 1.1rem;
-  }
 
-  .blogpost-author-bio {
-    font-size: 0.78rem;
-  }
 
   .blogpost-related {
     padding: 3rem var(--gutter);
@@ -717,13 +691,7 @@
     gap: 0.4rem;
   }
 
-  .blogpost-related-card-meta {
-    font-size: 0.55rem;
-  }
 
-  .blogpost-related-card-title {
-    font-size: 1rem;
-  }
 
 
   .blogpost-related-card-arrow {
@@ -749,28 +717,22 @@
   }
 
   .blogpost-breadcrumb {
-    font-size: 0.58rem;
     margin-bottom: 1rem;
   }
 
   .blogpost-breadcrumb a,
   .blogpost-breadcrumb-sep,
-  .blogpost-breadcrumb-current {
-    font-size: 0.58rem;
-  }
 
   .blogpost-breadcrumb-current {
     max-width: 140px;
   }
 
   .blogpost-hero-category {
-    font-size: 0.5rem;
     padding: 0.25rem 0.7rem;
     margin-bottom: 0.75rem;
   }
 
   .blogpost-hero-title {
-    font-size: clamp(1.35rem, 5.5vw, 1.85rem);
     margin-bottom: 1rem;
   }
 
@@ -779,9 +741,6 @@
   }
 
   .blogpost-hero-readtime,
-  .blogpost-hero-author {
-    font-size: 0.62rem;
-  }
 
   .blogpost-hero-divider {
     width: 10px;
@@ -794,17 +753,12 @@
   }
 
   .blogpost-paragraph {
-    font-size: 0.82rem;
     line-height: 1.7;
     margin-bottom: 1.1rem;
   }
 
-  .blogpost-paragraph-first {
-    font-size: 0.88rem;
-  }
 
   .blogpost-summary {
-    font-size: 0.92rem;
     padding-left: 0.85rem;
     margin-bottom: 1.25rem;
   }
@@ -814,17 +768,11 @@
     padding-top: 1.25rem;
   }
 
-  .blogpost-share-label {
-    font-size: 0.6rem;
-  }
 
   .blogpost-share-btn {
     padding: 0.4rem 0.8rem;
   }
 
-  .blogpost-share-btn span {
-    font-size: 0.6rem;
-  }
 
   .blogpost-share-btn svg {
     width: 12px;
@@ -845,17 +793,8 @@
     height: 44px;
   }
 
-  .blogpost-author-avatar span {
-    font-size: 1.1rem;
-  }
 
-  .blogpost-author-name {
-    font-size: 1rem;
-  }
 
-  .blogpost-author-bio {
-    font-size: 0.72rem;
-  }
 
   .blogpost-related {
     padding: 2.5rem var(--gutter);
@@ -867,7 +806,6 @@
   }
 
   .blogpost-related-tag {
-    font-size: 0.58rem;
     margin-bottom: 0.75rem;
   }
 
@@ -884,13 +822,7 @@
     gap: 0.3rem;
   }
 
-  .blogpost-related-card-meta {
-    font-size: 0.5rem;
-  }
 
-  .blogpost-related-card-title {
-    font-size: 0.88rem;
-  }
 
   .blogpost-related-card-footer {
     padding-top: 0.65rem;
@@ -907,20 +839,10 @@
     height: 13px;
   }
 
-  .blogpost-not-found-tag {
-    font-size: clamp(3rem, 12vw, 5rem);
-  }
 
-  .blogpost-not-found-title {
-    font-size: clamp(1.25rem, 5vw, 1.75rem);
-  }
 
-  .blogpost-not-found-desc {
-    font-size: 0.8rem;
-  }
 
   .blogpost-not-found-link {
-    font-size: 0.7rem;
     padding: 0.8rem 1.5rem;
   }
 }

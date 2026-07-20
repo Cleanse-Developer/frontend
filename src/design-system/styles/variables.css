@@ -11,13 +11,23 @@
   --font-heading: 'Caelune Beauty', serif;
   --font-body: 'Lexend', sans-serif;
 
-  /* Type scale roles */
-  --fs-card-title: clamp(0.8rem, 0.55rem + 1.1vw, 1.1rem);
-  --fs-card-price: clamp(0.8rem, 0.55rem + 1.1vw, 1.1rem);
-  --fs-card-desc:  clamp(0.7rem, 0.58rem + 0.55vw, 0.85rem);
-  --fs-card-btn:   clamp(0.75rem, 0.66rem + 0.4vw, 0.85rem);
-  --fs-card-tag:   clamp(0.55rem, 0.5rem + 0.2vw, 0.65rem);
-  --fs-section-title: clamp(1.5rem, 3vw, 2.5rem);
+  /* ── Brand type scale ──  Desktop / Tablet / Mobile
+       Hero 40/34/28 · Page 32/28/24 · Section 28/22/20 · Subheading 20/18/17.6
+       Body 16/15/14 · Secondary 14/13.6/12.8 · Caption 12/12/11.2          */
+  --fs-hero-title:    2.5rem;
+  --fs-page-title:    2rem;
+  --fs-section-title: 1.75rem;
+  --fs-subheading:    1.25rem;
+  --fs-body:          1rem;
+  --fs-supporting:    0.875rem; /* Secondary */
+  --fs-caption:       0.75rem;
+
+  /* Card roles alias the roles above so they inherit the steps. */
+  --fs-card-title: var(--fs-body);
+  --fs-card-price: var(--fs-body);
+  --fs-card-desc:  var(--fs-supporting);
+  --fs-card-btn:   var(--fs-supporting);
+  --fs-card-tag:   var(--fs-caption);
 
   /* Spacing rhythm */
   --gutter: 2rem;
@@ -32,6 +42,29 @@
   --base-500: #5A2510;
   --base-600: #422D1C;
   --base-700: #2E1F14;
+}
+
+/* Type-scale steps (width-only, so a landscape tablet steps too). */
+@media (max-width: 1199px) {
+  :root {
+    --fs-hero-title:    2.125rem; /* 34px */
+    --fs-page-title:    1.75rem;  /* 28px */
+    --fs-section-title: 1.375rem; /* 22px */
+    --fs-subheading:    1.125rem; /* 18px */
+    --fs-body:          0.9375rem;/* 15px */
+    --fs-supporting:    0.85rem;  /* 13.6px */
+  }
+}
+@media (max-width: 768px) {
+  :root {
+    --fs-hero-title:    1.75rem;  /* 28px */
+    --fs-page-title:    1.5rem;   /* 24px */
+    --fs-section-title: 1.25rem;  /* 20px */
+    --fs-subheading:    1.1rem;   /* 17.6px */
+    --fs-body:          0.875rem; /* 14px */
+    --fs-supporting:    0.8rem;   /* 12.8px */
+    --fs-caption:       0.7rem;   /* 11.2px */
+  }
 }
 
 @media (max-width: 1199px) and (orientation: portrait) {

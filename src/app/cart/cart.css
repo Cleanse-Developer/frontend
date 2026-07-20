@@ -32,7 +32,7 @@
 
 .cart-breadcrumb {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   font-weight: 400;
   color: rgba(255, 255, 255, 0.7);
   letter-spacing: 0.05em;
@@ -57,7 +57,7 @@
 
 .cart-hero-title {
   font-family: var(--font-heading);
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: var(--fs-hero-title);
   font-weight: 400;
   color: #fff;
   line-height: 1;
@@ -67,7 +67,7 @@
 
 .cart-hero-count {
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 1vw, 1rem);
+  font-size: var(--fs-body);
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -92,14 +92,14 @@
 
 .cart-empty-heading {
   font-family: var(--font-heading);
-  font-size: clamp(3rem, 7vw, 5rem);
+  font-size: var(--fs-hero-title);
   color: var(--base-700);
   line-height: 0.95;
 }
 
 .cart-empty-subtitle {
   font-family: var(--font-body);
-  font-size: clamp(0.9rem, 1vw, 1.1rem);
+  font-size: var(--fs-subheading);
   color: rgba(79, 44, 34, 0.5);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -110,7 +110,7 @@
   background: #663532;
   color: #fff;
   font-family: var(--font-body);
-  font-size: clamp(0.8rem, 0.9vw, 0.85rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 1rem 3rem;
@@ -145,7 +145,7 @@
 
 .cart-discount-msg {
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 1vw, 0.95rem);
+  font-size: var(--fs-body);
   font-weight: 500;
   color: rgba(79, 44, 34, 0.5);
   text-align: center;
@@ -196,14 +196,14 @@
 
 .cart-tier-price {
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.8vw, 0.75rem);
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: var(--base-700);
 }
 
 .cart-tier-label {
   font-family: var(--font-body);
-  font-size: clamp(0.55rem, 0.65vw, 0.62rem);
+  font-size: var(--fs-caption);
   color: rgba(79, 44, 34, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -273,7 +273,7 @@
 
 .cart-page-item-name {
   font-family: var(--font-body);
-  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  font-size: var(--fs-subheading);
   font-weight: 500;
   color: var(--base-700);
   text-transform: none;
@@ -283,7 +283,7 @@
 /* Product description fills the middle (was empty); clamped to 2 lines. */
 .cart-page-item-desc {
   font-family: var(--font-body);
-  font-size: clamp(0.78rem, 0.85vw, 0.88rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.55);
   line-height: 1.45;
   text-transform: none;
@@ -307,7 +307,7 @@
 
 .cart-page-item-price {
   font-family: var(--font-body);
-  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  font-size: var(--fs-subheading);
   font-weight: 600;
   color: var(--base-700);
   flex-shrink: 0;
@@ -315,7 +315,7 @@
 
 .cart-page-item-unit {
   font-family: var(--font-body);
-  font-size: clamp(0.7rem, 0.8vw, 0.78rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.4);
   text-transform: uppercase;
 }
@@ -347,7 +347,7 @@
   justify-content: center;
   cursor: pointer;
   font-family: var(--font-body);
-  font-size: 1.1rem;
+  font-size: var(--fs-subheading);
   transition: background 0.15s ease;
 }
 
@@ -362,7 +362,7 @@
 
 .cart-qty-value {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--fs-supporting);
   color: var(--base-700);
   width: 36px;
   text-align: center;
@@ -379,7 +379,7 @@
   border: none;
   color: rgba(79, 44, 34, 0.4);
   font-family: var(--font-body);
-  font-size: clamp(0.7rem, 0.8vw, 0.78rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   cursor: pointer;
@@ -402,7 +402,7 @@
 
 .gift-options-title {
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 1vw, 0.95rem);
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--base-700);
   letter-spacing: 0.08em;
@@ -463,7 +463,7 @@
 
 .gift-toggle-label {
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 0.95vw, 0.9rem);
+  font-size: var(--fs-body);
   color: var(--base-700);
   letter-spacing: 0.02em;
 }
@@ -482,7 +482,7 @@
   min-height: 90px;
   padding: 0.85rem 1rem;
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 0.9vw, 0.88rem);
+  font-size: var(--fs-supporting);
   color: var(--base-700);
   background: rgba(79, 44, 34, 0.04);
   border: 1px solid rgba(79, 44, 34, 0.12);
@@ -504,7 +504,7 @@
   display: block;
   text-align: right;
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.75vw, 0.72rem);
+  font-size: var(--fs-caption);
   color: rgba(79, 44, 34, 0.35);
   margin-top: 0.35rem;
   letter-spacing: 0.02em;
@@ -526,7 +526,7 @@
 
 .cart-summary-title {
   font-family: var(--font-body);
-  font-size: clamp(1.1rem, 1.3vw, 1.25rem);
+  font-size: var(--fs-subheading);
   font-weight: 600;
   color: var(--base-700);
   text-transform: uppercase;
@@ -547,7 +547,7 @@
   display: flex;
   justify-content: space-between;
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 0.95vw, 0.9rem);
+  font-size: var(--fs-body);
   color: var(--base-700);
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -574,7 +574,7 @@
 
 .cart-summary-total span {
   font-weight: 700;
-  font-size: clamp(1rem, 1.15vw, 1.1rem);
+  font-size: var(--fs-subheading);
 }
 
 .cart-summary-loyalty {
@@ -583,7 +583,7 @@
   border-radius: 8px;
   background: rgba(102, 53, 50, 0.06);
   text-align: center;
-  font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: #663532;
 }
@@ -595,7 +595,7 @@
   border: none;
   padding: 1.15rem;
   font-family: var(--font-body);
-  font-size: clamp(0.8rem, 0.9vw, 0.85rem);
+  font-size: var(--fs-supporting);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -617,7 +617,7 @@
   text-align: center;
   margin-top: 1rem;
   font-family: var(--font-body);
-  font-size: clamp(0.7rem, 0.8vw, 0.78rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.5);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -636,7 +636,7 @@
 
 .cart-recommended-label {
   font-family: var(--font-body);
-  font-size: clamp(0.7rem, 0.8vw, 0.78rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: rgba(79, 44, 34, 0.45);
@@ -645,7 +645,7 @@
 
 .cart-recommended-heading {
   font-family: var(--font-heading);
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: var(--fs-hero-title);
   color: var(--base-700);
   line-height: 0.95;
   margin-bottom: 2.5rem;
@@ -743,11 +743,11 @@
   }
 
   .cart-hero-title {
-    font-size: clamp(2rem, 8vw, 3rem);
+    font-size: var(--fs-hero-title);
   }
 
   .cart-breadcrumb {
-    font-size: 0.75rem;
+    font-size: var(--fs-supporting);
   }
 
   .cart-page-item-top {

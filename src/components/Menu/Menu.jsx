@@ -404,8 +404,24 @@ const Menu = () => {
            jump. Drive Lenis's own scrollTo when it's running (same approach as
            the anchor handling in client-layout), and only fall back to native
            if it isn't. The offset clears the fixed header. */
-        if (lenis?.scrollTo) lenis.scrollTo(el, { offset: -100, duration: 1.2 });
-        else el.scrollIntoView({ behavior: "smooth" });
+        if (lenis?.scrollTo) {
+          /* Lenis's default easing is expo-out — it covers ~50% of the distance
+             in the first 10% of the time. Over a short hop that reads fine, but
+             these sections can be 10,000px apart, where it blurs past the whole
+             page before settling and still reads as a jump. Ease in AND out, and
+             scale the duration with distance (clamped) so near and far targets
+             both travel at a comfortable speed. */
+          const distance = Math.abs(
+            el.getBoundingClientRect().top + window.scrollY - 100 - window.scrollY
+          );
+          const duration = Math.min(2.2, Math.max(0.9, distance / 2600));
+          lenis.scrollTo(el, {
+            offset: -100,
+            duration,
+            easing: (t) =>
+              t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2, // easeInOutCubic
+          });
+        } else el.scrollIntoView({ behavior: "smooth" });
       } else {
         setIsPageTransitioning(true);
         setIsMenuVisible(false);
@@ -868,9 +884,6 @@ const Menu = () => {
                 <Link href="/touchpoint" onClick={(e) => handleLinkClick(e, "/touchpoint")}>
                   Contact
                 </Link>
-                <Link href="/unit" onClick={(e) => handleLinkClick(e, "/unit")}>
-                  Ingredients
-                </Link>
               </div>
             </div>
             {/* Discover column — desktop only (hidden on mobile via CSS). */}
@@ -879,10 +892,16 @@ const Menu = () => {
                 <p>Discover</p>
               </div>
               <div className="menu-sub-links menu-product-links">
-                <a href="/#featured" onClick={(e) => handleSectionClick(e, "featured")}>
+                {/* `data-transition-ignore` is REQUIRED on these in-page anchors.
+                    TransitionRouter's auto mode delegates on `a[href]`, and its
+                    handler calls preventDefault() + navigate() itself — racing
+                    (and beating) the preventDefault in handleSectionClick. The
+                    result was a hash navigation that snapped to the section in a
+                    single frame, before our smooth Lenis scroll ever ran. */}
+                <a href="/#featured" data-transition-ignore onClick={(e) => handleSectionClick(e, "featured")}>
                   Featured
                 </a>
-                <a href="/#why-skin" onClick={(e) => handleSectionClick(e, "why-skin")}>
+                <a href="/#why-skin" data-transition-ignore onClick={(e) => handleSectionClick(e, "why-skin")}>
                   Why Cleanse
                 </a>
                 {/* Goes to the Ritual PAGE. The home page's `#rituals` anchor
@@ -891,7 +910,7 @@ const Menu = () => {
                 <Link href="/ritual" onClick={(e) => handleLinkClick(e, "/ritual")}>
                   Rituals
                 </Link>
-                <a href="/#testimonials" onClick={(e) => handleSectionClick(e, "testimonials")}>
+                <a href="/#testimonials" data-transition-ignore onClick={(e) => handleSectionClick(e, "testimonials")}>
                   Testimonials
                 </a>
               </div>

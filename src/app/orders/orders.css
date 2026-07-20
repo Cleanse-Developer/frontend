@@ -13,7 +13,7 @@
 
 .orders-header-label {
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.78vw, 0.72rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.25em;
   color: rgba(255, 255, 255, 0.4);
@@ -22,7 +22,7 @@
 
 .orders-header-title {
   font-family: var(--font-heading);
-  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+  font-size: var(--fs-hero-title);
   color: #fff;
   line-height: 1;
   letter-spacing: 0.06em;
@@ -47,7 +47,7 @@
   border: 1.5px solid rgba(79, 44, 34, 0.1);
   padding: 0.55rem 1.25rem;
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.75vw, 0.7rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(79, 44, 34, 0.5);
@@ -96,7 +96,7 @@
 
 .orders-card-id {
   font-family: var(--font-body);
-  font-size: clamp(0.88rem, 1vw, 0.95rem);
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--base-700);
   text-transform: uppercase;
@@ -105,14 +105,14 @@
 
 .orders-card-date {
   font-family: var(--font-body);
-  font-size: clamp(0.7rem, 0.82vw, 0.78rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.4);
   margin-top: 0.25rem;
 }
 
 .orders-status {
   font-family: var(--font-body);
-  font-size: clamp(0.6rem, 0.7vw, 0.66rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 0.35rem 0.9rem;
@@ -184,7 +184,7 @@
 
 .orders-item-name {
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 0.92vw, 0.88rem);
+  font-size: var(--fs-supporting);
   color: var(--base-700);
   white-space: nowrap;
   overflow: hidden;
@@ -193,14 +193,14 @@
 
 .orders-item-meta {
   font-family: var(--font-body);
-  font-size: clamp(0.72rem, 0.82vw, 0.78rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.4);
   margin-top: 0.15rem;
 }
 
 .orders-item-price {
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 0.92vw, 0.88rem);
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: var(--base-700);
   flex-shrink: 0;
@@ -216,7 +216,7 @@
 
 .orders-total-label {
   font-family: var(--font-body);
-  font-size: clamp(0.7rem, 0.8vw, 0.76rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -224,7 +224,7 @@
 
 .orders-total-amount {
   font-family: var(--font-body);
-  font-size: clamp(1rem, 1.1vw, 1.05rem);
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--base-700);
   margin-top: 0.15rem;
@@ -245,7 +245,7 @@
   border: none;
   padding: 0.6rem 1.35rem;
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.75vw, 0.7rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border-radius: 8px;
@@ -270,7 +270,7 @@
   background: none;
   border: none;
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.75vw, 0.7rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: rgba(79, 44, 34, 0.4);
@@ -287,7 +287,7 @@
 
 .orders-return-submitted {
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.75vw, 0.7rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #1a7a42;
@@ -313,7 +313,7 @@
 
 .orders-return-label {
   font-family: var(--font-body);
-  font-size: clamp(0.68rem, 0.78vw, 0.74rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgba(79, 44, 34, 0.45);
@@ -322,7 +322,7 @@
 .orders-return-select {
   width: 100%;
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 0.92vw, 0.88rem);
+  font-size: var(--fs-supporting);
   padding: 0.75rem 1rem;
   border: 1.5px solid rgba(79, 44, 34, 0.12);
   border-radius: 8px;
@@ -344,7 +344,7 @@
   border: none;
   padding: 0.6rem 1.35rem;
   font-family: var(--font-body);
-  font-size: clamp(0.65rem, 0.75vw, 0.7rem);
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border-radius: 8px;
@@ -386,14 +386,14 @@
 
 .orders-empty-title {
   font-family: var(--font-heading);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: var(--fs-hero-title);
   color: var(--base-700);
   line-height: 1;
 }
 
 .orders-empty-text {
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 0.92vw, 0.88rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -404,7 +404,7 @@
   background: var(--base-700);
   color: var(--base-100);
   font-family: var(--font-body);
-  font-size: clamp(0.72rem, 0.82vw, 0.78rem);
+  font-size: var(--fs-supporting);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 1rem 2.5rem;
@@ -434,7 +434,7 @@
 
 .orders-loading-text {
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 0.92vw, 0.88rem);
+  font-size: var(--fs-supporting);
   color: rgba(79, 44, 34, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -523,6 +523,6 @@
 
   .orders-filter-btn {
     padding: 0.45rem 0.9rem;
-    font-size: 0.6rem;
+    font-size: var(--fs-caption);
   }
 }

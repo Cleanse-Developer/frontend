@@ -19,7 +19,7 @@
 
 .ba-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--fs-section-title);
   font-weight: 400;
   color: #4F2C22;
   text-transform: uppercase;

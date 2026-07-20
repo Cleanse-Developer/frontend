@@ -462,7 +462,7 @@
 .bundle-title {
   font-family: var(--font-heading);
   font-weight: 400;
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--fs-section-title);
   color: #4F2C22;
   text-transform: uppercase;
   line-height: 1;
@@ -470,7 +470,7 @@
 }
 
 .bundle-subtitle {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 400;
   color: #4F2C22;
@@ -590,7 +590,7 @@
 }
 
 .bundle-summary-title {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 1.25rem;
   font-weight: 700;
   color: #fff;
@@ -599,7 +599,7 @@
 }
 
 .bundle-summary-desc {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 400;
   color: #fff;
@@ -687,7 +687,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 400;
   color: #fff;
@@ -1229,7 +1229,7 @@
 
 .recommended-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--fs-section-title);
   font-weight: 400;
   color: #000;
   text-align: center;

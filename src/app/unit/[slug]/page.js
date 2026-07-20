@@ -731,8 +731,10 @@ function UnitContent({ params }) {
         </section>
       )}
 
-      {/* Product Info Tabs */}
-      <section className="product-info-section">
+      {/* Product Info Tabs. `id` is the anchor target for /unit#ingredients
+          (the menu's Ingredients link); the Ingredients panel is already the
+          default open tab, so landing here shows it. */}
+      <section className="product-info-section" id="ingredients">
         <div className="product-info-container">
           <div className="product-info-tabs">
             {buildProductInfoTabs(product).map((tab) => (
