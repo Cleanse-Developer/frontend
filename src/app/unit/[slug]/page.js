@@ -122,6 +122,10 @@ function UnitContent({ params }) {
   const [deliveryMsg, setDeliveryMsg] = useState("");
   const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
+  // Natural width/height ratio of the active gallery photo. The hero image box
+  // adopts this ratio so the photo fills it edge-to-edge (no letterboxing),
+  // which keeps the thumbnail strip flush with the photo's visible edges.
+  const [galleryRatio, setGalleryRatio] = useState(null);
   const [bundles, setBundles] = useState([]);
   const [activeBundleIndex, setActiveBundleIndex] = useState(0);
   const [bundleSelected, setBundleSelected] = useState([]);
@@ -307,25 +311,11 @@ function UnitContent({ params }) {
   const activeBundle = bundles[activeBundleIndex] || null;
   const bundleProducts = activeBundle ? (activeBundle.products || []).map(normalizeProduct) : [];
 
-  const bundleSummaryRef = useRef(null);
-
   const toggleBundleItem = (index) => {
     const updated = [...bundleSelected];
     updated[index] = !updated[index];
     if (updated.filter(Boolean).length === 0) return;
     setBundleSelected(updated);
-    // On mobile, reveal the bundle summary + "Add to Cart" button near the
-    // bottom of the viewport (with a little breathing room below).
-    if (typeof window !== "undefined" && window.innerWidth <= 480) {
-      requestAnimationFrame(() => {
-        const el = bundleSummaryRef.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const extra = 140; // scroll a bit further so the bar isn't at the very edge
-        const top = window.scrollY + rect.bottom - window.innerHeight + extra;
-        window.scrollTo({ top, behavior: "smooth" });
-      });
-    }
   };
 
   const switchBundle = (index) => {
@@ -438,7 +428,10 @@ function UnitContent({ params }) {
   return (
     <div className="unit-page">
       <section className="product-hero">
-        <div className="product-hero-col product-hero-left">
+        <div
+          className="product-hero-col product-hero-left"
+          style={galleryRatio ? { "--gallery-ratio": galleryRatio } : undefined}
+        >
           <div
             className="product-hero-image"
             onTouchStart={onGalleryTouchStart}
@@ -453,6 +446,12 @@ function UnitContent({ params }) {
               fill
               sizes="(max-width: 1199px) 100vw, 620px"
               priority
+              onLoad={(e) => {
+                const { naturalWidth, naturalHeight } = e.currentTarget;
+                if (naturalWidth && naturalHeight) {
+                  setGalleryRatio(naturalWidth / naturalHeight);
+                }
+              }}
             />
           </div>
           <div className="product-thumbnails">
@@ -766,7 +765,7 @@ function UnitContent({ params }) {
                 );
               })}
             </div>
-            <div className="bundle-summary" ref={bundleSummaryRef}>
+            <div className="bundle-summary">
               {/* Compact "zomato-style" bar — shown on mobile only (same as home) */}
               <div className="bundle-compact">
                 <div className="bundle-compact-left">
@@ -842,9 +841,17 @@ function UnitContent({ params }) {
                   </span>
                 </div>
               </div>
-              {bundleMeetsMin && bundleOriginalTotal !== bundleDiscountedTotal && (
-                <p className="bundle-summary-savings">You save &#8377;{bundleOriginalTotal - bundleDiscountedTotal}</p>
-              )}
+              <p
+                className={`bundle-summary-savings${
+                  bundleMeetsMin && bundleOriginalTotal !== bundleDiscountedTotal
+                    ? ""
+                    : " is-placeholder"
+                }`}
+              >
+                {bundleMeetsMin && bundleOriginalTotal !== bundleDiscountedTotal
+                  ? `You save ₹${bundleOriginalTotal - bundleDiscountedTotal}`
+                  : "\u00A0"}
+              </p>
               <button className="bundle-add-btn" onClick={handleAddBundle}>
                 Add Bundle to Cart
               </button>

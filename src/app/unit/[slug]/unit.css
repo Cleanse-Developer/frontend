@@ -73,14 +73,17 @@
 .product-hero-image {
   position: relative;
   overflow: hidden;
-  width: 100%;
-  max-width: 560px;
-  /* Keep the gallery at the same visual width as the details column.
-     A viewport-based max-height previously shrank this box horizontally,
-     creating much more empty space on the left than on the right. */
-  height: min(76svh, 700px);
+  /* The box adopts the photo's own aspect ratio (--gallery-ratio, set from the
+     loaded image's natural dimensions) so the photo fills it edge-to-edge with
+     no letterbox bars — the thumbnail strip below shares this width, keeping
+     its outer thumbnails flush with the photo's visible edges. The third term
+     caps the width so the derived height never exceeds min(76svh, 700px). */
+  width: min(100%, 560px, calc(min(76svh, 700px) * var(--gallery-ratio, 0.8)));
+  max-width: none;
+  flex: 0 0 auto;
+  height: auto;
   max-height: none;
-  aspect-ratio: auto;
+  aspect-ratio: var(--gallery-ratio, 0.8);
   border-radius: 0;
   background: transparent;
   border: 0;
@@ -96,20 +99,22 @@
   width: 100%;
   height: 100%;
   /* Show the whole product, centred — `cover` was cropping the bottle's
-     bottom and making it look shifted down. */
+     bottom and making it look shifted down. The box matches the photo's
+     aspect ratio, so `contain` fills it completely with no offset needed. */
   object-fit: contain;
-  object-position: 44% center;
-  transform: scale(1.08);
-  transform-origin: 44% center;
+  object-position: center;
 }
 
 .product-thumbnails {
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  gap: 0.6rem;
-  width: 100%;
-  max-width: 560px;
+  justify-content: space-between;
+  gap: 0;
+  /* Mirror .product-hero-image's width so the first and last thumbnails sit
+     exactly on the photo's left and right edges. */
+  width: min(100%, 560px, calc(min(76svh, 700px) * var(--gallery-ratio, 0.8)));
+  max-width: none;
+  flex: 0 0 auto;
   scrollbar-width: none;
 }
 
@@ -119,8 +124,8 @@
 
 .product-thumbnail {
   position: relative;
-  width: 48px;
-  height: 58px;
+  width: 64px;
+  height: 76px;
   overflow: hidden;
   cursor: pointer;
   border: 1px solid transparent;
@@ -597,7 +602,7 @@
   padding: 1rem;
   border: 1px solid rgba(114, 47, 20, 0.14);
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(231, 208, 166, 0.52), rgba(255, 255, 255, 0.48));
+  background: #E7D0A6;
   box-shadow: 0 8px 24px rgba(66, 45, 28, 0.06);
 }
 
@@ -941,6 +946,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-height: 60px;
 }
 
 .bundle-slot-img {
@@ -1041,6 +1047,11 @@
   color: rgba(255, 255, 255, 0.6);
   margin-top: 0.25rem;
   margin-bottom: 1.5rem;
+  min-height: 1em;
+}
+
+.bundle-summary-savings.is-placeholder {
+  visibility: hidden;
 }
 
 .bundle-add-btn {
@@ -1822,9 +1833,12 @@
   }
 
   .product-hero-image {
-    max-width: 440px;
+    width: min(100%, 440px);
+    max-width: none;
     height: auto;
-    aspect-ratio: 4 / 5;
+    /* Follow the photo's real ratio here too, so the strip below stays flush
+       with the photo's edges on the single-column layout. */
+    aspect-ratio: var(--gallery-ratio, 4 / 5);
   }
 
   .product-hero-image img {
@@ -1833,13 +1847,15 @@
   }
 
   .product-thumbnails {
-    max-width: 440px;
-    justify-content: center;
+    width: min(100%, 440px);
+    max-width: none;
+    justify-content: space-between;
+    gap: 0;
   }
 
   .product-thumbnail {
-    width: 44px;
-    height: 52px;
+    width: 58px;
+    height: 68px;
   }
 
   .product-meta-container {
@@ -2427,14 +2443,14 @@
   }
 
   .product-thumbnails {
-    gap: 0.35rem;
-    justify-content: center;
+    gap: 0;
+    justify-content: space-between;
   }
 
   .product-thumbnail {
-    width: 44px;
-    height: 52px;
-    border-radius: 4px;
+    width: 56px;
+    height: 66px;
+    border-radius: 5px;
   }
 }
 
