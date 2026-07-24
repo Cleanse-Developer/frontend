@@ -16,6 +16,7 @@ import { cardPrice } from "@/lib/formatters";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import { renderTabHighlightIcon } from "@/lib/tab-highlight-icons";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa6";
+import { getProductListingContent } from "./productListingContent";
 
 const productImages = [
   "/images/1.png",
@@ -132,6 +133,9 @@ function UnitContent({ params }) {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewForm, setReviewForm] = useState({ rating: 5, title: "", text: "" });
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [descriptionHeight, setDescriptionHeight] = useState(0);
+  const descriptionRef = useRef(null);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const toast = useToast();
@@ -202,6 +206,28 @@ function UnitContent({ params }) {
     // locally (selectedSize) so switching size never refetches/flashes the page.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
+  useEffect(() => {
+    setDescriptionExpanded(false);
+  }, [slug]);
+
+  useEffect(() => {
+    if (!product) return;
+
+    const measureDescription = () => {
+      if (descriptionRef.current) {
+        setDescriptionHeight(descriptionRef.current.scrollHeight);
+      }
+    };
+
+    const frame = requestAnimationFrame(measureDescription);
+    window.addEventListener("resize", measureDescription);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", measureDescription);
+    };
+  }, [product]);
 
   const handleSubmitReview = async () => {
     if (!product?._id || !reviewForm.text.trim() || reviewSubmitting) return;
@@ -398,6 +424,16 @@ function UnitContent({ params }) {
   const discount = originalPrice > activePrice ? Math.round((1 - activePrice / originalPrice) * 100) : 0;
   const formattedPrice = `\u20B9${activePrice.toLocaleString("en-IN")}`;
   const formattedOriginal = `\u20B9${originalPrice.toLocaleString("en-IN")}`;
+  const listingContent = getProductListingContent(product);
+  const heroTitle = listingContent?.title || product.name;
+  const heroDescription = listingContent?.description || product.description;
+  const heroTags = [...(listingContent?.tags || [])].sort((a, b) => {
+    if (a.toLowerCase() === "all skin types") return -1;
+    if (b.toLowerCase() === "all skin types") return 1;
+    return 0;
+  });
+  const heroHelps = listingContent?.helps || [];
+  const heroTargets = listingContent?.targets || [];
 
   return (
     <div className="unit-page">
@@ -433,26 +469,62 @@ function UnitContent({ params }) {
         </div>
         <div className="product-hero-col product-meta">
           <div className="product-meta-container">
-            {/* Stock Badge */}
-            <div className="product-stock-badge">
-              <span className="stock-dot"></span>
-              Only few units left
+            {/* Product Name */}
+            <h1 className="product-title">{heroTitle}</h1>
+
+            <div className="product-summary-row">
+              <div className="product-rating" aria-label={`${(product.averageRating || 4).toFixed(1)} out of 5 stars`}>
+                <span className="product-rating-stars" aria-hidden="true">
+                  {[1, 2, 3, 4, 5].map((star) => {
+                    const fillPercent = Math.max(
+                      0,
+                      Math.min(100, ((product.averageRating || 4) - star + 1) * 100)
+                    );
+                    const gradientId = `hero-rating-${star}`;
+
+                    return (
+                      <svg key={star} viewBox="0 0 24 24">
+                        <defs>
+                          <linearGradient id={gradientId} x1="0" x2="1">
+                            <stop offset={`${fillPercent}%`} stopColor="#C28B36" />
+                            <stop offset={`${fillPercent}%`} stopColor="transparent" />
+                          </linearGradient>
+                        </defs>
+                        <path
+                          d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                          fill={`url(#${gradientId})`}
+                          stroke="#C28B36"
+                          strokeWidth="1.5"
+                        />
+                      </svg>
+                    );
+                  })}
+                </span>
+                <span className="rating-count">
+                  {(product.averageRating || 4).toFixed(1)} ({product.reviewCount || 0} reviews)
+                </span>
+              </div>
+              <div className="product-stock-badge">
+                <span className="stock-dot"></span>
+                Only few units left
+              </div>
             </div>
 
-            {/* Ratings */}
-            <div className="product-rating">
-              <div className="rating-stars">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <svg key={star} width="16" height="16" viewBox="0 0 24 24" fill={star <= 4 ? "#4F2C22" : "none"} stroke="#4F2C22" strokeWidth="1.5">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
+            {heroTags.length > 0 && (
+              <div className="product-benefit-tags" aria-label="Product benefits">
+                {heroTags.map((tag) => (
+                  <span
+                    className={`product-benefit-tag${tag.toLowerCase() === "all skin types" ? " product-benefit-tag--all-skin" : ""}`}
+                    key={tag}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                      <path d="m5 12 4 4L19 6" />
+                    </svg>
+                    {tag}
+                  </span>
                 ))}
               </div>
-              <span className="rating-count">{(product.averageRating || 4).toFixed(1)} ({product.reviewCount || 0} reviews)</span>
-            </div>
-
-            {/* Product Name */}
-            <h3 className="product-title">{product.name}</h3>
+            )}
 
             {/* Price */}
             <div className="product-price-row">
@@ -462,9 +534,60 @@ function UnitContent({ params }) {
             </div>
 
             {/* Description */}
-            <p className="product-description">
-              {product.description}
-            </p>
+            <div className={`product-description-wrap${descriptionExpanded ? " expanded" : ""}`}>
+              <p
+                ref={descriptionRef}
+                className="product-description"
+                style={descriptionExpanded && descriptionHeight ? { maxHeight: `${descriptionHeight}px` } : undefined}
+              >
+                {heroDescription}
+              </p>
+              {heroDescription?.length > 150 && (
+                <button
+                  type="button"
+                  className="product-description-toggle"
+                  onClick={() => setDescriptionExpanded((expanded) => !expanded)}
+                  aria-expanded={descriptionExpanded}
+                >
+                  {descriptionExpanded ? "Show less" : "See more"}
+                </button>
+              )}
+            </div>
+
+            {(heroHelps.length > 0 || heroTargets.length > 0) && (
+              <div className="product-concern-card">
+                {heroHelps.length > 0 && (
+                  <div className="product-concern-row">
+                    <p className="product-concern-label">Helps</p>
+                    <div className="product-concern-chips">
+                      {heroHelps.map((item) => (
+                        <span className="product-concern-chip product-concern-chip--help" key={item}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                            <path d="M12 3c1.2 3.5 3.5 5.8 7 7-3.5 1.2-5.8 3.5-7 7-1.2-3.5-3.5-5.8-7-7 3.5-1.2 5.8-3.5 7-7Z" />
+                          </svg>
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {heroTargets.length > 0 && (
+                  <div className="product-concern-row">
+                    <p className="product-concern-label">Targets</p>
+                    <div className="product-concern-chips">
+                      {heroTargets.map((item, index) => (
+                        <span
+                          className={`product-concern-chip product-concern-chip--target product-concern-chip--tone-${(index % 3) + 1}`}
+                          key={item}
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="product-meta-header-divider"></div>
 

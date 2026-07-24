@@ -14,11 +14,13 @@
      intrinsic width); grid keeps both halves exactly 50% so the centered
      image and details get symmetric outer spacing. */
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 560px));
+  justify-content: center;
   align-items: start;
   /* The two halves pull their content toward the centre line, so this is the
      real gallery↔details gap — tune it here rather than via the columns. */
-  column-gap: clamp(2rem, 4vw, 4rem);
+  column-gap: clamp(2rem, 3.5vw, 3.75rem);
+  padding-inline: var(--gutter);
 }
 
 .product-hero-col {
@@ -33,17 +35,18 @@
   width: 100%;
   /* 540px of content + the right gutter (border-box), so the details keep their
      designed measure instead of the padding eating into it. */
-  max-width: calc(540px + var(--gutter));
+  max-width: 560px;
+  align-self: stretch;
   /* Sits against the centre line (not centred in its half) so the details stay
      close to the gallery; --gutter keeps it off the right edge on wide screens. */
   margin: 0 auto 0 0;
   /* Fills the viewport for short copy, but grows (no inner scroll / clipping)
      when the description is long. */
   min-height: 100svh;
-  padding: 6rem var(--gutter) 3rem 0;
+  padding: 6rem 0 3rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
   justify-content: center;
 }
 
@@ -55,13 +58,15 @@
      release once the right reaches its bottom (CSS sticky, no GSAP pin). */
   top: 0;
   align-self: start;
+  height: 100svh;
   display: flex;
   flex-direction: column;
   /* Hug the centre line to match .product-meta-container, keeping the
      gallery↔details gap driven solely by .product-hero's column-gap. */
   align-items: flex-end;
-  gap: 1rem;
-  padding: 6rem 0 2rem var(--gutter);
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 4rem 0 1.5rem;
 }
 
 /* Big image is a square; thumbnails sit in a row beneath it */
@@ -69,12 +74,16 @@
   position: relative;
   overflow: hidden;
   width: 100%;
-  max-width: 620px;
-  /* Keep it square but never taller than the viewport (leaves room for
-     the column padding + the thumbnail row). */
-  max-height: calc(100svh - 300px);
-  aspect-ratio: 1 / 1;
-  border-radius: 1rem;
+  max-width: 560px;
+  /* Keep the gallery at the same visual width as the details column.
+     A viewport-based max-height previously shrank this box horizontally,
+     creating much more empty space on the left than on the right. */
+  height: min(76svh, 700px);
+  max-height: none;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
   touch-action: pan-y;
   /* Own compositor layer: the sticky gallery repositions every frame while
      Lenis animates scroll — without this the browser re-rasterizes the
@@ -89,7 +98,9 @@
   /* Show the whole product, centred — `cover` was cropping the bottle's
      bottom and making it look shifted down. */
   object-fit: contain;
-  object-position: center;
+  object-position: 44% center;
+  transform: scale(1.08);
+  transform-origin: 44% center;
 }
 
 .product-thumbnails {
@@ -98,7 +109,7 @@
   justify-content: center;
   gap: 0.6rem;
   width: 100%;
-  max-width: 620px;
+  max-width: 560px;
   scrollbar-width: none;
 }
 
@@ -108,14 +119,14 @@
 
 .product-thumbnail {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 58px;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   padding: 0;
   background: rgba(255, 255, 255, 0.85);
-  border-radius: 6px;
+  border-radius: 4px;
   transition: opacity 0.2s ease, border-color 0.2s ease;
   flex-shrink: 0;
 }
@@ -160,8 +171,8 @@
   letter-spacing: 0.1em;
   color: #663532;
   background: rgba(102, 53, 50, 0.08);
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
   width: fit-content;
 }
 
@@ -182,18 +193,29 @@
 .product-rating {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.35rem;
 }
 
-.rating-stars {
-  display: flex;
+.product-rating-stars {
+  display: inline-flex;
+  align-items: center;
   gap: 2px;
+  line-height: 0;
 }
 
-.rating-stars svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
+.product-rating-stars > svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+  object-fit: contain;
+}
+
+.product-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .rating-count {
@@ -206,14 +228,55 @@
 /* Marketplace-style product name: a long descriptive title set in body type,
    not a display heading — it has to stay readable at two or three lines. */
 .product-title {
+  align-self: stretch;
+  width: 100%;
+  max-width: none;
   font-family: var(--font-body);
   font-weight: 500;
   font-size: var(--fs-section-title);
   color: var(--base-700);
-  line-height: 1.4;
+  line-height: 1.35;
   letter-spacing: 0;
   text-transform: none;
-  margin-bottom: 0.5rem;
+  text-align: left;
+  overflow-wrap: break-word;
+  margin: 0;
+}
+
+.product-benefit-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.product-benefit-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 24px;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid rgba(102, 53, 50, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.46);
+  color: var(--base-600);
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.product-benefit-tag > svg {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  object-fit: contain;
+}
+
+.product-benefit-tag--all-skin {
+  border-color: #9E9268;
+  background: #9E9268;
+  color: #2E1F14;
 }
 
 /* Price Row */
@@ -226,7 +289,8 @@
 .product-price-current {
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: var(--fs-subheading);
+  font-size: var(--fs-section-title);
+  line-height: 1;
   color: var(--base-700);
 }
 
@@ -255,8 +319,39 @@
   font-family: var(--font-body);
   font-weight: 400;
   font-size: var(--fs-body);
-  line-height: 1.7;
+  line-height: 1.6;
   color: var(--base-500);
+  max-height: 3.2em;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: max-height;
+}
+
+.product-description-wrap {
+  position: relative;
+}
+
+.product-description-toggle {
+  appearance: none;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  color: #663532;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  font-weight: 500;
+  line-height: 1.2;
+  margin-top: 0.35rem;
+  padding: 0 0 0.1rem;
+  text-transform: none;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.product-description-toggle:focus-visible {
+  outline: 2px solid #663532;
+  outline-offset: 3px;
 }
 
 /* Divider */
@@ -493,6 +588,76 @@
   font-size: var(--fs-caption);
   color: var(--base-300);
 }
+
+/* Product-specific benefit/concern summary, derived from the listing sheet. */
+.product-concern-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(114, 47, 20, 0.14);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(231, 208, 166, 0.52), rgba(255, 255, 255, 0.48));
+  box-shadow: 0 8px 24px rgba(66, 45, 28, 0.06);
+}
+
+.product-concern-row {
+  display: grid;
+  grid-template-columns: 4.25rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.product-concern-label {
+  padding-top: 0.45rem;
+  color: var(--base-700);
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.product-concern-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.product-concern-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 30px;
+  padding: 0.4rem 0.7rem;
+  border-radius: 7px;
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.product-concern-chip > svg {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+  object-fit: contain;
+}
+
+.product-concern-chip--help {
+  border: 1px solid rgba(158, 146, 104, 0.55);
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--base-600);
+}
+
+.product-concern-chip--target {
+  border: 1px solid transparent;
+  color: #fffaf2;
+}
+
+.product-concern-chip--tone-1 { background: #722F14; }
+.product-concern-chip--tone-2 { background: #84592C; }
+.product-concern-chip--tone-3 { background: #9E9268; color: #2E1F14; }
 
 /* === Bundle Section === */
 
@@ -1644,6 +1809,7 @@
     min-height: 0;
     height: auto;
     background: #F0EDE8;
+    padding-inline: 0;
   }
 
   .product-hero-col.product-hero-left {
@@ -1656,17 +1822,24 @@
   }
 
   .product-hero-image {
-    max-width: 480px;
+    max-width: 440px;
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
+
+  .product-hero-image img {
+    object-position: center;
+    transform: none;
   }
 
   .product-thumbnails {
-    max-width: 480px;
+    max-width: 440px;
     justify-content: center;
   }
 
   .product-thumbnail {
-    width: 56px;
-    height: 56px;
+    width: 44px;
+    height: 52px;
   }
 
   .product-meta-container {
@@ -1917,6 +2090,41 @@
 }
 
 @media (max-width: 480px) {
+  .product-price-current {
+    font-size: var(--fs-page-title);
+  }
+
+  .product-summary-row {
+    align-items: flex-start;
+  }
+
+  .product-benefit-tags {
+    gap: 0.4rem;
+  }
+
+  .product-benefit-tag {
+    min-height: 23px;
+    padding: 0.26rem 0.5rem;
+  }
+
+  .product-concern-card {
+    padding: 0.85rem;
+  }
+
+  .product-concern-row {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
+  .product-concern-label {
+    padding-top: 0;
+  }
+
+  .product-concern-chip {
+    min-height: 28px;
+    padding: 0.38rem 0.6rem;
+  }
+
   .product-price-row {
     flex-wrap: wrap;
   }
@@ -2187,15 +2395,20 @@
     padding: 0.75rem;
   }
 
-  /* Uniform compact cards so exactly 4 fit; clamp long reviews to 2 lines */
+  /* Let mobile reviews grow with their content. The former 120px fixed height
+     pushed the author row over the review copy and clipped both lines. */
   .review-card {
-    height: 120px;
-    padding: 0.75rem 0;
-    gap: 0.35rem;
+    height: auto;
+    min-height: 0;
+    padding: 1rem 0;
+    gap: 0.6rem;
+    overflow: visible;
   }
 
   .review-card .review-text {
-    -webkit-line-clamp: 2;
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
   }
 
   .review-card-quote {
@@ -2265,9 +2478,10 @@
 }
 .product-acc-arrow {
   flex-shrink: 0;
-  width: 14px;
-  height: 14px;
+  width: 11px;
+  height: 11px;
   color: #663532;
+  object-fit: contain;
   transition: transform 0.3s ease;
 }
 .product-acc-item.open .product-acc-arrow { transform: rotate(180deg); }
@@ -2293,6 +2507,10 @@
    Mobile/tablet: the hero accordion IS the content; the big tabs section is hidden.
    Desktop: the accordion is hidden; the detailed tabs section is shown. */
 @media (min-width: 1025px) {
+  .product-meta-container {
+    transform: translateX(-2rem);
+  }
+
   .product-accordion { display: none; }
   /* Trim the excess whitespace below Ingredients / How To Use / Our Values */
   .product-info-section { padding-top: 3.5rem; padding-bottom: 2.5rem; }
