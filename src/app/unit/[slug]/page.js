@@ -12,7 +12,7 @@ import { useToast } from "@/context/ToastContext";
 import { productApi, shippingApi, reviewApi, bundleApi } from "@/lib/endpoints";
 import { normalizeProduct } from "@/lib/normalizers";
 import { productUrl } from "@/lib/normalizers";
-import { cardPrice } from "@/lib/formatters";
+import { cardPrice, toNum } from "@/lib/formatters";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import { renderTabHighlightIcon } from "@/lib/tab-highlight-icons";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa6";
@@ -102,6 +102,98 @@ function buildProductInfoTabs(product) {
 // which the admin picker mirrors — one place defines what keys exist.
 const ValueIcon = ({ type }) => renderTabHighlightIcon(type);
 
+// ── Variants ────────────────────────────────────────────────────────────────
+// A size row from the API is `{ label, sku, price, compareAtPrice, stock }`, but
+// legacy products store plain strings ("120 ml"). Everything below tolerates both.
+
+const VARIANT_AMOUNT_RE = /(\d+(?:\.\d+)?)\s*(ml|l|kg|gm|g|oz|pcs|pc)\b/i;
+
+/** "120 ml" -> { value: 120, unit: "ml" }. Litres/kilos fold into ml/g so
+ *  variants of the same product compare on one axis. null when unparseable. */
+function parseVariantAmount(label) {
+  const match = String(label || "").match(VARIANT_AMOUNT_RE);
+  if (!match) return null;
+  const value = Number(match[1]);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  const unit = match[2].toLowerCase();
+  if (unit === "l") return { value: value * 1000, unit: "ml" };
+  if (unit === "kg") return { value: value * 1000, unit: "g" };
+  return { value, unit: unit === "gm" ? "g" : unit === "pc" ? "pcs" : unit };
+}
+
+const formatUnitRate = (rate) => (rate >= 10 ? Math.round(rate).toString() : rate.toFixed(1));
+
+/** Absolute size read: a 10 ml bottle is a trial/travel size whatever else the
+ *  product offers, and a 500 ml one is a bulk buy. Anything between is normal
+ *  and gets no chip — the label already says how big it is. */
+function sizeTier(amount) {
+  if (!amount) return null;
+  const { value, unit } = amount;
+  if (unit === "ml" || unit === "g") {
+    if (value <= 15) return "Mini";
+    if (value >= 500) return "Value size";
+  }
+  if (unit === "oz" && value <= 0.5) return "Mini";
+  return null;
+}
+
+const formatRupees = (n) => `₹${Math.round(n).toLocaleString("en-IN")}`;
+
+/**
+ * Decorate each size with everything the selector shows: price, strike-through
+ * compare-at, per-ml rate, stock state and at most one badge. Stock is only
+ * asserted when the API actually sends a number — absent stock means "sellable",
+ * never "sold out".
+ */
+function buildVariants(product) {
+  const variants = (product?.sizes || []).map((size) => {
+    const label = String(size?.label ?? size ?? "").trim();
+    const price = toNum(size?.price) ?? toNum(product?.price);
+    const compareRaw = toNum(size?.compareAtPrice) ?? toNum(product?.compareAtPrice);
+    const compareAt = price && compareRaw && compareRaw > price ? compareRaw : null;
+    const stock = toNum(size?.stock ?? size?.quantity ?? size?.inventory);
+    const amount = parseVariantAmount(label);
+    const unitRate = amount && price ? price / amount.value : null;
+
+    return {
+      key: size?.sku || label,
+      label: label || "One size",
+      raw: size,
+      price,
+      compareAt,
+      savePct: compareAt ? Math.round((1 - price / compareAt) * 100) : 0,
+      stock,
+      soldOut: stock !== null && stock <= 0,
+      lowStock: stock !== null && stock > 0 && stock <= 5,
+      unitRate,
+      unitLabel: unitRate ? `₹${formatUnitRate(unitRate)}/${amount.unit}` : null,
+      tier: sizeTier(amount),
+      badge: null,
+    };
+  });
+
+  // "Best value" needs something to be better than, so it only appears when two
+  // sellable variants actually differ in per-unit price.
+  const rated = variants.filter((v) => !v.soldOut && v.unitRate);
+  if (rated.length > 1) {
+    const best = rated.reduce((a, b) => (b.unitRate < a.unitRate ? b : a));
+    if (rated.some((v) => v.unitRate > best.unitRate)) best.badge = "Best value";
+  }
+  // A discount badge is only worth the space when variants differ; with a single
+  // size the price row above already carries the "% off" chip.
+  if (variants.length > 1) {
+    variants.forEach((v) => {
+      if (!v.badge && !v.soldOut && v.savePct >= 5) v.badge = `${v.savePct}% off`;
+    });
+  }
+
+  return variants;
+}
+
+/** Key used to match a selected size (object or legacy string) to a variant. */
+const variantKeyOf = (size) =>
+  (typeof size === "object" && size !== null ? size.sku || size.label : size) || null;
+
 export default function Unit({ params }) {
   return (
     <Suspense>
@@ -157,7 +249,13 @@ function UnitContent({ params }) {
       const matchedSize = variantParam && p.sizes?.length > 0
         ? p.sizes.find((s) => s.sku === variantParam || s.label === variantParam)
         : null;
-      setSelectedSize(matchedSize || p.sizes?.[0] || null);
+      // Land on something buyable: a sold-out first variant would otherwise
+      // greet everyone with a dead "Add to Cart".
+      const firstSellable = (p.sizes || []).find((s) => {
+        const stock = toNum(s?.stock ?? s?.quantity ?? s?.inventory);
+        return stock === null || stock > 0;
+      });
+      setSelectedSize(matchedSize || firstSellable || p.sizes?.[0] || null);
       setLoading(false);
       // Fetch related products
       if (p._id) {
@@ -425,13 +523,48 @@ function UnitContent({ params }) {
   const heroHelps = listingContent?.helps || [];
   const heroTargets = listingContent?.targets || [];
 
+  const variants = buildVariants(product);
+  const selectedKey = variantKeyOf(selectedSize);
+  const activeVariant = variants.find((v) => v.key === selectedKey) || null;
+  const isSoldOut = activeVariant?.soldOut === true;
+
+  const selectVariant = (variant) => {
+    if (!variant || variant.soldOut) return;
+    setSelectedSize(variant.raw);
+    if (variant.key) {
+      router.replace(`/unit/${slug}?variant=${encodeURIComponent(variant.key)}`, { scroll: false });
+    }
+  };
+
+  // Radiogroup semantics: arrows move between sellable variants (and select as
+  // they go), so the selector is operable without reaching for the mouse.
+  const handleVariantKeyDown = (e) => {
+    if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"].includes(e.key)) return;
+    const options = Array.from(e.currentTarget.querySelectorAll('[role="radio"]:not([disabled])'));
+    if (options.length === 0) return;
+    e.preventDefault();
+    const current = options.indexOf(document.activeElement);
+    let next;
+    if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = options.length - 1;
+    else {
+      const step = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
+      next = current < 0 ? 0 : (current + step + options.length) % options.length;
+    }
+    options[next].focus();
+    options[next].click();
+  };
+
   return (
     <div className="unit-page">
-      <section className="product-hero">
-        <div
-          className="product-hero-col product-hero-left"
-          style={galleryRatio ? { "--gallery-ratio": galleryRatio } : undefined}
-        >
+      {/* --gallery-ratio lives on the grid (not the column) so the gallery track
+          can size to the photo's real width — otherwise the leftover width in a
+          fixed 560px track shows up as extra whitespace on the page's left edge. */}
+      <section
+        className="product-hero"
+        style={galleryRatio ? { "--gallery-ratio": galleryRatio } : undefined}
+      >
+        <div className="product-hero-col product-hero-left">
           <div
             className="product-hero-image"
             onTouchStart={onGalleryTouchStart}
@@ -590,27 +723,82 @@ function UnitContent({ params }) {
 
             <div className="product-meta-header-divider"></div>
 
-            {/* Size Selector */}
-            <div className="product-sizes-container">
-              <p className="product-section-label">Size</p>
-              <div className="product-sizes">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size.label || size}
-                    className={`product-size-btn ${(selectedSize?.label || selectedSize) === (size.label || size) ? "selected" : ""}`}
-                    onClick={() => {
-                      setSelectedSize(size);
-                      const variantKey = size.sku || size.label;
-                      if (variantKey) {
-                        router.replace(`/unit/${slug}?variant=${encodeURIComponent(variantKey)}`, { scroll: false });
-                      }
-                    }}
-                  >
-                    {size.label || size}{size.price ? ` - ₹${size.price}` : ""}
-                  </button>
-                ))}
+            {/* Size / variant selector */}
+            {variants.length > 0 && (
+              <div className="product-sizes-container">
+                <div className="product-sizes-head">
+                  <p className="product-section-label">Size</p>
+                  {variants.length > 1 && activeVariant && (
+                    <span className="product-sizes-selected">{activeVariant.label}</span>
+                  )}
+                </div>
+                <div
+                  className="product-sizes"
+                  role="radiogroup"
+                  aria-label="Choose a size"
+                  onKeyDown={handleVariantKeyDown}
+                >
+                  {variants.map((variant) => {
+                    const selected = variant.key === selectedKey;
+                    // Per-variant pricing earns its place only when there is a
+                    // choice to weigh; with one size it would just echo the
+                    // price row a few lines above.
+                    const showPrice = variants.length > 1 && variant.price != null;
+                    return (
+                      <button
+                        key={variant.key}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        aria-label={[
+                          variant.label,
+                          variant.tier,
+                          variant.price ? formatRupees(variant.price) : null,
+                          variant.unitLabel,
+                          variant.soldOut ? "sold out" : variant.lowStock ? `only ${variant.stock} left` : null,
+                        ].filter(Boolean).join(", ")}
+                        tabIndex={selected ? 0 : -1}
+                        disabled={variant.soldOut}
+                        className={`product-variant${selected ? " selected" : ""}${variant.soldOut ? " sold-out" : ""}`}
+                        onClick={() => selectVariant(variant)}
+                      >
+                        {variant.badge && (
+                          <span className="product-variant-badge">{variant.badge}</span>
+                        )}
+                        <span className="product-variant-title">
+                          <span className="product-variant-label">{variant.label}</span>
+                          {variant.tier && (
+                            <span className="product-variant-tier">{variant.tier}</span>
+                          )}
+                        </span>
+                        {showPrice && (
+                          <span className="product-variant-price">
+                            <span className="product-variant-price-now">{formatRupees(variant.price)}</span>
+                            {variant.compareAt && (
+                              <s className="product-variant-price-was">{formatRupees(variant.compareAt)}</s>
+                            )}
+                          </span>
+                        )}
+                        <span
+                          className={`product-variant-meta${variant.soldOut ? " is-out" : variant.lowStock ? " is-low" : ""}`}
+                        >
+                          {variant.soldOut
+                            ? "Sold out"
+                            : variant.lowStock
+                            ? `Only ${variant.stock} left`
+                            : variant.unitLabel || " "}
+                        </span>
+                        <span className="product-variant-check" aria-hidden="true">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m5 12 5 5L19 7" />
+                          </svg>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Quantity + Add to Cart */}
             <div className="product-cart-row">
@@ -621,15 +809,17 @@ function UnitContent({ params }) {
               </div>
               <button
                 className="add-to-cart-btn"
+                disabled={isSoldOut}
                 onClick={() => addToCart(product, selectedSize?.label || selectedSize, quantity)}
               >
-                Add to Cart
+                {isSoldOut ? "Sold Out" : "Add to Cart"}
               </button>
             </div>
 
             {/* Buy Now */}
             <button
               className="buy-now-btn"
+              disabled={isSoldOut}
               onClick={() => {
                 addToCart(product, selectedSize?.label || selectedSize, quantity);
                 router.push("/checkout");

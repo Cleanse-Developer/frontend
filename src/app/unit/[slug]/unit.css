@@ -14,12 +14,19 @@
      intrinsic width); grid keeps both halves exactly 50% so the centered
      image and details get symmetric outer spacing. */
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 560px));
+  /* The gallery track is sized to the photo itself, not to a fixed 560px: a
+     portrait bottle is ~440px wide, and the 120px of leftover track used to sit
+     as dead space on the page's left edge, so the hero read off-centre. With the
+     track hugging the photo, `justify-content: center` balances the outer
+     margins for real. */
+  --gallery-w: min(560px, calc(min(76svh, 700px) * var(--gallery-ratio, 0.8)));
+  grid-template-columns: minmax(0, var(--gallery-w)) minmax(0, 560px);
   justify-content: center;
   align-items: start;
-  /* The two halves pull their content toward the centre line, so this is the
-     real gallery↔details gap — tune it here rather than via the columns. */
-  column-gap: clamp(2rem, 3.5vw, 3.75rem);
+  /* Both tracks now hug their content, so this IS the gallery↔details gap —
+     the single knob for the middle spacing. Widening it never unbalances the
+     page: the grid stays centred, so the outer margins move together. */
+  column-gap: clamp(1.5rem, 2.75vw, 3.25rem);
   padding-inline: var(--gutter);
 }
 
@@ -78,7 +85,10 @@
      no letterbox bars — the thumbnail strip below shares this width, keeping
      its outer thumbnails flush with the photo's visible edges. The third term
      caps the width so the derived height never exceeds min(76svh, 700px). */
-  width: min(100%, 560px, calc(min(76svh, 700px) * var(--gallery-ratio, 0.8)));
+  /* Normally exactly the track width; the cap only bites in the 1025–1100px
+     band where the grid squeezes both tracks, keeping the derived height inside
+     min(76svh, 700px) instead of letting the photo grow past the fold. */
+  width: min(100%, var(--gallery-w));
   max-width: none;
   flex: 0 0 auto;
   height: auto;
@@ -112,7 +122,7 @@
   gap: 0;
   /* Mirror .product-hero-image's width so the first and last thumbnails sit
      exactly on the photo's left and right edges. */
-  width: min(100%, 560px, calc(min(76svh, 700px) * var(--gallery-ratio, 0.8)));
+  width: min(100%, var(--gallery-w));
   max-width: none;
   flex: 0 0 auto;
   scrollbar-width: none;
@@ -378,39 +388,262 @@
   margin-bottom: 0.75rem;
 }
 
-/* Size Selector */
+/* ── Size / variant selector ─────────────────────────────────────────────
+   Each variant is a small card rather than a bare chip: size, its own price
+   (with compare-at), the per-ml rate and stock state are the things a buyer
+   compares, so they belong on the control itself instead of only landing in
+   the price row after a click. */
 .product-sizes-container {
   display: flex;
   flex-direction: column;
 }
 
-.product-sizes {
+.product-sizes-head {
   display: flex;
-  gap: 0.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.product-size-btn {
+.product-sizes-head .product-section-label {
+  margin-bottom: 0.5rem;
+}
+
+.product-sizes-selected {
   font-family: var(--font-body);
   font-size: var(--fs-supporting);
   font-weight: 500;
-  padding: 0.6rem 1.5rem;
-  background: transparent;
-  border: 1px solid var(--base-200);
-  border-radius: 0;
-  color: var(--base-500);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.product-size-btn:hover {
-  border-color: var(--base-700);
   color: var(--base-700);
 }
 
-.product-size-btn.selected {
-  background: var(--base-700);
-  border-color: var(--base-700);
+.product-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.product-variant {
+  position: relative;
+  /* Hug the content (no grow): a lone "120 ml" card stretching to the full
+     column width read as a banner, not as a choice. min-width only keeps a set
+     of cards visually comparable. */
+  flex: 0 1 auto;
+  min-width: 7rem;
+  max-width: 12rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  /* Right padding leaves the check bubble its own lane so a long price never
+     slides under it. */
+  padding: 0.6rem 1.85rem 0.6rem 0.8rem;
+  font-family: var(--font-body);
+  text-align: left;
+  /* Solid ivory, a shade lighter than the #F0EDE8 page, so the card reads as a
+     real object sitting on the page rather than a washed-out outline. */
+  background: #FBF8F3;
+  border: 1px solid rgba(158, 146, 104, 0.55);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(46, 31, 20, 0.05);
+  color: var(--base-500);
+  cursor: pointer;
+  /* Premium personality: 200ms, no overshoot on the surface itself — the pop is
+     reserved for the check, which is the moment worth celebrating. */
+  transition:
+    border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-variant:hover:not(:disabled):not(.selected) {
+  background: #FFFDFA;
+  border-color: #663532;
+  color: var(--base-700);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(46, 31, 20, 0.12);
+}
+
+.product-variant:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(46, 31, 20, 0.08);
+}
+
+.product-variant:focus-visible {
+  outline: 2px solid #663532;
+  outline-offset: 2px;
+}
+
+/* Selected: the same beige as the Helps/Targets card (#E7D0A6), so the two
+   filled surfaces in the details column belong to one family. A maroon ring
+   carries the "chosen" signal that the fill alone can't. */
+.product-variant.selected {
+  background: #E7D0A6;
+  border-color: #663532;
+  color: var(--base-700);
+  box-shadow:
+    inset 0 0 0 1px #663532,
+    0 6px 18px rgba(66, 45, 28, 0.14);
+}
+
+.product-variant-badge {
+  align-self: flex-start;
+  font-size: 0.6rem;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4F2C22;
+  background: var(--base-100);
+  padding: 0.22rem 0.45rem;
+  border-radius: 999px;
+  margin-bottom: 0.3rem;
+}
+
+/* The sand badge would vanish into the beige selected card, so it flips to the
+   maroon fill there. */
+.product-variant.selected .product-variant-badge {
+  background: #663532;
   color: var(--base-100);
+}
+
+.product-variant-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.product-variant-label {
+  font-size: var(--fs-supporting);
+  font-weight: 600;
+  line-height: 1.2;
+  color: inherit;
+}
+
+/* Size tier ("Mini", "Travel", "Value size") — an outlined chip so it sits
+   quietly beside the label instead of competing with the promo badge. */
+.product-variant-tier {
+  font-size: 0.58rem;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--base-400);
+  border: 1px solid rgba(114, 47, 20, 0.35);
+  border-radius: 999px;
+  padding: 0.2rem 0.4rem;
+  white-space: nowrap;
+}
+
+.product-variant.selected .product-variant-tier {
+  color: var(--base-600);
+  border-color: rgba(102, 53, 50, 0.45);
+}
+
+.product-variant-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.product-variant-price-now {
+  font-size: var(--fs-supporting);
+  font-weight: 500;
+  color: inherit;
+}
+
+.product-variant-price-was {
+  font-size: var(--fs-caption);
+  color: var(--base-400);
+  opacity: 0.65;
+}
+
+.product-variant-meta {
+  font-size: var(--fs-caption);
+  line-height: 1.4;
+  color: var(--base-400);
+  opacity: 0.8;
+  /* Reserve the row even when a variant has no per-unit rate, so cards in a
+     row keep a common baseline. */
+  min-height: 1.1em;
+}
+
+.product-variant-meta.is-low {
+  color: #663532;
+  opacity: 1;
+  font-weight: 500;
+}
+
+.product-variant-meta.is-out {
+  color: var(--base-400);
+  opacity: 1;
+  font-weight: 500;
+}
+
+/* On the beige selected card the muted greys go too pale, so secondary text
+   steps up to the darker end of the palette. */
+.product-variant.selected .product-variant-price-was {
+  color: var(--base-500);
+  opacity: 0.6;
+}
+
+.product-variant.selected .product-variant-meta {
+  color: var(--base-500);
+  opacity: 0.85;
+}
+
+.product-variant.selected .product-variant-meta.is-low {
+  color: #663532;
+  opacity: 1;
+}
+
+.product-variant-check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #663532;
+  color: var(--base-100);
+  opacity: 0;
+  transform: scale(0.4);
+  transition:
+    opacity 140ms ease-out,
+    transform 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.product-variant.selected .product-variant-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.product-variant.sold-out {
+  cursor: not-allowed;
+  border-style: dashed;
+  background: #F3EFE8;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+.product-variant.sold-out .product-variant-label,
+.product-variant.sold-out .product-variant-price-now {
+  text-decoration: line-through;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-variant,
+  .product-variant-check {
+    transition-duration: 1ms;
+  }
+
+  .product-variant:hover:not(:disabled) {
+    transform: none;
+  }
 }
 
 /* Quantity + Add to Cart Row */
@@ -424,7 +657,9 @@
   display: flex;
   align-items: center;
   border: 1px solid var(--base-200);
-  border-radius: 0;
+  border-radius: 8px;
+  /* Clip the −/+ hover fill to the rounded corners. */
+  overflow: hidden;
 }
 
 .qty-btn {
@@ -503,6 +738,25 @@
 
 .buy-now-btn:active {
   transform: scale(0.98);
+}
+
+/* Sold-out variant selected: both CTAs go inert rather than adding an
+   unfulfillable line to the cart. */
+.add-to-cart-btn:disabled,
+.buy-now-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.add-to-cart-btn:disabled:hover {
+  background: #663532;
+  border-color: #663532;
+}
+
+.buy-now-btn:disabled:hover {
+  background: transparent;
+  color: var(--base-700);
 }
 
 /* Delivery Check — flush-left with the rest of the content (no inset card),
@@ -2178,12 +2432,10 @@
     line-height: 1.55;
   }
 
-  .product-sizes {
-    flex-wrap: wrap;
-  }
-
-  .product-size-btn {
-    padding: 0.5rem 1.25rem;
+  .product-variant {
+    min-width: 6.25rem;
+    max-width: none;
+    padding: 0.55rem 1.7rem 0.55rem 0.7rem;
   }
 
   .product-cart-row {
@@ -2523,10 +2775,6 @@
    Mobile/tablet: the hero accordion IS the content; the big tabs section is hidden.
    Desktop: the accordion is hidden; the detailed tabs section is shown. */
 @media (min-width: 1025px) {
-  .product-meta-container {
-    transform: translateX(-2rem);
-  }
-
   .product-accordion { display: none; }
   /* Trim the excess whitespace below Ingredients / How To Use / Our Values */
   .product-info-section { padding-top: 3.5rem; padding-bottom: 2.5rem; }
