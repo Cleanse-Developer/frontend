@@ -73,6 +73,9 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
   const [result, setResult] = useState(null);
   const [email, setEmail] = useState("");
   const [hasSpun, setHasSpun] = useState(false);
+  // True when the reward shown was earned on a PREVIOUS visit (from /check), not
+  // spun this session — drives the "come back tomorrow" note + wheel alignment.
+  const [alreadyEarned, setAlreadyEarned] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -100,6 +103,7 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
     const init = async () => {
       if (!mountedRef.current) return;
       setLoading(true);
+      setAlreadyEarned(false);
       try {
         const prizeData = await spinWheelApi.getPrizes();
         if (mountedRef.current && prizeData?.prizes?.length) {
@@ -122,6 +126,7 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
             setEmail(checkEmail);
             setResult(checkData.prize);
             setHasSpun(true);
+            setAlreadyEarned(true);
             setLoading(false);
             return;
           }
@@ -143,6 +148,7 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
                   setEmail(parsed.email);
                   setResult(verify.prize);
                   setHasSpun(true);
+                  setAlreadyEarned(true);
                   setLoading(false);
                   return;
                 }
@@ -170,8 +176,20 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
     }
   }, [isOpen]);
 
+  // On a revisit (reward earned on a previous visit), point the wheel statically
+  // at that prize — otherwise it sits at rotation 0 showing a segment that
+  // contradicts the reward in the result panel.
+  useEffect(() => {
+    if (!alreadyEarned || !result?.value || !prizes.length) return;
+    const idx = prizes.findIndex((p) => p.value === result.value);
+    if (idx < 0) return;
+    const seg = 360 / prizes.length;
+    setRotation(360 - (idx * seg + seg / 2));
+  }, [alreadyEarned, result, prizes]);
+
   const spinWheel = useCallback(async () => {
-    if (isSpinning) return;
+    // One spin per day — never re-spin once a reward/attempt already exists.
+    if (isSpinning || hasSpun) return;
 
     setIsSpinning(true);
     setResult(null);
@@ -246,7 +264,7 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
       if (wheelEl) wheelEl.removeEventListener("transitionend", handleTransitionEnd);
       finishSpin();
     }, SPIN_DURATION_MS + 200);
-  }, [isSpinning, prizes, rotation]);
+  }, [isSpinning, hasSpun, prizes, rotation]);
 
   // Claim the spun reward: bind it to the entered email, which is when the
   // coupon is actually created server-side.
@@ -416,6 +434,19 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
                   <span className="result-label">{result?.value === "tryagain" ? "Oops!" : "You Won!"}</span>
                   <span className="result-prize">{result?.label}</span>
                 </div>
+                {alreadyEarned && (
+                  <p
+                    style={{
+                      fontSize: "0.85rem",
+                      color: "rgba(79, 44, 34, 0.75)",
+                      fontWeight: 500,
+                      textAlign: "center",
+                      margin: "0.25rem 0 0",
+                    }}
+                  >
+                    You&apos;ve already earned your reward. Come back tomorrow for another spin!
+                  </p>
+                )}
                 {isClaimed ? (
                   <>
                     {/* Confirm the claim landed, and say where the code went —

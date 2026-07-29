@@ -8,4 +8,4 @@
 :HL["/_next/static/chunks/a319bde53b4d2020.css","style"]
 :HL["/_next/static/chunks/b039824be34daed7.css","style"]
 :HL["https://d3dm84701hs6ur.cloudfront.net/cleanse/cms/f7b6e3d7-66d5-4838-a082-12f26e2d06e5.webp","image",{"fetchPriority":"high"}]
-0:{"buildId":"PGbZ_AzBtRNhosTZidIMJ","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"lookbook","paramType":null,"paramKey":"lookbook","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"dfw1C0hcy7BXIrxGVyHc1","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"lookbook","paramType":null,"paramKey":"lookbook","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
