@@ -777,7 +777,11 @@ const Menu = () => {
             })}
           </div>
           <div className="menu-header-actions">
-            <LocaleCapsule open={showLangMenu} toggle={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }} close={() => setShowLangMenu(false)} />
+            {/* `!== false` not a truthy check: cmsHeader falls back to {} when
+                settings fail to load, and the capsule must show by default. */}
+            {cmsHeader.showLocaleSelector !== false && (
+              <LocaleCapsule open={showLangMenu} toggle={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }} close={() => setShowLangMenu(false)} />
+            )}
             <button type="button" className="menu-action-btn" aria-label="Search" onClick={openSearch}>
               <SearchIcon />
             </button>

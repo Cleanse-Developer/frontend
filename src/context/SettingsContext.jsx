@@ -204,6 +204,7 @@ const DEFAULTS = {
   },
   cmsHeader: {
     logoImage: null,
+    showLocaleSelector: true,
     navLinks: [
       { label: "Home", href: "/" },
       { label: "Shop", href: "/wardrobe" },
