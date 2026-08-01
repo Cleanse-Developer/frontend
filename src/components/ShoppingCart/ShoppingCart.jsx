@@ -257,52 +257,76 @@ const ShoppingCart = () => {
       commit();
     };
 
-    // Desktop/trackpad: over-scrolling up at the top of the list drives the same
-    // pull. Wheel has no end event, so a short idle timer stands in for touchend.
-    const onWheel = (e) => {
-      if (isRefreshingRef.current) return;
+    /* Desktop/trackpad: over-scrolling up at the top refreshes. Unlike touch,
+       this does NOT drag the list.
 
-      if (!wheelGesture) {
-        wheelGesture = true;
-        wheelBlocked = el.scrollTop > 0;
-      }
-      // Keep the gesture alive on every event, so the timer only fires once the
-      // wheel (and any momentum after it) has actually stopped.
+       The previous version called preventDefault() and setPullDistance() on
+       every wheel event, which is what made it feel broken: preventDefault
+       killed the scroll (it "stopped"), and re-setting the transform each tick
+       restarted the 0.2s transition over and over, so it stuttered instead of
+       animating. It also never actually fired — it waited on an idle timer to
+       call commit(), but trackpad momentum re-armed that timer and a single
+       downward tick in the momentum tail ran cancel(), clearing state.tracking
+       and making the eventual commit() a no-op.
+
+       Now the over-scroll is only counted, never rendered: no preventDefault,
+       no transform. Nothing moves while counting — the list is already at the
+       top, so scrolling up has nowhere to go anyway — and the indicator only
+       appears once the refresh actually starts. */
+    const onWheel = (e) => {
+      /* Re-armed on EVERY event, including while a refresh is running. This
+         ordering is the fix for the double refresh: the guard below used to
+         return before this line, so momentum events during a refresh were
+         ignored AND stopped re-arming the timer. The timer then expired 140ms
+         in, clearing wheelBlocked, while the refresh itself takes ~670ms — so
+         the tail of the SAME trackpad flick started counting again and fired a
+         second refresh the moment the first finished. */
       if (wheelIdle) clearTimeout(wheelIdle);
       wheelIdle = setTimeout(() => {
         wheelIdle = null;
         wheelGesture = false;
         wheelBlocked = false;
-        commit();
+        state.raw = 0;
       }, 140);
 
-      if (wheelBlocked || el.scrollTop > 0) return;
-      // Nothing pulled yet and the user is scrolling down -- leave the list alone.
-      if (e.deltaY >= 0 && state.raw === 0) return;
-
-      const raw = Math.max(0, state.raw - e.deltaY * 0.5);
-      if (raw === 0) {
-        cancel();
+      // A refresh is already up: this gesture is spent. It can only count again
+      // after the wheel has genuinely stopped and the timer above resets it.
+      if (isRefreshingRef.current) {
+        wheelBlocked = true;
         return;
       }
 
-      e.preventDefault();
-      state.raw = raw;
-      state.tracking = true;
+      if (!wheelGesture) {
+        wheelGesture = true;
+        wheelBlocked = el.scrollTop > 0;
+      }
+
+      if (wheelBlocked || el.scrollTop > 0) return;
+      // Scrolling down, or drifting back: start the count over.
+      if (e.deltaY >= 0) {
+        state.raw = 0;
+        return;
+      }
+
+      state.raw -= e.deltaY * 0.5;
+      if (state.raw < PULL_THRESHOLD) return;
+
+      // Swallow the rest of this gesture so its momentum can't fire a second
+      // refresh; the idle timer above clears the flag once the wheel stops.
+      wheelBlocked = true;
+      state.raw = 0;
       state.source = "wheel";
-      const damped =
-        raw <= PULL_THRESHOLD
-          ? raw
-          : PULL_THRESHOLD + (raw - PULL_THRESHOLD) * 0.35;
-      state.distance = Math.min(damped, PULL_MAX);
-      setPullDistance(state.distance);
+      setPullDistance(PULL_THRESHOLD);
+      setIsRefreshing(true);
     };
 
     el.addEventListener("touchstart", onTouchStart, { passive: true });
     el.addEventListener("touchmove", onTouchMove, { passive: false });
     el.addEventListener("touchend", onTouchEnd);
     el.addEventListener("touchcancel", onTouchEnd);
-    el.addEventListener("wheel", onWheel, { passive: false });
+    // Passive now that the wheel path never calls preventDefault — the browser
+    // no longer has to wait on this handler before scrolling.
+    el.addEventListener("wheel", onWheel, { passive: true });
 
     return () => {
       if (wheelIdle) clearTimeout(wheelIdle);
@@ -325,8 +349,14 @@ const ShoppingCart = () => {
       // Hold the spinner briefly so a fast response doesn't just flicker.
       timer = setTimeout(() => {
         if (cancelled) return;
-        setIsRefreshing(false);
+        // Slide the indicator away FIRST, then drop the flag once the 0.2s
+        // transform has run. Doing both at once made the spinner and label
+        // disappear mid-animation, leaving an empty bar sliding up.
         setPullDistance(0);
+        timer = setTimeout(() => {
+          if (cancelled) return;
+          setIsRefreshing(false);
+        }, 220);
       }, 450);
     };
 
@@ -450,13 +480,12 @@ const ShoppingCart = () => {
               >
                 <path d="M21 12a9 9 0 1 1-6.22-8.56" />
               </svg>
-              <span>
-                {isRefreshing
-                  ? "Refreshing bag"
-                  : pullDistance >= PULL_THRESHOLD
-                  ? "Release to refresh"
-                  : "Pull to refresh"}
-              </span>
+              {/* Only ever one label. The "Pull to refresh" / "Release to
+                  refresh" prompts are gone: they were what made a refresh read
+                  as two different messages, because the label flipped back to
+                  the prompt the moment the indicator began sliding away. While
+                  pulling, the rotating spinner alone carries the affordance. */}
+              {isRefreshing && <span>Refreshing bag</span>}
             </div>
             <div
               ref={scrollRef}
