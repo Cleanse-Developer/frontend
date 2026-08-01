@@ -225,6 +225,10 @@
 /* ===================== Flow head / toggle ===================== */
 .ritual-flow {
   background-color: #F0EDE8;
+  /* .ritual-intro is the same colour with no divider between the two, so the
+     bands' paddings stacked into a double gap (2 x --section-py) above the
+     AM/PM toggle. The intro's bottom padding already supplies that space. */
+  padding-block-start: 0;
 }
 .ritual-flow-head {
   max-width: var(--page-max);
@@ -305,21 +309,33 @@
 
 /* ===================== Steps ===================== */
 .ritual-steps {
-  max-width: var(--page-max);
+  /* Deliberately narrower than --page-max. A step is an image/text PAIR, and at
+     the full page width the text (capped at its 46ch measure) couldn't reach the
+     image, leaving a huge dead gap in the middle of every row. Capping the row
+     keeps the pair together. In rem, so it tracks the root font-size on large
+     monitors like the rest of the layout. */
+  max-width: min(var(--page-max), 60rem);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  /* Tied to the page rhythm rather than its own clamp, so the space between
-     steps tracks the space between sections. */
-  gap: var(--section-py);
+  /* Steps are their own rhythm, one step down from the gap BETWEEN sections —
+     --section-py left them reading as five separate sections. */
+  gap: var(--ritual-head-gap);
 }
 
+/* The visual column is sized to the image, not to half the page. At 1fr 1fr the
+   tile grew to ~600x750 on a wide screen — bigger than anything else on the
+   site — and the text column, capped at its 46ch measure, left the rest of its
+   half empty. A fixed image column removes both problems at once. */
 .ritual-step {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
   align-items: center;
-  /* Same split-column gap genesis.css uses for its two-column bands. */
-  gap: clamp(2rem, 5vw, 5rem);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+/* Reversed rows put the visual in column 2, so the fixed track moves with it. */
+.ritual-step.is-reversed {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
 }
 .ritual-step.is-reversed .ritual-step-visual { order: 2; }
 .ritual-step.is-reversed .ritual-step-body { order: 1; }
@@ -349,41 +365,21 @@
   justify-content: center;
   box-shadow: 0 30px 60px -30px rgba(46, 31, 20, 0.45);
 }
-.ritual-step-number {
-  position: absolute;
-  top: 1.25rem;
-  left: 1.5rem;
-  font-family: var(--font-heading);
-  font-size: var(--fs-hero-title);
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.55);
-  letter-spacing: -0.03em;
-  z-index: 2;
-  pointer-events: none;
-}
-/* The product floats on the tint, so it stays `contain` (a bottle must never be
-   cropped). What changed: the box is now the full tile inset by a single even
-   padding instead of a 78%x78% centred box, so the inset is equal on all four
-   sides and every step's product resolves to the same bounding box. The padding
-   sits here rather than on the tile so .ritual-step-number keeps measuring its
-   offsets from the tile's own corner. */
+/* The photo fills the tile, same treatment as the home product cards and the
+   shop cards below. It was inset 9% and letterboxed by object-fit:contain, which
+   is where the empty space inside every tile came from. */
 .ritual-step-img {
   width: 100%;
   height: 100%;
-  padding: 9%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 .ritual-step-img img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
-  filter: drop-shadow(0 18px 30px rgba(46, 31, 20, 0.28));
-  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 0.5s ease-out;
 }
-.ritual-step:hover .ritual-step-img img { transform: scale(1.05) translateY(-4px); }
+.ritual-step:hover .ritual-step-img img { transform: scale(1.05); }
 
 /* Body side */
 .ritual-step-body {
@@ -394,7 +390,17 @@
 .ritual-step-metarow {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+}
+/* Moved out of the artwork and into the meta row. It sat over the image as
+   translucent white, which the photo now filling the tile would have made
+   unreadable — and it belongs with the step's other metadata anyway. */
+.ritual-step-number {
+  font-family: var(--font-heading);
+  font-size: var(--fs-subheading);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--base-300);
 }
 /* Clean 28 -> 20 -> 16 -> 14 -> 12 descent through the step block. Phase and
    product were 2.2rem and 2.6rem — near-identical, so neither read as the
@@ -426,18 +432,19 @@
   letter-spacing: -0.01em;
   font-size: var(--fs-section-title);
 }
+/* No max-width on the step copy: the text COLUMN is the measure now (~34rem),
+   and capping it again inside that column just reopened the gap in the middle
+   of the row. */
 .ritual-step-how {
   font-family: var(--font-body);
   text-transform: none;
   color: var(--base-500);
   line-height: 1.55;
   font-size: var(--fs-body);
-  max-width: var(--ritual-measure);
 }
 .bodyCopy.ritual-step-desc {
   color: var(--base-400);
   font-style: italic;
-  max-width: var(--ritual-measure);
   font-size: var(--fs-supporting);
 }
 .ritual-step-tags {
@@ -700,7 +707,11 @@
   .ritual-hero { height: 100vh; height: 100dvh; min-height: 460px; }
   .ritual-hero-content { gap: 1rem; }
 
-  .ritual-step {
+  /* .is-reversed must be repeated here: it carries its own two-column rule at a
+     higher specificity than a bare `.ritual-step`, so the single column would
+     never have applied to the alternating rows. */
+  .ritual-step,
+  .ritual-step.is-reversed {
     grid-template-columns: 1fr;
     gap: 1.75rem;
   }
@@ -710,7 +721,7 @@
 
   .ritual-step-rail { display: none; }
   /* Match the home product cards' 12px mobile corner radius */
-  .ritual-step-tile { aspect-ratio: 3 / 4; max-width: 420px; width: 100%; margin: 0 auto; border-radius: 12px; }
+  .ritual-step-tile { aspect-ratio: 3 / 4; max-width: 320px; width: 100%; margin: 0 auto; border-radius: 12px; }
   .ritual-shop-card-img { border-radius: 12px; }
 
   .ritual-toggle-btn { padding: 0.75rem 1.8rem; }

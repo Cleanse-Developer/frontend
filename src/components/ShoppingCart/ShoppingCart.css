@@ -53,7 +53,15 @@
   text-transform: uppercase;
   border-radius: 0.75rem;
   box-shadow: 0 4px 24px rgba(46, 31, 20, 0.3);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+/* The open drawer owns the screen -- drop the floating BAG button out of the
+   way instead of letting it float over the panel. */
+.shopping-cart-container .cart-button.hidden {
+  transform: scale(0.8);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .shopping-cart-container .cart-button:active {
@@ -82,6 +90,9 @@
   position: absolute;
   top: 2rem;
   right: 2rem;
+  /* Above .cart-button (9971) -- otherwise the floating BAG button paints over
+     the open panel. */
+  z-index: 9972;
   width: 30%;
   height: calc(100svh - 4rem);
   height: calc(100dvh - 4rem);
@@ -312,19 +323,30 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 70px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   color: var(--base-700, #4f2c22);
   font-size: var(--fs-caption);
   letter-spacing: 0.02em;
   pointer-events: none;
 }
 
+/* Label must never wrap — the indicator is only 44px tall, so a second line
+   gets clipped. */
+.shopping-cart-container .cart-pull-indicator span {
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Explicit box: the global `svg { width: 100%; height: 100% }` reset would
+   otherwise stretch this to the full width of the (absolutely sized) indicator. */
 .shopping-cart-container .cart-pull-spinner {
-  flex-shrink: 0;
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
   opacity: 0.7;
 }
 
@@ -412,13 +434,13 @@
   border: none;
   border-radius: 0.5rem;
   overflow: hidden;
-  padding: 0.4rem;
 }
 
 .shopping-cart-container .cart-item-image img {
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .shopping-cart-container .cart-item-details {
@@ -571,6 +593,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 14px;
+}
+
+/* Sized here rather than left to the global `svg { width: 100% }` reset, which
+   can stretch the icon and push the label out of the row on narrow screens. */
+.shopping-cart-container .cart-timer-icon svg {
+  width: 14px;
+  height: 14px;
+  display: block;
 }
 
 .shopping-cart-container .cart-timer.urgent .cart-timer-icon {
@@ -580,8 +611,10 @@
 .shopping-cart-container .cart-timer-content {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: baseline;
   gap: 0.35rem;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .shopping-cart-container .cart-timer-label {
@@ -699,13 +732,13 @@
   background: rgba(158, 146, 104, 0.12);
   border-radius: 0.25rem;
   overflow: hidden;
-  padding: 0.1rem;
 }
 
 .shopping-cart-container .cross-sell-image img {
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .shopping-cart-container .cross-sell-details {
@@ -751,14 +784,17 @@
   color: #fff;
   border: none;
   border-radius: 50%;
-  font-size: var(--fs-body);
-  font-weight: 400;
-  line-height: 0;
   padding: 0;
-  padding-bottom: 2px;
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease;
-  text-align: center;
+}
+
+/* Drawn as an SVG rather than a "+" glyph: the glyph sits above the em-box
+   centre in this font, so flex centring left it visibly high. */
+.shopping-cart-container .cross-sell-add svg {
+  width: 10px;
+  height: 10px;
+  display: block;
 }
 
 .shopping-cart-container .cross-sell-add:hover {
@@ -880,7 +916,6 @@
     min-height: 22px;
     max-height: 22px;
     flex: 0 0 22px;
-    font-size: var(--fs-supporting);
   }
 
   .shopping-cart-container .cross-sell-name {
@@ -890,4 +925,68 @@
   .shopping-cart-container .cross-sell-price {
     font-size: var(--fs-caption);
   }
+}
+
+/* ── Cart line quantity stepper ──────────────────────────────────────────────
+   Replaces the read-only "x3" badge that used to sit beside the item name.
+   Borderless: just − count + as type, sharing a row with the price so the line
+   balances against the thumbnail and Remove keeps its own row underneath.
+
+   Class names are cart-item-qty-*, NOT the cart-qty-* used by the product-tile
+   stepper: those are styled in FeaturedSection.css, which is loaded globally on
+   the home page, and reusing the names would let that styling bleed into the
+   drawer. Everything here is scoped under .shopping-cart-container to match the
+   rest of this file. */
+.shopping-cart-container .cart-item-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.shopping-cart-container .cart-item-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.shopping-cart-container .cart-item-qty-btn {
+  /* No chrome — the glyph itself is the control. Kept at a 24px square anyway
+     so the tap target stays finger-sized on mobile, where the drawer lives. */
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: rgba(92, 61, 30, 0.75);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.shopping-cart-container .cart-item-qty-btn:hover {
+  color: #5C3D1E;
+}
+
+.shopping-cart-container .cart-item-qty-btn:active {
+  transform: none;
+  -webkit-transform: none;
+}
+
+.shopping-cart-container .cart-item-qty-value {
+  /* Fixed width + tabular figures: without both, the − and + shift sideways
+     every time the count crosses a digit boundary. */
+  min-width: 1.25rem;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: #5C3D1E;
+  font-variant-numeric: tabular-nums;
 }

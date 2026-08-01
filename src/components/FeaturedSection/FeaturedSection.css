@@ -3349,6 +3349,12 @@
     justify-content: center;
     width: 30px;
     height: 30px;
+    /* Required, not inherited: this is a <span>, and globals.css sets
+       `a, p, span { color: var(--base-700) }` — a direct rule that beats the
+       colour inherited from .sbc-card-box, which left the ring and glyph brown
+       while the rest of the card went white. Every sibling (name, tagline, cta)
+       re-declares --sbc-fg for the same reason. */
+    color: var(--sbc-fg);
     border: 1px solid currentColor;
     border-radius: 50%;
     /* The ring reads as a hairline accent, not a second focal point. */
@@ -3567,5 +3573,210 @@
 @media (min-width: 1440px) and (max-width: 1600px) {
   .sbc-card-img {
     height: 245px;
+  }
+}
+
+/* ============================================================
+   Mobile + tablet: card artwork, and clearance for the product overhang.
+
+   1. BACKGROUNDS. The photos were desktop-only; they apply here too now. The
+      scrim runs bottom-up rather than left-to-right, because this layout puts
+      the label centred along the card's BOTTOM edge instead of in a left
+      column — a side gradient would miss the text entirely.
+
+   2. OVERLAP. Here the product is anchored to the card's TOP and rises out of
+      it (54px on phones, ~70px on portrait tablet, where a 190px image sits on
+      a 110px card at bottom: -10px). The section's padding-top was only the
+      16px gap, so the bottles pushed up into the hero image. Padding-top is
+      now gap + overhang, which puts the same visible air above the BOTTLES as
+      --sbc-gap leaves below the cards.
+   ============================================================ */
+@media (max-width: 1199px) {
+  .shop-by-category {
+    --sbc-img-pop: 70px;
+    padding-top: calc(var(--sbc-gap) + var(--sbc-img-pop));
+  }
+
+  .sbc-card-box {
+    --sbc-fg: #4F2C22;
+    --sbc-scrim: rgba(252, 248, 240, 0.82);
+    position: relative;
+    background-image: var(--sbc-card-bg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .sbc-card-box[data-tone="light"] {
+    --sbc-fg: #F7F2E7;
+    --sbc-scrim: rgba(38, 34, 24, 0.55);
+  }
+
+  .sbc-card-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      0deg,
+      var(--sbc-scrim) 0%,
+      var(--sbc-scrim) 38%,
+      transparent 80%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .sbc-card-box > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sbc-card-box .sbc-card-name {
+    color: var(--sbc-fg);
+  }
+}
+
+/* Phones pop the product 54px, not 70px (see .sbc-card-img top: -54px). */
+@media (max-width: 480px) {
+  .shop-by-category {
+    --sbc-img-pop: 54px;
+  }
+}
+
+/* ============================================================
+   Mobile + tablet refinements: no scrim, brown label everywhere, and a
+   slightly larger product.
+
+   Dropping the gradient is safe HERE (it is still doing real work on desktop):
+   all three photos are pale along their lower edge, which is exactly the strip
+   the centred label sits on, so brown type holds up unaided — including on the
+   sage card, whose bottom third is light beige ground rather than green wall.
+
+   The product grows UPWARD on both breakpoints rather than downward, and the
+   overhang variable is updated to match so the extra height cannot reintroduce
+   the hero overlap:
+     - phones: top -54 -> -74 with height 135 -> 155, so the image's bottom
+       edge stays put and clear of the label along the card's bottom.
+     - portrait tablet: bottom-anchored, 190 -> 215, so the overhang above the
+       card goes 70 -> 95px. The label is left-aligned and centred here, so
+       there is nothing above for the product to collide with.
+   ============================================================ */
+@media (max-width: 1199px) {
+  .shop-by-category {
+    --sbc-img-pop: 95px;
+  }
+
+  .sbc-card-box,
+  .sbc-card-box[data-tone="light"] {
+    --sbc-fg: #4F2C22;
+  }
+
+  .sbc-card-box::before {
+    content: none;
+  }
+
+  .sbc-card-img {
+    height: 215px;
+  }
+}
+
+@media (max-width: 480px) {
+  .shop-by-category {
+    --sbc-img-pop: 74px;
+  }
+
+  .sbc-card-img {
+    height: 155px;
+    top: -74px;
+  }
+}
+
+/* ============================================================
+   The tagline is now the CMS category description, which runs ~100 characters
+   rather than the three-word line it replaced. Clamped to two lines so an
+   editor writing long copy in the admin cannot grow the card — the desktop
+   card is height:auto now, so unbounded text would push the row's height and
+   drag Best Sellers down with it.
+   ============================================================ */
+@media (min-width: 1200px) {
+  .sbc-card-tagline {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ============================================================
+   Desktop: black scrim, white type on all three cards.
+
+   Replaces the per-tone treatment — the cream and blush cards were carrying a
+   light wash with brown type. One dark gradient and white copy across the row
+   now, so `tone` no longer changes the desktop palette (it is still doing work
+   on nothing else, but the attribute is left in place because the mobile rules
+   and any future per-card tweak read from it).
+   ============================================================ */
+@media (min-width: 1200px) {
+  .sbc-card-box,
+  .sbc-card-box[data-tone="light"] {
+    --sbc-fg: #FFFFFF;
+    --sbc-scrim: rgba(0, 0, 0, 0.58);
+  }
+}
+
+/* ============================================================
+   Mobile spacing rebalance.
+
+   BELOW: the row was running padding-bottom 0 and leaning on Best Sellers'
+   halved top padding, which left the cards almost touching the heading. Both
+   sides now carry a full --section-py, which is the same section-to-section
+   rhythm the rest of the page uses (~64px on a phone).
+
+   ABOVE: that gap is dominated by the product overhang, not by --sbc-gap — the
+   padding has to clear the bottles or they ride up over the hero. So the gap
+   itself goes to 0 (bottle tops sit level with the hero's edge) and the
+   overhang comes down a little, trimming ~24px on phones and ~35px on tablet.
+   The products stay larger than they were before the last increase.
+   ============================================================ */
+@media (max-width: 1199px) {
+  .shop-by-category {
+    --sbc-gap: 0px;
+    --sbc-img-pop: 80px;
+    padding-bottom: var(--section-py);
+  }
+
+  .products-section {
+    padding-top: var(--section-py);
+  }
+
+  .sbc-card-img {
+    height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .shop-by-category {
+    --sbc-img-pop: 66px;
+  }
+
+  .sbc-card-img {
+    height: 145px;
+    top: -66px;
+  }
+}
+
+/* Halves the gap under the category row on mobile: a full --section-py on both
+   sides added up to the standard section-to-section rhythm (~64px), which is
+   more air than this row needs sitting directly under the hero. 0.5 on each
+   side lands at ~32px — twice the old cramped 16px, half the full rhythm. */
+@media (max-width: 1199px) {
+  .shop-by-category {
+    padding-bottom: calc(var(--section-py) * 0.5);
+  }
+
+  .products-section {
+    padding-top: calc(var(--section-py) * 0.5);
   }
 }

@@ -13,9 +13,11 @@ import { formatPrice, cardPrice } from "@/lib/formatters";
 const POINTS_PER_RUPEE = 0.1;
 
 // Pull-to-refresh: drag distance (px) that triggers a refresh, and the cap the
-// indicator can be dragged to (drag past the threshold gets damped).
-const PULL_THRESHOLD = 70;
-const PULL_MAX = 110;
+// indicator can be dragged to (drag past the threshold gets damped). The
+// threshold doubles as the gap the list is pushed down by while refreshing, so
+// it stays close to the indicator's own height.
+const PULL_THRESHOLD = 48;
+const PULL_MAX = 76;
 
 // Cart timer duration in seconds (15 minutes)
 const CART_TIMER_DURATION = 15 * 60;
@@ -143,8 +145,11 @@ const CrossSellProducts = ({ cartItems }) => {
             <button
               className="cross-sell-add"
               onClick={() => addToCart(product)}
+              aria-label={`Add ${product.name} to bag`}
             >
-              +
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
             </button>
           </div>
         ))}
@@ -155,7 +160,7 @@ const CrossSellProducts = ({ cartItems }) => {
 
 const ShoppingCart = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { cartItems, removeFromCart, cartCount, subtotal, serverPricing, refreshCart } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, cartCount, subtotal, serverPricing, refreshCart } = useCart();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -163,7 +168,10 @@ const ShoppingCart = () => {
   const scrollRef = useRef(null);
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const pullRef = useRef({ startY: 0, tracking: false, distance: 0 });
+  // `source` is "touch" or "wheel": the touch drag follows the finger 1:1 and so
+  // must not be transitioned, while discrete wheel ticks need the easing to not
+  // look like it is jumping.
+  const pullRef = useRef({ startY: 0, tracking: false, distance: 0, raw: 0, source: null });
   const isRefreshingRef = useRef(false);
   const refreshCartRef = useRef(refreshCart);
 
@@ -175,22 +183,52 @@ const ShoppingCart = () => {
     if (!el || !isOpen) return;
 
     const state = pullRef.current;
+    let wheelIdle = null;
+    // A "wheel gesture" is a burst of wheel events with no 140ms gap. Tracking
+    // it lets a gesture that started mid-list be excluded wholesale, so coasting
+    // to the top on trackpad momentum can't turn into a pull.
+    let wheelGesture = false;
+    let wheelBlocked = false;
+
+    // Shared by touchend and the wheel's idle timer: commit the gesture if it
+    // cleared the threshold, otherwise spring back.
+    const commit = () => {
+      if (!state.tracking) return;
+      state.tracking = false;
+      const reached = state.distance >= PULL_THRESHOLD;
+      state.distance = 0;
+      state.raw = 0;
+      if (reached) {
+        setPullDistance(PULL_THRESHOLD);
+        setIsRefreshing(true);
+      } else {
+        setPullDistance(0);
+      }
+    };
+
+    const cancel = () => {
+      state.tracking = false;
+      state.raw = 0;
+      if (state.distance !== 0) {
+        state.distance = 0;
+        setPullDistance(0);
+      }
+    };
 
     const onTouchStart = (e) => {
       if (isRefreshingRef.current || e.touches.length !== 1 || el.scrollTop > 0) return;
       state.startY = e.touches[0].clientY;
       state.tracking = true;
+      state.source = "touch";
       state.distance = 0;
     };
 
     const onTouchMove = (e) => {
-      if (!state.tracking) return;
+      if (!state.tracking || state.source !== "touch") return;
 
       // Scrolled away from the top mid-gesture -- hand the gesture back to the list.
       if (el.scrollTop > 0) {
-        state.tracking = false;
-        state.distance = 0;
-        setPullDistance(0);
+        cancel();
         return;
       }
 
@@ -215,24 +253,60 @@ const ShoppingCart = () => {
     };
 
     const onTouchEnd = () => {
-      if (!state.tracking) return;
-      state.tracking = false;
-      const reached = state.distance >= PULL_THRESHOLD;
-      state.distance = 0;
-      if (reached) {
-        setPullDistance(PULL_THRESHOLD);
-        setIsRefreshing(true);
-      } else {
-        setPullDistance(0);
+      if (state.source !== "touch") return;
+      commit();
+    };
+
+    // Desktop/trackpad: over-scrolling up at the top of the list drives the same
+    // pull. Wheel has no end event, so a short idle timer stands in for touchend.
+    const onWheel = (e) => {
+      if (isRefreshingRef.current) return;
+
+      if (!wheelGesture) {
+        wheelGesture = true;
+        wheelBlocked = el.scrollTop > 0;
       }
+      // Keep the gesture alive on every event, so the timer only fires once the
+      // wheel (and any momentum after it) has actually stopped.
+      if (wheelIdle) clearTimeout(wheelIdle);
+      wheelIdle = setTimeout(() => {
+        wheelIdle = null;
+        wheelGesture = false;
+        wheelBlocked = false;
+        commit();
+      }, 140);
+
+      if (wheelBlocked || el.scrollTop > 0) return;
+      // Nothing pulled yet and the user is scrolling down -- leave the list alone.
+      if (e.deltaY >= 0 && state.raw === 0) return;
+
+      const raw = Math.max(0, state.raw - e.deltaY * 0.5);
+      if (raw === 0) {
+        cancel();
+        return;
+      }
+
+      e.preventDefault();
+      state.raw = raw;
+      state.tracking = true;
+      state.source = "wheel";
+      const damped =
+        raw <= PULL_THRESHOLD
+          ? raw
+          : PULL_THRESHOLD + (raw - PULL_THRESHOLD) * 0.35;
+      state.distance = Math.min(damped, PULL_MAX);
+      setPullDistance(state.distance);
     };
 
     el.addEventListener("touchstart", onTouchStart, { passive: true });
     el.addEventListener("touchmove", onTouchMove, { passive: false });
     el.addEventListener("touchend", onTouchEnd);
     el.addEventListener("touchcancel", onTouchEnd);
+    el.addEventListener("wheel", onWheel, { passive: false });
 
     return () => {
+      if (wheelIdle) clearTimeout(wheelIdle);
+      el.removeEventListener("wheel", onWheel);
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
@@ -269,6 +343,8 @@ const ShoppingCart = () => {
     if (isOpen) return;
     pullRef.current.tracking = false;
     pullRef.current.distance = 0;
+    pullRef.current.raw = 0;
+    pullRef.current.source = null;
     setPullDistance(0);
   }, [isOpen]);
 
@@ -298,12 +374,24 @@ const ShoppingCart = () => {
     };
   }, [isOpen]);
 
+  // A finger drag has to track 1:1, so it runs untransitioned; discrete wheel
+  // ticks and the release spring-back both want the easing.
+  const pullTransition =
+    pullRef.current.tracking && pullRef.current.source === "touch"
+      ? "none"
+      : "transform 0.2s ease";
+
   // No floating cart/bag on the login page
   if (pathname === "/login") return null;
 
   return (
     <div className="shopping-cart-container">
-      <button className="cart-button" onClick={toggleCart}>
+      <button
+        className={`cart-button ${isOpen ? "hidden" : ""}`}
+        onClick={toggleCart}
+        aria-hidden={isOpen}
+        tabIndex={isOpen ? -1 : 0}
+      >
         <span className="cart-icon">BAG</span>
         {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
       </button>
@@ -343,7 +431,7 @@ const ShoppingCart = () => {
               className={`cart-pull-indicator ${isRefreshing ? "refreshing" : ""}`}
               style={{
                 transform: `translateY(${pullDistance - PULL_THRESHOLD}px)`,
-                transition: pullRef.current.tracking ? "none" : "transform 0.25s ease",
+                transition: pullTransition,
               }}
               aria-hidden={pullDistance === 0}
             >
@@ -354,12 +442,10 @@ const ShoppingCart = () => {
                     ? undefined
                     : { transform: `rotate(${(pullDistance / PULL_THRESHOLD) * 270}deg)` }
                 }
-                width="18"
-                height="18"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="2.5"
                 strokeLinecap="round"
               >
                 <path d="M21 12a9 9 0 1 1-6.22-8.56" />
@@ -377,7 +463,7 @@ const ShoppingCart = () => {
               className="cart-items-scroll"
               style={{
                 transform: `translateY(${pullDistance}px)`,
-                transition: pullRef.current.tracking ? "none" : "transform 0.25s ease",
+                transition: pullTransition,
               }}
               onWheel={(e) => {
                 e.stopPropagation();
@@ -405,12 +491,49 @@ const ShoppingCart = () => {
                       <div className="cart-item-details">
                         <div className="cart-item-name-row">
                           <p className="cart-item-name">{item.name}</p>
-                          {quantity > 1 && (
-                            <span className="cart-item-quantity">x{quantity}</span>
-                          )}
                         </div>
                         {item.selectedSize && <p className="cart-item-size" style={{ fontSize: "0.75rem", color: "#888", marginTop: "2px" }}>{item.selectedSize}</p>}
-                        <p className="cart-item-price">&#8377;{item.price}</p>
+                        {/* Price and stepper share a row: it balances the line
+                            against the thumbnail and leaves Remove on its own
+                            below, instead of crowding both controls together. */}
+                        <div className="cart-item-price-row">
+                          <p className="cart-item-price">&#8377;{item.price}</p>
+                          {/* Deliberately NOT the shared CartQtyButton: that one
+                              takes a product and looks the line up itself, and
+                              falls back to an ADD TO CART button when it finds
+                              none. Here the line is what we already have. */}
+                          <div
+                            className="cart-item-qty"
+                            role="group"
+                            aria-label={`${item.name} quantity`}
+                          >
+                            <button
+                              type="button"
+                              className="cart-item-qty-btn"
+                              /* At 1 the minus removes the line, matching the
+                                 product-tile stepper rather than dead-ending —
+                                 updateQuantity clamps to 1, so it would other-
+                                 wise do nothing at all. */
+                              aria-label={quantity <= 1 ? `Remove ${item.name} from bag` : `Decrease ${item.name} quantity`}
+                              onClick={() =>
+                                quantity <= 1
+                                  ? removeFromCart(itemId)
+                                  : updateQuantity(itemId, quantity - 1)
+                              }
+                            >
+                              &#8722;
+                            </button>
+                            <span className="cart-item-qty-value" aria-live="polite">{quantity}</span>
+                            <button
+                              type="button"
+                              className="cart-item-qty-btn"
+                              aria-label={`Increase ${item.name} quantity`}
+                              onClick={() => updateQuantity(itemId, quantity + 1)}
+                            >
+                              &#43;
+                            </button>
+                          </div>
+                        </div>
                         <button
                           className="cart-item-remove"
                           onClick={() => removeFromCart(itemId)}

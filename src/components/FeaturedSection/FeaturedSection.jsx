@@ -5,7 +5,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useSettings } from "@/context/SettingsContext";
-import { productApi, bundleApi } from "@/lib/endpoints";
+import { productApi, bundleApi, categoryApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import { cardPrice } from "@/lib/formatters";
 import ProductCard from "@/components/ProductCard/ProductCard";
@@ -271,44 +271,68 @@ const SBC_ICONS = {
   ),
 };
 
+/* Art direction per category. The CMS owns the words — name, description and
+   slug all come from /categories — while the imagery stays here: `bg` fills the
+   card block, `image` is the floating product on top of it, and `tone` picks
+   the text colour (hero2's sage is dark enough to need light type; the cream
+   and blush cards keep the brand brown). Keyed by SLUG rather than by array
+   position, so reordering the categories in the admin cannot scramble which
+   photo belongs to which card. */
+const SBC_ART = {
+  "face-care": { bg: "/hero1.png", image: "/images/cat-face.png", icon: "face", tone: "dark" },
+  "hair-care": { bg: "/hero2.png", image: "/images/cat-hair.png", icon: "hair", tone: "light" },
+  "body-care": { bg: "/hero3.png", image: "/images/cat-skin.png", icon: "skin", tone: "dark" },
+};
+
+/* A category added in the admin that this map has no entry for still renders,
+   rather than dropping out of the row with a blank card. */
+const SBC_ART_FALLBACK = { bg: "/hero1.png", image: "/images/cat-skin.png", icon: "skin", tone: "dark" };
+
 export const ShopByCategory = () => {
-  /* `bg` fills the card block on desktop; `image` is the floating product that
-     sits on top of it. The tan #C8AD73 stays declared underneath in CSS, so a
-     missing/slow bg file degrades to the old solid card rather than a blank.
-     `tone` picks the text colour: hero2's sage is dark enough to need light
-     type, while the cream and blush cards keep the brand brown. */
-  const categories = [
-    { id: 1, name: "skin care", tagline: "Nourish. Protect. Glow.", icon: "skin", tone: "dark", image: "/images/cat-skin.png", bg: "/hero1.png", link: "/wardrobe?category=face-care" },
-    { id: 2, name: "hair care", tagline: "Strength. Shine. Scalp Harmony.", icon: "hair", tone: "light", image: "/images/cat-hair.png", bg: "/hero2.png", link: "/wardrobe?category=hair-care" },
-    { id: 3, name: "face care", tagline: "Pure. Gentle. Effective.", icon: "face", tone: "dark", image: "/images/cat-face.png", bg: "/hero3.png", link: "/wardrobe?category=face-care" },
-  ];
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    categoryApi.list()
+      .then((list) => {
+        /* Sliced to 3: the row is a single tucked-into-the-hero band on a
+           3-column grid, so a 4th category would wrap to a second row and
+           break the overlap. Raise this together with .sbc-grid's columns. */
+        const active = (list || []).filter((c) => c.isActive !== false);
+        setCategories(active.slice(0, 3));
+      })
+      .catch(() => {})
+      .finally(refreshScrollTriggers);
+  }, []);
 
   // No section heading: this row sits tucked into the bottom of the hero, so it
   // reads as part of it rather than as its own titled section.
   return (
     <section className="shop-by-category">
       <div className="sbc-grid">
-        {categories.map((cat) => (
-          <a key={cat.id} href={cat.link} className="sbc-card">
-            <div
-              className="sbc-card-box"
-              data-tone={cat.tone}
-              style={{ "--sbc-card-bg": `url(${cat.bg})` }}
-            >
-              <span className="sbc-card-icon" aria-hidden="true">{SBC_ICONS[cat.icon]}</span>
-              <span className="sbc-card-name">{cat.name}</span>
-              <span className="sbc-card-tagline">{cat.tagline}</span>
-              {/* Not a nested <a> — the whole card is already the link. */}
-              <span className="sbc-card-cta">
-                Explore
-                <svg className="sbc-card-cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-              </span>
-            </div>
-            <img src={cat.image} alt={cat.name} className="sbc-card-img" loading="lazy" />
-          </a>
-        ))}
+        {categories.map((cat) => {
+          const art = SBC_ART[cat.slug] || SBC_ART_FALLBACK;
+          return (
+            <a key={cat._id || cat.slug} href={`/wardrobe?category=${cat.slug}`} className="sbc-card">
+              <div
+                className="sbc-card-box"
+                data-tone={art.tone}
+                style={{ "--sbc-card-bg": `url(${art.bg})` }}
+              >
+                <span className="sbc-card-icon" aria-hidden="true">{SBC_ICONS[art.icon]}</span>
+                <span className="sbc-card-name">{cat.name}</span>
+                <span className="sbc-card-tagline">{cat.description}</span>
+                {/* Not a nested <a> — the whole card is already the link. */}
+                <span className="sbc-card-cta">
+                  Explore
+                  <svg className="sbc-card-cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </span>
+              </div>
+              <img src={art.image} alt={cat.name} className="sbc-card-img" loading="lazy" />
+            </a>
+          );
+        })}
       </div>
     </section>
   );

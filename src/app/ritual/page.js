@@ -221,9 +221,6 @@ export default function Ritual() {
                   className="ritual-step-tile"
                   style={{ backgroundColor: TILES[i % TILES.length] }}
                 >
-                  <span className="ritual-step-number">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
                   <div className="ritual-step-img">
                     <img src={stepImage(step)} alt={step.product} loading="lazy" />
                   </div>
@@ -232,6 +229,11 @@ export default function Ritual() {
 
               <div className="ritual-step-body">
                 <div className="ritual-step-metarow">
+                  {/* Step number lives with the step's other metadata rather than
+                      over the artwork, which the photo now fills edge to edge. */}
+                  <span className="ritual-step-number">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <span className="ritual-step-phase">{step.phase}</span>
                   <span className="ritual-step-time">{step.time}</span>
                 </div>
