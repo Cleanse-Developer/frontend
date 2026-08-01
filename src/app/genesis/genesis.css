@@ -596,6 +596,13 @@
 }
 
 @media (max-width: 768px) {
+  /* Mobile drops the scroll-zoom gallery entirely — the fixed image wall and
+     the 320vh whitespace band that drives it. Desktop keeps both. */
+  .project-preview,
+  .project-page-whitespace {
+    display: none;
+  }
+
   /* Lead: stack with the image first (natural reading order), shorter frame */
   .gen-lead-split {
     grid-template-columns: 1fr;

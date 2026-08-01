@@ -73,54 +73,60 @@ export default function Genesis() {
 
   useGSAP(
     () => {
-      const projectPreview = document.querySelector(".project-preview");
-      if (projectPreview) {
-        gsap.set(projectPreview, { opacity: 0 });
-      }
+      /* The gallery and its whitespace driver are display:none under 768px
+         (see genesis.css), so the scroll rig only exists on desktop. */
+      const mm = gsap.matchMedia();
 
-      ScrollTrigger.create({
-        trigger: ".project-page-whitespace",
-        start: "top bottom",
-        end: "bottom bottom",
-        scrub: 1,
-        onUpdate: (self) => {
-          const projectPreviewWrapper = document.querySelector(
-            ".project-preview-wrapper"
-          );
-          const previewCols = document.querySelectorAll(
-            ".preview-col:not(.main-preview-col)"
-          );
-          const mainPreviewImg = document.querySelector(
-            ".preview-img.main-preview-img img"
-          );
-          const projectPreviewSection = document.querySelector(".project-preview");
+      mm.add("(min-width: 769px)", () => {
+        const projectPreview = document.querySelector(".project-preview");
+        if (projectPreview) {
+          gsap.set(projectPreview, { opacity: 0 });
+        }
 
-          if (!projectPreviewWrapper || !previewCols.length || !mainPreviewImg || !projectPreviewSection)
-            return;
+        ScrollTrigger.create({
+          trigger: ".project-page-whitespace",
+          start: "top bottom",
+          end: "bottom bottom",
+          scrub: 1,
+          onUpdate: (self) => {
+            const projectPreviewWrapper = document.querySelector(
+              ".project-preview-wrapper"
+            );
+            const previewCols = document.querySelectorAll(
+              ".preview-col:not(.main-preview-col)"
+            );
+            const mainPreviewImg = document.querySelector(
+              ".preview-img.main-preview-img img"
+            );
+            const projectPreviewSection = document.querySelector(".project-preview");
 
-          // Fade in the background images when scrolling starts
-          if (self.progress > 0) {
-            const fadeProgress = Math.min(self.progress * 5, 1);
-            projectPreviewSection.style.opacity = fadeProgress;
-          } else {
-            projectPreviewSection.style.opacity = 0;
-          }
+            if (!projectPreviewWrapper || !previewCols.length || !mainPreviewImg || !projectPreviewSection)
+              return;
 
-          const previewScreenWidth = window.innerWidth;
-          const previewMaxScale = previewScreenWidth < 900 ? 4 : 2.65;
+            // Fade in the background images when scrolling starts
+            if (self.progress > 0) {
+              const fadeProgress = Math.min(self.progress * 5, 1);
+              projectPreviewSection.style.opacity = fadeProgress;
+            } else {
+              projectPreviewSection.style.opacity = 0;
+            }
 
-          const scale = 1 + self.progress * previewMaxScale;
-          const yPreviewColTranslate = self.progress * 300;
-          const mainPreviewImgScale = 2 - self.progress * 0.85;
+            const previewScreenWidth = window.innerWidth;
+            const previewMaxScale = previewScreenWidth < 900 ? 4 : 2.65;
 
-          projectPreviewWrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            const scale = 1 + self.progress * previewMaxScale;
+            const yPreviewColTranslate = self.progress * 300;
+            const mainPreviewImgScale = 2 - self.progress * 0.85;
 
-          previewCols.forEach((previewCol) => {
-            previewCol.style.transform = `translateY(${yPreviewColTranslate}px)`;
-          });
+            projectPreviewWrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
 
-          mainPreviewImg.style.transform = `scale(${mainPreviewImgScale})`;
-        },
+            previewCols.forEach((previewCol) => {
+              previewCol.style.transform = `translateY(${yPreviewColTranslate}px)`;
+            });
+
+            mainPreviewImg.style.transform = `scale(${mainPreviewImgScale})`;
+          },
+        });
       });
     },
     { scope: containerRef }

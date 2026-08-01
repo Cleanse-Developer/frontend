@@ -174,12 +174,6 @@
   gap: 0.15rem;
 }
 
-.testimonial-number {
-  font-family: var(--font-body);
-  font-size: var(--fs-caption);
-  color: #999;
-}
-
 .testimonial-info h4 {
   font-family: var(--font-body);
   font-size: var(--fs-supporting);
@@ -203,10 +197,6 @@
 
 .testimonial-card.active .testimonial-role {
   color: rgba(0, 0, 0, 0.5);
-}
-
-.testimonial-card.active .testimonial-number {
-  color: rgba(0, 0, 0, 0.4);
 }
 
 .testimonial-headline {
@@ -491,10 +481,6 @@
 
   .testimonial-card.active .testimonial-role {
     color: rgba(0, 0, 0, 0.5);
-  }
-
-  .testimonial-card.active .testimonial-number {
-    color: rgba(0, 0, 0, 0.4);
   }
 
   .testimonial-text {

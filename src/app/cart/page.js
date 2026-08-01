@@ -41,6 +41,17 @@ export default function CartPage() {
   const tierDiscount = toNum(serverPricing?.tierDiscount) ?? 0;
   const tierLabel = serverPricing?.tierLabel;
   const spTotal = toNum(serverPricing?.total);
+
+  // Every discount the backend folded into `total` has to be itemised here, or
+  // the summary reads as broken maths (subtotal - shown discounts !== total).
+  // Bundle discounts in particular are applied server-side the moment the cart
+  // meets a bundle's minimum, with nothing on this page to trigger them.
+  const bundleDiscountTotal = toNum(serverPricing?.bundleDiscountTotal) ?? 0;
+  const bundleDiscounts = serverPricing?.bundleDiscounts || [];
+  const specialCouponDiscountTotal = toNum(serverPricing?.specialCouponDiscountTotal) ?? 0;
+  const specialCouponDiscounts = serverPricing?.specialCouponDiscounts || [];
+  const couponDiscount = toNum(serverPricing?.couponDiscount) ?? 0;
+  const freeGifts = serverPricing?.freeGifts || [];
   const shippingCost =
     toNum(serverPricing?.shippingCost) ??
     (subtotal >= shippingConfig.freeAbove ? 0 : shippingConfig.standardRate);
@@ -198,12 +209,53 @@ export default function CartPage() {
                 <span>Subtotal</span>
                 <span>&#8377;{formatPrice(summarySubtotal)}</span>
               </div>
+              {bundleDiscountTotal > 0 &&
+                (bundleDiscounts.length > 0 ? (
+                  bundleDiscounts.map((bd, i) => (
+                    <div key={`bundle-${i}`} className="cart-summary-line cart-summary-discount">
+                      <span>{bd.bundleName || "Bundle Discount"}</span>
+                      <span>-&#8377;{formatPrice(bd.discountAmount)}</span>
+                    </div>
+                  ))
+                ) : (
+                  // Total without a breakdown — still show it so the maths adds up.
+                  <div className="cart-summary-line cart-summary-discount">
+                    <span>Bundle Discount</span>
+                    <span>-&#8377;{formatPrice(bundleDiscountTotal)}</span>
+                  </div>
+                ))}
               {tierDiscount > 0 && (
                 <div className="cart-summary-line cart-summary-discount">
                   <span>{tierLabel || "Discount"}</span>
                   <span>-&#8377;{formatPrice(tierDiscount)}</span>
                 </div>
               )}
+              {specialCouponDiscountTotal > 0 &&
+                (specialCouponDiscounts.length > 0 ? (
+                  specialCouponDiscounts.map((sp, i) => (
+                    <div key={`sp-${i}`} className="cart-summary-line cart-summary-discount">
+                      <span>{sp.title || "Special Discount"}</span>
+                      <span>-&#8377;{formatPrice(sp.discountAmount)}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="cart-summary-line cart-summary-discount">
+                    <span>Special Discount</span>
+                    <span>-&#8377;{formatPrice(specialCouponDiscountTotal)}</span>
+                  </div>
+                ))}
+              {couponDiscount > 0 && (
+                <div className="cart-summary-line cart-summary-discount">
+                  <span>{serverPricing?.couponCode || "Coupon"}</span>
+                  <span>-&#8377;{formatPrice(couponDiscount)}</span>
+                </div>
+              )}
+              {freeGifts.map((gift, i) => (
+                <div key={`gift-${i}`} className="cart-summary-line cart-summary-discount">
+                  <span>Free Gift: {gift.productName || "Gift"}</span>
+                  <span>FREE</span>
+                </div>
+              ))}
               {giftWrap && (
                 <div className="cart-summary-line cart-summary-gift">
                   <span>Gift Wrapping</span>

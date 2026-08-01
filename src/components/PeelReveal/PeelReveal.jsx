@@ -1,6 +1,6 @@
 "use client";
 import "./PeelReveal.css";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSettings } from "@/context/SettingsContext";
 
@@ -23,7 +23,22 @@ const PeelReveal = () => {
   const headerRef = useRef(null);
   const ctaRef = useRef(null);
 
+  // Desktop-only section: the pinned peel animation is dropped entirely on
+  // mobile (matches the 768px breakpoint in PeelReveal.css) so it costs no DOM
+  // and no extra scroll length there. Starts false so SSR/first paint matches
+  // the desktop markup, then corrects on mount.
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
     const container = peelRevealContainerRef.current;
     if (!container) return;
 
@@ -54,8 +69,7 @@ const PeelReveal = () => {
           scrollTrigger: {
             trigger: section,
             start: "top top",
-            /* Mobile (≤768px): 1vh of pin + the section's own height = 2 total scrolls */
-            end: () => `+=${window.innerHeight * (window.innerWidth <= 768 ? 1 : 4)}`,
+            end: () => `+=${window.innerHeight * 4}`,
             pin: true,
             pinSpacing: true,
             scrub: 0.5,
@@ -104,8 +118,12 @@ const PeelReveal = () => {
         clearTimeout(timer);
       }
       ctx.revert();
+      // Removing the pin changes the height of everything below it.
+      ScrollTrigger.refresh();
     };
-  }, []);
+  }, [isMobile]);
+
+  if (isMobile) return null;
 
   return (
     <div className="peel-reveal-container" ref={peelRevealContainerRef}>

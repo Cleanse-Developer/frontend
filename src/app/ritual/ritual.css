@@ -1,5 +1,13 @@
 /* ===========================================================
    The Ritual — face & self-care ceremony with Cleanse
+
+   Type and rhythm come from the shared tokens (globals.css):
+     headings  --fs-hero-title / --fs-section-title / --fs-subheading
+     copy      --fs-body / --fs-supporting / --fs-caption
+     rhythm    --section-py (vertical) / --gutter (horizontal)
+     width     --page-max
+   Every one of those steps down at tablet and mobile on its own, so this file
+   declares NO breakpoint font sizes — matching genesis.css and the home page.
    =========================================================== */
 
 .ritual-page {
@@ -8,6 +16,17 @@
   z-index: 4;
   background-color: #F0EDE8;
   overflow: hidden;
+
+  /* One vertical rhythm for every band on the page, same value the home page
+     uses between its sections (genesis.css does the same with --gen-pad-y). */
+  --ritual-pad-y: var(--section-py);
+  /* Gap between a section's head and its content. --section-title-gap only
+     exists at mobile/portrait-tablet, so the fallback is the desktop value —
+     3rem, matching .products-section-title's margin-bottom on the home page. */
+  --ritual-head-gap: var(--section-title-gap, 3rem);
+  /* Shared measure for centred copy, so intro / pause / shop / quote all wrap
+     at the same width instead of four different pixel max-widths. */
+  --ritual-measure: 46ch;
 }
 
 /* Shared small label */
@@ -16,7 +35,7 @@
   font-family: var(--font-body);
   text-transform: none;
   letter-spacing: 0.35em;
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--base-300);
 }
@@ -55,11 +74,23 @@
   z-index: 1;
 }
 
+/* Same container as every other section, so the hero copy starts on the exact
+   left edge the sections below it start on. It used a flat 4rem pad, which
+   drifted from the gutter at every breakpoint.
+
+   The sections are `padding-inline: gutter` on the band + `max-width: page-max`
+   on the inner. The hero has no inner element, so it folds both into one box:
+   max-width carries the gutter on each side, and the padding puts it back —
+   leaving a page-max content box on the same left edge. Padding stays OFF
+   .ritual-hero itself so .ritual-scroll-cue's offsets keep resolving against
+   the viewport edge rather than a padding box. */
 .ritual-hero-content {
   position: relative;
   z-index: 2;
-  padding: 4rem;
-  max-width: 900px;
+  width: 100%;
+  max-width: calc(var(--page-max) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding: var(--gutter);
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -90,13 +121,16 @@
 .ritual-bc-sep { color: rgba(231, 208, 166, 0.45); }
 .ritual-bc-current { color: #C8AD73; }
 
+/* The shared page-hero role — same size as the shop, cart, blog and genesis
+   heroes. It was clamp(3.5rem, 11vw, 9rem): 56px at its smallest and 144px at
+   its largest, i.e. up to 3.6x every other hero on the site. */
 .ritual-hero-title {
   font-family: var(--font-heading);
   text-transform: none;
   color: #fff;
-  line-height: 0.9;
+  line-height: 1;
   letter-spacing: -0.02em;
-  font-size: clamp(3.5rem, 11vw, 9rem);
+  font-size: var(--fs-hero-title);
 }
 
 .ritual-hero-subtitle {
@@ -104,14 +138,14 @@
   text-transform: none;
   color: rgba(255, 255, 255, 0.82);
   line-height: 1.5;
-  font-size: clamp(1rem, 1.6vw, 1.3rem);
-  max-width: 560px;
+  font-size: var(--fs-subheading);
+  max-width: var(--ritual-measure);
 }
 
 .ritual-scroll-cue {
   position: absolute;
-  right: 4rem;
-  bottom: 4rem;
+  right: var(--gutter);
+  bottom: var(--gutter);
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -122,7 +156,7 @@
   writing-mode: vertical-rl;
   text-transform: none;
   letter-spacing: 0.3em;
-  font-size: 0.7rem;
+  font-size: var(--fs-caption);
   color: rgba(255, 255, 255, 0.75);
 }
 .ritual-scroll-line {
@@ -137,51 +171,68 @@
   50% { transform: scaleY(1); opacity: 1; }
 }
 
+/* ===================== Section bands =====================
+   One rule for the vertical rhythm of every band, so the gap between any two
+   sections is identical down the page. Previously each band carried its own
+   clamp — 11rem, 4rem+7rem (asymmetric!), 10rem, 9rem, 9rem — which is what
+   made the spacing read as uneven. */
+.ritual-intro,
+.ritual-flow,
+.ritual-pause,
+.ritual-shop,
+.ritual-quote {
+  padding-block: var(--ritual-pad-y);
+  padding-inline: var(--gutter);
+}
+
 /* ===================== Intro / Philosophy ===================== */
 .ritual-intro {
-  padding: clamp(5rem, 12vw, 11rem) 2rem;
   background-color: #F0EDE8;
   position: relative;
   overflow: hidden;
 }
 .ritual-intro-inner {
-  max-width: 980px;
+  max-width: var(--page-max);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
   text-align: center;
   align-items: center;
   position: relative;
   z-index: 2;
 }
+/* Long lead sentence at the shared section-heading size, wrapped to a fixed
+   measure — the same treatment the home page's "We aren't merely selling
+   bottles…" tagline gets. */
 .ritual-intro-statement {
   font-family: var(--font-heading);
   text-transform: none;
   color: var(--base-600);
-  line-height: 1.18;
+  line-height: 1.3;
   letter-spacing: -0.01em;
-  font-size: clamp(1.6rem, 3.4vw, 3rem);
-  max-width: 920px;
+  font-size: var(--fs-section-title);
+  /* The measure does the wrapping. No text-wrap:balance — <Copy> runs SplitText
+     line-splitting over this element, and its line boxes are what get animated. */
+  max-width: var(--ritual-measure);
 }
 .bodyCopy.ritual-intro-body {
   color: var(--base-500);
-  max-width: 640px;
-  font-size: clamp(1rem, 0.7vw, 1.1rem);
+  max-width: var(--ritual-measure);
+  font-size: var(--fs-body);
 }
 
 /* ===================== Flow head / toggle ===================== */
 .ritual-flow {
-  padding: clamp(2rem, 5vw, 4rem) 2rem clamp(4rem, 8vw, 7rem);
   background-color: #F0EDE8;
 }
 .ritual-flow-head {
   max-width: var(--page-max);
-  margin: 0 auto clamp(3rem, 6vw, 5rem);
+  margin: 0 auto var(--ritual-head-gap);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2.25rem;
+  gap: 2rem;
   text-align: center;
 }
 
@@ -212,7 +263,7 @@
   font-family: var(--font-body);
   text-transform: none;
   letter-spacing: 0.12em;
-  font-size: 0.8rem;
+  font-size: var(--fs-supporting);
   font-weight: 500;
   color: var(--base-500);
   transition: color 0.4s ease;
@@ -224,46 +275,51 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
+/* Section-heading role — the same size as OUR BEST SELLERS / BUILD YOUR RITUAL
+   on the home page. Was clamp(3rem, 8vw, 6.5rem) = 48px–104px. */
 .ritual-flow-title {
   font-family: var(--font-heading);
   text-transform: none;
   color: var(--base-700);
-  line-height: 0.9;
+  line-height: 1.1;
   letter-spacing: -0.02em;
-  font-size: clamp(3rem, 8vw, 6.5rem);
+  font-size: var(--fs-section-title);
 }
 .ritual-flow-tagline {
   font-family: var(--font-body);
   text-transform: none;
   color: var(--base-500);
   line-height: 1.5;
-  font-size: clamp(0.92rem, 1.2vw, 1.05rem);
-  max-width: 560px;
+  font-size: var(--fs-body);
+  max-width: var(--ritual-measure);
 }
 .ritual-flow-meta {
   font-family: var(--font-body);
   text-transform: none;
   letter-spacing: 0.2em;
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   color: var(--base-300);
 }
 
 /* ===================== Steps ===================== */
 .ritual-steps {
-  max-width: 1180px;
+  max-width: var(--page-max);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: clamp(4rem, 9vw, 8rem);
+  /* Tied to the page rhythm rather than its own clamp, so the space between
+     steps tracks the space between sections. */
+  gap: var(--section-py);
 }
 
 .ritual-step {
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: clamp(2rem, 6vw, 6rem);
+  /* Same split-column gap genesis.css uses for its two-column bands. */
+  gap: clamp(2rem, 5vw, 5rem);
 }
 .ritual-step.is-reversed .ritual-step-visual { order: 2; }
 .ritual-step.is-reversed .ritual-step-body { order: 1; }
@@ -286,7 +342,7 @@
   position: relative;
   flex: 1;
   aspect-ratio: 4 / 5;
-  border-radius: 24px;
+  border-radius: 16px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -298,16 +354,23 @@
   top: 1.25rem;
   left: 1.5rem;
   font-family: var(--font-heading);
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: var(--fs-hero-title);
   line-height: 1;
   color: rgba(255, 255, 255, 0.55);
   letter-spacing: -0.03em;
   z-index: 2;
   pointer-events: none;
 }
+/* The product floats on the tint, so it stays `contain` (a bottle must never be
+   cropped). What changed: the box is now the full tile inset by a single even
+   padding instead of a 78%x78% centred box, so the inset is equal on all four
+   sides and every step's product resolves to the same bounding box. The padding
+   sits here rather than on the tile so .ritual-step-number keeps measuring its
+   offsets from the tile's own corner. */
 .ritual-step-img {
-  width: 78%;
-  height: 78%;
+  width: 100%;
+  height: 100%;
+  padding: 9%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -316,6 +379,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  object-position: center;
   filter: drop-shadow(0 18px 30px rgba(46, 31, 20, 0.28));
   transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -325,17 +389,20 @@
 .ritual-step-body {
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: 1rem;
 }
 .ritual-step-metarow {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
+/* Clean 28 -> 20 -> 16 -> 14 -> 12 descent through the step block. Phase and
+   product were 2.2rem and 2.6rem — near-identical, so neither read as the
+   heading of the pair. */
 .ritual-step-phase {
   font-family: var(--font-heading);
   text-transform: none;
-  font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+  font-size: var(--fs-subheading);
   letter-spacing: -0.01em;
   color: var(--base-400);
   line-height: 1;
@@ -344,7 +411,7 @@
   font-family: var(--font-body);
   text-transform: none;
   letter-spacing: 0.12em;
-  font-size: 0.68rem;
+  font-size: var(--fs-caption);
   color: var(--base-100);
   background-color: var(--base-300);
   padding: 0.4rem 0.8rem;
@@ -355,35 +422,35 @@
   font-family: var(--font-heading);
   text-transform: none;
   color: var(--base-700);
-  line-height: 1;
+  line-height: 1.1;
   letter-spacing: -0.01em;
-  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  font-size: var(--fs-section-title);
 }
 .ritual-step-how {
   font-family: var(--font-body);
   text-transform: none;
   color: var(--base-500);
   line-height: 1.55;
-  font-size: clamp(0.88rem, 1.05vw, 1rem);
-  max-width: 460px;
+  font-size: var(--fs-body);
+  max-width: var(--ritual-measure);
 }
 .bodyCopy.ritual-step-desc {
   color: var(--base-400);
   font-style: italic;
-  max-width: 460px;
-  font-size: clamp(0.95rem, 0.7vw, 1.05rem);
+  max-width: var(--ritual-measure);
+  font-size: var(--fs-supporting);
 }
 .ritual-step-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
-  margin-top: 0.4rem;
+  margin-top: 0.25rem;
 }
 .ritual-tag {
   font-family: var(--font-body);
   text-transform: none;
   letter-spacing: 0.1em;
-  font-size: 0.66rem;
+  font-size: var(--fs-caption);
   color: var(--base-500);
   border: 1px solid rgba(90, 37, 16, 0.3);
   padding: 0.45rem 0.85rem;
@@ -393,32 +460,31 @@
 /* ===================== The Pause ===================== */
 .ritual-pause {
   background-color: var(--base-700);
-  padding: clamp(5rem, 12vw, 10rem) 2rem;
 }
 .ritual-pause-inner {
-  max-width: 720px;
+  max-width: var(--page-max);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 2.5rem;
+  gap: 2rem;
 }
 .ritual-pause-title {
   font-family: var(--font-heading);
   text-transform: none;
   color: var(--base-100);
-  line-height: 1;
+  line-height: 1.1;
   letter-spacing: -0.01em;
-  font-size: clamp(2rem, 5vw, 3.75rem);
+  font-size: var(--fs-section-title);
 }
 .ritual-pause-note {
   font-family: var(--font-body);
   text-transform: none;
   color: rgba(231, 208, 166, 0.72);
   line-height: 1.6;
-  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
-  max-width: 480px;
+  font-size: var(--fs-body);
+  max-width: var(--ritual-measure);
 }
 
 /* Breathing animation */
@@ -454,7 +520,7 @@
   font-family: var(--font-body);
   text-transform: none;
   letter-spacing: 0.25em;
-  font-size: 0.62rem;
+  font-size: var(--fs-caption);
   color: #fff;
   font-weight: 600;
 }
@@ -469,12 +535,11 @@
 
 /* ===================== Shop the ritual ===================== */
 .ritual-shop {
-  padding: clamp(5rem, 11vw, 9rem) 2rem;
   background-color: #F0EDE8;
 }
 .ritual-shop-head {
-  max-width: 720px;
-  margin: 0 auto clamp(3rem, 6vw, 4.5rem);
+  max-width: var(--page-max);
+  margin: 0 auto var(--ritual-head-gap);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -485,65 +550,72 @@
   font-family: var(--font-heading);
   text-transform: none;
   color: var(--base-700);
-  line-height: 0.95;
+  line-height: 1.1;
   letter-spacing: -0.02em;
-  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-size: var(--fs-section-title);
 }
 .ritual-shop-sub {
   font-family: var(--font-body);
   text-transform: none;
   color: var(--base-500);
   line-height: 1.55;
-  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
-  max-width: 480px;
+  font-size: var(--fs-body);
+  max-width: var(--ritual-measure);
 }
 .ritual-shop-grid {
-  max-width: 1180px;
+  max-width: var(--page-max);
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 1.25rem;
+  /* Same grid gap as the home products grid. */
+  gap: 1.5rem;
 }
 .ritual-shop-card {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.75rem;
   text-decoration: none;
   transition: transform 0.35s ease;
 }
 .ritual-shop-card:hover { transform: translateY(-6px); }
+
+/* Card image treatment copied from the home product cards: the photo FILLS the
+   card and object-fit does the cropping. It used to be inset by 18% padding on
+   every side with object-fit:contain — an image box of only 64% x 64%, letter-
+   boxed again inside that to each photo's own aspect ratio, so every card
+   rendered its product at a different size and none of them filled the card. */
 .ritual-shop-card-img {
   aspect-ratio: 1 / 1;
   border-radius: 16px;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 18%;
+  position: relative;
 }
 .ritual-shop-card-img img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 12px 22px rgba(46, 31, 20, 0.25));
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.5s ease-out;
 }
+.ritual-shop-card:hover .ritual-shop-card-img img { transform: scale(1.05); }
+
 .ritual-shop-card-phase {
   font-family: var(--font-body);
   text-transform: none;
   letter-spacing: 0.18em;
-  font-size: 0.62rem;
+  font-size: var(--fs-caption);
   color: var(--base-300);
 }
 .ritual-shop-card-name {
   font-family: var(--font-body);
   text-transform: none;
   color: var(--base-700);
-  font-size: 0.85rem;
+  font-size: var(--fs-card-title);
   line-height: 1.3;
 }
 
 .ritual-shop-cta {
-  margin-top: clamp(3rem, 6vw, 4.5rem);
+  margin-top: var(--ritual-head-gap);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -556,7 +628,7 @@
   font-family: var(--font-body);
   text-transform: none;
   letter-spacing: 0.12em;
-  font-size: 0.82rem;
+  font-size: var(--fs-card-btn);
   font-weight: 500;
   padding: 1.25rem 2.75rem;
   border-radius: 100px;
@@ -570,7 +642,7 @@
   font-family: var(--font-body);
   text-transform: none;
   letter-spacing: 0.12em;
-  font-size: 0.82rem;
+  font-size: var(--fs-supporting);
   color: var(--base-500);
   border-bottom: 1px solid var(--base-400);
   padding-bottom: 3px;
@@ -580,7 +652,6 @@
 
 /* ===================== Closing quote ===================== */
 .ritual-quote {
-  padding: clamp(5rem, 11vw, 9rem) 2rem;
   background-color: var(--base-100);
   display: flex;
   flex-direction: column;
@@ -592,38 +663,42 @@
   font-family: var(--font-heading);
   text-transform: none;
   color: var(--base-600);
-  line-height: 1.15;
+  line-height: 1.3;
   letter-spacing: -0.01em;
-  font-size: clamp(1.75rem, 4.5vw, 3.5rem);
-  max-width: 900px;
+  font-size: var(--fs-section-title);
+  max-width: var(--ritual-measure);
 }
 .ritual-quote-author {
   font-family: var(--font-body);
   text-transform: none;
   letter-spacing: 0.2em;
-  font-size: 0.72rem;
+  font-size: var(--fs-caption);
   color: var(--base-300);
 }
 
 /* ===========================================================
    Responsive
+
+   Breakpoints match the rest of the site (1199 portrait / 1024 / 768 / 480).
+   This page was on 1000 / 768 / 460, so its columns and gutters stepped at
+   different widths than every other page. No font sizes here — the role tokens
+   already carry their own tablet and mobile steps.
    =========================================================== */
-@media (max-width: 1000px) {
-  .ritual-hero-content { padding: 2.5rem; }
+@media (max-width: 1024px) {
   .ritual-scroll-cue { display: none; }
   .ritual-shop-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* Portrait tablet: the grid gap follows the shared token, same as the home
+   page's product and formulas grids. */
+@media (max-width: 1199px) and (orientation: portrait) {
+  .ritual-shop-grid { gap: var(--section-grid-gap, 1.5rem); }
+  .ritual-step { gap: 2rem; }
+}
+
 @media (max-width: 768px) {
   .ritual-hero { height: 100vh; height: 100dvh; min-height: 460px; }
-  .ritual-hero-content { padding: 1.75rem; gap: 1rem; }
-
-  /* Match the home page's vertical section rhythm (--section-py) on mobile */
-  .ritual-intro,
-  .ritual-flow,
-  .ritual-pause,
-  .ritual-shop,
-  .ritual-quote { padding: var(--section-py) 1.25rem; }
+  .ritual-hero-content { gap: 1rem; }
 
   .ritual-step {
     grid-template-columns: 1fr;
@@ -634,23 +709,19 @@
   .ritual-step.is-reversed .ritual-step-body { order: 2; }
 
   .ritual-step-rail { display: none; }
-  .ritual-step-tile { aspect-ratio: 3 / 4; max-width: 420px; width: 100%; margin: 0 auto; border-radius: 12px; }
-
   /* Match the home product cards' 12px mobile corner radius */
+  .ritual-step-tile { aspect-ratio: 3 / 4; max-width: 420px; width: 100%; margin: 0 auto; border-radius: 12px; }
   .ritual-shop-card-img { border-radius: 12px; }
 
   .ritual-toggle-btn { padding: 0.75rem 1.8rem; }
+  /* Global buttons drop to 1rem padding-block at this width — keep the CTA in step. */
+  .ritual-cta-btn { padding: 1rem 2.25rem; }
 
   .ritual-shop-grid { grid-template-columns: repeat(2, 1fr); }
+  .ritual-shop-cta { gap: 1.25rem; }
 }
 
-@media (max-width: 460px) {
-  .ritual-shop-grid { grid-template-columns: repeat(2, 1fr); gap: 0.85rem; }
+@media (max-width: 480px) {
+  .ritual-shop-grid { grid-template-columns: repeat(2, 1fr); gap: var(--section-grid-gap, 0.75rem); }
   .ritual-breath { width: 150px; height: 150px; }
-}
-
-@media (min-width: 1920px) {
-  .ritual-steps,
-  .ritual-shop-grid { max-width: 1480px; }
-  .ritual-flow-head { max-width: 1480px; }
 }

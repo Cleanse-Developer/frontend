@@ -649,31 +649,24 @@ export default function ProfilePage() {
                 you both earn rewards.
               </p>
               {referralStats && (
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(3, 1fr)",
-                    gap: "0.75rem",
-                    margin: "0.75rem 0 1rem",
-                  }}
-                >
-                  <div style={{ textAlign: "center", padding: "0.5rem", background: "#f7f4ef", borderRadius: 6 }}>
-                    <p style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>
+                <div className="profile-referral-stats">
+                  <div className="profile-referral-stat">
+                    <p className="profile-referral-stat-value">
                       {referralStats.totalReferrals}
                     </p>
-                    <p style={{ fontSize: "0.7rem", opacity: 0.7, margin: 0 }}>Referred</p>
+                    <p className="profile-referral-stat-label">Referred</p>
                   </div>
-                  <div style={{ textAlign: "center", padding: "0.5rem", background: "#f7f4ef", borderRadius: 6 }}>
-                    <p style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>
+                  <div className="profile-referral-stat">
+                    <p className="profile-referral-stat-value">
                       {referralStats.successfulReferrals}
                     </p>
-                    <p style={{ fontSize: "0.7rem", opacity: 0.7, margin: 0 }}>Successful</p>
+                    <p className="profile-referral-stat-label">Successful</p>
                   </div>
-                  <div style={{ textAlign: "center", padding: "0.5rem", background: "#f7f4ef", borderRadius: 6 }}>
-                    <p style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>
+                  <div className="profile-referral-stat">
+                    <p className="profile-referral-stat-value">
                       &#8377;{referralStats.totalEarned}
                     </p>
-                    <p style={{ fontSize: "0.7rem", opacity: 0.7, margin: 0 }}>Earned</p>
+                    <p className="profile-referral-stat-label">Earned</p>
                   </div>
                 </div>
               )}

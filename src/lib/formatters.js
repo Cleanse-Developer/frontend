@@ -29,13 +29,42 @@ export const isUsablePricing = (p) =>
   toNum(p.total) !== null;
 
 /**
+ * The variant a quick-add should use when the shopper hasn't picked a size:
+ * the cheapest priced variant — i.e. the exact one `cardPrice` displays.
+ * Returns null for products with no priced variants (base price applies).
+ *
+ * Cart adds MUST go through this so the price that lands in the bag is the one
+ * advertised on the card / bundle tile. Defaulting to `sizes[0]` instead makes
+ * a bundle total quoted at the lowest variant price bill at whatever variant
+ * happens to be first.
+ */
+export const defaultVariant = (p) => {
+  const priced = (p?.sizes || []).filter(
+    (s) => Number.isFinite(Number(s?.price)) && Number(s.price) > 0
+  );
+  if (priced.length === 0) return null;
+  return priced.reduce((min, s) => (Number(s.price) < Number(min.price) ? s : min));
+};
+
+/**
  * Price to display on a catalog card when no variant is selected yet: the
  * lowest variant price, falling back to the base product price for products
- * with no variants. Used by product cards / featured grid / cross-sell.
+ * with no variants. Used by product cards / featured grid / cross-sell / bundles.
  */
-export const cardPrice = (p) => {
-  const prices = (p?.sizes || [])
-    .map((s) => Number(s.price))
-    .filter((n) => Number.isFinite(n) && n > 0);
-  return prices.length ? Math.min(...prices) : Number(p?.price) || 0;
-};
+export const cardPrice = (p) =>
+  Number(defaultVariant(p)?.price) || Number(p?.price) || 0;
+
+/**
+ * The size label a cart line will carry for (product, selectedSize).
+ * `selectedSize` may be a full variant object, a bare label, or absent.
+ *
+ * Single source of truth: CartContext.addToCart uses it to build the line, and
+ * CartQtyButton uses it to find that line again. If the two ever disagree the
+ * tile stepper stops recognising its own item and re-adds duplicates.
+ */
+export const resolveVariantLabel = (product, selectedSize) =>
+  selectedSize?.label ||
+  selectedSize ||
+  defaultVariant(product)?.label ||
+  product?.sizes?.[0]?.label ||
+  product?.sizes?.[0];

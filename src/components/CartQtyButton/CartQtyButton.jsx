@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { resolveVariantLabel } from "@/lib/formatters";
 
 /* The add-to-cart control used on product tiles. Before the item is in the cart
    it's a plain ADD TO CART button; once it's in, it becomes a − qty + stepper so
@@ -15,13 +16,8 @@ import { useCart } from "@/context/CartContext";
 const lineIdFor = (item) =>
   item.cartItemId || `${item.productId || item.name}_${item.selectedSize}`;
 
-// Mirrors addToCart's own size resolution, so the line we look up is the line it
-// would create.
-const resolveSize = (product, selectedSize) =>
-  selectedSize?.label ||
-  selectedSize ||
-  product.sizes?.[0]?.label ||
-  product.sizes?.[0];
+// Size resolution is shared with addToCart (see lib/formatters) so the line we
+// look up is exactly the line it would create.
 
 // Must match the roll-up animation in FeaturedSection.css. The stepper is held
 // on screen for this long so it can animate out — removing the line straight away
@@ -41,7 +37,7 @@ const CartQtyButton = ({
 
   useEffect(() => () => clearTimeout(closeTimer.current), []);
 
-  const size = resolveSize(product, selectedSize);
+  const size = resolveVariantLabel(product, selectedSize);
   const productId = product._id || product.productId;
   const matchKey = `${productId || product.name}_${size}`;
   const line = cartItems.find(

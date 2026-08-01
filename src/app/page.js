@@ -361,9 +361,23 @@ export default function Index() {
             </div>
           </div>
         </section>
-        <div className="hero-bottom-tagline">
-          <p className="hero-tagline">{`\u201c${settings.cmsFormula?.tagline || "We aren\u2019t merely selling bottles; we are delivering a clinically-backed path to purity."}\u201d`}</p>
-        </div>
+      </div>
+
+      {/* Takes the slot the "We aren't merely selling bottles\u2026" tagline used to
+          hold under the hero; the tagline now travels with the formulas
+          section it introduces. */}
+      <ShopByCategory />
+
+      <div id="featured">
+        <FeaturedSection />
+      </div>
+
+      {/* Kept as an immediate sibling of .formulas (never a child): every
+          breakpoint's negative .formulas-content margin is tuned to let the
+          center image peek up past this tagline, and that only holds while the
+          two are adjacent. */}
+      <div className="hero-bottom-tagline">
+        <p className="hero-tagline">{`\u201c${settings.cmsFormula?.tagline || "We aren\u2019t merely selling bottles; we are delivering a clinically-backed path to purity."}\u201d`}</p>
       </div>
 
       <section className="formulas" ref={formulasSectionRef}>
@@ -389,17 +403,11 @@ export default function Index() {
         </div>
       </section>
 
-      <div id="featured">
-        <FeaturedSection />
-      </div>
-
       <MarqueeBanner />
 
       <div id="why-skin">
         <BentoSection />
       </div>
-
-      <ShopByCategory />
 
       <div id="rituals">
         <BuildYourRitual />

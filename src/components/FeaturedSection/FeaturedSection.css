@@ -69,66 +69,9 @@
   transform: translateY(-8px);
 }
 
-/* ── Hover botanicals ────────────────────────────────────────────────────────
-   Sit behind the product (z-index 1 vs its 2) and grow outward on hover, so the
-   foliage reads as wrapping around the bottle rather than sitting on top of it.
-   `overflow: visible` on the card lets them break past the tan block. */
-.sbc-card-flora {
-  position: absolute;
-  /* Matches .sbc-card-box exactly and clips to it: the foliage is taller than the
-     card, so without this it spills out over the section background. */
-  inset: 0;
-  overflow: hidden;
-  border-radius: 17.87px;
-  z-index: 1;
-  pointer-events: none;
-  color: #6E7A4F;
-}
-
-.sbc-flora-roots {
-  position: absolute;
-  /* Anchored bottom-right and mirrored, so the branch's thick base (drawn on its
-     left) sits in the right corner and reaches across toward the label. The
-     artwork is 1508×631, so this height renders it ~330px wide. */
-  right: 0;
-  bottom: 0;
-  height: 138px;
-  width: auto;
-  object-fit: contain;
-  transform: scaleX(-1);
-}
-
-/* Growth is a soft-edged mask sweeping along the branch from base to tip. The
-   mask runs in the element's OWN axes and `transform: scaleX(-1)` is applied
-   after masking, so this local left→right sweep reads right→left on screen —
-   matching the mirrored branch. A mask (not opacity) is what makes it read as
-   growth; the soft gradient edge feathers the tip instead of wiping a hard line. */
-.sbc-flora-roots {
-  -webkit-mask-image: linear-gradient(to right, #000 42%, transparent 62%);
-  mask-image: linear-gradient(to right, #000 42%, transparent 62%);
-  -webkit-mask-size: 260% 100%;
-  mask-size: 260% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  /* Opaque end sits at the mask's LEFT, so position 100% leaves the element
-     covered by the transparent right half = nothing visible at rest. */
-  -webkit-mask-position: 100% 0;
-  mask-position: 100% 0;
-  transition: -webkit-mask-position 1.2s cubic-bezier(0.3, 0.8, 0.35, 1),
-    mask-position 1.2s cubic-bezier(0.3, 0.8, 0.35, 1);
-}
-
-.sbc-card:hover .sbc-flora-roots {
-  -webkit-mask-position: 0 0;
-  mask-position: 0 0;
-}
-
-
-@media (prefers-reduced-motion: reduce) {
-  .sbc-flora-roots {
-    transition-duration: 0.01s;
-  }
-}
+/* The hover botanicals (/root-branch.png growing out of the bottom-right corner
+   on a mask sweep) are gone: the cards carry their own background artwork now,
+   and the foliage read as clutter on top of it. */
 
 .sbc-card-name {
   font-family: var(--font-body);
@@ -3206,5 +3149,423 @@
     --byr-chip-size: 24px;
     --byr-col-gap: 28px;
     column-gap: var(--byr-col-gap);
+  }
+}
+
+/* ============================================================
+   Best Sellers was swapped ahead of the Formulas section and now follows Shop
+   By Category, whose own --section-py bottom padding already carries the gap —
+   a second full --section-py on top read as a hole. Halve it; the bottom
+   padding is left alone so the rhythm into the tagline + Formulas still
+   matches every other section. Appended last so it wins over the breakpoint
+   rules above, which all re-set the `padding` shorthand.
+   ============================================================ */
+.products-section {
+  padding-top: calc(var(--section-py) * 0.5);
+}
+
+/* ============================================================
+   Shop By Category tucked under the hero.
+
+   Equal air above and below the card row: --sbc-gap sets the gap to the hero,
+   and the bottom is left at 0 because the next section (Best Sellers) already
+   contributes exactly the same --section-py * 0.5 as its own top padding.
+   Matching the two that way keeps them equal at every breakpoint without
+   hard-coding a second value that would drift out of sync.
+
+   Padding, not a negative margin: the section's cream background must keep
+   starting at the hero's bottom edge rather than painting a band over the
+   hero's lower strip. The product images are much taller than their tan boxes
+   and overflow upward on their own, which is what carries the row into the
+   hero — .hero-wrapper is z-index: 2, so the section needs 3 or that overflow
+   would be hidden behind the hero.
+   ============================================================ */
+.shop-by-category {
+  --sbc-gap: calc(var(--section-py) * 0.5);
+  position: relative;
+  z-index: 3;
+  padding-top: var(--sbc-gap);
+  padding-bottom: 0;
+}
+
+/* ============================================================
+   Shorter category cards on LAPTOPS ONLY (1200–1919), so "OUR BEST SELLERS"
+   crests into view while the hero is still on screen. Large monitors are
+   excluded — they have the vertical room already.
+
+   Only .sbc-card-box drives layout — .sbc-card-img is absolutely positioned,
+   so it contributes nothing to the section's height and the products simply
+   reach further up into the hero as the box shrinks. Each pair below is the
+   breakpoint's original values taken to ~0.75, which keeps the existing
+   product-to-box proportion rather than leaving the bottles looking oversized
+   against a shorter block.
+
+   Both bounds matter. min-width 1200 keeps the portrait-tablet (481–1199) and
+   phone card sizes further up the file untouched; the max-widths keep these
+   off big monitors — without them they would beat the 1920+/2560+ rules above
+   purely by sitting later in the file, and every large screen would inherit
+   the laptop sizing.
+
+   The laptop range STOPS AT 1600, not 1919, because a media query matches the
+   viewport WITHOUT the vertical scrollbar: a 1920px monitor reports ~1905px,
+   so a 1919 ceiling swept real 1920 monitors into the laptop sizing. Physical
+   laptop widths (1280 / 1366 / 1440 / 1536 / 1600) all report under 1600.
+   ============================================================ */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .sbc-card-box {
+    height: 102px;
+  }
+
+  .sbc-card-img {
+    height: 240px;
+  }
+}
+
+@media (min-width: 1440px) and (max-width: 1600px) {
+  .sbc-card-box {
+    height: 120px;
+  }
+
+  .sbc-card-img {
+    height: 210px;
+  }
+}
+
+/* ── Big monitors: taller cards ──────────────────────────────────────────────
+   Where a nominal 1920px monitor actually lands once the scrollbar is taken
+   off the viewport width. Without this band it would fall through to the base
+   135px card, which is shorter than the 1920+ rule it visually sits next to. */
+@media (min-width: 1601px) and (max-width: 1919px) {
+  .sbc-card-box {
+    height: 155px;
+  }
+
+  .sbc-card-img {
+    height: 280px;
+  }
+}
+
+/* True 1920+/2560+ viewports: a step up from the original 180/200, since Best
+   Sellers was still crowding the hero at those sizes. */
+@media (min-width: 1920px) {
+  .sbc-card-box {
+    height: 200px;
+  }
+
+  .sbc-card-img {
+    height: 340px;
+  }
+}
+
+@media (min-width: 2560px) {
+  .sbc-card-box {
+    height: 220px;
+  }
+
+  .sbc-card-img {
+    height: 400px;
+  }
+}
+
+/* ============================================================
+   Category card background artwork — DESKTOP ONLY.
+
+   The per-card file comes in as --sbc-card-bg from the component. The tan
+   #C8AD73 declared at the top of this file stays underneath as the fallback
+   layer, so a missing or still-loading file shows the original solid card
+   instead of a blank rectangle.
+
+   Held to min-width 1200 on purpose: below that the card flips to a different
+   composition (product centred and popping out of the card's TOP, label
+   centred along the bottom), which a full-bleed photo would fight with.
+   ============================================================ */
+@media (min-width: 1200px) {
+  .sbc-card-box {
+    background-image: var(--sbc-card-bg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+}
+
+/* ============================================================
+   Bigger devices: nudge the category row further down the hero.
+
+   Both values have to move together. The gap ABOVE the cards is this section's
+   own padding-top, but the gap BELOW them belongs to the next section — Best
+   Sellers' padding-top — because .shop-by-category deliberately runs a zero
+   bottom padding. Raising only one of the two would drop the row down while
+   leaving it sitting off-centre, which is the opposite of the intent.
+
+   0.5 -> 0.75 of --section-py, so roughly +20px at 1601–1919 and +24px above
+   that, where --section-py itself steps up to 6rem.
+   ============================================================ */
+@media (min-width: 1601px) {
+  .shop-by-category {
+    --sbc-gap: calc(var(--section-py) * 0.75);
+  }
+
+  .products-section {
+    padding-top: calc(var(--section-py) * 0.75);
+  }
+}
+
+/* ============================================================
+   Category card content — DESKTOP ONLY (icon / title / tagline / Explore).
+
+   The card flips from a single centred label to a left-aligned stack. Sizes
+   below are deliberately compact: the whole stack measures ~148px, which fits
+   inside the existing 155px card at 1601–1919 and the 200px+ cards above it,
+   so the heights tuned earlier are left alone. Only the two laptop bands are
+   raised (102/120 -> 160/165), where the stack physically could not fit.
+
+   --sbc-fg carries the per-card text colour set from `tone` in the component,
+   so the icon ring, title, tagline and button all recolour from one value.
+
+   Below 1200 the card keeps its existing composition (product popping out of
+   the top, name centred along the bottom), so the extra elements are hidden
+   rather than restyled — there is no room for them at 110–122px tall.
+   ============================================================ */
+@media (min-width: 1200px) {
+  .sbc-card-box {
+    --sbc-fg: #4F2C22;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    /* Replaces the base padding-left: 6rem (and the 2.5rem at 1920+). */
+    padding: 1.1rem 1.5rem;
+    color: var(--sbc-fg);
+  }
+
+  /* hero2's sage is the one background dark enough to need light type. */
+  .sbc-card-box[data-tone="light"] {
+    --sbc-fg: #F7F2E7;
+  }
+
+  .sbc-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    /* The ring reads as a hairline accent, not a second focal point. */
+    opacity: 0.75;
+    flex: none;
+  }
+
+  .sbc-card-icon svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .sbc-card-box .sbc-card-name {
+    /* Heading face + tracking to match the reference; the base rule sets the
+       body font, a fixed 132px width and its own colour, all wrong here. */
+    font-family: var(--font-heading);
+    font-size: clamp(1rem, 1.05vw, 1.25rem);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    color: var(--sbc-fg);
+    width: auto;
+    max-width: 62%;
+    margin-top: 0.5rem;
+  }
+
+  .sbc-card-tagline {
+    font-family: var(--font-body);
+    font-size: clamp(0.72rem, 0.72vw, 0.85rem);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    color: var(--sbc-fg);
+    opacity: 0.85;
+    /* Keeps the longest line ("Strength. Shine. Scalp Harmony.") clear of the
+       floating product on the right. */
+    max-width: 62%;
+    margin-top: 0.35rem;
+  }
+
+  .sbc-card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-family: var(--font-body);
+    font-size: clamp(0.62rem, 0.62vw, 0.72rem);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1;
+    color: var(--sbc-fg);
+    transition: background-color 0.35s ease, color 0.35s ease;
+  }
+
+  .sbc-card-cta-arrow {
+    width: 13px;
+    height: 13px;
+    transition: transform 0.35s ease;
+  }
+
+  .sbc-card:hover .sbc-card-cta-arrow {
+    transform: translateX(3px);
+  }
+
+  /* Laptop bands only: the stack does not fit 102/120px. */
+  .sbc-card-box {
+    min-height: 160px;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .sbc-card-box {
+    height: 160px;
+  }
+}
+
+@media (min-width: 1440px) and (max-width: 1600px) {
+  .sbc-card-box {
+    height: 165px;
+  }
+}
+
+/* Tablet and phone keep the original single-label card. */
+@media (max-width: 1199px) {
+  .sbc-card-icon,
+  .sbc-card-tagline,
+  .sbc-card-cta {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sbc-card-cta-arrow {
+    transition-duration: 0.01s;
+  }
+}
+
+/* ============================================================
+   Legibility scrim behind the card text.
+
+   A soft gradient fading out to the right, so the left column of copy always
+   has a settled field under it while the photo stays fully visible around the
+   product on the right.
+
+   The scrim colour follows `tone`, it is not one shade for all three cards: a
+   dark wash under the brown type on the cream and blush cards would sink the
+   contrast rather than lift it, so those get a light wash and only the sage
+   card (light type) gets an actual shadow.
+
+   Sits above the background image but below the copy — hence z-index 1 on the
+   children — and inherits the card's radius so it never squares off a corner.
+   ============================================================ */
+@media (min-width: 1200px) {
+  .sbc-card-box {
+    --sbc-scrim: rgba(252, 248, 240, 0.82);
+    position: relative;
+  }
+
+  .sbc-card-box[data-tone="light"] {
+    --sbc-scrim: rgba(38, 34, 24, 0.55);
+  }
+
+  .sbc-card-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      var(--sbc-scrim) 0%,
+      var(--sbc-scrim) 26%,
+      transparent 68%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .sbc-card-box > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* ============================================================
+   Desktop card height: driven by content, not a fixed number.
+
+   The icon/title/tagline/Explore stack measures ~141px and grows with the
+   viewport (the type is vw-clamped), so any hard `height` is a number that
+   content can outgrow — which is what pushed the Explore button past the
+   card's edge. `height: auto` + a per-band `min-height` keeps every tuned
+   size as a FLOOR while letting a card grow if its copy needs more room, so
+   it can never overflow again.
+
+   Laptops also come down and move up: a smaller floor (140px) and a tighter
+   gap. --sbc-gap and Best Sellers' padding-top move together, as always,
+   because the space below the row belongs to the next section.
+   ============================================================ */
+@media (min-width: 1200px) {
+  .sbc-card-box {
+    height: auto;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1600px) {
+  .sbc-card-box {
+    min-height: 140px;
+  }
+
+  .shop-by-category {
+    --sbc-gap: calc(var(--section-py) * 0.35);
+  }
+
+  .products-section {
+    padding-top: calc(var(--section-py) * 0.35);
+  }
+}
+
+@media (min-width: 1601px) and (max-width: 1919px) {
+  .sbc-card-box {
+    min-height: 165px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .sbc-card-box {
+    min-height: 200px;
+  }
+}
+
+@media (min-width: 2560px) {
+  .sbc-card-box {
+    min-height: 220px;
+  }
+}
+
+/* ============================================================
+   Laptops only: bigger product, reaching further out of the card top.
+
+   Purely visual — .sbc-card-img is absolutely positioned, so growing it does
+   not change the card's height or push anything below it. It is anchored at
+   bottom: -20px, so the extra height is spent entirely upward: the overhang
+   above the card goes from 80 -> 115px (1200–1439) and 50 -> 85px (1440–1600).
+
+   The other bands keep the sizes tuned earlier.
+   ============================================================ */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .sbc-card-img {
+    height: 275px;
+  }
+}
+
+@media (min-width: 1440px) and (max-width: 1600px) {
+  .sbc-card-img {
+    height: 245px;
   }
 }

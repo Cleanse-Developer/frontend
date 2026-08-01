@@ -118,6 +118,12 @@
 }
 
 @media (max-width: 768px) {
+  /* Section is desktop-only — PeelReveal.jsx unmounts it on mount, this hides
+     the server-rendered markup so it never flashes before hydration. */
+  .peel-reveal-container {
+    display: none;
+  }
+
   .peel-reveal {
     height: 70svh;
   }

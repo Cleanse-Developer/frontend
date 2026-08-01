@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { cartApi, cartPricingApi, guestPricingApi } from "@/lib/endpoints";
-import { isUsablePricing } from "@/lib/formatters";
+import { isUsablePricing, resolveVariantLabel } from "@/lib/formatters";
 
 const CartContext = createContext(null);
 
@@ -28,6 +28,10 @@ export const CartProvider = ({ children }) => {
   const [serverPricing, setServerPricing] = useState(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const syncedRef = useRef(false);
+  // Monotonic id for pricing requests. Adding a bundle mutates the cart once
+  // per product, so several pricing calls are in flight at the same time and
+  // they can resolve out of order. Only the newest request may write pricing.
+  const pricingReqRef = useRef(0);
 
   // Load cart on mount / auth change
   useEffect(() => {
@@ -73,6 +77,7 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     if (authLoading || isAuthenticated) return;
     if (!syncedRef.current || cartItems.length === 0) {
+      pricingReqRef.current += 1; // invalidate anything in flight
       setServerPricing(null);
       return;
     }
@@ -86,15 +91,29 @@ export const CartProvider = ({ children }) => {
       }));
 
     if (items.length === 0) {
+      pricingReqRef.current += 1;
       setServerPricing(null);
       return;
     }
 
-    guestPricingApi.calculate(items).then((pricing) => {
-      setServerPricing(isUsablePricing(pricing) ? pricing : null);
-    }).catch(() => {
-      setServerPricing(null);
-    });
+    // Debounce so a bundle add (one cart mutation per product) prices the
+    // settled cart once, instead of firing a request per product where the
+    // early ones don't yet meet the bundle's minimum and carry no discount.
+    const reqId = ++pricingReqRef.current;
+    const timer = setTimeout(() => {
+      guestPricingApi
+        .calculate(items)
+        .then((pricing) => {
+          if (pricingReqRef.current !== reqId) return; // superseded
+          setServerPricing(isUsablePricing(pricing) ? pricing : null);
+        })
+        .catch(() => {
+          if (pricingReqRef.current !== reqId) return;
+          setServerPricing(null);
+        });
+    }, 120);
+
+    return () => clearTimeout(timer);
   }, [cartItems, isAuthenticated, authLoading]);
 
   const normalizeApiCart = (cart) => {
@@ -116,6 +135,7 @@ export const CartProvider = ({ children }) => {
   // A partial/malformed pricing object is treated as "no pricing" so the UI
   // falls back to the client-side estimate instead of rendering broken totals.
   const handleCartResponse = (data) => {
+    pricingReqRef.current += 1; // this response is newer than anything in flight
     if (data?.cart && data?.pricing) {
       setCartItems(normalizeApiCart(data.cart));
       setServerPricing(isUsablePricing(data.pricing) ? data.pricing : null);
@@ -127,6 +147,9 @@ export const CartProvider = ({ children }) => {
 
   // Fetch pricing preview from server (coupon/gift wrap/special coupons/loyalty) -- works for both auth and guest
   const fetchPricingPreview = useCallback(async (couponCode, giftWrap, specialCouponCode, loyaltyPointsToRedeem = 0, opts = {}) => {
+    // Shares the ordering guard with the auto-fetch effect so an in-flight
+    // plain (coupon-less) pricing response can't land on top of this one.
+    const reqId = ++pricingReqRef.current;
     try {
       let pricing;
       if (isAuthenticated) {
@@ -144,7 +167,9 @@ export const CartProvider = ({ children }) => {
         pricing = await guestPricingApi.calculate(items, couponCode, giftWrap, specialCouponCode, opts);
       }
       const safePricing = isUsablePricing(pricing) ? pricing : null;
-      setServerPricing(safePricing);
+      // Still return the result to the caller even if a newer request has since
+      // taken over the shared pricing state.
+      if (pricingReqRef.current === reqId) setServerPricing(safePricing);
       return safePricing;
     } catch {
       return null;
@@ -157,7 +182,11 @@ export const CartProvider = ({ children }) => {
     const image = product.primaryImage || product.image || product.images?.[0]?.url || "/images/1.png";
     const slug = product.slug;
     const description = product.shortDescription || product.description || "";
-    const sizeLabel = selectedSize?.label || selectedSize || product.sizes?.[0]?.label || product.sizes?.[0];
+    // With no explicit size (bundle add, cross-sell "+", card quick-add) fall
+    // back to the variant `cardPrice` advertises — the cheapest one — so the
+    // bag bills exactly the price the shopper was quoted. Defaulting to
+    // sizes[0] instead silently charges whichever variant happens to be first.
+    const sizeLabel = resolveVariantLabel(product, selectedSize);
     // Snapshot the SELECTED variant's price into the guest cart (localStorage).
     // selectedSize may be a full variant object OR just a label; resolve either way.
     const variant =
@@ -225,6 +254,40 @@ export const CartProvider = ({ children }) => {
     }
   }, [isAuthenticated]);
 
+  // Re-pull the cart from the server. Used by pull-to-refresh in the bag so a
+  // stale price / removed item / expired promo gets corrected on demand.
+  // Guests have no server cart, so only the pricing is recalculated.
+  const refreshCart = useCallback(async () => {
+    if (isAuthenticated) {
+      try {
+        const data = await cartApi.get();
+        handleCartResponse(data);
+      } catch { /* keep whatever we already have */ }
+      return;
+    }
+
+    const items = cartItems
+      .filter((item) => item.productId)
+      .map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity || 1,
+        selectedSize: item.selectedSize,
+      }));
+
+    if (items.length === 0) {
+      pricingReqRef.current += 1;
+      setServerPricing(null);
+      return;
+    }
+
+    const reqId = ++pricingReqRef.current;
+    try {
+      const pricing = await guestPricingApi.calculate(items);
+      if (pricingReqRef.current !== reqId) return; // superseded
+      setServerPricing(isUsablePricing(pricing) ? pricing : null);
+    } catch { /* keep whatever we already have */ }
+  }, [isAuthenticated, cartItems]);
+
   const clearCart = useCallback(async () => {
     if (isAuthenticated) {
       try {
@@ -262,6 +325,7 @@ export const CartProvider = ({ children }) => {
     setIsCartOpen,
     serverPricing,
     fetchPricingPreview,
+    refreshCart,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

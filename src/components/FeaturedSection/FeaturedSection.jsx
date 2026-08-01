@@ -245,33 +245,67 @@ export const BentoSection = () => {
   );
 };
 
-/* The supplied root/branch artwork, cropped to its content bounds and saved as
-   /root-branch.png. It grows out of the card's bottom-right corner on hover —
-   see the mask sweep in .sbc-flora-roots. Identical on all three cards. */
-const SbcFlora = () => (
-  <span className="sbc-card-flora" aria-hidden="true">
-    <img src="/root-branch.png" alt="" className="sbc-flora-roots" loading="lazy" />
-  </span>
-);
+/* Line-art glyphs for the category cards, drawn on the same 24px grid and 1.2
+   stroke as the hero feature icons so the two sets read as one family. The ring
+   around them is a CSS border on .sbc-card-icon, not part of the artwork. */
+const SBC_ICONS = {
+  skin: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 4c0 9-5.5 14-12 14C5 18 4 15 4 12 4 6.5 9.5 4 20 4Z" />
+      <path d="M4 20c4-8 9-11 14-12" />
+    </svg>
+  ),
+  hair: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 21c-1.5-3-2-6-2-9 0-4.5 3-8 7-8s7 3.5 7 8c0 3-.5 6-2 9" />
+      <path d="M10 21c-1-2.5-1.5-5-1.5-7.5S9.5 8 12 8" />
+      <path d="M14 21c1-2.5 1.5-5 1.5-7.5" />
+    </svg>
+  ),
+  face: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3c2.4 2.9 3.6 5.4 3.6 7.6 0 2.6-1.6 4.6-3.6 6.2-2-1.6-3.6-3.6-3.6-6.2C8.4 8.4 9.6 5.9 12 3Z" />
+      <path d="M12 17c-2.8 1-5.6.2-7.6-2.4 2.4-1.6 4.9-1.6 7 0" />
+      <path d="M12 17c2.8 1 5.6.2 7.6-2.4-2.4-1.6-4.9-1.6-7 0" />
+    </svg>
+  ),
+};
 
 export const ShopByCategory = () => {
+  /* `bg` fills the card block on desktop; `image` is the floating product that
+     sits on top of it. The tan #C8AD73 stays declared underneath in CSS, so a
+     missing/slow bg file degrades to the old solid card rather than a blank.
+     `tone` picks the text colour: hero2's sage is dark enough to need light
+     type, while the cream and blush cards keep the brand brown. */
   const categories = [
-    { id: 1, name: "skin care", image: "/images/cat-skin.png", link: "/wardrobe?category=face-care" },
-    { id: 2, name: "hair care", image: "/images/cat-hair.png", link: "/wardrobe?category=hair-care" },
-    { id: 3, name: "face care", image: "/images/cat-face.png", link: "/wardrobe?category=face-care" },
+    { id: 1, name: "skin care", tagline: "Nourish. Protect. Glow.", icon: "skin", tone: "dark", image: "/images/cat-skin.png", bg: "/hero1.png", link: "/wardrobe?category=face-care" },
+    { id: 2, name: "hair care", tagline: "Strength. Shine. Scalp Harmony.", icon: "hair", tone: "light", image: "/images/cat-hair.png", bg: "/hero2.png", link: "/wardrobe?category=hair-care" },
+    { id: 3, name: "face care", tagline: "Pure. Gentle. Effective.", icon: "face", tone: "dark", image: "/images/cat-face.png", bg: "/hero3.png", link: "/wardrobe?category=face-care" },
   ];
 
+  // No section heading: this row sits tucked into the bottom of the hero, so it
+  // reads as part of it rather than as its own titled section.
   return (
     <section className="shop-by-category">
-      <h2 className="sbc-title">SHOP BY CATEGORY</h2>
       <div className="sbc-grid">
         {categories.map((cat) => (
           <a key={cat.id} href={cat.link} className="sbc-card">
-            <div className="sbc-card-box">
+            <div
+              className="sbc-card-box"
+              data-tone={cat.tone}
+              style={{ "--sbc-card-bg": `url(${cat.bg})` }}
+            >
+              <span className="sbc-card-icon" aria-hidden="true">{SBC_ICONS[cat.icon]}</span>
               <span className="sbc-card-name">{cat.name}</span>
+              <span className="sbc-card-tagline">{cat.tagline}</span>
+              {/* Not a nested <a> — the whole card is already the link. */}
+              <span className="sbc-card-cta">
+                Explore
+                <svg className="sbc-card-cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </span>
             </div>
-            {/* Before the product in the DOM so it grows out from BEHIND it. */}
-            <SbcFlora />
             <img src={cat.image} alt={cat.name} className="sbc-card-img" loading="lazy" />
           </a>
         ))}

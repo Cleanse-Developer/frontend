@@ -102,8 +102,8 @@
   /* Slightly curved bottom corners (top stays sharp) */
   border-bottom-left-radius: 1.25rem;
   border-bottom-right-radius: 1.25rem;
-  /* Soft shadow cast below the hero */
-  box-shadow: 0 1.75rem 2.5rem -1.25rem rgba(68, 40, 36, 0.45);
+  /* No drop shadow below the hero: the category cards now sit against that
+     edge, and the cast shadow read as a smudge behind them. */
   transform-origin: center top;
   will-change: transform;
   /* isolate the stacking context so slide/gradient z-indexes stay local */
@@ -141,6 +141,11 @@
   padding: 2.5rem 1.5rem 0;
   max-width: 100%;
   margin: 0 auto;
+  /* Own background rather than borrowing .hero-wrapper's: this block no longer
+     sits inside the wrapper, and the body underneath is --base-100 (#E7D0A6),
+     which would otherwise band across above the formulas section. The mobile
+     and tablet blocks already declare the same colour. */
+  background-color: #F0EDE8;
 }
 
 .hero-bottom-tagline p {
@@ -837,8 +842,8 @@
   width: 100%;
   min-height: auto;
   background-color: #F0EDE8;
-  /* Symmetric vertical padding so the gap below (before OUR BEST SELLERS)
-     matches the other section gaps instead of being cramped */
+  /* Symmetric vertical padding so the gaps above (after OUR BEST SELLERS)
+     and below match the other section gaps instead of being cramped */
   padding: 4rem 0 4rem;
   overflow: clip;
   display: flex;
@@ -1833,4 +1838,17 @@
   .cta-section {
     padding: var(--section-py) var(--gutter);
   }
+}
+
+/* ============================================================
+   The hero wrapper's bottom padding is vestigial: it spaced the hero from the
+   "We aren't merely selling bottles…" tagline back when that block lived
+   inside the wrapper. The tagline now sits above the formulas section, so the
+   wrapper holds nothing but .hero, and at 1440+/1920+/2560+ that leftover 2rem
+   stacked on top of Shop By Category's own top padding — making the gap above
+   the category cards 2rem larger than the matching gap below them.
+   Appended last so it clears all three of those breakpoint declarations.
+   ============================================================ */
+.hero-wrapper {
+  padding-bottom: 0;
 }

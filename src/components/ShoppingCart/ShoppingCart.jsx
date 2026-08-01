@@ -12,6 +12,11 @@ import { formatPrice, cardPrice } from "@/lib/formatters";
 // Loyalty points rate: 1 point per ₹10 spent
 const POINTS_PER_RUPEE = 0.1;
 
+// Pull-to-refresh: drag distance (px) that triggers a refresh, and the cap the
+// indicator can be dragged to (drag past the threshold gets damped).
+const PULL_THRESHOLD = 70;
+const PULL_MAX = 110;
+
 // Cart timer duration in seconds (15 minutes)
 const CART_TIMER_DURATION = 15 * 60;
 
@@ -150,9 +155,122 @@ const CrossSellProducts = ({ cartItems }) => {
 
 const ShoppingCart = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { cartItems, removeFromCart, cartCount, subtotal, serverPricing } = useCart();
+  const { cartItems, removeFromCart, cartCount, subtotal, serverPricing, refreshCart } = useCart();
   const router = useRouter();
   const pathname = usePathname();
+
+  // --- Pull to refresh -----------------------------------------------------
+  const scrollRef = useRef(null);
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const pullRef = useRef({ startY: 0, tracking: false, distance: 0 });
+  const isRefreshingRef = useRef(false);
+  const refreshCartRef = useRef(refreshCart);
+
+  isRefreshingRef.current = isRefreshing;
+  refreshCartRef.current = refreshCart;
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !isOpen) return;
+
+    const state = pullRef.current;
+
+    const onTouchStart = (e) => {
+      if (isRefreshingRef.current || e.touches.length !== 1 || el.scrollTop > 0) return;
+      state.startY = e.touches[0].clientY;
+      state.tracking = true;
+      state.distance = 0;
+    };
+
+    const onTouchMove = (e) => {
+      if (!state.tracking) return;
+
+      // Scrolled away from the top mid-gesture -- hand the gesture back to the list.
+      if (el.scrollTop > 0) {
+        state.tracking = false;
+        state.distance = 0;
+        setPullDistance(0);
+        return;
+      }
+
+      const delta = e.touches[0].clientY - state.startY;
+      if (delta <= 0) {
+        if (state.distance !== 0) {
+          state.distance = 0;
+          setPullDistance(0);
+        }
+        return;
+      }
+
+      // Non-passive so this actually suppresses the iOS rubber-band while we
+      // own the gesture.
+      e.preventDefault();
+      const damped =
+        delta <= PULL_THRESHOLD
+          ? delta
+          : PULL_THRESHOLD + (delta - PULL_THRESHOLD) * 0.35;
+      state.distance = Math.min(damped, PULL_MAX);
+      setPullDistance(state.distance);
+    };
+
+    const onTouchEnd = () => {
+      if (!state.tracking) return;
+      state.tracking = false;
+      const reached = state.distance >= PULL_THRESHOLD;
+      state.distance = 0;
+      if (reached) {
+        setPullDistance(PULL_THRESHOLD);
+        setIsRefreshing(true);
+      } else {
+        setPullDistance(0);
+      }
+    };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd);
+    el.addEventListener("touchcancel", onTouchEnd);
+
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+      el.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [isOpen]);
+
+  // Run the actual refresh once the gesture commits. refreshCart is read from a
+  // ref so the fresh cart it produces can't re-trigger this effect.
+  useEffect(() => {
+    if (!isRefreshing) return;
+    let cancelled = false;
+    let timer = null;
+
+    const settle = () => {
+      // Hold the spinner briefly so a fast response doesn't just flicker.
+      timer = setTimeout(() => {
+        if (cancelled) return;
+        setIsRefreshing(false);
+        setPullDistance(0);
+      }, 450);
+    };
+
+    Promise.resolve(refreshCartRef.current?.()).then(settle, settle);
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [isRefreshing]);
+
+  // Reset the gesture if the bag is closed mid-pull.
+  useEffect(() => {
+    if (isOpen) return;
+    pullRef.current.tracking = false;
+    pullRef.current.distance = 0;
+    setPullDistance(0);
+  }, [isOpen]);
 
   // Per-method delivery charges (prepaid vs COD) for the Shipping info tooltip.
   // Fetched lazily the first time the bag is opened.
@@ -220,51 +338,91 @@ const ShoppingCart = () => {
               variant="drawer"
             />
           )}
-          <div
-            className="cart-items-scroll"
-            onWheel={(e) => {
-              e.stopPropagation();
-            }}
-            onTouchMove={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            {cartItems.length === 0 ? (
-              <div className="cart-empty">
-                <p>Your bag is empty</p>
-              </div>
-            ) : (
-              cartItems.map((item, index) => {
-                const itemId = item.cartItemId || `${item.productId || item.name}_${item.selectedSize}`;
-                const quantity = Number(item.quantity) || 1;
-                return (
-                  <div key={itemId || index} className="cart-item">
-                    <div className="cart-item-image">
-                      <img
-                        src={item.image || `/images/${(index % 4) + 1}.png`}
-                        alt={item.name}
-                      />
-                    </div>
-                    <div className="cart-item-details">
-                      <div className="cart-item-name-row">
-                        <p className="cart-item-name">{item.name}</p>
-                        {quantity > 1 && (
-                          <span className="cart-item-quantity">x{quantity}</span>
-                        )}
+          <div className="cart-pull-area">
+            <div
+              className={`cart-pull-indicator ${isRefreshing ? "refreshing" : ""}`}
+              style={{
+                transform: `translateY(${pullDistance - PULL_THRESHOLD}px)`,
+                transition: pullRef.current.tracking ? "none" : "transform 0.25s ease",
+              }}
+              aria-hidden={pullDistance === 0}
+            >
+              <svg
+                className="cart-pull-spinner"
+                style={
+                  isRefreshing
+                    ? undefined
+                    : { transform: `rotate(${(pullDistance / PULL_THRESHOLD) * 270}deg)` }
+                }
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <path d="M21 12a9 9 0 1 1-6.22-8.56" />
+              </svg>
+              <span>
+                {isRefreshing
+                  ? "Refreshing bag"
+                  : pullDistance >= PULL_THRESHOLD
+                  ? "Release to refresh"
+                  : "Pull to refresh"}
+              </span>
+            </div>
+            <div
+              ref={scrollRef}
+              className="cart-items-scroll"
+              style={{
+                transform: `translateY(${pullDistance}px)`,
+                transition: pullRef.current.tracking ? "none" : "transform 0.25s ease",
+              }}
+              onWheel={(e) => {
+                e.stopPropagation();
+              }}
+              onTouchMove={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              {cartItems.length === 0 ? (
+                <div className="cart-empty">
+                  <p>Your bag is empty</p>
+                </div>
+              ) : (
+                cartItems.map((item, index) => {
+                  const itemId = item.cartItemId || `${item.productId || item.name}_${item.selectedSize}`;
+                  const quantity = Number(item.quantity) || 1;
+                  return (
+                    <div key={itemId || index} className="cart-item">
+                      <div className="cart-item-image">
+                        <img
+                          src={item.image || `/images/${(index % 4) + 1}.png`}
+                          alt={item.name}
+                        />
                       </div>
-                      {item.selectedSize && <p className="cart-item-size" style={{ fontSize: "0.75rem", color: "#888", marginTop: "2px" }}>{item.selectedSize}</p>}
-                      <p className="cart-item-price">&#8377;{item.price}</p>
-                      <button
-                        className="cart-item-remove"
-                        onClick={() => removeFromCart(itemId)}
-                      >
-                        Remove
-                      </button>
+                      <div className="cart-item-details">
+                        <div className="cart-item-name-row">
+                          <p className="cart-item-name">{item.name}</p>
+                          {quantity > 1 && (
+                            <span className="cart-item-quantity">x{quantity}</span>
+                          )}
+                        </div>
+                        {item.selectedSize && <p className="cart-item-size" style={{ fontSize: "0.75rem", color: "#888", marginTop: "2px" }}>{item.selectedSize}</p>}
+                        <p className="cart-item-price">&#8377;{item.price}</p>
+                        <button
+                          className="cart-item-remove"
+                          onClick={() => removeFromCart(itemId)}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                );
-              })
-            )}
+                  );
+                })
+              )}
+            </div>
           </div>
           {cartItems.length > 0 && (
             <div className="cart-bottom-section">

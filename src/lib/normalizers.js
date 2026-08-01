@@ -51,6 +51,7 @@ export function normalizeBlog(b) {
   return {
     ...b,
     featured: b.isFeatured,
+    readTime: "2 min read",
     date: b.publishedAt
       ? new Date(b.publishedAt).toLocaleDateString("en-US", {
           year: "numeric",

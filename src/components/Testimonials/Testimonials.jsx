@@ -336,7 +336,6 @@ const Testimonials = () => {
                       </div>
                     </div>
                     <div className="testimonial-info">
-                      <span className="testimonial-number">( 0{index + 1} )</span>
                       <h4>{testimonial.name}</h4>
                       <p className="testimonial-role">{testimonial.role}</p>
                     </div>
