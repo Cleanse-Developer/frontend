@@ -1,12 +1,13 @@
-/* Under-maintenance screen. Rendered from the root layout's early-return branch, so
-   it lives OUTSIDE the provider stack: no Lenis, no GSAP, no Preloader, no cart. Every
+/* Under-maintenance screen. Rendered from the root layout's early-return branch, so it
+   lives OUTSIDE the provider stack: no Lenis, no GSAP, no Preloader, no cart. Every
    animation here is therefore pure CSS — the component stays a server component and
    nothing hydrates, which matters when the reason for maintenance may be that the
    backend is down.
 
    Tokens come from globals.css. Two global rules are worked around below:
    `* { user-select: none }` (contact details must be copyable) and
-   `img, svg { width/height: 100% }` (the branch img needs explicit sizing). */
+   `img, svg { width/height: 100% }` (the branch img and the monogram need explicit
+   sizing, or they inherit 100%/100% with object-fit: cover). */
 
 .mnt {
   position: relative;
@@ -24,16 +25,16 @@
   justify-content: center;
 }
 
-/* ── Animation 2: ambient ink bloom ───────────────────────────────────────────
-   Soft ink blots that breathe behind the content on a long, offset loop. Chosen to
-   contrast with the branch: that one is a one-shot spatial reveal, this is ambient
-   and continuous, so the page keeps living while someone waits.
+/* ── Ambient ink bloom ────────────────────────────────────────────────────────
+   Soft ink blots that breathe behind the card on a long, offset loop. Chosen to
+   contrast with the branch: that one is a one-shot reveal, this is ambient and
+   continuous, so the page keeps living while someone waits.
 
    The turbulence displacement is applied to .mnt-bloom-grain — a SEPARATE, STATIC
-   layer — and never to the animating blots. `filter: url()` re-evaluates every
-   frame, and feDisplacementMap over an area this size would jank badly. So the
-   static layer supplies the ragged ink character while the blots below animate only
-   transform and opacity, which the compositor handles on its own. */
+   layer — and never to the animating blots. `filter: url()` re-evaluates every frame,
+   and feDisplacementMap over an area this size would jank badly. So the static layer
+   supplies the ragged ink character while the blots below animate only transform and
+   opacity, which the compositor handles on its own. */
 .mnt-bloom,
 .mnt-bloom-grain {
   position: absolute;
@@ -43,9 +44,9 @@
 }
 
 .mnt-bloom {
-  /* One custom property for the size so the centring maths below stays exact at
-     every viewport — the blur/transform is on the compositor, but a hardcoded vw
-     offset against a clamped width drifts off-centre once the clamp bites. */
+  /* One custom property for the size so the centring maths below stays exact at every
+     viewport — a hardcoded vw offset against a clamped width drifts once the clamp
+     bites. */
   --blot: clamp(22rem, 58vw, 54rem);
   width: var(--blot);
   height: var(--blot);
@@ -54,7 +55,7 @@
   animation: mntBloom 14s ease-in-out infinite;
 }
 
-/* Gold — the brand accent, sitting behind the heading. */
+/* Gold — the brand accent, sitting behind the card. */
 .mnt-bloom--1 {
   top: -12%;
   left: 50%;
@@ -134,82 +135,232 @@
   pointer-events: none;
 }
 
-/* ── Animation 1: ink-reveal branch ───────────────────────────────────────────
-   The category-hover botanicals, recovered from git (they were removed from the
-   cards in 9fd81df) and retriggered on render instead of on hover.
+/* ── Ink-reveal branches ──────────────────────────────────────────────────────
+   The category-hover botanicals, recovered from git (they were removed from the cards
+   in 9fd81df) and retriggered on render instead of on hover.
 
-   Mechanism, verbatim from the original: an oversized (260%) soft-edged gradient
-   mask slides across the artwork. The 42%/62% stops are what make it read as
-   GROWTH — the feathered edge dissolves the tip into the cream instead of wiping a
-   hard line. Only the trigger changed: transition-on-hover became a keyframe. */
+   Mechanism, from the original: an oversized (260%) soft-edged gradient mask slides
+   across the artwork. The 42%/62% stops are what make it read as GROWTH — the
+   feathered edge dissolves the tip into the cream instead of wiping a hard line.
+
+   Changed from the original horizontal sweep to a VERTICAL one, so the branch is drawn
+   out from the bottom edge upward rather than in from the side. Because the sweep is
+   now vertical, the left copy's scaleX(-1) mirror no longer affects the reveal
+   direction — both branches draw bottom-to-top identically. */
 .mnt-branch {
   position: absolute;
-  bottom: 0;
-  height: clamp(120px, 22vh, 260px);
+  /* Oversized and pushed past the viewport on three sides, so only the flowering
+     length reads and the thick base never shows. */
+  height: clamp(180px, 34vh, 460px);
   width: auto;
+  bottom: clamp(-5rem, -6vh, -2rem);
   object-fit: contain;
   pointer-events: none;
-  opacity: 0.9;
+  opacity: 0.92;
   z-index: -1;
 
-  -webkit-mask-image: linear-gradient(to right, #000 42%, transparent 62%);
-  mask-image: linear-gradient(to right, #000 42%, transparent 62%);
-  -webkit-mask-size: 260% 100%;
-  mask-size: 260% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 42%, transparent 62%);
+  mask-image: linear-gradient(to top, #000 42%, transparent 62%);
+  -webkit-mask-size: 100% 260%;
+  mask-size: 100% 260%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-  /* The opaque end sits at the mask's LEFT, so 100% leaves the element under the
-     transparent half — nothing visible before the animation runs. */
-  -webkit-mask-position: 100% 0;
-  mask-position: 100% 0;
+  /* The gradient's opaque end is at its BOTTOM, so aligning the mask's top with the
+     element leaves it under the transparent half — nothing visible before the
+     animation runs. */
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
 
-  /* 1.9s where the original hover sweep was 1.2s: nothing competes for attention on
+  /* 2.1s where the original hover sweep was 1.2s: nothing competes for attention on
      this page, so the growth can be unhurried. */
-  animation: mntBranchGrow 1.9s cubic-bezier(0.3, 0.8, 0.35, 1) 0.35s both;
+  animation: mntBranchGrow 2.1s cubic-bezier(0.3, 0.8, 0.35, 1) 0.35s both;
 }
 
+/* Sliding the mask up brings its opaque end in from the element's bottom edge and
+   carries it to the top — the branch draws itself upward out of the bottom. */
 @keyframes mntBranchGrow {
   from {
-    -webkit-mask-position: 100% 0;
-    mask-position: 100% 0;
-  }
-  to {
     -webkit-mask-position: 0 0;
     mask-position: 0 0;
   }
+  to {
+    -webkit-mask-position: 0 100%;
+    mask-position: 0 100%;
+  }
 }
 
-/* scaleX(-1) is applied AFTER masking, so the local left-to-right sweep reads
-   right-to-left on screen. That is why only the left copy is mirrored: both then
-   grow inward, from their own outer corner toward the centre. */
 .mnt-branch--left {
-  left: 0;
+  left: clamp(-9rem, -7vw, -3rem);
   transform: scaleX(-1);
 }
 
 .mnt-branch--right {
-  right: 0;
-  animation-delay: 0.55s;
+  right: clamp(-9rem, -7vw, -3rem);
+  animation-delay: 0.6s;
+}
+
+/* ── The card ─────────────────────────────────────────────────────────────────
+   Matches the site's card language: 1rem radius and the soft brown-tinted shadow the
+   blog and ritual cards use, on white so it lifts off the cream. */
+.mnt-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: min(46rem, var(--page-max));
+  margin-inline: auto;
+  padding: clamp(2.25rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3.5rem);
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 25px 60px rgba(79, 44, 34, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 2.25rem);
+  text-align: center;
+  /* Lifts in as one piece, under the logo draw and the copy reveals. */
+  opacity: 0;
+  transform: translateY(18px);
+  animation: mntCardIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+@keyframes mntCardIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── The logo — gold ink draw ─────────────────────────────────────────────────
+   Same mark as the splash screen: the monogram drawn petal by petal, then filled,
+   then the wordmark. The Preloader does this with GSAP and getTotalLength(); here
+   pathLength="1" on every petal normalises the geometry so one CSS rule draws all
+   fifteen with no JS at all. */
+.mnt-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.mnt-mono {
+  /* Explicit size: the global `svg { width: 100%; height: 100% }` would otherwise
+     stretch it and object-fit: cover would crop the mark. */
+  width: clamp(64px, 9vw, 96px);
+  height: auto;
+  overflow: visible;
+}
+
+.mnt-mono path {
+  fill: #e5ad07;
+  stroke: #e5ad07;
+  stroke-width: 0.9;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  /* Normalised by pathLength="1", so 1 unit == the whole petal. */
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  fill-opacity: 0;
+  animation:
+    mntInkDraw 0.62s cubic-bezier(0.4, 0, 0.2, 1) both,
+    mntInkFill 0.5s ease-out both;
+}
+
+@keyframes mntInkDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes mntInkFill {
+  to {
+    fill-opacity: 1;
+  }
+}
+
+/* Petals draw outward from the centre of the mark, each fill trailing its own draw.
+   Two delays per petal — one for the draw, one for the fill — hence the pairs. */
+.mnt-mono path:nth-child(1)  { animation-delay: 0.30s, 0.72s; }
+.mnt-mono path:nth-child(2)  { animation-delay: 0.34s, 0.76s; }
+.mnt-mono path:nth-child(3)  { animation-delay: 0.38s, 0.80s; }
+.mnt-mono path:nth-child(4)  { animation-delay: 0.42s, 0.84s; }
+.mnt-mono path:nth-child(5)  { animation-delay: 0.46s, 0.88s; }
+.mnt-mono path:nth-child(6)  { animation-delay: 0.50s, 0.92s; }
+.mnt-mono path:nth-child(7)  { animation-delay: 0.54s, 0.96s; }
+.mnt-mono path:nth-child(8)  { animation-delay: 0.58s, 1.00s; }
+.mnt-mono path:nth-child(9)  { animation-delay: 0.62s, 1.04s; }
+.mnt-mono path:nth-child(10) { animation-delay: 0.66s, 1.08s; }
+.mnt-mono path:nth-child(11) { animation-delay: 0.70s, 1.12s; }
+.mnt-mono path:nth-child(12) { animation-delay: 0.74s, 1.16s; }
+.mnt-mono path:nth-child(13) { animation-delay: 0.78s, 1.20s; }
+.mnt-mono path:nth-child(14) { animation-delay: 0.82s, 1.24s; }
+.mnt-mono path:nth-child(15) { animation-delay: 0.86s, 1.28s; }
+
+/* The "Cleanse" wordmark, gold-masked exactly as the Preloader renders it. */
+.mnt-wordmark {
+  position: relative;
+  display: block;
+  width: clamp(140px, 24vw, 210px);
+  aspect-ratio: 360 / 71;
+  overflow: hidden;
+}
+
+.mnt-wordmark-mark {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: #e5ad07;
+  -webkit-mask: url("/cleanse-logo.svg") no-repeat center / contain;
+  mask: url("/cleanse-logo.svg") no-repeat center / contain;
+}
+
+/* Ink wash for the wordmark. The element's own mask is already spent describing the
+   letter shapes, so the reveal cannot be a second mask layer — instead a card-coloured
+   curtain with a feathered leading edge slides off to the right. Same soft-edged
+   character as the branch sweep, and it only works because the card behind is a flat
+   colour. */
+.mnt-wordmark::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  /* Overhangs to the LEFT by enough that the gradient's feathered 26% sits entirely
+     outside the wordmark at rest — otherwise the letters start out half-visible under
+     the soft edge instead of fully hidden. */
+  left: -40%;
+  width: 140%;
+  background: linear-gradient(to right, transparent 0%, #fff 26%, #fff 100%);
+  animation: mntWordmarkWash 1.05s cubic-bezier(0.3, 0.8, 0.35, 1) 1.05s both;
+}
+
+@keyframes mntWordmarkWash {
+  to {
+    transform: translateX(100%);
+  }
 }
 
 /* ── Content ──────────────────────────────────────────────────────────────── */
 
+/* Spacing carries as much of the hierarchy as type size does. A uniform gap made the
+   eyebrow, heading, message, footnote and contact block read as five peers; these zones
+   group them instead — label+heading tight as one unit, then air, then the contact
+   block pushed well clear so it reads as reference information rather than part of the
+   message. */
 .mnt-inner {
-  position: relative;
-  z-index: 1;
   width: 100%;
-  max-width: min(64ch, var(--page-max));
-  margin-inline: auto;
-  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: 0.8rem;
 }
 
-/* Each line rises out of its own clipped wrapper — the same masked-line reveal
-   <Copy> performs with SplitText, rebuilt as CSS so this can stay a server
-   component. Same rhythm (staggered rise, power4-ish ease), no hydration. */
+/* Air between the headline and its explanation. */
+.mnt-reveal--3 {
+  margin-top: 0.55rem;
+}
+
+/* Each line rises out of its own clipped wrapper — the same masked-line reveal <Copy>
+   performs with SplitText, rebuilt as CSS so this can stay a server component. Same
+   rhythm, no hydration. */
 .mnt-reveal {
   overflow: hidden;
   display: block;
@@ -227,11 +378,13 @@
   }
 }
 
-/* One cascade, top to bottom, so nothing overtakes the line above it:
-   eyebrow .15 -> heading .28/.42 -> message .56 -> revisit .68 -> rule .8 -> contact .95 */
-.mnt-reveal--1 > * { animation-delay: 0.15s; }
-.mnt-reveal--3 > * { animation-delay: 0.56s; }
-.mnt-reveal--4 > * { animation-delay: 0.68s; }
+/* One cascade, top to bottom, so nothing overtakes the line above it. Starts after the
+   logo's ink draw has begun, so the mark leads and the copy follows:
+   eyebrow 1.15 -> heading 1.28/1.42 -> message 1.56 -> revisit 1.68 -> rule 1.8 ->
+   contact 1.95 */
+.mnt-reveal--1 > * { animation-delay: 1.15s; }
+.mnt-reveal--3 > * { animation-delay: 1.56s; }
+.mnt-reveal--4 > * { animation-delay: 1.68s; }
 
 .mnt-eyebrow {
   font-family: var(--font-body);
@@ -244,64 +397,78 @@
 
 .mnt-heading {
   font-family: var(--font-heading);
-  /* Deliberately not the global h1 clamp (up to 10rem) — that is sized for the
-     homepage hero. This is page-title scale, which suits a single quiet message. */
-  font-size: var(--fs-hero-title);
+  /* This is the one thing a visitor should read before deciding anything, so it gets a
+     real display size — roughly 3x the body copy. Not the global h1 clamp (up to
+     10rem), which is scaled for the full-bleed homepage hero, and not --fs-page-title
+     either: at 2rem it lost to the message below it, which is what made the hierarchy
+     read backwards. */
+  font-size: clamp(2.25rem, 5.2vw, 3.6rem);
   font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0.04em;
+  line-height: 1.02;
+  /* Tight, not the 0.04em used at section-title size. Caelune's caps open up on their
+     own at display sizes, and the site's own h1 goes negative here. */
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   color: var(--base-700);
-}
-
-/* The heading splits on \n (the cmsBlog.newsletterTitle convention), so each line gets
-   its own clipped wrapper and rises just after the one above it — landing between the
-   eyebrow (0.15s) and the message (0.56s). */
-.mnt-heading-line > * {
-  animation-delay: 0.28s;
-}
-
-.mnt-heading-line + .mnt-heading-line > * {
-  animation-delay: 0.42s;
-}
-
-.mnt-message {
-  font-family: var(--font-body);
-  font-size: var(--fs-body);
-  font-weight: 400;
-  line-height: 1.6;
-  letter-spacing: -0.01rem;
-  color: var(--base-600);
-  text-transform: none;
-  max-width: 46ch;
+  max-width: 22ch;
   text-wrap: balance;
 }
 
+/* The heading splits on \n (the cmsBlog.newsletterTitle convention), so each line gets
+   its own clipped wrapper and rises just after the one above it. */
+.mnt-heading-line > * {
+  animation-delay: 1.28s;
+}
+
+.mnt-heading-line + .mnt-heading-line > * {
+  animation-delay: 1.42s;
+}
+
+/* The site's canonical prose style (p.bodyCopy in globals.css), so the explanation
+   matches paragraph copy everywhere else — clearly subordinate to the heading above,
+   clearly above the footnote below. */
+.mnt-message {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 0.75vw, 1.125rem);
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: -0.01rem;
+  color: var(--base-600);
+  text-transform: none;
+  max-width: 42ch;
+  text-wrap: pretty;
+}
+
+/* A footnote, and styled like one. It was weight 500 in saturated --base-300 brown,
+   which made it compete with both the heading and the message for attention — three
+   things shouting at once is why nothing read as the point. */
 .mnt-revisit {
   font-family: var(--font-body);
   font-size: var(--fs-supporting);
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   color: var(--base-300);
+  opacity: 0.8;
   text-transform: none;
 }
 
-/* Hairline flourish between the message and the contact block, drawn outward from
-   the centre once the copy has landed. */
+/* Hairline flourish between the copy and the contact block, drawn outward from the
+   centre once the copy has landed. */
 .mnt-rule {
-  width: min(14rem, 40%);
+  width: min(12rem, 45%);
   height: 1px;
   border: 0;
-  margin: 0.5rem 0 0;
+  /* The break between "what's happening" and "how to reach us". */
+  margin: 1.6rem 0 0.35rem;
   background: linear-gradient(
     to right,
     transparent,
-    rgba(132, 89, 44, 0.45),
+    rgba(132, 89, 44, 0.4),
     transparent
   );
   transform: scaleX(0);
-  animation: mntRule 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.8s both;
+  animation: mntRule 1.1s cubic-bezier(0.4, 0, 0.2, 1) 1.8s both;
 }
 
 @keyframes mntRule {
@@ -312,13 +479,14 @@
 
 .mnt-contact {
   list-style: none;
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 0.75rem 2rem;
+  gap: 1.25rem 2.5rem;
   opacity: 0;
-  animation: mntFadeIn 0.9s ease 0.95s both;
+  animation: mntFadeIn 0.9s ease 1.95s both;
 }
 
 @keyframes mntFadeIn {
@@ -331,7 +499,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.3rem;
+}
+
+/* The address is the long one — give it the full row rather than letting it stretch
+   the two short items out of alignment. */
+.mnt-contact-item--address {
+  flex-basis: 100%;
 }
 
 .mnt-contact-label {
@@ -349,11 +523,11 @@
   font-family: var(--font-body);
   font-size: var(--fs-supporting);
   font-weight: 400;
-  line-height: 1.4;
+  line-height: 1.45;
   color: var(--base-700);
   text-transform: none;
-  /* globals.css sets `* { user-select: none }`. Without this a visitor cannot copy
-     the email or phone number off the one page that exists to give them out. */
+  /* globals.css sets `* { user-select: none }`. Without this a visitor cannot copy the
+     email or phone number off the one page that exists to give them out. */
   user-select: text;
   -webkit-user-select: text;
   text-align: center;
@@ -368,10 +542,18 @@ a.mnt-contact-value:hover {
   font-style: normal;
 }
 
+.mnt-address span {
+  display: block;
+}
+
 @media (max-width: 480px) {
+  .mnt {
+    padding: var(--section-py) var(--gutter);
+  }
+
   .mnt-branch {
-    height: clamp(96px, 16vh, 150px);
-    opacity: 0.7;
+    height: clamp(130px, 22vh, 210px);
+    opacity: 0.75;
   }
 
   .mnt-contact {
@@ -379,8 +561,8 @@ a.mnt-contact-value:hover {
   }
 }
 
-/* Narrow viewports and low-power devices pay the most for a full-bleed SVG filter
-   and gain the least — the grain is a texture nobody is looking for at 480px. */
+/* Narrow viewports and low-power devices pay the most for a full-bleed SVG filter and
+   gain the least — the grain is a texture nobody is looking for at 480px. */
 @media (max-width: 768px) {
   .mnt-bloom-grain {
     display: none;
@@ -388,8 +570,8 @@ a.mnt-contact-value:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Everything settles into its finished state. The page still reads as designed —
-     the blots hold mid-cycle rather than vanishing, so the backdrop keeps its depth. */
+  /* Everything settles into its finished state. The page still reads as designed — the
+     blots hold mid-cycle rather than vanishing, so the backdrop keeps its depth. */
   .mnt-bloom {
     animation: none;
     transform: scale(1);
@@ -398,11 +580,10 @@ a.mnt-contact-value:hover {
 
   /* The original flora rule used this same 0.01s approach rather than removing the
      animation, so the mask still ends up fully swept. */
-  .mnt-branch {
-    animation-duration: 0.01s;
-    animation-delay: 0s;
-  }
-
+  .mnt-branch,
+  .mnt-card,
+  .mnt-mono path,
+  .mnt-wordmark::after,
   .mnt-reveal > *,
   .mnt-rule,
   .mnt-contact {
