@@ -40,6 +40,34 @@ const MONO_PATHS = [
   "M175.02,179.5c.1.42-.14.51-.38.75-.64.62-1.78,1.42-2.53,2.01-12.42,9.74-28.69,15.6-44.51,15.9,5.63-8.83,15.13-13.31,24.92-16.07,7.26-2.04,14.95-3.29,22.5-2.59Z",
 ];
 
+/* Blossom petals drifting down behind the card, spring-cherry style.
+ *
+ * Hand-tuned rather than generated: this component renders on the server and then
+ * hydrates, so Math.random() per petal would produce different values on each side and
+ * React would flag a mismatch. Fixed values also mean the composition is repeatable.
+ *
+ * `d` is the fall duration and `t` the delay — negative delays start a petal partway
+ * down, so the screen already has petals in the air on first paint instead of waiting
+ * out a full cycle. `v` alternates the sway direction between two keyframes so the
+ * fall doesn't read as fourteen copies of one path.
+ */
+const PETALS = [
+  { x: "4%", s: 13, d: 15, t: -2, o: 0.5, v: "a" },
+  { x: "11%", s: 9, d: 19, t: -9, o: 0.38, v: "b" },
+  { x: "19%", s: 16, d: 13, t: -5, o: 0.55, v: "a" },
+  { x: "26%", s: 10, d: 21, t: -14, o: 0.34, v: "b" },
+  { x: "34%", s: 12, d: 17, t: -1, o: 0.46, v: "a" },
+  { x: "41%", s: 8, d: 23, t: -11, o: 0.3, v: "b" },
+  { x: "49%", s: 15, d: 14, t: -7, o: 0.52, v: "a" },
+  { x: "56%", s: 11, d: 20, t: -16, o: 0.4, v: "b" },
+  { x: "63%", s: 14, d: 16, t: -3, o: 0.48, v: "a" },
+  { x: "71%", s: 9, d: 22, t: -12, o: 0.32, v: "b" },
+  { x: "78%", s: 17, d: 12, t: -8, o: 0.56, v: "a" },
+  { x: "85%", s: 10, d: 18, t: -6, o: 0.36, v: "b" },
+  { x: "92%", s: 13, d: 15, t: -13, o: 0.44, v: "a" },
+  { x: "97%", s: 11, d: 24, t: -4, o: 0.34, v: "b" },
+];
+
 export default function MaintenanceScreen({ data = {} }) {
   const {
     eyebrow,
@@ -71,6 +99,24 @@ export default function MaintenanceScreen({ data = {} }) {
       <span className="mnt-bloom mnt-bloom--2" aria-hidden="true" />
       <span className="mnt-bloom mnt-bloom--3" aria-hidden="true" />
       <span className="mnt-bloom-grain" aria-hidden="true" />
+
+      {/* Falling blossom. Sits above the branches but below the card, which keeps its
+          own stacking level so nothing ever drifts across the copy. */}
+      <div className="mnt-petals" aria-hidden="true">
+        {PETALS.map((p, i) => (
+          <span
+            key={i}
+            className={`mnt-petal mnt-petal--${p.v}`}
+            style={{
+              left: p.x,
+              "--sz": `${p.s}px`,
+              "--dur": `${p.d}s`,
+              "--delay": `${p.t}s`,
+              "--op": p.o,
+            }}
+          />
+        ))}
+      </div>
 
       {/* The recovered category branches, drawn out from the bottom edge on an
           ink-reveal mask sweep. Oversized and pushed past the viewport so only the

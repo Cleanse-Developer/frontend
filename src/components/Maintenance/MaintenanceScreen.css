@@ -135,6 +135,100 @@
   pointer-events: none;
 }
 
+/* ── Falling blossom ──────────────────────────────────────────────────────────
+   Petals drift down continuously behind the card. Layered at z-index 0: above the
+   branches and blooms (-1), below the card (1), so a petal can never cross the copy —
+   .mnt's `isolation: isolate` keeps that ordering local to this screen. */
+.mnt-petals {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.mnt-petal {
+  position: absolute;
+  top: 0;
+  width: var(--sz);
+  /* Slightly wider than tall, like a fallen blossom petal rather than a disc. */
+  height: calc(var(--sz) * 0.78);
+  /* Cream and off-white to match the blossoms drawn on the branch artwork — actual
+     cherry-blossom pink would be the only pink anywhere on this site. */
+  background: radial-gradient(
+    120% 100% at 30% 25%,
+    #fffdf8 0%,
+    #f7ecd9 45%,
+    #e4d1b1 100%
+  );
+  border-radius: 62% 38% 55% 45% / 58% 52% 48% 42%;
+  opacity: 0;
+  will-change: transform, opacity;
+  /* ONE animation, not a fall plus a separate sway: two animations both driving
+     `transform` would leave only the last one applied. The sway is built into the
+     keyframes instead. */
+  animation: mntPetalFallA var(--dur) linear var(--delay) infinite;
+}
+
+.mnt-petal--b {
+  animation-name: mntPetalFallB;
+}
+
+/* Starts above the viewport and ends past the bottom; .mnt-petals clips both ends, so
+   petals fade in and out rather than popping at the edges. */
+@keyframes mntPetalFallA {
+  0% {
+    transform: translate3d(0, -14vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  7% {
+    opacity: var(--op);
+  }
+  25% {
+    transform: translate3d(2.4vw, 18vh, 0) rotate(88deg);
+  }
+  50% {
+    transform: translate3d(-1.6vw, 46vh, 0) rotate(176deg);
+  }
+  75% {
+    transform: translate3d(2.9vw, 74vh, 0) rotate(268deg);
+  }
+  93% {
+    opacity: var(--op);
+  }
+  100% {
+    transform: translate3d(0.6vw, 116vh, 0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Mirrored drift and a slower spin, so half the petals take a visibly different path. */
+@keyframes mntPetalFallB {
+  0% {
+    transform: translate3d(0, -14vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  7% {
+    opacity: var(--op);
+  }
+  25% {
+    transform: translate3d(-2.1vw, 20vh, 0) rotate(-64deg);
+  }
+  50% {
+    transform: translate3d(1.9vw, 49vh, 0) rotate(-128deg);
+  }
+  75% {
+    transform: translate3d(-2.6vw, 77vh, 0) rotate(-206deg);
+  }
+  93% {
+    opacity: var(--op);
+  }
+  100% {
+    transform: translate3d(-0.4vw, 116vh, 0) rotate(-284deg);
+    opacity: 0;
+  }
+}
+
 /* ── Ink-reveal branches ──────────────────────────────────────────────────────
    The category-hover botanicals, recovered from git (they were removed from the cards
    in 9fd81df) and retriggered on render instead of on hover.
@@ -206,7 +300,9 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: min(46rem, var(--page-max));
+  /* Wide enough that "We'll be back very soon" holds one line at the heading's max
+     size: 52rem less the padding leaves ~720px of content against ~620px of glyphs. */
+  max-width: min(52rem, var(--page-max));
   margin-inline: auto;
   padding: clamp(2.25rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3.5rem);
   background: #fff;
@@ -397,21 +493,85 @@
 
 .mnt-heading {
   font-family: var(--font-heading);
-  /* This is the one thing a visitor should read before deciding anything, so it gets a
-     real display size — roughly 3x the body copy. Not the global h1 clamp (up to
-     10rem), which is scaled for the full-bleed homepage hero, and not --fs-page-title
-     either: at 2rem it lost to the message below it, which is what made the hierarchy
-     read backwards. */
-  font-size: clamp(2.25rem, 5.2vw, 3.6rem);
-  font-weight: 400;
-  line-height: 1.02;
-  /* Tight, not the 0.04em used at section-title size. Caelune's caps open up on their
+  /* The one thing a visitor should read before deciding anything, so it is the largest
+     text on the screen. Sized to hold "We'll be back very soon" on ONE line inside the
+     card at desktop widths; it wraps rather than overflows on very narrow phones. */
+  font-size: clamp(1.5rem, 4.4vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.06;
+  /* Tight, not the 0.04em used at section-title size — Caelune's caps open up on their
      own at display sizes, and the site's own h1 goes negative here. */
   letter-spacing: 0.01em;
   text-transform: uppercase;
-  color: var(--base-700);
-  max-width: 22ch;
-  text-wrap: balance;
+
+  /* Gold, with a highlight that sweeps left to right on a loop. The gradient is painted
+     on the h1 and clipped to the glyphs; the nested spans re-inherit it via the rule
+     below, or they would paint their own solid colour straight over it.
+
+     background-position percentages are counter-intuitive with an oversized image: P%
+     aligns P% of the image with P% of the box, so a LARGER P moves the image LEFT.
+     Going 0% -> -200% therefore slides the image RIGHT by exactly one image width,
+     which sweeps the highlight left-to-right and loops seamlessly (the gradient is gold
+     at both 0% and 100%, so the tile join is invisible). repeat-x is what keeps the
+     glyphs painted once the image has travelled past them. */
+  background-image: linear-gradient(
+    90deg,
+    #c8ad73 0%,
+    #c8ad73 28%,
+    #e5ad07 40%,
+    #fff3c9 48%,
+    #e5ad07 56%,
+    #c8ad73 68%,
+    #c8ad73 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: repeat-x;
+  background-position: 0% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* Fallback for anything without background-clip: text — solid brand gold rather than
+     invisible text, which is the failure mode worth guarding. */
+  color: #c8ad73;
+  -webkit-text-fill-color: transparent;
+  /* Starts after the line has finished rising, so the reveal and the shine don't fight
+     for attention. */
+  animation: mntShimmer 4.5s linear 2.6s infinite;
+}
+
+@keyframes mntShimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* THE load-bearing rule. globals.css sets `a, p, span { font-size: clamp(0.8rem,
+   0.75vw, 0.85rem); font-family: var(--font-body); text-transform: none; color:
+   var(--base-700) }`, and the heading's text lives inside a bare <span> because the
+   reveal needs a clipped wrapper. A direct element rule beats an inherited value, so
+   that span silently overrode every type style above — the headline rendered at ~13px
+   in Lexend, lower-case, SMALLER than the paragraph under it. Re-inheriting here is
+   what actually makes the hierarchy work; changing .mnt-heading alone does nothing. */
+.mnt-heading .mnt-heading-line,
+.mnt-heading .mnt-heading-line > span {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  /* Only the fallback colour is inherited, NOT the background. background-clip: text on
+     the h1 already clips its gradient to every glyph inside it, descendants included —
+     giving the spans their own copy would restart the gradient at each span's box, so a
+     two-line heading would shimmer as two independent lines instead of one sweep.
+     -webkit-text-fill-color inherits on its own, which is what keeps these glyphs
+     transparent so the h1's clipped gradient shows through. */
+  color: inherit;
+}
+
+/* Same trap, smaller stakes: the address lines are <span> inside <address>, so without
+   this they drop to the 13px span size while the email and phone beside them stay at
+   --fs-supporting. */
+.mnt-address span {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
 }
 
 /* The heading splits on \n (the cmsBlog.newsletterTitle convention), so each line gets
@@ -589,5 +749,16 @@ a.mnt-contact-value:hover {
   .mnt-contact {
     animation-duration: 0.01s;
     animation-delay: 0s;
+  }
+
+  /* Continuous motion with no end state — drop it entirely rather than shortening it. */
+  .mnt-petals {
+    display: none;
+  }
+
+  /* Killing the shimmer leaves the base gradient parked at 0%, which is solid brand
+     gold across the glyphs — so the heading still reads as intended, just still. */
+  .mnt-heading {
+    animation: none;
   }
 }
