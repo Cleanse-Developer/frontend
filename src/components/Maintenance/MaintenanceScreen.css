@@ -178,21 +178,16 @@
    is #F0EDE8 cream, so a pale fill alone sits at roughly 1.3:1 against it and reads as
    invisible. Stroking the edge is exactly how the branch artwork makes its own blossoms
    legible on the same background. */
-/* Stroke widths are in the shapes' own "0 0 50 50" user units. LeafSpread fills its
-   leaves with solid autumn browns and needs no outline; these sit on cream at 1/3 the
-   size, so the outline is doing the legibility work instead. */
+/* Sakura pink. This is the only pink on the site — the palette is otherwise cream, brown
+   and gold — and it is a deliberate departure to match the reference blossom, not an
+   oversight. Stroke width is in the shape's own "0 0 40 40" user units; the soft
+   same-hue edge keeps the silhouette defined at 15px without the hard outline the
+   reference petals don't have. */
 .mnt-petal-shape {
-  fill: #f7e8d0;
-  stroke: rgba(132, 89, 44, 0.5);
-  stroke-width: 1.7;
+  fill: url("#mntPetalGrad");
+  stroke: rgba(190, 96, 122, 0.35);
+  stroke-width: 0.9;
   stroke-linejoin: round;
-}
-
-.mnt-petal-vein {
-  fill: none;
-  stroke: rgba(132, 89, 44, 0.32);
-  stroke-width: 1;
-  stroke-linecap: round;
 }
 
 /* Starts above the viewport and ends past the bottom; .mnt-petals clips both ends, so
