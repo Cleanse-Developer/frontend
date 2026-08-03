@@ -152,16 +152,20 @@
   top: 0;
   width: var(--sz);
   /* Slightly wider than tall, like a fallen blossom petal rather than a disc. */
-  height: calc(var(--sz) * 0.78);
-  /* Cream and off-white to match the blossoms drawn on the branch artwork — actual
-     cherry-blossom pink would be the only pink anywhere on this site. */
-  background: radial-gradient(
-    120% 100% at 30% 25%,
-    #fffdf8 0%,
-    #f7ecd9 45%,
-    #e4d1b1 100%
+  height: calc(var(--sz) * 0.74);
+  /* Warm tan, NOT the cream these started as: the page is #F0EDE8 cream, so cream
+     petals had essentially no contrast and read as invisible. The hairline brown edge
+     is what makes them legible at this size — it mirrors the line work on the branch
+     artwork, which is the only reason those blossoms read against the same background. */
+  background: linear-gradient(
+    150deg,
+    #fffdf6 0%,
+    #f4e3c8 48%,
+    #ddbf92 100%
   );
-  border-radius: 62% 38% 55% 45% / 58% 52% 48% 42%;
+  border: 1px solid rgba(132, 89, 44, 0.3);
+  border-radius: 70% 30% 62% 38% / 62% 54% 46% 38%;
+  box-shadow: 0 1px 3px rgba(79, 44, 34, 0.1);
   opacity: 0;
   will-change: transform, opacity;
   /* ONE animation, not a fall plus a separate sway: two animations both driving
@@ -714,6 +718,12 @@ a.mnt-contact-value:hover {
   .mnt-branch {
     height: clamp(130px, 22vh, 210px);
     opacity: 0.75;
+  }
+
+  /* Scale the blossom down with the viewport — 26px petals crowd a phone screen. */
+  .mnt-petal {
+    width: calc(var(--sz) * 0.7);
+    height: calc(var(--sz) * 0.52);
   }
 
   .mnt-contact {
