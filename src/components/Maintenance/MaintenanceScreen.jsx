@@ -40,6 +40,39 @@ const MONO_PATHS = [
   "M175.02,179.5c.1.42-.14.51-.38.75-.64.62-1.78,1.42-2.53,2.01-12.42,9.74-28.69,15.6-44.51,15.9,5.63-8.83,15.13-13.31,24.92-16.07,7.26-2.04,14.95-3.29,22.5-2.59Z",
 ];
 
+/* Leaf outlines lifted verbatim from components/LeafSpread/LeafSpread.jsx, which holds
+ * five hand-drawn botanical shapes for this brand (currently unused — nothing imports
+ * that component). Reusing them rather than authoring a shape here: my own attempt drew
+ * a top notch over a bottom point, which is the definition of a heart, not a petal.
+ *
+ * All three are viewBox "0 0 50 50" with a midrib plus side veins. The veins' original
+ * hardcoded rgba(0,0,0,…) strokes are dropped in favour of CSS classes, so they take the
+ * maintenance screen's brown rather than black.
+ */
+const PETAL_SHAPES = [
+  {
+    // Tulsi / basil — point at the tip, broad middle, rounded base.
+    body: "M25 4C25 4 12 12 10 25C8 38 18 46 25 48C32 46 42 38 40 25C38 12 25 4 25 4Z",
+    veins: [
+      "M25 10V44",
+      "M25 18C21 20 18 24 17 30",
+      "M25 18C29 20 32 24 33 30",
+      "M25 26C22 27 20 30 19 34",
+      "M25 26C28 27 30 30 31 34",
+    ],
+  },
+  {
+    // Mango — narrower and more sharply pointed.
+    body: "M25 2C25 2 10 15 10 28C10 41 20 47 25 49C30 47 40 41 40 28C40 15 25 2 25 2Z",
+    veins: ["M25 5V46", "M25 15L16 26", "M25 15L34 26", "M25 25L14 38", "M25 25L36 38"],
+  },
+  {
+    // Small oval — the softest of the three, reads best at the smaller sizes.
+    body: "M25 8C25 8 14 16 14 28C14 40 22 45 25 46C28 45 36 40 36 28C36 16 25 8 25 8Z",
+    veins: ["M25 11V43", "M25 20C21 23 18 28 18 34", "M25 20C29 23 32 28 32 34"],
+  },
+];
+
 /* Blossom petals drifting down behind the card, spring-cherry style.
  *
  * Hand-tuned rather than generated: this component renders on the server and then
@@ -52,24 +85,24 @@ const MONO_PATHS = [
  * fall doesn't read as fourteen copies of one path.
  */
 const PETALS = [
-  { x: "3%", s: 22, d: 15, t: -2, o: 0.85, v: "a" },
-  { x: "9%", s: 15, d: 19, t: -9, o: 0.6, v: "b" },
-  { x: "15%", s: 26, d: 13, t: -5, o: 0.9, v: "a" },
-  { x: "21%", s: 17, d: 21, t: -14, o: 0.55, v: "b" },
-  { x: "27%", s: 20, d: 17, t: -1, o: 0.75, v: "a" },
-  { x: "33%", s: 14, d: 23, t: -11, o: 0.5, v: "b" },
-  { x: "39%", s: 24, d: 14, t: -7, o: 0.85, v: "a" },
-  { x: "45%", s: 16, d: 20, t: -16, o: 0.6, v: "b" },
-  { x: "51%", s: 21, d: 16, t: -3, o: 0.78, v: "a" },
-  { x: "57%", s: 15, d: 22, t: -12, o: 0.52, v: "b" },
-  { x: "63%", s: 25, d: 12, t: -8, o: 0.88, v: "a" },
-  { x: "69%", s: 17, d: 18, t: -6, o: 0.58, v: "b" },
-  { x: "75%", s: 22, d: 15, t: -13, o: 0.8, v: "a" },
-  { x: "81%", s: 15, d: 24, t: -4, o: 0.54, v: "b" },
-  { x: "87%", s: 23, d: 16, t: -10, o: 0.82, v: "a" },
-  { x: "93%", s: 18, d: 20, t: -18, o: 0.6, v: "b" },
-  { x: "97%", s: 20, d: 13, t: -15, o: 0.76, v: "a" },
-  { x: "6%", s: 16, d: 25, t: -21, o: 0.56, v: "b" },
+  { x: "3%", s: 22, d: 15, t: -2, o: 0.85, v: "a", f: 0 },
+  { x: "9%", s: 15, d: 19, t: -9, o: 0.6, v: "b", f: 2 },
+  { x: "15%", s: 26, d: 13, t: -5, o: 0.9, v: "a", f: 1 },
+  { x: "21%", s: 17, d: 21, t: -14, o: 0.55, v: "b", f: 2 },
+  { x: "27%", s: 20, d: 17, t: -1, o: 0.75, v: "a", f: 0 },
+  { x: "33%", s: 14, d: 23, t: -11, o: 0.5, v: "b", f: 2 },
+  { x: "39%", s: 24, d: 14, t: -7, o: 0.85, v: "a", f: 1 },
+  { x: "45%", s: 16, d: 20, t: -16, o: 0.6, v: "b", f: 2 },
+  { x: "51%", s: 21, d: 16, t: -3, o: 0.78, v: "a", f: 0 },
+  { x: "57%", s: 15, d: 22, t: -12, o: 0.52, v: "b", f: 2 },
+  { x: "63%", s: 25, d: 12, t: -8, o: 0.88, v: "a", f: 1 },
+  { x: "69%", s: 17, d: 18, t: -6, o: 0.58, v: "b", f: 0 },
+  { x: "75%", s: 22, d: 15, t: -13, o: 0.8, v: "a", f: 0 },
+  { x: "81%", s: 15, d: 24, t: -4, o: 0.54, v: "b", f: 2 },
+  { x: "87%", s: 23, d: 16, t: -10, o: 0.82, v: "a", f: 1 },
+  { x: "93%", s: 18, d: 20, t: -18, o: 0.6, v: "b", f: 2 },
+  { x: "97%", s: 20, d: 13, t: -15, o: 0.76, v: "a", f: 0 },
+  { x: "6%", s: 16, d: 25, t: -21, o: 0.56, v: "b", f: 2 },
 ];
 
 export default function MaintenanceScreen({ data = {} }) {
@@ -119,20 +152,14 @@ export default function MaintenanceScreen({ data = {} }) {
               "--op": p.o,
             }}
           >
-            {/* A real blossom petal outline rather than a rounded box — border-radius
-                blobs read as pills at this size. Base point at the bottom, two lobes at
-                the top with a notch between them, which is what makes it legible as
-                cherry blossom. The vein is what the branch artwork uses to sell the
-                same shape. */}
-            <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <svg viewBox="0 0 50 50" aria-hidden="true" focusable="false">
               <path
                 className="mnt-petal-shape"
-                d="M16 30C10 26 3 20 3 13C3 6 8 3 11 6C13 8 14.5 9 16 9.5C17.5 9 19 8 21 6C24 3 29 6 29 13C29 20 22 26 16 30Z"
+                d={PETAL_SHAPES[p.f].body}
               />
-              <path
-                className="mnt-petal-vein"
-                d="M16 28.5C15.4 22 15.4 16 16 11"
-              />
+              {PETAL_SHAPES[p.f].veins.map((v, k) => (
+                <path key={k} className="mnt-petal-vein" d={v} />
+              ))}
             </svg>
           </span>
         ))}

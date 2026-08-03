@@ -178,17 +178,20 @@
    is #F0EDE8 cream, so a pale fill alone sits at roughly 1.3:1 against it and reads as
    invisible. Stroking the edge is exactly how the branch artwork makes its own blossoms
    legible on the same background. */
+/* Stroke widths are in the shapes' own "0 0 50 50" user units. LeafSpread fills its
+   leaves with solid autumn browns and needs no outline; these sit on cream at 1/3 the
+   size, so the outline is doing the legibility work instead. */
 .mnt-petal-shape {
   fill: #f7e8d0;
   stroke: rgba(132, 89, 44, 0.5);
-  stroke-width: 1.2;
+  stroke-width: 1.7;
   stroke-linejoin: round;
 }
 
 .mnt-petal-vein {
   fill: none;
-  stroke: rgba(132, 89, 44, 0.3);
-  stroke-width: 0.9;
+  stroke: rgba(132, 89, 44, 0.32);
+  stroke-width: 1;
   stroke-linecap: round;
 }
 
