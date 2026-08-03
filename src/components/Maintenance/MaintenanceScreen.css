@@ -136,9 +136,10 @@
 }
 
 /* ── Falling blossom ──────────────────────────────────────────────────────────
-   Petals drift down continuously behind the card. Layered at z-index 0: above the
-   branches and blooms (-1), below the card (1), so a petal can never cross the copy —
-   .mnt's `isolation: isolate` keeps that ordering local to this screen. */
+   Petals drift down continuously behind the card. Full stack, back to front:
+   blooms -1, petals 0, branches 1, card 2 — so blossom falls behind the branches and
+   nothing ever crosses the copy. .mnt's `isolation: isolate` keeps that ordering local
+   to this screen. */
 .mnt-petals {
   position: absolute;
   inset: 0;
@@ -151,21 +152,7 @@
   position: absolute;
   top: 0;
   width: var(--sz);
-  /* Slightly wider than tall, like a fallen blossom petal rather than a disc. */
-  height: calc(var(--sz) * 0.74);
-  /* Warm tan, NOT the cream these started as: the page is #F0EDE8 cream, so cream
-     petals had essentially no contrast and read as invisible. The hairline brown edge
-     is what makes them legible at this size — it mirrors the line work on the branch
-     artwork, which is the only reason those blossoms read against the same background. */
-  background: linear-gradient(
-    150deg,
-    #fffdf6 0%,
-    #f4e3c8 48%,
-    #ddbf92 100%
-  );
-  border: 1px solid rgba(132, 89, 44, 0.3);
-  border-radius: 70% 30% 62% 38% / 62% 54% 46% 38%;
-  box-shadow: 0 1px 3px rgba(79, 44, 34, 0.1);
+  height: var(--sz);
   opacity: 0;
   will-change: transform, opacity;
   /* ONE animation, not a fall plus a separate sway: two animations both driving
@@ -176,6 +163,33 @@
 
 .mnt-petal--b {
   animation-name: mntPetalFallB;
+}
+
+/* Explicit sizing: the global `svg { width: 100%; height: 100% }` would otherwise be
+   fighting the wrapper rather than filling it. */
+.mnt-petal svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Warm tan fill with a brown outline. The outline is the load-bearing part — the page
+   is #F0EDE8 cream, so a pale fill alone sits at roughly 1.3:1 against it and reads as
+   invisible. Stroking the edge is exactly how the branch artwork makes its own blossoms
+   legible on the same background. */
+.mnt-petal-shape {
+  fill: #f7e8d0;
+  stroke: rgba(132, 89, 44, 0.5);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+.mnt-petal-vein {
+  fill: none;
+  stroke: rgba(132, 89, 44, 0.3);
+  stroke-width: 0.9;
+  stroke-linecap: round;
 }
 
 /* Starts above the viewport and ends past the bottom; .mnt-petals clips both ends, so
@@ -255,7 +269,9 @@
   object-fit: contain;
   pointer-events: none;
   opacity: 0.92;
-  z-index: -1;
+  /* In FRONT of the falling petals (0) but still behind the card (2), so blossom drifts
+     down past the branches rather than over them. */
+  z-index: 1;
 
   -webkit-mask-image: linear-gradient(to top, #000 42%, transparent 62%);
   mask-image: linear-gradient(to top, #000 42%, transparent 62%);
@@ -302,7 +318,9 @@
    blog and ritual cards use, on white so it lifts off the cream. */
 .mnt-card {
   position: relative;
-  z-index: 1;
+  /* Top of the stack: blooms -1, petals 0, branches 1, card 2. Nothing may cross the
+     copy. */
+  z-index: 2;
   width: 100%;
   /* Wide enough that "We'll be back very soon" holds one line at the heading's max
      size: 52rem less the padding leaves ~720px of content against ~620px of glyphs. */
@@ -723,7 +741,7 @@ a.mnt-contact-value:hover {
   /* Scale the blossom down with the viewport — 26px petals crowd a phone screen. */
   .mnt-petal {
     width: calc(var(--sz) * 0.7);
-    height: calc(var(--sz) * 0.52);
+    height: calc(var(--sz) * 0.7);
   }
 
   .mnt-contact {

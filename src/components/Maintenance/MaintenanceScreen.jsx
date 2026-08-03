@@ -104,8 +104,8 @@ export default function MaintenanceScreen({ data = {} }) {
       <span className="mnt-bloom mnt-bloom--3" aria-hidden="true" />
       <span className="mnt-bloom-grain" aria-hidden="true" />
 
-      {/* Falling blossom. Sits above the branches but below the card, which keeps its
-          own stacking level so nothing ever drifts across the copy. */}
+      {/* Falling blossom, layered behind the branches and the card — see the stacking
+          note in the CSS. */}
       <div className="mnt-petals" aria-hidden="true">
         {PETALS.map((p, i) => (
           <span
@@ -118,7 +118,23 @@ export default function MaintenanceScreen({ data = {} }) {
               "--delay": `${p.t}s`,
               "--op": p.o,
             }}
-          />
+          >
+            {/* A real blossom petal outline rather than a rounded box — border-radius
+                blobs read as pills at this size. Base point at the bottom, two lobes at
+                the top with a notch between them, which is what makes it legible as
+                cherry blossom. The vein is what the branch artwork uses to sell the
+                same shape. */}
+            <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+              <path
+                className="mnt-petal-shape"
+                d="M16 30C10 26 3 20 3 13C3 6 8 3 11 6C13 8 14.5 9 16 9.5C17.5 9 19 8 21 6C24 3 29 6 29 13C29 20 22 26 16 30Z"
+              />
+              <path
+                className="mnt-petal-vein"
+                d="M16 28.5C15.4 22 15.4 16 16 11"
+              />
+            </svg>
+          </span>
         ))}
       </div>
 
