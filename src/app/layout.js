@@ -2,7 +2,10 @@ import "./globals.css";
 import "@/design-system/styles/index.css";
 
 import ReactDOM from "react-dom";
+import { cookies } from "next/headers";
 import ClientLayout from "@/client-layout";
+import MaintenanceScreen from "@/components/Maintenance/MaintenanceScreen";
+import { getMaintenance } from "@/lib/maintenance";
 
 import Menu from "@/components/Menu/Menu";
 import Footer from "@/components/Footer/Footer";
@@ -26,23 +29,32 @@ const SITE_DESCRIPTION =
 // against it; per-route generateMetadata (e.g. blog posts) supplies richer tags.
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
 
-export const metadata = {
-  ...(SITE_URL ? { metadataBase: new URL(SITE_URL) } : {}),
-  title: SITE_TITLE,
-  description: SITE_DESCRIPTION,
-  openGraph: {
-    type: "website",
-    siteName: SITE_NAME,
+// generateMetadata rather than a static `metadata` export purely so the maintenance
+// branch can add noindex — a crawl during a maintenance window must not index the
+// placeholder in place of the real pages. getMaintenance() is memoised, so this does
+// not add a second upstream call alongside the one in RootLayout.
+export async function generateMetadata() {
+  const { enabled } = await getMaintenance();
+
+  return {
+    ...(SITE_URL ? { metadataBase: new URL(SITE_URL) } : {}),
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    ...(SITE_URL ? { url: SITE_URL } : {}),
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
-  },
-};
+    ...(enabled ? { robots: { index: false, follow: false } } : {}),
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      title: SITE_TITLE,
+      description: SITE_DESCRIPTION,
+      ...(SITE_URL ? { url: SITE_URL } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: SITE_TITLE,
+      description: SITE_DESCRIPTION,
+    },
+  };
+}
 
 // Decide whether the intro loader plays BEFORE the browser paints anything. This is
 // a parser-blocking script placed first in <body>, so it runs while the preloader
@@ -85,6 +97,34 @@ async function getInitialSettings() {
 }
 
 export default async function RootLayout({ children }) {
+  // Maintenance gate. Checked here, above the provider stack, so that when it is on
+  // NOTHING below mounts — no Lenis, no GSAP, no Preloader, and none of the popups
+  // (ShoppingCart / SpinWheel / Newsletter are siblings of ClientLayout, so gating
+  // any lower would leave them free to open on top of the maintenance screen).
+  // Staff hold a bypass cookie, exchanged for ?preview=<token> in src/proxy.js.
+  const maintenance = await getMaintenance();
+  const bypassToken = process.env.MAINTENANCE_BYPASS_TOKEN;
+  const hasBypass =
+    !!bypassToken &&
+    (await cookies()).get("cleanse_maint_bypass")?.value === bypassToken;
+
+  if (maintenance.enabled && !hasBypass) {
+    // No LOADER_DECISION_SCRIPT on this branch, and that is load-bearing rather than
+    // just tidy: on "/" it stamps data-loader="play" on <html>, which Preloader.css
+    // turns into `overflow: hidden`. Only Preloader.jsx clears it back to "done", and
+    // Preloader lives inside ClientLayout — below this return, so it never mounts.
+    // Leaving the script in would scroll-lock the maintenance page permanently.
+    // suppressHydrationWarning is dropped for the same reason: nothing mutates <html>
+    // here, so there is no legitimate server/client mismatch to suppress.
+    return (
+      <html lang="en">
+        <body>
+          <MaintenanceScreen data={maintenance} />
+        </body>
+      </html>
+    );
+  }
+
   const initialSettings = await getInitialSettings();
 
   // Preload the first hero image at high priority so the browser fetches it during

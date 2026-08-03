@@ -1,0 +1,412 @@
+/* Under-maintenance screen. Rendered from the root layout's early-return branch, so
+   it lives OUTSIDE the provider stack: no Lenis, no GSAP, no Preloader, no cart. Every
+   animation here is therefore pure CSS — the component stays a server component and
+   nothing hydrates, which matters when the reason for maintenance may be that the
+   backend is down.
+
+   Tokens come from globals.css. Two global rules are worked around below:
+   `* { user-select: none }` (contact details must be copyable) and
+   `img, svg { width/height: 100% }` (the branch img needs explicit sizing). */
+
+.mnt {
+  position: relative;
+  isolation: isolate;
+  /* 100svh, not 100vh: --app-height is set by ClientLayout, which never mounts here. */
+  min-height: 100svh;
+  width: 100%;
+  overflow: hidden;
+  /* The universal section cream. body already paints this, but the screen must not
+     depend on that — it is the whole page here, not a band inside one. */
+  background-color: #f0ede8;
+  padding: var(--section-py) var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Animation 2: ambient ink bloom ───────────────────────────────────────────
+   Soft ink blots that breathe behind the content on a long, offset loop. Chosen to
+   contrast with the branch: that one is a one-shot spatial reveal, this is ambient
+   and continuous, so the page keeps living while someone waits.
+
+   The turbulence displacement is applied to .mnt-bloom-grain — a SEPARATE, STATIC
+   layer — and never to the animating blots. `filter: url()` re-evaluates every
+   frame, and feDisplacementMap over an area this size would jank badly. So the
+   static layer supplies the ragged ink character while the blots below animate only
+   transform and opacity, which the compositor handles on its own. */
+.mnt-bloom,
+.mnt-bloom-grain {
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 50%;
+}
+
+.mnt-bloom {
+  /* One custom property for the size so the centring maths below stays exact at
+     every viewport — the blur/transform is on the compositor, but a hardcoded vw
+     offset against a clamped width drifts off-centre once the clamp bites. */
+  --blot: clamp(22rem, 58vw, 54rem);
+  width: var(--blot);
+  height: var(--blot);
+  filter: blur(2px);
+  will-change: transform, opacity;
+  animation: mntBloom 14s ease-in-out infinite;
+}
+
+/* Gold — the brand accent, sitting behind the heading. */
+.mnt-bloom--1 {
+  top: -12%;
+  left: 50%;
+  margin-left: calc(var(--blot) / -2);
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(200, 173, 115, 0.22) 0%,
+    rgba(200, 173, 115, 0.1) 45%,
+    rgba(200, 173, 115, 0) 70%
+  );
+}
+
+/* Olive (--base-200), low and left. */
+.mnt-bloom--2 {
+  bottom: -18%;
+  left: -14%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(158, 146, 104, 0.2) 0%,
+    rgba(158, 146, 104, 0.09) 48%,
+    rgba(158, 146, 104, 0) 72%
+  );
+  /* Negative delays start each blot mid-cycle, so the loop is already in motion on
+     first paint and the three never pulse in unison. */
+  animation-duration: 18s;
+  animation-delay: -6s;
+}
+
+/* Medium brown (--base-300), high and right. */
+.mnt-bloom--3 {
+  top: 6%;
+  right: -16%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(132, 89, 44, 0.16) 0%,
+    rgba(132, 89, 44, 0.07) 46%,
+    rgba(132, 89, 44, 0) 70%
+  );
+  animation-duration: 22s;
+  animation-delay: -11s;
+}
+
+@keyframes mntBloom {
+  0%,
+  100% {
+    transform: scale(0.92) translate3d(0, 0, 0);
+    opacity: 0.16;
+  }
+  50% {
+    transform: scale(1.07) translate3d(0, -1.5%, 0);
+    opacity: 0.3;
+  }
+}
+
+/* The static grain layer: gets the expensive filter, never animates. */
+.mnt-bloom-grain {
+  top: 50%;
+  left: 50%;
+  width: min(120vw, 90rem);
+  height: min(120vw, 90rem);
+  transform: translate(-50%, -50%);
+  opacity: 0.5;
+  background: radial-gradient(
+    circle at 42% 44%,
+    rgba(114, 47, 20, 0.12) 0%,
+    rgba(114, 47, 20, 0.05) 40%,
+    rgba(114, 47, 20, 0) 66%
+  );
+  filter: url("#mntInkEdge");
+}
+
+/* SVG that carries only the <filter>. Kept out of flow and out of the a11y tree. */
+.mnt-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ── Animation 1: ink-reveal branch ───────────────────────────────────────────
+   The category-hover botanicals, recovered from git (they were removed from the
+   cards in 9fd81df) and retriggered on render instead of on hover.
+
+   Mechanism, verbatim from the original: an oversized (260%) soft-edged gradient
+   mask slides across the artwork. The 42%/62% stops are what make it read as
+   GROWTH — the feathered edge dissolves the tip into the cream instead of wiping a
+   hard line. Only the trigger changed: transition-on-hover became a keyframe. */
+.mnt-branch {
+  position: absolute;
+  bottom: 0;
+  height: clamp(120px, 22vh, 260px);
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  opacity: 0.9;
+  z-index: -1;
+
+  -webkit-mask-image: linear-gradient(to right, #000 42%, transparent 62%);
+  mask-image: linear-gradient(to right, #000 42%, transparent 62%);
+  -webkit-mask-size: 260% 100%;
+  mask-size: 260% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  /* The opaque end sits at the mask's LEFT, so 100% leaves the element under the
+     transparent half — nothing visible before the animation runs. */
+  -webkit-mask-position: 100% 0;
+  mask-position: 100% 0;
+
+  /* 1.9s where the original hover sweep was 1.2s: nothing competes for attention on
+     this page, so the growth can be unhurried. */
+  animation: mntBranchGrow 1.9s cubic-bezier(0.3, 0.8, 0.35, 1) 0.35s both;
+}
+
+@keyframes mntBranchGrow {
+  from {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  to {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+}
+
+/* scaleX(-1) is applied AFTER masking, so the local left-to-right sweep reads
+   right-to-left on screen. That is why only the left copy is mirrored: both then
+   grow inward, from their own outer corner toward the centre. */
+.mnt-branch--left {
+  left: 0;
+  transform: scaleX(-1);
+}
+
+.mnt-branch--right {
+  right: 0;
+  animation-delay: 0.55s;
+}
+
+/* ── Content ──────────────────────────────────────────────────────────────── */
+
+.mnt-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: min(64ch, var(--page-max));
+  margin-inline: auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Each line rises out of its own clipped wrapper — the same masked-line reveal
+   <Copy> performs with SplitText, rebuilt as CSS so this can stay a server
+   component. Same rhythm (staggered rise, power4-ish ease), no hydration. */
+.mnt-reveal {
+  overflow: hidden;
+  display: block;
+}
+
+.mnt-reveal > * {
+  display: block;
+  transform: translateY(110%);
+  animation: mntLineRise 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes mntLineRise {
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* One cascade, top to bottom, so nothing overtakes the line above it:
+   eyebrow .15 -> heading .28/.42 -> message .56 -> revisit .68 -> rule .8 -> contact .95 */
+.mnt-reveal--1 > * { animation-delay: 0.15s; }
+.mnt-reveal--3 > * { animation-delay: 0.56s; }
+.mnt-reveal--4 > * { animation-delay: 0.68s; }
+
+.mnt-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #c8ad73;
+}
+
+.mnt-heading {
+  font-family: var(--font-heading);
+  /* Deliberately not the global h1 clamp (up to 10rem) — that is sized for the
+     homepage hero. This is page-title scale, which suits a single quiet message. */
+  font-size: var(--fs-hero-title);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--base-700);
+}
+
+/* The heading splits on \n (the cmsBlog.newsletterTitle convention), so each line gets
+   its own clipped wrapper and rises just after the one above it — landing between the
+   eyebrow (0.15s) and the message (0.56s). */
+.mnt-heading-line > * {
+  animation-delay: 0.28s;
+}
+
+.mnt-heading-line + .mnt-heading-line > * {
+  animation-delay: 0.42s;
+}
+
+.mnt-message {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.01rem;
+  color: var(--base-600);
+  text-transform: none;
+  max-width: 46ch;
+  text-wrap: balance;
+}
+
+.mnt-revisit {
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--base-300);
+  text-transform: none;
+}
+
+/* Hairline flourish between the message and the contact block, drawn outward from
+   the centre once the copy has landed. */
+.mnt-rule {
+  width: min(14rem, 40%);
+  height: 1px;
+  border: 0;
+  margin: 0.5rem 0 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(132, 89, 44, 0.45),
+    transparent
+  );
+  transform: scaleX(0);
+  animation: mntRule 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.8s both;
+}
+
+@keyframes mntRule {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.mnt-contact {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 2rem;
+  opacity: 0;
+  animation: mntFadeIn 0.9s ease 0.95s both;
+}
+
+@keyframes mntFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.mnt-contact-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.mnt-contact-label {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--base-300);
+  opacity: 0.75;
+}
+
+.mnt-contact-value,
+.mnt-contact-value:visited {
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--base-700);
+  text-transform: none;
+  /* globals.css sets `* { user-select: none }`. Without this a visitor cannot copy
+     the email or phone number off the one page that exists to give them out. */
+  user-select: text;
+  -webkit-user-select: text;
+  text-align: center;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+a.mnt-contact-value:hover {
+  color: #c8ad73;
+}
+
+.mnt-address {
+  font-style: normal;
+}
+
+@media (max-width: 480px) {
+  .mnt-branch {
+    height: clamp(96px, 16vh, 150px);
+    opacity: 0.7;
+  }
+
+  .mnt-contact {
+    gap: 1.25rem;
+  }
+}
+
+/* Narrow viewports and low-power devices pay the most for a full-bleed SVG filter
+   and gain the least — the grain is a texture nobody is looking for at 480px. */
+@media (max-width: 768px) {
+  .mnt-bloom-grain {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Everything settles into its finished state. The page still reads as designed —
+     the blots hold mid-cycle rather than vanishing, so the backdrop keeps its depth. */
+  .mnt-bloom {
+    animation: none;
+    transform: scale(1);
+    opacity: 0.24;
+  }
+
+  /* The original flora rule used this same 0.01s approach rather than removing the
+     animation, so the mask still ends up fully swept. */
+  .mnt-branch {
+    animation-duration: 0.01s;
+    animation-delay: 0s;
+  }
+
+  .mnt-reveal > *,
+  .mnt-rule,
+  .mnt-contact {
+    animation-duration: 0.01s;
+    animation-delay: 0s;
+  }
+}
