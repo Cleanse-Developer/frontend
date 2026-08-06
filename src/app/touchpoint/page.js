@@ -33,6 +33,7 @@ export default function Touchpoint() {
   const supportPhone = info.phone || "+91 80000 00000";
   const addressLines = info.addressLines || [
     "HRBD Life Sciences Pvt. Ltd.",
+    "Cleanse Ayurveda Private Limited",
     "42 Wellness Avenue, Bandra West, Mumbai 400050",
   ];
   // "Visit Us" wants a short place, not the full postal address: use the last
