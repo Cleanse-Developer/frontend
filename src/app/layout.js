@@ -20,6 +20,8 @@ import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary";
 import { PopupProvider } from "@/context/PopupContext";
 import SpinWheelWrapper from "@/components/SpinWheel/SpinWheelWrapper";
 import NewsletterPopupWrapper from "@/components/NewsletterPopup/NewsletterPopupWrapper";
+import Tracking, { TrackingNoScript } from "@/components/Tracking/Tracking";
+import { TRACKING_IDS } from "@/lib/tracking";
 
 const SITE_NAME = "Cleanse Ayurveda";
 const SITE_TITLE = "Cleanse Ayurveda | Premium Ayurvedic Beauty";
@@ -139,8 +141,10 @@ export default async function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: LOADER_DECISION_SCRIPT }} />
+        <TrackingNoScript gtmId={TRACKING_IDS.GTM_ID} pixelId={TRACKING_IDS.META_PIXEL_ID} />
         <ErrorBoundary>
         <AuthProvider>
+        <Tracking />
         <SettingsProvider initial={initialSettings}>
         <ToastProvider>
         <CartProvider>

@@ -10,6 +10,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { productApi, shippingApi, reviewApi, bundleApi } from "@/lib/endpoints";
+import { trackProductView } from "@/lib/tracking";
 import { normalizeProduct } from "@/lib/normalizers";
 import { productUrl } from "@/lib/normalizers";
 import { cardPrice, toNum } from "@/lib/formatters";
@@ -255,8 +256,10 @@ function UnitContent({ params }) {
         const stock = toNum(s?.stock ?? s?.quantity ?? s?.inventory);
         return stock === null || stock > 0;
       });
-      setSelectedSize(matchedSize || firstSellable || p.sizes?.[0] || null);
+      const initialSize = matchedSize || firstSellable || p.sizes?.[0] || null;
+      setSelectedSize(initialSize);
       setLoading(false);
+      trackProductView(p, initialSize);
       // Fetch related products
       if (p._id) {
         productApi.getRelated(p._id).then((relData) => {

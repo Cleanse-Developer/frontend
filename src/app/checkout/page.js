@@ -19,6 +19,7 @@ import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, ext
 import CouponModal from "./CouponModal";
 import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
 import { formatPrice } from "@/lib/formatters";
+import { trackPurchase } from "@/lib/tracking";
 
 // Map a backend coupon-rejection reason to a friendly modal title.
 function couponErrorTitle(message) {
@@ -454,6 +455,22 @@ export default function CheckoutPage() {
     return d.slice(0, 15);
   })();
   const fullPhone = localPhoneDigits ? `${shipping.phoneCode}${localPhoneDigits}` : "";
+
+  // Purchase event for GTM + Meta. Every success path (COD, Razorpay confirm,
+  // and the poll-for-order fallbacks) ends in setPlacedOrder, so this one effect
+  // covers them all; trackPurchase dedupes by order id. Checkout contact details
+  // are passed for matching in case the account lacks email/phone.
+  useEffect(() => {
+    if (!placedOrder) return;
+    trackPurchase(placedOrder, {
+      _id: user?._id,
+      fullName: shipping.fullName || user?.fullName,
+      email: shipping.email || user?.email,
+      phone: localPhoneDigits || user?.phone,
+      countryCode: localPhoneDigits ? shipping.phoneCode : user?.countryCode,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [placedOrder]);
 
   // Phone verification state. A phone is "verified" when it matches the logged-in
   // account's stored phone (e.g. phone-OTP users) OR the user just verified it via

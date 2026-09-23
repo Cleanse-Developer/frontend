@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useMemo, useEffect, useCallback, u
 import { useAuth } from "@/context/AuthContext";
 import { cartApi, cartPricingApi, guestPricingApi } from "@/lib/endpoints";
 import { isUsablePricing, resolveVariantLabel } from "@/lib/formatters";
+import { trackAddToCart } from "@/lib/tracking";
 
 const CartContext = createContext(null);
 
@@ -194,15 +195,18 @@ export const CartProvider = ({ children }) => {
         ? selectedSize
         : product.sizes?.find((s) => (s.label || s) === sizeLabel);
     const price = Number(variant?.price ?? product.price);
+    const track = () => trackAddToCart(product, { variant: sizeLabel, price, quantity });
 
     if (isAuthenticated) {
       try {
         const data = await cartApi.addItem(productId, quantity, sizeLabel);
         handleCartResponse(data);
+        track();
       } catch (err) {
         console.error("Add to cart failed:", err);
       }
     } else {
+      track();
       setCartItems((prev) => {
         const matchKey = `${productId || name}_${sizeLabel}`;
         const existing = prev.find((item) => `${item.productId || item.name}_${item.selectedSize}` === matchKey);
@@ -237,14 +241,29 @@ export const CartProvider = ({ children }) => {
 
   const updateQuantity = useCallback(async (cartItemId, newQuantity) => {
     const qty = Math.max(1, newQuantity);
+    // A "+" in the bag is an add-to-cart too: track the added units only.
+    const line = cartItems.find(
+      (item) => (item.cartItemId || `${item.productId || item.name}_${item.selectedSize}`) === cartItemId
+    );
+    const added = line ? qty - (line.quantity || 1) : 0;
+    const track = () => {
+      if (added > 0) {
+        trackAddToCart(
+          { _id: line.productId, name: line.name },
+          { variant: line.selectedSize, price: Number(line.price), quantity: added }
+        );
+      }
+    };
     if (isAuthenticated) {
       try {
         const data = await cartApi.updateItem(cartItemId, qty);
         handleCartResponse(data);
+        track();
       } catch (err) {
         console.error("Update quantity failed:", err);
       }
     } else {
+      track();
       setCartItems((prev) =>
         prev.map((item) => {
           const id = item.cartItemId || `${item.productId || item.name}_${item.selectedSize}`;
@@ -252,7 +271,7 @@ export const CartProvider = ({ children }) => {
         })
       );
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, cartItems]);
 
   // Re-pull the cart from the server. Used by pull-to-refresh in the bag so a
   // stale price / removed item / expired promo gets corrected on demand.
