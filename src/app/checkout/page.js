@@ -19,7 +19,7 @@ import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, ext
 import CouponModal from "./CouponModal";
 import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
 import { formatPrice } from "@/lib/formatters";
-import { trackPurchase, trackInitiateCheckout, trackAddPaymentInfo } from "@/lib/tracking";
+import { trackPurchase, trackInitiateCheckout, trackAddPaymentInfo, getMetaTrackingPayload } from "@/lib/tracking";
 
 // Map a backend coupon-rejection reason to a friendly modal title.
 function couponErrorTitle(message) {
@@ -1189,6 +1189,8 @@ export default function CheckoutPage() {
       loyaltyPointsToRedeem: loyaltyApplied || 0,
       // Promoter last-click attribution (resolved server-side from the slug).
       attribution: getAttributionPayload(),
+      // Meta browser ids (_fbp/_fbc) for the server-side Purchase event.
+      tracking: getMetaTrackingPayload(),
     };
 
     try {
@@ -1225,6 +1227,7 @@ export default function CheckoutPage() {
             idempotencyKey,
             loyaltyPointsToRedeem: loyaltyApplied || 0,
             attribution: orderData.attribution,
+            tracking: orderData.tracking,
           });
         } catch (err) {
           handleInitiateError(err);

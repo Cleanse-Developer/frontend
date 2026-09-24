@@ -9,6 +9,11 @@
 // event tags on those Custom Event triggers and read `ecommerce`, `session_id`,
 // `client_id`, `event_id` and `user_data` as Data Layer Variables.
 //
+// Server side: each Meta event (except later SPA PageViews, which the pixel
+// fires itself without an eventID) is also queued to our API at /api/ev, which
+// forwards it through the Meta Conversions API with the same event_id. Purchase
+// is sent by the backend when the order is created (event_id purchase_<orderId>).
+//
 // Meta receives the standard events PageView, ViewContent, AddToCart,
 // InitiateCheckout, AddPaymentInfo and Purchase, with advanced matching (email/phone/name/external_id) applied
 // through fbq('init') once we know who the user is. Meta hashes those values
@@ -239,12 +244,110 @@ export function setTrackingUser(user) {
   }
 }
 
+// ── Meta Conversions API relay ──
+
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://d6mvnylha0j3u.cloudfront.net/api").replace(/\/+$/, "");
+const FBC_KEY = "cleanse_trk_fbc";
+const FLUSH_MS = 1000;
+
+function readCookie(name) {
+  try {
+    const m = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return m ? decodeURIComponent(m[1]) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// _fbc is set by the pixel when a visitor lands from a Meta ad (?fbclid=...).
+// If the pixel is blocked, build the same value ourselves and keep it.
+function getFbc() {
+  const cookie = readCookie("_fbc");
+  if (cookie) return cookie;
+  try {
+    const fbclid = new URLSearchParams(window.location.search).get("fbclid");
+    if (fbclid) {
+      const fbc = `fb.1.${Date.now()}.${fbclid}`;
+      localStorage.setItem(FBC_KEY, fbc);
+      return fbc;
+    }
+    return localStorage.getItem(FBC_KEY) || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// Browser identifiers the backend forwards to Meta. Also sent with checkout /
+// order requests so the server-side Purchase can be matched to the ad click.
+export function getMetaTrackingPayload() {
+  if (!isBrowser()) return undefined;
+  return compact({
+    fbp: readCookie("_fbp"),
+    fbc: getFbc(),
+    clientId: getClientId(),
+    sessionId: getSession().id,
+    sourceUrl: window.location.href,
+  });
+}
+
+let relayQueue = [];
+let relayTimer = null;
+
+function flushServerEvents() {
+  if (relayTimer) {
+    clearTimeout(relayTimer);
+    relayTimer = null;
+  }
+  if (!relayQueue.length) return;
+  const events = relayQueue;
+  relayQueue = [];
+  let token;
+  try {
+    token = localStorage.getItem("accessToken") || undefined;
+  } catch {
+    /* ignore */
+  }
+  const body = JSON.stringify(compact({ t: token, tracking: getMetaTrackingPayload(), events }));
+  const url = `${API_BASE}/ev`;
+  try {
+    // text/plain keeps this a "simple" request (no CORS preflight), and
+    // sendBeacon survives the tab closing right after an event.
+    const blob = new Blob([body], { type: "text/plain" });
+    if (navigator.sendBeacon && navigator.sendBeacon(url, blob)) return;
+    fetch(url, { method: "POST", body, headers: { "Content-Type": "text/plain" }, keepalive: true }).catch(() => {});
+  } catch {
+    /* tracking must never break the page */
+  }
+}
+
+function queueServerEvent(eventName, eventId, customData) {
+  relayQueue.push({
+    event_name: eventName,
+    event_id: eventId,
+    event_time: Math.floor(Date.now() / 1000),
+    event_source_url: window.location.href,
+    custom_data: customData,
+  });
+  if (relayQueue.length >= 10) flushServerEvents();
+  else if (!relayTimer) relayTimer = setTimeout(flushServerEvents, FLUSH_MS);
+}
+
+if (isBrowser()) {
+  window.addEventListener("pagehide", flushServerEvents);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushServerEvents();
+  });
+}
+
 // ── Core send ──
 
-function send({ gtmEvent, metaEvent, ecommerce, metaParams, extra, userOverride, skipMeta }) {
+// relay: also send this event to our API for the Meta Conversions API, which
+// still reaches Meta when an ad blocker stops the browser pixel. Same eventID
+// on both, so Meta keeps one copy. Purchase is sent by the backend itself.
+function send({ gtmEvent, metaEvent, ecommerce, metaParams, extra, userOverride, skipMeta, eventId: fixedEventId, relay = true }) {
   if (!isBrowser()) return;
   initTracking();
-  const eventId = uid();
+  const eventId = fixedEventId || uid();
   const session = getSession();
   const user = userOverride ? { ...currentUser, ...userOverride } : currentUser;
   try {
@@ -264,12 +367,9 @@ function send({ gtmEvent, metaEvent, ecommerce, metaParams, extra, userOverride,
       })
     );
     if (!skipMeta) {
-      window.fbq(
-        "track",
-        metaEvent,
-        { ...metaParams, session_id: session.id },
-        { eventID: eventId }
-      );
+      const customData = { ...metaParams, session_id: session.id };
+      window.fbq("track", metaEvent, customData, { eventID: eventId });
+      if (relay) queueServerEvent(metaEvent, eventId, customData);
     }
   } catch (err) {
     console.warn(`[tracking] ${gtmEvent} failed`, err);
@@ -479,6 +579,10 @@ export function trackPurchase(order, contact) {
   send({
     gtmEvent: "purchase",
     metaEvent: "Purchase",
+    // Must match the backend's Conversions API Purchase (metaCapi.service.js)
+    // so Meta counts the order once. The backend sends it, so no relay here.
+    eventId: orderId ? `purchase_${orderId}` : undefined,
+    relay: false,
     userOverride: contactUser
       ? compact({ ...contactUser, id: currentUser?.id || contactUser.id })
       : undefined,
