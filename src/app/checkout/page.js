@@ -19,7 +19,7 @@ import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, ext
 import CouponModal from "./CouponModal";
 import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
 import { formatPrice } from "@/lib/formatters";
-import { trackPurchase } from "@/lib/tracking";
+import { trackPurchase, trackInitiateCheckout, trackAddPaymentInfo } from "@/lib/tracking";
 
 // Map a backend coupon-rejection reason to a friendly modal title.
 function couponErrorTitle(message) {
@@ -455,6 +455,16 @@ export default function CheckoutPage() {
     return d.slice(0, 15);
   })();
   const fullPhone = localPhoneDigits ? `${shipping.phoneCode}${localPhoneDigits}` : "";
+
+  // InitiateCheckout once per checkout visit, as soon as the bag has loaded
+  // (the cart hydrates async, so wait for items rather than firing on mount).
+  const checkoutTrackedRef = useRef(false);
+  useEffect(() => {
+    if (checkoutTrackedRef.current || placedOrder || cartItems.length === 0) return;
+    checkoutTrackedRef.current = true;
+    trackInitiateCheckout(cartItems, total);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartItems.length, placedOrder]);
 
   // Purchase event for GTM + Meta. Every success path (COD, Razorpay confirm,
   // and the poll-for-order fallbacks) ends in setPlacedOrder, so this one effect
@@ -1163,6 +1173,7 @@ export default function CheckoutPage() {
     }
 
     // Authenticated flow
+    trackAddPaymentInfo(cartItems, total, paymentMethod);
     setOrderLoading(true);
     setOrderError("");
     setStockErrors([]);

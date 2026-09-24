@@ -5,12 +5,12 @@
 // session_id / client_id (so every event in a visit links back to one session).
 //
 // GTM receives GA4-style ecommerce events on window.dataLayer
-// (page_view, view_item, add_to_cart, purchase). In the GTM container, fire GA4
+// (page_view, view_item, add_to_cart, begin_checkout, add_payment_info, purchase). In the GTM container, fire GA4
 // event tags on those Custom Event triggers and read `ecommerce`, `session_id`,
 // `client_id`, `event_id` and `user_data` as Data Layer Variables.
 //
-// Meta receives the standard events PageView, ViewContent, AddToCart and
-// Purchase, with advanced matching (email/phone/name/external_id) applied
+// Meta receives the standard events PageView, ViewContent, AddToCart,
+// InitiateCheckout, AddPaymentInfo and Purchase, with advanced matching (email/phone/name/external_id) applied
 // through fbq('init') once we know who the user is. Meta hashes those values
 // in the browser before sending them. Two fbevents.js rules shape this file:
 // one manual PageView per page load (see trackPageView) and user data can only
@@ -388,6 +388,57 @@ export function trackAddToCart(product, { variant, price, quantity = 1 } = {}) {
       value,
       currency: CURRENCY,
     },
+  });
+}
+
+// Checkout events share the cart -> items mapping.
+function cartToItems(cartItems) {
+  return (cartItems || []).map((i) =>
+    toItem({
+      id: i.productId,
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity,
+      variant: i.selectedSize,
+    })
+  );
+}
+
+function checkoutEvent({ gtmEvent, metaEvent, cartItems, value, extra, metaExtra }) {
+  const items = cartToItems(cartItems);
+  if (items.length === 0) return;
+  const total = toNumber(value) || items.reduce((n, i) => n + i.price * i.quantity, 0);
+  send({
+    gtmEvent,
+    metaEvent,
+    ecommerce: { currency: CURRENCY, value: total, items },
+    extra,
+    metaParams: {
+      content_ids: items.map((i) => i.item_id),
+      content_type: "product",
+      contents: metaContents(items),
+      num_items: items.reduce((n, i) => n + i.quantity, 0),
+      value: total,
+      currency: CURRENCY,
+      ...metaExtra,
+    },
+  });
+}
+
+// Checkout page opened with a non-empty bag. Fires once per checkout visit.
+export function trackInitiateCheckout(cartItems, value) {
+  checkoutEvent({ gtmEvent: "begin_checkout", metaEvent: "InitiateCheckout", cartItems, value });
+}
+
+// "Place order" pressed with a payment method chosen (COD or online).
+export function trackAddPaymentInfo(cartItems, value, paymentMethod) {
+  checkoutEvent({
+    gtmEvent: "add_payment_info",
+    metaEvent: "AddPaymentInfo",
+    cartItems,
+    value,
+    extra: { payment_type: paymentMethod },
+    metaExtra: { payment_method: paymentMethod },
   });
 }
 
