@@ -1002,12 +1002,15 @@
 
 /* `+` chips between the picks: the row then reads as an equation adding up to
    the summary, which is what "understanding this as a bundle" was missing.
-   Sits centred in the grid's 20px gap. */
+   Sits centred in the grid's column gap. */
 .bundle-grid .bundle-card + .bundle-card::before {
   content: "+";
   position: absolute;
-  /* Half the 36px gap, so the chip is centred between the two images. */
-  left: -18px;
+  /* Half of the grid's column gap (--bundle-gap, set on .bundle-grid and changed
+     by each breakpoint along with `gap`), so the chip is centred between the two
+     images at every width. A fixed -18px was only right for the 36px desktop gap
+     and left the chip 12px too far left on tablet/phone. */
+  left: calc(var(--bundle-gap) / -2);
   top: 42%;
   transform: translate(-50%, -50%);
   z-index: 3;
@@ -1028,13 +1031,28 @@
 }
 
 .bundle-grid {
+  /* Column gap; also positions the `+` chips (see above). */
+  --bundle-gap: 36px;
+  /* Lets the container query below see this grid's own width. */
+  container-type: inline-size;
   display: grid;
   /* auto-fit, not repeat(3): a bundle with fewer than 3 products would otherwise
      reserve empty columns and leave a hole in the row. */
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   /* 36px column gap so the 28px `+` chip sits fully inside it. */
-  gap: 20px 36px;
+  gap: 20px var(--bundle-gap);
   align-content: start;
+}
+
+/* Desktop only (>1024px uses auto-fit columns): below 612px (3 x 180px + 2 x 36px)
+   the grid drops to two columns, so the 3rd card starts a new row and must not get
+   a `+` hanging off the left edge. The tablet/phone blocks handle their own layouts. */
+@media (min-width: 1025px) {
+  @container (max-width: 611.98px) {
+    .bundle-grid .bundle-card + .bundle-card:nth-child(2n + 1)::before {
+      content: none;
+    }
+  }
 }
 
 /* Match the home "Build Your Ritual" cards (.byr-card): the card itself is
@@ -2198,7 +2216,8 @@
 
   .bundle-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    --bundle-gap: 1rem;
+    gap: var(--bundle-gap);
   }
 
   .bundle-card-image {
@@ -2264,7 +2283,14 @@
 
   .bundle-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    --bundle-gap: 12px;
+    gap: var(--bundle-gap);
+  }
+
+  /* Two columns: the first card of every row has nothing to its left, so it gets
+     no `+` (it used to hang off the left edge, beside the 3rd product). */
+  .bundle-grid .bundle-card + .bundle-card:nth-child(2n + 1)::before {
+    content: none;
   }
 
   .bundle-card-image {
@@ -2479,7 +2505,13 @@
 
   .bundle-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    --bundle-gap: 0.75rem;
+    gap: var(--bundle-gap);
+  }
+
+  /* Same as the portrait block above: no `+` on a row's first card. */
+  .bundle-grid .bundle-card + .bundle-card:nth-child(2n + 1)::before {
+    content: none;
   }
 
   /* Taller image so the bundle cards aren't square — match the product cards */
