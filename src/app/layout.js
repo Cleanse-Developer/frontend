@@ -169,7 +169,10 @@ export default async function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Synquic Slide analytics collector. async, so it never blocks rendering. */}
-        {SLIDE_SITE_KEY && <script async src={SLIDE_SRC} data-site={SLIDE_SITE_KEY} />}
+        {/* A ternary returning null, NOT `key && <script/>`: with no key that expression is
+            "" (an empty string), which React renders into <head> as a text node. That is
+            invalid, causes a hydration error, and the page loses its styles. */}
+        {SLIDE_SITE_KEY ? <script async src={SLIDE_SRC} data-site={SLIDE_SITE_KEY} /> : null}
       </head>
       <body>
         {/* DISABLED (2026-10-16): intro loader off — see LOADER_DECISION_SCRIPT note above.
