@@ -19,7 +19,15 @@ import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, ext
 import CouponModal from "./CouponModal";
 import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
 import { formatPrice } from "@/lib/formatters";
-import { trackPurchase, trackInitiateCheckout, trackAddPaymentInfo, getMetaTrackingPayload } from "@/lib/tracking";
+import {
+  trackPurchase,
+  trackInitiateCheckout,
+  trackAddShippingInfo,
+  trackAddPaymentInfo,
+  trackLogin,
+  trackSignUp,
+  getMetaTrackingPayload,
+} from "@/lib/tracking";
 
 // Map a backend coupon-rejection reason to a friendly modal title.
 function couponErrorTitle(message) {
@@ -877,6 +885,10 @@ export default function CheckoutPage() {
           getStoredReferralCode()
         );
         if (isNewUser) clearReferralCode();
+        // Verifying the phone IS the login here, so this is where a guest becomes a
+        // member: report it as a signup or a login accordingly.
+        if (isNewUser) trackSignUp("checkout_otp");
+        else trackLogin("checkout_otp");
       }
       setPhoneVerified(true);
       setOtpModalOpen(false);
@@ -961,6 +973,13 @@ export default function CheckoutPage() {
       }
       // Note: UPI validation removed, UPI not yet available
     }
+    // Funnel steps are reported only on the FORWARD transition that just passed
+    // validation: `goToStep` is also how the step chips navigate backwards, and
+    // re-reporting on the way back would inflate the funnel.
+    const funnelValue = total;
+    const funnelCoupon = appliedSpecialCode || (couponStatus === "valid" ? couponCode.trim() : undefined);
+    if (step === 2 && activeStep === 1) trackAddShippingInfo(cartItems, funnelValue, funnelCoupon);
+    if (step === 3 && activeStep === 2) trackAddPaymentInfo(cartItems, funnelValue, paymentMethod, funnelCoupon);
     setActiveStep(step);
     stepRef.current = step;
     // Push history state so browser back goes to previous step
@@ -1173,7 +1192,8 @@ export default function CheckoutPage() {
     }
 
     // Authenticated flow
-    trackAddPaymentInfo(cartItems, total, paymentMethod);
+    // (add_payment_info is reported when the payment step is passed, in goToStep,
+    // not here: this runs again on every retry / failed attempt.)
     setOrderLoading(true);
     setOrderError("");
     setStockErrors([]);

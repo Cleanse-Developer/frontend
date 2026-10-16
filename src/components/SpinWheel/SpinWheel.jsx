@@ -2,6 +2,7 @@
 import "./SpinWheel.css";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { spinWheelApi } from "@/lib/endpoints";
+import { trackLead } from "@/lib/tracking";
 import { useAuth } from "@/context/AuthContext";
 import { useLenis } from "lenis/react";
 
@@ -280,6 +281,8 @@ const SpinWheel = ({ isOpen, onClose, onComplete }) => {
       const data = await spinWheelApi.claim(email, spinTokenRef.current);
       if (!mountedRef.current) return;
       setResult(data.prize);
+      // A claim is an email capture, whatever the prize was.
+      trackLead("spin_wheel", { prize: data.prize?.label || data.prize?.value });
       safeSetItem("spinWheelEmail", email);
       safeSetItem("spinWheelResult", JSON.stringify({ email, prize: data.prize }));
       // Deliberately NOT calling onComplete() here. The wrapper's handler closes

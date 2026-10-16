@@ -10,6 +10,7 @@ import { gsap } from "gsap";
 import { productApi, categoryApi } from "@/lib/endpoints";
 import { normalizeProduct, productUrl } from "@/lib/normalizers";
 import { cardPrice } from "@/lib/formatters";
+import { trackSearch, trackViewItemList } from "@/lib/tracking";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import BannerOverlay from "@/components/BannerOverlay/BannerOverlay";
 
@@ -132,7 +133,21 @@ function WardrobeContent() {
     setFilteredProducts(applyFilters(activeTag, priceRange));
   }, [searchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const filterByPrice = (productsToFilter, range) => {
+  // view_item_list: one impression per settled result set. `filteredProducts` is only
+  // ever replaced when a filter, category, or search term changes, so depending on it
+  // directly gives exactly one event per change without enumerating every filter input.
+  useEffect(() => {
+    if (loading || filteredProducts.length === 0) return;
+    trackViewItemList(filteredProducts, activeTag || "All Products");
+  }, [filteredProducts, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // The search box lives in the header and navigates here with ?search=, so this is
+  // where a search is observable.
+  useEffect(() => {
+    trackSearch(searchQuery);
+  }, [searchQuery]);
+
+  const filterByPrice =(productsToFilter, range) => {
     switch (range) {
       case "under-500":
         return productsToFilter.filter((p) => cardPrice(p) < 500);

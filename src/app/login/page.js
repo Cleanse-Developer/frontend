@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, extractWidgetToken } from "@/lib/msg91";
+import { trackLogin, trackSignUp } from "@/lib/tracking";
 import { getStoredReferralCode, clearReferralCode } from "@/lib/referral";
 import { signInWithGoogle } from "@/lib/google";
 import Logo from "@/components/Logo/Logo";
@@ -109,6 +110,7 @@ function LoginContent() {
     setError("");
     try {
       await loginWithPassword(loginEmail.trim(), loginPassword);
+      trackLogin("password");
       router.replace(redirectTo);
     } catch (err) {
       console.error("[login] error:", err.response?.status, err.response?.data);
@@ -191,6 +193,7 @@ function LoginContent() {
         getStoredReferralCode()
       );
       if (isNewUser) clearReferralCode();
+      if (isNewUser) trackSignUp("otp"); else trackLogin("otp");
       toast.success(isNewUser ? "Account created — welcome!" : "Logged in successfully");
       router.replace(redirectTo);
     } catch (err) {
@@ -213,6 +216,7 @@ function LoginContent() {
       const code = await signInWithGoogle();
       const { isNewUser } = await loginWithGoogle(code, getStoredReferralCode());
       if (isNewUser) clearReferralCode();
+      if (isNewUser) trackSignUp("google"); else trackLogin("google");
       toast.success(isNewUser ? "Account created — welcome!" : "Logged in successfully");
       router.replace(redirectTo);
     } catch (err) {

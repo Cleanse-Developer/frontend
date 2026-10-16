@@ -2,7 +2,7 @@
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { initTracking, setTrackingUser, trackPageView } from "@/lib/tracking";
+import { analyticsEnabled, initTracking, setTrackingUser, trackPageView } from "@/lib/tracking";
 
 // Loads GTM + Meta Pixel, keeps the signed-in user's matching data current, and
 // fires a page view on every client-side route change.
@@ -40,22 +40,29 @@ export default function Tracking() {
 }
 
 // No-JS fallbacks for both tags. Rendered server-side at the top of <body>.
+// gtmId is the first Tag Manager container only (the iframe takes exactly one) and
+// is empty when only Google tags (GT-/G-/AW-) are configured.
 export function TrackingNoScript({ gtmId, pixelId }) {
+  if (!analyticsEnabled) return null;
   return (
     <noscript>
-      <iframe
-        src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-        height="0"
-        width="0"
-        style={{ display: "none", visibility: "hidden" }}
-      />
-      <img
-        height="1"
-        width="1"
-        style={{ display: "none" }}
-        alt=""
-        src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
-      />
+      {gtmId ? (
+        <iframe
+          src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+          height="0"
+          width="0"
+          style={{ display: "none", visibility: "hidden" }}
+        />
+      ) : null}
+      {pixelId ? (
+        <img
+          height="1"
+          width="1"
+          style={{ display: "none" }}
+          alt=""
+          src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
+        />
+      ) : null}
     </noscript>
   );
 }

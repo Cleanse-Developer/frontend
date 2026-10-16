@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useMemo, useEffect, useCallback, u
 import { useAuth } from "@/context/AuthContext";
 import { cartApi, cartPricingApi, guestPricingApi } from "@/lib/endpoints";
 import { isUsablePricing, resolveVariantLabel } from "@/lib/formatters";
-import { trackAddToCart } from "@/lib/tracking";
+import { trackAddToCart, trackRemoveFromCart, trackViewCart } from "@/lib/tracking";
 
 const CartContext = createContext(null);
 
@@ -33,6 +33,14 @@ export const CartProvider = ({ children }) => {
   // per product, so several pricing calls are in flight at the same time and
   // they can resolve out of order. Only the newest request may write pricing.
   const pricingReqRef = useRef(0);
+  // Latest cart lines / pricing, readable from callbacks and effects without making
+  // them depend on `cartItems`: removeFromCart needs the line it is about to delete
+  // in order to report it, and a real dependency there would change the callback
+  // identity on every quantity tick.
+  const cartItemsRef = useRef(cartItems);
+  cartItemsRef.current = cartItems;
+  const serverPricingRef = useRef(serverPricing);
+  serverPricingRef.current = serverPricing;
 
   // Load cart on mount / auth change
   useEffect(() => {
@@ -224,12 +232,18 @@ export const CartProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   const removeFromCart = useCallback(async (cartItemId) => {
+    const removed = cartItemsRef.current.find((item) => {
+      const id = item.cartItemId || `${item.productId || item.name}_${item.selectedSize}`;
+      return id === cartItemId;
+    });
+
     if (isAuthenticated) {
       try {
         const data = await cartApi.removeItem(cartItemId);
         handleCartResponse(data);
       } catch (err) {
         console.error("Remove from cart failed:", err);
+        return; // the line is still in the bag: nothing was removed to report
       }
     } else {
       setCartItems((prev) => prev.filter((item) => {
@@ -237,6 +251,7 @@ export const CartProvider = ({ children }) => {
         return id !== cartItemId;
       }));
     }
+    trackRemoveFromCart(removed);
   }, [isAuthenticated]);
 
   const updateQuantity = useCallback(async (cartItemId, newQuantity) => {
@@ -317,6 +332,14 @@ export const CartProvider = ({ children }) => {
     }
     setCartItems([]);
   }, [isAuthenticated]);
+
+  // view_cart, fired on the bag OPENING only. Keyed on `isCartOpen` alone and reading
+  // the lines through a ref: depending on `cartItems` would re-fire the event on
+  // every quantity tick while the drawer sits open.
+  useEffect(() => {
+    if (!isCartOpen) return;
+    trackViewCart(cartItemsRef.current, serverPricingRef.current?.total);
+  }, [isCartOpen]);
 
   const cartCount = useMemo(
     () => cartItems.reduce((total, item) => total + (item.quantity || 1), 0),

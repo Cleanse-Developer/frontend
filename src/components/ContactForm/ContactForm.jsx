@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { MdOutlineArrowOutward } from "react-icons/md";
 import { newsletterApi } from "@/lib/endpoints";
 import { useSettings } from "@/context/SettingsContext";
+import { trackLead } from "@/lib/tracking";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -41,6 +42,7 @@ const ContactForm = () => {
     setSubmitting(true);
     try {
       await newsletterApi.subscribe(trimmed, "footer");
+      trackLead("newsletter_footer");
       setSubmitted(true);
       setEmail("");
     } catch (err) {

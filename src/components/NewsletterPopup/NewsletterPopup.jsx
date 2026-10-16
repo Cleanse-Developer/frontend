@@ -2,6 +2,7 @@
 import "./NewsletterPopup.css";
 import { useState, useEffect } from "react";
 import { newsletterApi } from "@/lib/endpoints";
+import { trackLead } from "@/lib/tracking";
 import { useSettings } from "@/context/SettingsContext";
 
 function safeSetItem(storage, key, value) {
@@ -65,6 +66,7 @@ const NewsletterPopup = ({ isOpen, onClose }) => {
       const code = res?.data?.couponCode || null;
       setCouponCode(code);
       setStatus("success");
+      trackLead("newsletter_popup");
       safeSetItem(sessionStorage, "newsletterPopupSubscribed", "true");
       // Auto-close only when there's no code to copy; otherwise let the user
       // read/copy the code and close manually.
