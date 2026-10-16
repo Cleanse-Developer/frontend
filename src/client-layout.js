@@ -4,7 +4,8 @@ import { usePathname } from "next/navigation";
 
 import { ReactLenis } from "lenis/react";
 import { registerScrollTrigger, ScrollTrigger } from "@/ui/animations/scrollTrigger";
-import Preloader from "@/components/Preloader/Preloader";
+// DISABLED (2026-10-16): intro loader off. Restore together with LOADER_DECISION_SCRIPT in app/layout.js.
+// import Preloader from "@/components/Preloader/Preloader";
 import AffiliateCapture from "@/components/AffiliateCapture/AffiliateCapture";
 import ReferralCapture from "@/components/ReferralCapture/ReferralCapture";
 
@@ -229,7 +230,9 @@ export default function ClientLayout({ children, footer, header }) {
     <ReactLenis root options={scrollSettings} ref={lenisRef}>
       <AffiliateCapture />
       <ReferralCapture />
+      {/* DISABLED (2026-10-16): intro loader off — see import above.
       <Preloader />
+      */}
       <div className="page" ref={pageRef}>
         {pathname !== "/login" && header}
         {children}

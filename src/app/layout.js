@@ -65,23 +65,30 @@ export async function generateMetadata() {
 // this script stamps data-loader="play" on <html>. On a reload or a non-home route
 // the attribute is "skip", so the panel never paints at all — no flash either way.
 // Keep the key in sync with LOADER_SESSION_KEY in components/Preloader/Preloader.
-const LOADER_DECISION_SCRIPT = `
-(function () {
-  var el = document.documentElement;
-  var isHome = location.pathname === "/";
-  try {
-    if (isHome && !sessionStorage.getItem("cleanse_loader_shown")) {
-      sessionStorage.setItem("cleanse_loader_shown", "1");
-      el.dataset.loader = "play";
-    } else {
-      el.dataset.loader = "skip";
-    }
-  } catch (e) {
-    /* sessionStorage blocked (private mode) — play on home, never persist */
-    el.dataset.loader = isHome ? "play" : "skip";
-  }
-})();
-`;
+//
+// DISABLED (2026-10-16): intro loader switched off. This script MUST stay disabled
+// together with <Preloader /> in client-layout.js — on "/" it stamps
+// data-loader="play", which Preloader.css turns into `overflow: hidden` on <html>
+// and <body>; only Preloader.jsx ever clears it, so running the script without the
+// Preloader would scroll-lock the site permanently. To restore the loader, re-enable
+// BOTH this const + the <script> tag below AND <Preloader /> in client-layout.js.
+// const LOADER_DECISION_SCRIPT = `
+// (function () {
+//   var el = document.documentElement;
+//   var isHome = location.pathname === "/";
+//   try {
+//     if (isHome && !sessionStorage.getItem("cleanse_loader_shown")) {
+//       sessionStorage.setItem("cleanse_loader_shown", "1");
+//       el.dataset.loader = "play";
+//     } else {
+//       el.dataset.loader = "skip";
+//     }
+//   } catch (e) {
+//     /* sessionStorage blocked (private mode) — play on home, never persist */
+//     el.dataset.loader = isHome ? "play" : "skip";
+//   }
+// })();
+// `;
 
 // Fetch public settings on the server so CMS-driven content (the hero carousel in
 // particular) is present in the initial HTML — no client round-trip, no empty hero.
@@ -134,13 +141,16 @@ export default async function RootLayout({ children }) {
   const heroFirst = initialSettings?.cmsHero?.carouselImages?.[0]?.url;
   if (heroFirst) ReactDOM.preload(heroFirst, { as: "image", fetchPriority: "high" });
 
-  // suppressHydrationWarning: LOADER_DECISION_SCRIPT stamps data-loader onto
-  // <html> before React hydrates, so the server markup and the DOM legitimately
-  // differ on this element.
+  // suppressHydrationWarning: LOADER_DECISION_SCRIPT (currently disabled, see above)
+  // stamps data-loader onto <html> before React hydrates, so the server markup and
+  // the DOM legitimately differ on this element. Kept so restoring the loader needs
+  // no further change.
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        {/* DISABLED (2026-10-16): intro loader off — see LOADER_DECISION_SCRIPT note above.
         <script dangerouslySetInnerHTML={{ __html: LOADER_DECISION_SCRIPT }} />
+        */}
         <TrackingNoScript gtmId={TRACKING_IDS.GTM_ID} pixelId={TRACKING_IDS.META_PIXEL_ID} />
         <ErrorBoundary>
         <AuthProvider>

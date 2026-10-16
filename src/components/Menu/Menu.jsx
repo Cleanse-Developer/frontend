@@ -384,9 +384,13 @@ const Menu = () => {
       // Close menu first, then navigate after animation completes
       closeMenu();
       setTimeout(() => {
-        // Hide the entire menu before page transition
-        setIsPageTransitioning(true);
-        setIsMenuVisible(false);
+        // DISABLED (2026-10-16): page transition is off. These two setters hid the
+        // header behind the wipe and relied on TransitionProvider's `page-transition`
+        // {active:false} event to bring it back; with no wipe nothing fires that, so
+        // the header would stay hidden after navigating. Restore with TransitionProvider.
+        // // Hide the entire menu before page transition
+        // setIsPageTransitioning(true);
+        // setIsMenuVisible(false);
         router.push(href);
       }, 600);
     }
@@ -423,8 +427,9 @@ const Menu = () => {
           });
         } else el.scrollIntoView({ behavior: "smooth" });
       } else {
-        setIsPageTransitioning(true);
-        setIsMenuVisible(false);
+        // DISABLED (2026-10-16): see handleLinkClick — nothing would un-hide the header.
+        // setIsPageTransitioning(true);
+        // setIsMenuVisible(false);
         router.push(`/#${sectionId}`);
       }
     }, 600);
