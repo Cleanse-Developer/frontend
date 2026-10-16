@@ -2100,11 +2100,16 @@
     transform: none;
   }
 
+  /* Thumbnails sit together, left-aligned under the main photo. (They used to be
+     spread edge to edge with space-between, which splits 2-3 images to the far left
+     and right.) If a product has more than fit, the row scrolls sideways. */
   .product-thumbnails {
     width: min(100%, 440px);
     max-width: none;
-    justify-content: space-between;
-    gap: 0;
+    justify-content: flex-start;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .product-thumbnail {
@@ -2695,8 +2700,8 @@
   }
 
   .product-thumbnails {
-    gap: 0;
-    justify-content: space-between;
+    gap: 8px;
+    justify-content: flex-start;
   }
 
   .product-thumbnail {
