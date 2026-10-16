@@ -593,6 +593,37 @@ const Menu = () => {
   const scrollInitializedRef = useRef(false);
   const transitioningRef = useRef(false);
 
+  // Route-change settle. The page transition used to cover a navigation, block this
+  // scroll handler while it ran, then reveal the header with scroll tracking reset
+  // (see the `page-transition` handler above). With the transition disabled, a
+  // navigation that lands at a deep scroll position (/#featured from another page)
+  // looks like the reader scrolling down and would leave the header hidden (and the
+  // home page's "scrolling back into the hero" restyle would race it). So for a
+  // moment after the pathname changes the scroll handler is blocked outright, as it
+  // was during the transition; then the tracking is reset, the header revealed, and
+  // one scroll tick re-syncs the scrolled / green styling to where the page landed.
+  const ROUTE_SETTLE_MS = 1500;
+  const routeSettlingRef = useRef(false);
+  const routeSettleTimerRef = useRef(null);
+  const prevPathnameRef = useRef(pathname);
+  useEffect(() => {
+    if (prevPathnameRef.current === pathname) return;
+    prevPathnameRef.current = pathname;
+    routeSettlingRef.current = true;
+    clearTimeout(routeSettleTimerRef.current);
+    routeSettleTimerRef.current = setTimeout(() => {
+      routeSettlingRef.current = false;
+      lastScrollY.current = window.scrollY;
+      upScrollCountRef.current = 0;
+      menuRef.current?.classList.remove("hidden");
+      setIsMenuVisible(true);
+      // lastScrollY was just synced, so this tick has no direction: it only runs the
+      // style logic (scrolled / nav-green) for the new scroll position.
+      window.dispatchEvent(new Event("scroll"));
+    }, ROUTE_SETTLE_MS);
+  }, [pathname]);
+  useEffect(() => () => clearTimeout(routeSettleTimerRef.current), []);
+
   useEffect(() => {
     // Only initialize lastScrollY once on mount
     if (!scrollInitializedRef.current) {
@@ -601,8 +632,10 @@ const Menu = () => {
     }
 
     const handleScroll = () => {
-      // Block all scroll-based menu show/hide during page transitions
-      if (pageTransitionActiveRef.current) {
+      // Block all scroll-based menu show/hide during page transitions, and for a
+      // moment after a route change (the jump to the new page's scroll position is
+      // not the reader scrolling; see routeSettlingRef below).
+      if (pageTransitionActiveRef.current || routeSettlingRef.current) {
         lastScrollY.current = window.scrollY;
         return;
       }
