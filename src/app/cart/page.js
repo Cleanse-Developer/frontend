@@ -19,9 +19,11 @@ export default function CartPage() {
   const [giftWrap, setGiftWrap] = useState(false);
   const [giftMessage, setGiftMessage] = useState("");
 
-  // Admin-configured shipping (rate + free-shipping threshold). Falls back to
-  // sensible defaults until the config loads / if the request fails.
-  const [shippingConfig, setShippingConfig] = useState({ standardRate: 99, freeAbove: 1200 });
+  // Admin-configured shipping (rate + free-shipping threshold) from /shipping/config.
+  // Deliberately no client-side default: until it loads (or if the request fails) the
+  // summary shows a placeholder instead of a number baked into the page, which would
+  // be wrong whenever the admin changes the rates.
+  const [shippingConfig, setShippingConfig] = useState(null);
 
   useEffect(() => {
     shippingApi.getConfig()
@@ -52,14 +54,22 @@ export default function CartPage() {
   const specialCouponDiscounts = serverPricing?.specialCouponDiscounts || [];
   const couponDiscount = toNum(serverPricing?.couponDiscount) ?? 0;
   const freeGifts = serverPricing?.freeGifts || [];
-  const shippingCost =
-    toNum(serverPricing?.shippingCost) ??
-    (subtotal >= shippingConfig.freeAbove ? 0 : shippingConfig.standardRate);
+  // Backend pricing wins (it applies the per-method / per-zone rate and any promo
+  // adjustment). While it loads, estimate from the fetched config; with neither, null.
+  const configRate = toNum(shippingConfig?.standardRate);
+  const configFreeAbove = toNum(shippingConfig?.freeAbove);
+  const estimatedShipping =
+    configRate != null && configFreeAbove != null
+      ? subtotal >= configFreeAbove
+        ? 0
+        : configRate
+      : null;
+  const shippingCost = toNum(serverPricing?.shippingCost) ?? estimatedShipping;
   const qualifiesFreeShipping = shippingCost === 0;
   const summaryTotal =
     spTotal != null
       ? spTotal + giftWrapCost
-      : subtotal + shippingCost + giftWrapCost;
+      : subtotal + (shippingCost ?? 0) + giftWrapCost;
 
   // Loyalty points the shopper will earn on this purchase (backend-computed;
   // fall back to a client estimate at the default 1 pt / ₹10 rate).
@@ -267,7 +277,13 @@ export default function CartPage() {
                   Shipping
                   <ShippingChargesInfo breakdown={shippingConfig} />
                 </span>
-                <span>{qualifiesFreeShipping ? "Free" : `₹${formatPrice(shippingCost)}`}</span>
+                <span>
+                  {shippingCost == null
+                    ? "—"
+                    : qualifiesFreeShipping
+                    ? "Free"
+                    : `₹${formatPrice(shippingCost)}`}
+                </span>
               </div>
               <div className="cart-summary-line cart-summary-total">
                 <span>Total</span>

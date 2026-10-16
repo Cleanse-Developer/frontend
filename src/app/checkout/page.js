@@ -18,7 +18,7 @@ import { getStoredReferralCode, clearReferralCode } from "@/lib/referral";
 import { loadMsg91, sendOtpViaWidget, verifyOtpViaWidget, retryOtpViaWidget, extractWidgetToken } from "@/lib/msg91";
 import CouponModal from "./CouponModal";
 import ShippingChargesInfo from "@/ui/commerce/ShippingChargesInfo";
-import { formatPrice } from "@/lib/formatters";
+import { formatPrice, toNum } from "@/lib/formatters";
 import {
   trackPurchase,
   trackInitiateCheckout,
@@ -447,9 +447,23 @@ export default function CheckoutPage() {
   const tierDiscount = pricingSource?.tierDiscount || 0;
   const bundleDiscountTotal = pricingSource?.bundleDiscountTotal || 0;
   const bundleDiscounts = pricingSource?.bundleDiscounts || [];
-  const shippingCost = pricingSource?.shippingCost ?? (subtotal >= 1200 ? 0 : 99);
+  // The server pricing preview is the source of truth (per payment method + zone, plus
+  // promo adjustments). Until it arrives — or if it fails — estimate from the admin
+  // config already fetched above (/shipping/config) for the SELECTED payment method
+  // (COD and prepaid differ, and COD is the default here). With neither available the
+  // summary shows a placeholder; no rate or threshold is baked into the page.
+  const methodShipping = shippingBreakdown
+    ? (paymentMethod === "cod" ? shippingBreakdown.cod : shippingBreakdown.prepaid) || shippingBreakdown
+    : null;
+  const estRate = toNum(methodShipping?.standardRate);
+  const estFreeAbove = toNum(methodShipping?.freeAbove);
+  const estimatedShipping =
+    estRate != null && estFreeAbove != null ? (subtotal >= estFreeAbove ? 0 : estRate) : null;
+  // (toNum(null) is 0, so only trust the server value when it is actually present.)
+  const shippingCost =
+    pricingSource?.shippingCost != null ? toNum(pricingSource.shippingCost) : estimatedShipping;
   const couponAmount = pricingSource?.couponDiscount || 0;
-  const total = pricingSource?.total ?? subtotal;
+  const total = pricingSource?.total ?? subtotal + (shippingCost ?? 0);
   // Loyalty points earned on this purchase (backend-computed estimate)
   const loyaltyPointsEarned = Math.max(0, Math.floor(pricingSource?.loyaltyPoints || 0));
 
@@ -2117,7 +2131,9 @@ export default function CheckoutPage() {
                   Shipping
                   <ShippingChargesInfo breakdown={shippingBreakdown} position="top" />
                 </span>
-                <span>{shippingCost === 0 ? "Free" : `\u20B9${formatPrice(shippingCost)}`}</span>
+                <span>
+                  {shippingCost == null ? "\u2014" : shippingCost === 0 ? "Free" : `\u20B9${formatPrice(shippingCost)}`}
+                </span>
               </div>
               <div className="checkout-summary-line checkout-summary-total">
                 <span>Total</span>
