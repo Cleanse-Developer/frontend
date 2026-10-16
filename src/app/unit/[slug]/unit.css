@@ -1013,7 +1013,9 @@
   left: calc(var(--bundle-gap) / -2);
   top: 42%;
   transform: translate(-50%, -50%);
-  z-index: 3;
+  /* Above the selected cards' 3px brown border (.bundle-card-image::after, z-index 3).
+     At 3 the border, which comes later in the DOM, painted over the chip. */
+  z-index: 4;
   display: flex;
   align-items: center;
   justify-content: center;
