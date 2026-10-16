@@ -118,10 +118,14 @@
 .product-thumbnails {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  gap: 0;
-  /* Mirror .product-hero-image's width so the first and last thumbnails sit
-     exactly on the photo's left and right edges. */
+  /* Thumbnails sit together, left-aligned under the main photo. (They used to be
+     spread edge to edge with space-between, which splits 2-3 images to the far left
+     and right.) If a product has more than fit, the row scrolls sideways. */
+  justify-content: flex-start;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Same width as .product-hero-image, so the row never outgrows the photo. */
   width: min(100%, var(--gallery-w));
   max-width: none;
   flex: 0 0 auto;
@@ -2100,16 +2104,9 @@
     transform: none;
   }
 
-  /* Thumbnails sit together, left-aligned under the main photo. (They used to be
-     spread edge to edge with space-between, which splits 2-3 images to the far left
-     and right.) If a product has more than fit, the row scrolls sideways. */
   .product-thumbnails {
     width: min(100%, 440px);
     max-width: none;
-    justify-content: flex-start;
-    gap: 8px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
   }
 
   .product-thumbnail {
@@ -2697,11 +2694,6 @@
   .reviews-section,
   .product-info-section {
     padding: 3rem var(--gutter);
-  }
-
-  .product-thumbnails {
-    gap: 8px;
-    justify-content: flex-start;
   }
 
   .product-thumbnail {
