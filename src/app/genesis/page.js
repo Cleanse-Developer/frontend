@@ -285,6 +285,7 @@ export default function Genesis() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="gen-journey-body">
+                  {j.label && <span className="gen-journey-label">{j.label}</span>}
                   <h3 className="gen-journey-title">{j.title}</h3>
                   <p className="gen-journey-desc">{j.desc}</p>
                 </div>

@@ -1082,7 +1082,15 @@ function UnitContent({ params }) {
                 className={`info-tab-panel ${openTab === tab.id ? "active" : ""}`}
               >
                 <div className="info-tab-panel-inner">
-                  <p className="info-tab-text">{tab.content}</p>
+                  {/* "Why it works" copy is written as several paragraphs (blank-line
+                      separated); honour those breaks on this tab only, since other
+                      tabs' stored text was never written with line breaks in mind. */}
+                  <p
+                    className="info-tab-text"
+                    style={tab.id === "values" ? { whiteSpace: "pre-line" } : undefined}
+                  >
+                    {tab.content}
+                  </p>
                   {tab.values && (
                     <div className="info-values-grid">
                       {tab.values.map((val, i) => (

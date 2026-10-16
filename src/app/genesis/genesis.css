@@ -461,6 +461,18 @@
   opacity: 0.55;
 }
 
+/* Optional small label above a step title (CMS: journey[].label). */
+.gen-journey-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--base-300);
+  margin-bottom: 0.45rem;
+}
+
 .gen-journey-title {
   font-family: var(--font-body);
   font-weight: 600;

@@ -9,6 +9,9 @@ import Copy from "../Copy/Copy";
 const TextBlock = ({ data = {} }) => {
   const headingLines = (data.manifestoHeading || "").split("\n");
   const columns = data.manifestoColumns || [];
+  // Optional sub-header per column (same order as manifestoColumns). Absent or
+  // empty entries render nothing, so older content is unaffected.
+  const headings = data.manifestoColumnHeadings || [];
 
   return (
     <section className="text-block">
@@ -33,6 +36,11 @@ const TextBlock = ({ data = {} }) => {
         <div className="text-block-col">
           {columns.map((col, i) => (
             <div className="text-block-copy" key={i}>
+              {headings[i] && (
+                <Copy>
+                  <h4 className="text-block-copy-title">{headings[i]}</h4>
+                </Copy>
+              )}
               <Copy>
                 <p className="bodyCopy sm">{col}</p>
               </Copy>
