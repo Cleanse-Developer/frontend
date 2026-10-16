@@ -31,6 +31,24 @@ const SITE_DESCRIPTION =
 // against it; per-route generateMetadata (e.g. blog posts) supplies richer tags.
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
 
+// Synquic "Slide" site analytics. Two parts, both from the dashboard's install screen:
+//   1. the async collector script, in <head> on every real page (see RootLayout), and
+//   2. a verification <meta>, in <head> at least on the home page. Slide fetches
+//      cleanseayurveda.com and looks for it; if it goes missing, collection stops.
+// The meta is emitted through generateMetadata (below) rather than inside RootLayout so
+// it is server-rendered on EVERY branch, including the maintenance screen: a maintenance
+// window must not silently turn collection off. The collector script itself is
+// deliberately not on the maintenance screen (nothing there to measure).
+//
+// The site key (the script's data-site value) comes from the build environment instead
+// of being written here: it is public (it ships in every page's HTML) but it starts with
+// "sk_live_", which GitHub's secret scanning mistakes for a Stripe secret key and blocks
+// the push. Set NEXT_PUBLIC_SLIDE_SITE_KEY as a GitHub repository variable (see
+// docs/DEPLOY.md) and in .env.local for local builds. Without it, no script is rendered.
+const SLIDE_SRC = "https://cdn.synquic.com/widget/slide-analytics.min.js";
+const SLIDE_SITE_KEY = process.env.NEXT_PUBLIC_SLIDE_SITE_KEY || "";
+const SLIDE_VERIFICATION = "364f0e7ba3f9f10d3bde4a1f31e9a10b";
+
 // generateMetadata rather than a static `metadata` export purely so the maintenance
 // branch can add noindex — a crawl during a maintenance window must not index the
 // placeholder in place of the real pages. getMaintenance() is memoised, so this does
@@ -43,6 +61,8 @@ export async function generateMetadata() {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     ...(enabled ? { robots: { index: false, follow: false } } : {}),
+    // Rendered as <meta name="slide-site-verification" content="...">.
+    other: { "slide-site-verification": SLIDE_VERIFICATION },
     openGraph: {
       type: "website",
       siteName: SITE_NAME,
@@ -147,6 +167,10 @@ export default async function RootLayout({ children }) {
   // no further change.
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Synquic Slide analytics collector. async, so it never blocks rendering. */}
+        {SLIDE_SITE_KEY && <script async src={SLIDE_SRC} data-site={SLIDE_SITE_KEY} />}
+      </head>
       <body>
         {/* DISABLED (2026-10-16): intro loader off — see LOADER_DECISION_SCRIPT note above.
         <script dangerouslySetInnerHTML={{ __html: LOADER_DECISION_SCRIPT }} />
