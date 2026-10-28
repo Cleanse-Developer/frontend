@@ -327,11 +327,6 @@ const MarqueeBanner = () => {
                   <p className="reel-subtitle">{reel.subtitle}</p>
                   <h4 className="reel-title">{reel.title}</h4>
                 </div>
-                <div className="reel-play">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M8 5.14v14.72a1 1 0 001.5.86l11-7.36a1 1 0 000-1.72l-11-7.36a1 1 0 00-1.5.86z" fill="currentColor"/>
-                  </svg>
-                </div>
               </div>
 
               <div className="reel-shine"></div>
