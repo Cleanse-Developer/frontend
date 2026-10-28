@@ -14,12 +14,19 @@
      intrinsic width); grid keeps both halves exactly 50% so the centered
      image and details get symmetric outer spacing. */
   display: grid;
-  /* The gallery track is sized to the photo itself, not to a fixed 560px: a
-     portrait bottle is ~440px wide, and the 120px of leftover track used to sit
-     as dead space on the page's left edge, so the hero read off-centre. With the
-     track hugging the photo, `justify-content: center` balances the outer
-     margins for real. */
-  --gallery-w: min(560px, calc(min(76svh, 700px) * var(--gallery-ratio, 0.8)));
+  /* Shared by both columns so the gallery and the details start and end on the
+     same lines. */
+  --hero-pad-top: 6rem;
+  --hero-pad-bottom: 2rem;
+  /* Photo + thumbnail strip together are as tall as the details column
+     (--details-h, measured in page.js), but never taller than the viewport. */
+  --gallery-h: min(var(--details-h, 76svh), 100svh - var(--hero-pad-top) - var(--hero-pad-bottom));
+  /* Less the 76px thumbnails and the 0.75rem gap above them */
+  --photo-h: calc(var(--gallery-h) - 76px - 0.75rem);
+  /* Every photo shares one 3:4 frame, so the track never depends on which
+     image is showing. The track hugs the frame (no dead space on the page's
+     left edge), and `justify-content: center` balances the outer margins. */
+  --gallery-w: min(640px, calc(var(--photo-h) * 3 / 4));
   grid-template-columns: minmax(0, var(--gallery-w)) minmax(0, 560px);
   justify-content: center;
   align-items: start;
@@ -50,7 +57,7 @@
   /* Fills the viewport for short copy, but grows (no inner scroll / clipping)
      when the description is long. */
   min-height: 100svh;
-  padding: 6rem 0 3rem;
+  padding: var(--hero-pad-top) 0 var(--hero-pad-bottom);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -71,29 +78,28 @@
   /* Hug the centre line to match .product-meta-container, keeping the
      gallery↔details gap driven solely by .product-hero's column-gap. */
   align-items: flex-end;
+  /* Same padding and centring as the details column, so with equal heights
+     the two blocks line up top and bottom. */
   justify-content: center;
   gap: 0.75rem;
-  padding: 4rem 0 1.5rem;
+  padding: var(--hero-pad-top) 0 var(--hero-pad-bottom);
 }
 
 /* Big image is a square; thumbnails sit in a row beneath it */
 .product-hero-image {
   position: relative;
   overflow: hidden;
-  /* The box adopts the photo's own aspect ratio (--gallery-ratio, set from the
-     loaded image's natural dimensions) so the photo fills it edge-to-edge with
-     no letterbox bars — the thumbnail strip below shares this width, keeping
-     its outer thumbnails flush with the photo's visible edges. The third term
-     caps the width so the derived height never exceeds min(76svh, 700px). */
-  /* Normally exactly the track width; the cap only bites in the 1025–1100px
-     band where the grid squeezes both tracks, keeping the derived height inside
-     min(76svh, 700px) instead of letting the photo grow past the fold. */
+  /* One fixed 3:4 frame for every photo (the catalogue mixes 3:4 packshots
+     and 4:5 lifestyle shots), so switching images never resizes the box or
+     moves the page. The thumbnail strip below shares this width. Normally
+     exactly the track width; 100% only bites in the 1025–1100px band where the
+     grid squeezes both tracks. */
   width: min(100%, var(--gallery-w));
   max-width: none;
   flex: 0 0 auto;
   height: auto;
   max-height: none;
-  aspect-ratio: var(--gallery-ratio, 0.8);
+  aspect-ratio: 3 / 4;
   border-radius: 0;
   background: transparent;
   border: 0;
@@ -108,10 +114,9 @@
 .product-hero-image img {
   width: 100%;
   height: 100%;
-  /* Show the whole product, centred — `cover` was cropping the bottle's
-     bottom and making it look shifted down. The box matches the photo's
-     aspect ratio, so `contain` fills it completely with no offset needed. */
-  object-fit: contain;
+  /* Fill the frame edge-to-edge: 3:4 packshots fit exactly, and 4:5 shots
+     lose ~3% off each side (never the bottle's top or bottom). */
+  object-fit: cover;
   object-position: center;
 }
 
@@ -1521,16 +1526,20 @@
 
 .info-tab-content {
   position: relative;
-  min-height: 250px;
-  /* Stack every panel in the SAME grid cell so the content area is always
-     as tall as the tallest tab. Switching tabs then never resizes the box
-     or shifts the page below it. */
+  /* Every panel sits in the SAME grid cell so switching tabs cross-fades.
+     The box's height follows the open panel (synced in page.js) and eases
+     between tabs, so a short tab never carries the tallest tab's empty space. */
   display: grid;
+  overflow: hidden;
+  transition: height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .info-tab-panel {
   grid-area: 1 / 1;
-  padding: 3rem 0;
+  /* Own content height rather than the shared row's, so it can be measured */
+  align-self: start;
+  min-width: 0;
+  padding: 2.5rem 0 0;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease;
@@ -1541,40 +1550,64 @@
   visibility: visible;
 }
 
+/* Copy on the left, highlights card on the right. Whichever side is shorter
+   is centred against the other, so neither column leaves a hole under it. */
 .info-tab-panel-inner {
-  display: flex;
-  gap: 4rem;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: center;
+}
+
+/* Copy-only or highlights-only tab: take the full width */
+.info-tab-panel-inner > :only-child {
+  grid-column: 1 / -1;
 }
 
 .info-tab-text {
-  flex: 1;
+  max-width: 640px;
+}
+
+.info-tab-text p {
+  margin: 0;
   font-family: var(--font-body);
   /* Match the product description on the right (was 1.25rem/1.8) */
   font-size: var(--fs-body);
   line-height: 1.7;
   color: var(--base-500);
-  max-width: 560px;
+}
+
+.info-tab-text p + p {
+  margin-top: 0.85em;
 }
 
 .info-values-grid {
+  --info-cols: 3;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem 2rem;
-  flex: 1;
+  /* Up to --info-cols per row (balanced in page.js); a column drops out
+     whenever a cell would get narrower than 9.5rem, so labels never crush. */
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(9.5rem, calc((100% - (var(--info-cols) - 1) * 1rem) / var(--info-cols))), 1fr)
+  );
+  gap: 1rem;
+  padding: 1.4rem 1.5rem;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(158, 146, 104, 0.35);
+  border-radius: 1rem;
 }
 
 .info-value-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  text-align: center;
+  min-width: 0;
 }
 
 .info-value-icon {
-  width: 58px;
-  height: 58px;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1.5px solid var(--base-300);
   display: flex;
@@ -1585,8 +1618,8 @@
 }
 
 .info-value-icon svg {
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
 }
 
 .info-value-item:hover .info-value-icon {
@@ -1599,9 +1632,79 @@
   font-size: var(--fs-supporting);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   color: var(--base-700);
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+/* Headed benefit points ("DEEPER HYDRATION — …") from the values copy */
+.info-points {
+  --info-cols: 4;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(12.5rem, calc((100% - (var(--info-cols) - 1) * 2rem) / var(--info-cols))), 1fr)
+  );
+  gap: 1.75rem 2rem;
+  margin-top: 2.25rem;
+  padding-top: 2.25rem;
+  border-top: 1px solid rgba(158, 146, 104, 0.35);
+}
+
+.info-point {
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--base-300);
+}
+
+.info-point-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  font-weight: 600;
+  letter-spacing: 0.08em;
   line-height: 1.4;
+  color: var(--base-700);
+}
+
+.info-point-lead {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--base-400);
+}
+
+.info-point-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  line-height: 1.65;
+  color: var(--base-500);
+  white-space: pre-line;
+}
+
+/* Narrow desktops: stack each highlight's icon over its label so the
+   balanced column count still fits, instead of dropping a column and
+   leaving a straggler on its own row */
+@media (max-width: 1279px) {
+  .info-values-grid {
+    grid-template-columns: repeat(var(--info-cols), minmax(0, 1fr));
+    padding: 1.25rem 1rem;
+  }
+
+  .info-value-item {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .info-tab-content {
+    transition: none;
+  }
 }
 
 /* === Reviews Section === */
@@ -2114,9 +2217,6 @@
     width: min(100%, 440px);
     max-width: none;
     height: auto;
-    /* Follow the photo's real ratio here too, so the strip below stays flush
-       with the photo's edges on the single-column layout. */
-    aspect-ratio: var(--gallery-ratio, 4 / 5);
   }
 
   .product-hero-image img {
@@ -2372,21 +2472,6 @@
     padding: 0.65rem 0.75rem;
     flex: none;
   }
-
-  .info-values-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem 1rem;
-  }
-
-  .info-value-icon {
-    width: 56px;
-    height: 56px;
-  }
-
-  .info-value-icon svg {
-    width: 26px;
-    height: 26px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -2431,8 +2516,9 @@
 }
 
 @media (min-width: 2000px) {
-  .product-meta-container {
-    padding: 12rem 0 4rem;
+  .product-hero {
+    --hero-pad-top: 12rem;
+    --hero-pad-bottom: 4rem;
   }
 
   .product-info-container,
@@ -2809,7 +2895,7 @@
   .product-accordion { display: none; }
   /* Trim the excess whitespace below Ingredients / How To Use / Our Values */
   .product-info-section { padding-top: 3.5rem; padding-bottom: 2.5rem; }
-  .info-tab-panel { padding: 2.25rem 0 0.75rem; }
+  .info-tab-panel { padding: 2.25rem 0 0; }
 }
 @media (max-width: 1024px) {
   .product-info-section { display: none; }

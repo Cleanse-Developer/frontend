@@ -103,6 +103,36 @@ function buildProductInfoTabs(product) {
 // which the admin picker mirrors — one place defines what keys exist.
 const ValueIcon = ({ type }) => renderTabHighlightIcon(type);
 
+/** Columns for `count` items at most `max` per row, balanced so the last row
+ *  is never a lone straggler (4 -> 2 + 2 rather than 3 + 1). */
+const balancedColumns = (count, max) => Math.ceil(count / Math.ceil(count / max));
+
+// "DEEPER HYDRATION — Replenishes moisture. Aloe Vera and…"
+const VALUE_POINT_RE = /^([A-Z0-9][A-Z0-9 &'’/+-]{1,48}?)\s+[—–-]\s+([\s\S]+)$/;
+
+/** Splits a tab's copy into prose paragraphs and benefit points. Only the
+ *  values ("Why it works") copy is written as blank-line separated paragraphs,
+ *  some of them headed points; other tabs' stored text was never written with
+ *  line breaks in mind, so it stays a single paragraph. */
+function splitTabCopy(tab) {
+  if (tab.id !== "values") return { paragraphs: [tab.content], points: [] };
+  const paragraphs = [];
+  const points = [];
+  for (const para of String(tab.content).split(/\n\s*\n/)) {
+    const text = para.trim();
+    if (!text) continue;
+    const match = text.match(VALUE_POINT_RE);
+    if (!match) {
+      paragraphs.push(text);
+      continue;
+    }
+    const [, title, rest] = match;
+    const lead = rest.match(/^(.+?[.!?])\s+([\s\S]+)$/);
+    points.push({ title, lead: lead ? lead[1] : rest, text: lead ? lead[2] : "" });
+  }
+  return { paragraphs, points };
+}
+
 // ── Variants ────────────────────────────────────────────────────────────────
 // A size row from the API is `{ label, sku, price, compareAtPrice, stock }`, but
 // legacy products store plain strings ("120 ml"). Everything below tolerates both.
@@ -215,10 +245,6 @@ function UnitContent({ params }) {
   const [deliveryMsg, setDeliveryMsg] = useState("");
   const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
-  // Natural width/height ratio of the active gallery photo. The hero image box
-  // adopts this ratio so the photo fills it edge-to-edge (no letterboxing),
-  // which keeps the thumbnail strip flush with the photo's visible edges.
-  const [galleryRatio, setGalleryRatio] = useState(null);
   const [bundles, setBundles] = useState([]);
   const [activeBundleIndex, setActiveBundleIndex] = useState(0);
   const [bundleSelected, setBundleSelected] = useState([]);
@@ -233,6 +259,8 @@ function UnitContent({ params }) {
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const descriptionRef = useRef(null);
+  const heroRef = useRef(null);
+  const infoTabContentRef = useRef(null);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const toast = useToast();
@@ -333,6 +361,54 @@ function UnitContent({ params }) {
       window.removeEventListener("resize", measureDescription);
     };
   }, [product]);
+
+  // The gallery is as tall as the details column beside it (title down to its
+  // last row), exposed as --details-h. It's measured as if the description were
+  // collapsed, so "See more" never resizes the photo, and it never depends on
+  // which photo is showing, so switching images can't move the layout.
+  useEffect(() => {
+    const hero = heroRef.current;
+    const details = hero?.querySelector(".product-meta-container");
+    if (!details) return;
+
+    const measure = () => {
+      const rows = [...details.children].filter((row) => row.getClientRects().length > 0);
+      if (!rows.length) return;
+      let height = rows[rows.length - 1].getBoundingClientRect().bottom - rows[0].getBoundingClientRect().top;
+      const description = descriptionRef.current;
+      if (description) {
+        // Collapsed clamp is two lines (max-height: 3.2em at line-height 1.6)
+        const collapsed = Math.min(description.scrollHeight, parseFloat(getComputedStyle(description).lineHeight) * 2);
+        height -= description.offsetHeight - collapsed;
+      }
+      hero.style.setProperty("--details-h", `${Math.round(height)}px`);
+    };
+
+    measure();
+    // Watch the rows themselves: the column has a 100svh min-height, so it
+    // doesn't resize when its content does.
+    const observer = new ResizeObserver(measure);
+    [...details.children].forEach((row) => observer.observe(row));
+    return () => observer.disconnect();
+  }, [product]);
+
+  // The info tab panels share one grid cell (so switching cross-fades); size
+  // the box to the open panel so a short tab never inherits the tallest tab's
+  // height. CSS eases the height between tabs.
+  useEffect(() => {
+    const box = infoTabContentRef.current;
+    const panel = box?.querySelector(".info-tab-panel.active");
+    if (!panel) return;
+
+    const syncHeight = () => {
+      box.style.height = `${panel.offsetHeight}px`;
+    };
+
+    syncHeight();
+    const observer = new ResizeObserver(syncHeight);
+    observer.observe(panel);
+    return () => observer.disconnect();
+  }, [product, openTab]);
 
   const handleSubmitReview = async () => {
     if (!product?._id || !reviewForm.text.trim() || reviewSubmitting) return;
@@ -560,13 +636,9 @@ function UnitContent({ params }) {
 
   return (
     <div className="unit-page">
-      {/* --gallery-ratio lives on the grid (not the column) so the gallery track
-          can size to the photo's real width — otherwise the leftover width in a
-          fixed 560px track shows up as extra whitespace on the page's left edge. */}
-      <section
-        className="product-hero"
-        style={galleryRatio ? { "--gallery-ratio": galleryRatio } : undefined}
-      >
+      {/* --details-h lives on the grid (not the column) so the gallery track is
+          sized from it — the track hugs the photo frame, keeping the hero centred. */}
+      <section className="product-hero" ref={heroRef}>
         <div className="product-hero-col product-hero-left">
           <div
             className="product-hero-image"
@@ -580,14 +652,8 @@ function UnitContent({ params }) {
               src={galleryImages[activeImage]}
               alt={product.name}
               fill
-              sizes="(max-width: 1199px) 100vw, 620px"
+              sizes="(max-width: 1199px) 100vw, 640px"
               priority
-              onLoad={(e) => {
-                const { naturalWidth, naturalHeight } = e.currentTarget;
-                if (naturalWidth && naturalHeight) {
-                  setGalleryRatio(naturalWidth / naturalHeight);
-                }
-              }}
             />
           </div>
           <div className="product-thumbnails">
@@ -1075,37 +1141,60 @@ function UnitContent({ params }) {
             ))}
           </div>
           <div className="info-tab-divider"></div>
-          <div className="info-tab-content">
-            {buildProductInfoTabs(product).map((tab) => (
-              <div
-                key={tab.id}
-                className={`info-tab-panel ${openTab === tab.id ? "active" : ""}`}
-              >
-                <div className="info-tab-panel-inner">
-                  {/* "Why it works" copy is written as several paragraphs (blank-line
-                      separated); honour those breaks on this tab only, since other
-                      tabs' stored text was never written with line breaks in mind. */}
-                  <p
-                    className="info-tab-text"
-                    style={tab.id === "values" ? { whiteSpace: "pre-line" } : undefined}
-                  >
-                    {tab.content}
-                  </p>
-                  {tab.values && (
-                    <div className="info-values-grid">
-                      {tab.values.map((val, i) => (
-                        <div key={i} className="info-value-item">
-                          <div className="info-value-icon">
-                            <ValueIcon type={val.icon} />
+          <div className="info-tab-content" ref={infoTabContentRef}>
+            {buildProductInfoTabs(product).map((tab) => {
+              const { paragraphs, points } = splitTabCopy(tab);
+              return (
+                <div
+                  key={tab.id}
+                  className={`info-tab-panel ${openTab === tab.id ? "active" : ""}`}
+                >
+                  <div className="info-tab-panel-inner">
+                    {paragraphs.length > 0 && (
+                      <div
+                        className="info-tab-text"
+                        style={tab.id === "values" ? { whiteSpace: "pre-line" } : undefined}
+                      >
+                        {paragraphs.map((para, i) => (
+                          <p key={i}>{para}</p>
+                        ))}
+                      </div>
+                    )}
+                    {tab.values && (
+                      <div
+                        className="info-values-grid"
+                        style={{ "--info-cols": balancedColumns(tab.values.length, 3) }}
+                      >
+                        {tab.values.map((val, i) => (
+                          <div key={i} className="info-value-item">
+                            <div className="info-value-icon">
+                              <ValueIcon type={val.icon} />
+                            </div>
+                            <span className="info-value-label">{val.label}</span>
                           </div>
-                          <span className="info-value-label">{val.label}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {/* Headed benefit points read across one row instead of
+                      stacking down the copy column */}
+                  {points.length > 0 && (
+                    <div
+                      className="info-points"
+                      style={{ "--info-cols": balancedColumns(points.length, 4) }}
+                    >
+                      {points.map((point) => (
+                        <div key={point.title} className="info-point">
+                          <p className="info-point-title">{point.title}</p>
+                          <p className="info-point-lead">{point.lead}</p>
+                          {point.text && <p className="info-point-text">{point.text}</p>}
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
