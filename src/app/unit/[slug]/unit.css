@@ -23,10 +23,10 @@
   --gallery-h: min(var(--details-h, 76svh), 100svh - var(--hero-pad-top) - var(--hero-pad-bottom));
   /* Less the 76px thumbnails and the 0.75rem gap above them */
   --photo-h: calc(var(--gallery-h) - 76px - 0.75rem);
-  /* Every photo shares one 3:4 frame, so the track never depends on which
+  /* Every photo shares one 4:5 frame, so the track never depends on which
      image is showing. The track hugs the frame (no dead space on the page's
      left edge), and `justify-content: center` balances the outer margins. */
-  --gallery-w: min(640px, calc(var(--photo-h) * 3 / 4));
+  --gallery-w: min(640px, calc(var(--photo-h) * 4 / 5));
   grid-template-columns: minmax(0, var(--gallery-w)) minmax(0, 560px);
   justify-content: center;
   align-items: start;
@@ -89,17 +89,19 @@
 .product-hero-image {
   position: relative;
   overflow: hidden;
-  /* One fixed 3:4 frame for every photo (the catalogue mixes 3:4 packshots
-     and 4:5 lifestyle shots), so switching images never resizes the box or
-     moves the page. The thumbnail strip below shares this width. Normally
-     exactly the track width; 100% only bites in the 1025–1100px band where the
-     grid squeezes both tracks. */
+  /* One fixed 4:5 frame for every photo, so switching images never resizes the
+     box or moves the page. 4:5 sits between the two shapes the catalogue
+     uses (square listing images, 3:4 studio shots), so neither leaves much
+     empty space. The photo is shown whole inside it (see the img rule): nothing
+     is cropped, whatever proportions an image has. The thumbnail strip below
+     shares this width. Normally exactly the track width; 100% only bites in
+     the 1025–1100px band where the grid squeezes both tracks. */
   width: min(100%, var(--gallery-w));
   max-width: none;
   flex: 0 0 auto;
   height: auto;
   max-height: none;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 4 / 5;
   border-radius: 0;
   background: transparent;
   border: 0;
@@ -114,9 +116,10 @@
 .product-hero-image img {
   width: 100%;
   height: 100%;
-  /* Fill the frame edge-to-edge: 3:4 packshots fit exactly, and 4:5 shots
-     lose ~3% off each side (never the bottle's top or bottom). */
-  object-fit: cover;
+  /* Show the whole photo, never crop it: a square image sits centred with a
+     little room above and below, a tall one with room at the sides. The frame
+     is transparent, so that room is just the page background. */
+  object-fit: contain;
   object-position: center;
 }
 
@@ -149,7 +152,7 @@
   cursor: pointer;
   border: 1px solid transparent;
   padding: 0;
-  background: rgba(255, 255, 255, 0.85);
+  background: transparent;
   border-radius: 4px;
   transition: opacity 0.2s ease, border-color 0.2s ease;
   flex-shrink: 0;
@@ -159,9 +162,9 @@
   display: block;
   width: 100%;
   height: 100%;
-  /* Cover, not contain: thumbnails are previews, so cropping beats the white
-     letterbox bars a non-square image leaves inside the square card. */
-  object-fit: cover;
+  /* Whole photo, like the main image. The card is transparent, so the room a
+     square image leaves above and below isn't visible. */
+  object-fit: contain;
   object-position: center;
   transition: transform 0.3s ease;
 }
