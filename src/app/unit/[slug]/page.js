@@ -18,6 +18,9 @@ import ProductCard from "@/components/ProductCard/ProductCard";
 import { renderTabHighlightIcon } from "@/lib/tab-highlight-icons";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa6";
 import { getProductListingContent } from "./productListingContent";
+import { getProductHighlights } from "./productHighlights";
+import ProductHighlights from "./ProductHighlights";
+import { useLenis } from "lenis/react";
 
 const productImages = [
   "/images/1.png",
@@ -250,6 +253,33 @@ function UnitContent({ params }) {
   const [bundleSelected, setBundleSelected] = useState([]);
   const [openTab, setOpenTab] = useState("ingredients");
   const [openAcc, setOpenAcc] = useState(null);
+  const lenis = useLenis();
+
+  // A highlight card's CTA opens one of the info tabs. At <=1024px the tabs
+  // section is hidden and the same content lives in the hero accordion, so open
+  // the matching accordion item there. Scrolling goes through Lenis (it owns
+  // the scroll position site-wide), with a native fallback.
+  const openProductInfo = useCallback(
+    (tabId) => {
+      const mobile = window.matchMedia("(max-width: 1024px)").matches;
+      let target;
+      if (mobile) {
+        setOpenAcc(tabId);
+        const order = ["ingredients", "values", "howto", "shipping"];
+        target = document.querySelectorAll(".product-acc-item")[order.indexOf(tabId)];
+      } else {
+        setOpenTab(tabId);
+        target = document.getElementById("ingredients");
+      }
+      if (!target) return;
+      // One frame so the opened panel has its height before we scroll.
+      requestAnimationFrame(() => {
+        if (lenis) lenis.scrollTo(target, { offset: -100 });
+        else target.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    },
+    [lenis]
+  );
   const [reviewPage, setReviewPage] = useState(0);
   const [reviewDir, setReviewDir] = useState("down");
   const [reviews, setReviews] = useState(fallbackReviews);
@@ -592,6 +622,7 @@ function UnitContent({ params }) {
   const formattedPrice = `\u20B9${activePrice.toLocaleString("en-IN")}`;
   const formattedOriginal = `\u20B9${originalPrice.toLocaleString("en-IN")}`;
   const listingContent = getProductListingContent(product);
+  const highlights = getProductHighlights(product);
   const heroTitle = listingContent?.title || product.name;
   const heroDescription = listingContent?.description || product.description;
   const heroTags = [...(listingContent?.tags || [])].sort((a, b) => {
@@ -959,6 +990,9 @@ function UnitContent({ params }) {
           </div>
         </div>
       </section>
+
+      {/* Highlight cards: own section right below the hero, only when the product has them. */}
+      {highlights && <ProductHighlights data={highlights} onOpenInfo={openProductInfo} />}
 
       {activeBundle && bundleProducts.length > 0 && (
         <section className="bundle-section">
