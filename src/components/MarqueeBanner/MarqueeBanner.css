@@ -277,37 +277,6 @@
   z-index: 2;
 }
 
-.marquee-banner .reel-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.75rem;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 2rem;
-  font-family: var(--font-body);
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  width: fit-content;
-}
-
-.marquee-banner .reel-badge::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  background: #ff4757;
-  border-radius: 50%;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
-}
-
 .marquee-banner .reel-info {
   display: flex;
   flex-direction: column;
@@ -659,11 +628,6 @@
   .marquee-banner .reel-content {
     padding: 1rem;
     gap: 0.5rem;
-  }
-
-  .marquee-banner .reel-badge {
-    font-size: 0.6rem;
-    padding: 0.25rem 0.6rem;
   }
 
   .marquee-banner .reel-subtitle {

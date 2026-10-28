@@ -321,23 +321,8 @@ const MarqueeBanner = () => {
                 <div className="reel-overlay"></div>
               </div>
 
-              {/* Card click (bubbles up) opens the Instagram reel; the badge is
-                  an explicit link to the same place. */}
+              {/* Card click (bubbles up) opens the Instagram reel */}
               <div className="reel-content">
-                {reel.reelUrl ? (
-                  <a
-                    className="reel-badge"
-                    href={reel.reelUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ pointerEvents: "auto" }}
-                  >
-                    Reel ↗
-                  </a>
-                ) : (
-                  <span className="reel-badge">Reel</span>
-                )}
                 <div className="reel-info">
                   <p className="reel-subtitle">{reel.subtitle}</p>
                   <h4 className="reel-title">{reel.title}</h4>
