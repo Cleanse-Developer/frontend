@@ -1,11 +1,11 @@
-// Storefront product-detail "highlights" section: up to 3 cards (formula story,
+// Storefront product-detail "highlights" section: up to 4 cards (formula story,
 // concern, ritual...) shown right below the hero. Authored per product in the
 // admin and stored on Product.highlights.
 //
 // Returns { eyebrow, title, cards } ready to render, or null when the product has
 // no usable cards. The page then renders nothing for it (no section, no gap), so
 // products without this content are unaffected.
-export const MAX_HIGHLIGHT_CARDS = 3;
+export const MAX_HIGHLIGHT_CARDS = 4;
 
 export function getProductHighlights(product) {
   const highlights = product?.highlights;

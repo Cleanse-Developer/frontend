@@ -56,7 +56,7 @@ function CardCta({ cta, onOpenInfo }) {
   return null;
 }
 
-// `data` comes from getProductHighlights() (never empty). 1-3 cards: three
+// `data` comes from getProductHighlights() (never empty). 1-4 cards: up to four
 // columns on desktop, a swipeable row below 1025px.
 export default function ProductHighlights({ data, onOpenInfo }) {
   return (
@@ -80,7 +80,7 @@ export default function ProductHighlights({ data, onOpenInfo }) {
                       src={card.image.url}
                       alt={card.image.alt || ""}
                       fill
-                      sizes="(max-width: 1024px) 82vw, 33vw"
+                      sizes="(max-width: 1024px) 82vw, 25vw"
                       loading="lazy"
                     />
                   </div>

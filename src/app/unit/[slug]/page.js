@@ -20,6 +20,7 @@ import { FaChevronUp, FaChevronDown } from "react-icons/fa6";
 import { getProductListingContent } from "./productListingContent";
 import { getProductHighlights } from "./productHighlights";
 import ProductHighlights from "./ProductHighlights";
+import { IngredientsDetail, HowToSteps, getIngredientDetails, getHowToSteps } from "./ProductInfoDetails";
 import { useLenis } from "lenis/react";
 
 const productImages = [
@@ -88,7 +89,7 @@ function buildProductInfoTabs(product) {
   const th = product?.tabHighlights || {};
   const TAB_MAP = [
     { id: "ingredients", label: "Ingredients", textKey: "ingredients", hlKey: "ingredients" },
-    { id: "values", label: "Our Values", textKey: "values", hlKey: "values" },
+    { id: "values", label: "Why It Works", textKey: "values", hlKey: "values" },
     { id: "howto", label: "How to Use", textKey: "howToUse", hlKey: "howToUse" },
     { id: "shipping", label: "Shipping and Returns", textKey: "shippingInfo", hlKey: "shippingInfo" },
     { id: "policies", label: "Policies", textKey: "policies", hlKey: "policies" },
@@ -623,6 +624,15 @@ function UnitContent({ params }) {
   const formattedOriginal = `\u20B9${originalPrice.toLocaleString("en-IN")}`;
   const listingContent = getProductListingContent(product);
   const highlights = getProductHighlights(product);
+  // Richer Ingredients / How to Use content, when the product has it (else the existing layout).
+  const ingredientDetails = getIngredientDetails(product);
+  const howToSteps = getHowToSteps(product);
+  const richInfo = (tabId) =>
+    tabId === "ingredients" && ingredientDetails ? (
+      <IngredientsDetail details={ingredientDetails} />
+    ) : tabId === "howto" && howToSteps ? (
+      <HowToSteps steps={howToSteps} />
+    ) : null;
   const heroTitle = listingContent?.title || product.name;
   const heroDescription = listingContent?.description || product.description;
   const heroTags = [...(listingContent?.tags || [])].sort((a, b) => {
@@ -980,7 +990,7 @@ function UnitContent({ params }) {
                       </button>
                       <div className="product-acc-panel">
                         <div className="product-acc-body">
-                          <p>{tab.content}</p>
+                          {richInfo(tab.id) || <p>{tab.content}</p>}
                         </div>
                       </div>
                     </div>
@@ -1184,6 +1194,7 @@ function UnitContent({ params }) {
                   className={`info-tab-panel ${openTab === tab.id ? "active" : ""}`}
                 >
                   <div className="info-tab-panel-inner">
+                    {richInfo(tab.id) || (<>
                     {paragraphs.length > 0 && (
                       <div
                         className="info-tab-text"
@@ -1209,6 +1220,7 @@ function UnitContent({ params }) {
                         ))}
                       </div>
                     )}
+                    </>)}
                   </div>
                   {/* Headed benefit points read across one row instead of
                       stacking down the copy column */}

@@ -2961,7 +2961,8 @@
   color: var(--base-700);
 }
 
-/* Desktop: one column per card (1-3), capped so a lone card isn't stretched. */
+/* Desktop: one column per card (1-4) on a single line, filling the whole row, so
+   there is no empty space beside the cards. Only a lone card is capped. */
 .unit-page .phl-grid {
   display: grid;
   grid-template-columns: repeat(var(--phl-n, 3), minmax(0, 1fr));
@@ -2969,7 +2970,6 @@
   align-items: stretch;
 }
 .unit-page .phl-grid[data-n="1"] { max-width: 460px; }
-.unit-page .phl-grid[data-n="2"] { max-width: 940px; }
 
 .unit-page .phl-card {
   display: flex;
@@ -3129,14 +3129,33 @@
   object-fit: initial; /* global `svg { object-fit: cover }` */
 }
 
-/* Tablet and phone: a swipeable row, with the next card peeking in. */
+/* Four cards need more room than a 1025-1279px screen has: keep them on ONE
+   line as a swipeable row instead of wrapping to a second line. */
+@media (min-width: 1025px) and (max-width: 1279px) {
+  .unit-page .phl-grid[data-n="4"] {
+    display: flex;
+    gap: 16px;
+    margin-inline: calc(var(--gutter) * -1);
+    padding: 0 var(--gutter) 0.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+  .unit-page .phl-grid[data-n="4"]::-webkit-scrollbar { display: none; }
+  .unit-page .phl-grid[data-n="4"] .phl-card {
+    flex: 0 0 clamp(260px, 30%, 340px);
+    scroll-snap-align: start;
+  }
+}
+
+/* Tablet and phone: a swipeable row (one line), with the next card peeking in. */
 @media (max-width: 1024px) {
   .unit-page .phl { padding: 3rem var(--gutter) 2.5rem; }
   .unit-page .phl-head { margin-bottom: 1.75rem; }
 
   .unit-page .phl-grid,
-  .unit-page .phl-grid[data-n="1"],
-  .unit-page .phl-grid[data-n="2"] {
+  .unit-page .phl-grid[data-n="1"] {
     display: flex;
     max-width: none;
     gap: 16px;
@@ -3167,4 +3186,162 @@
   .unit-page .phl-cta { transition: none; }
   .unit-page .phl-card:hover { transform: none; }
   .unit-page .phl-card:hover .phl-media img { transform: none; }
+}
+
+/* ============================================================================
+   Ingredients tab (intro, icon + name + description, collapsed full list) and
+   How to Use tab (numbered steps). Used by the desktop panel and the mobile
+   accordion. Same .unit-page prefix reasoning as the highlights above.
+   ========================================================================== */
+.unit-page .ing { display: flex; flex-direction: column; gap: 1.5rem; min-width: 0; }
+
+.unit-page .ing-intro {
+  margin: 0;
+  max-width: 720px;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.7;
+  color: var(--base-500);
+}
+.unit-page .ing-intro + .ing-intro { margin-top: -0.65rem; }
+
+.unit-page .ing-grid {
+  --ing-cols: 3;
+  display: grid;
+  grid-template-columns: repeat(var(--ing-cols), minmax(0, 1fr));
+  gap: 1.25rem 1.5rem;
+  margin: 0;
+  padding: 1.5rem;
+  list-style: none;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(158, 146, 104, 0.35);
+  border-radius: 1rem;
+}
+
+.unit-page .ing-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  min-width: 0;
+}
+.unit-page .ing-item .info-value-icon { margin-top: 0.1rem; }
+
+.unit-page .ing-copy { min-width: 0; }
+
+.unit-page .ing-name {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #4F2C22;
+}
+
+.unit-page .ing-desc {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  line-height: 1.55;
+  color: var(--base-500);
+}
+
+.unit-page .ing-toggle {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+  color: #663532;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.unit-page .ing-toggle:hover { color: #4F2C22; }
+.unit-page .ing-toggle-arrow {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  object-fit: initial; /* global svg { object-fit: cover } */
+  transition: transform 0.3s ease;
+}
+.unit-page .ing-toggle[aria-expanded="true"] .ing-toggle-arrow { transform: rotate(180deg); }
+
+.unit-page .ing-composition[hidden] { display: none; }
+.unit-page .ing-composition p {
+  margin: 0;
+  max-width: 900px;
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  line-height: 1.7;
+  color: var(--base-500);
+}
+
+/* Numbered steps */
+.unit-page .hts {
+  --hts-cols: 4;
+  display: grid;
+  grid-template-columns: repeat(var(--hts-cols), minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.unit-page .hts-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 1.25rem 1.35rem 1.4rem;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(158, 146, 104, 0.35);
+  border-radius: 1rem;
+}
+
+.unit-page .hts-num {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--base-300);
+}
+
+.unit-page .hts-label {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #4F2C22;
+}
+
+.unit-page .hts-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-supporting);
+  line-height: 1.6;
+  color: var(--base-500);
+}
+
+@media (max-width: 1279px) {
+  .unit-page .ing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .unit-page .hts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .unit-page .ing-grid { grid-template-columns: minmax(0, 1fr); padding: 1.25rem; }
+  .unit-page .hts { grid-template-columns: minmax(0, 1fr); }
+  .unit-page .hts-step { flex-direction: row; flex-wrap: wrap; align-items: baseline; column-gap: 0.9rem; }
+  .unit-page .hts-text { flex: 1 1 100%; }
 }
