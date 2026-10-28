@@ -305,45 +305,6 @@
   font-size: 1.5rem;
 }
 
-/* Play Button */
-.marquee-banner .reel-play {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.8);
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border-radius: 50%;
-  opacity: 0;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.marquee-banner .reel-play svg {
-  width: 24px;
-  height: 24px;
-  color: #fff;
-}
-
-.marquee-banner .reel-card:hover .reel-play {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.marquee-banner .reel-card-center .reel-play {
-  width: 70px;
-  height: 70px;
-}
-
-.marquee-banner .reel-card-center .reel-play svg {
-  width: 28px;
-  height: 28px;
-}
-
 /* Shine Effect */
 .marquee-banner .reel-shine {
   position: absolute;
@@ -666,16 +627,6 @@
   .marquee-banner .reel-content {
     padding: 0.75rem;
     gap: 0.4rem;
-  }
-
-  .marquee-banner .reel-play {
-    width: 40px;
-    height: 40px;
-  }
-
-  .marquee-banner .reel-play svg {
-    width: 18px;
-    height: 18px;
   }
 }
 
